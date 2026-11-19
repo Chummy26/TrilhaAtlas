@@ -42,10 +42,14 @@ export interface UsageEvent {
 	domain: string;
 	/** "tutor" | "grader" | "extractor" | "consolidator" | … (a ModelRole or job kind). */
 	op: string;
+	/** Purpose at dispatch. Older events may not carry it. */
+	background?: boolean;
+	/** Reserved tokens when a memory provider omitted usage. Budget accounting only. */
+	budgetEstimateTokens?: number;
 	connection: string;
 	provider: string;
 	model: string;
-	billing: BillingKind;
+	billing: BillingKind | "unknown";
 	inputTokens: number;
 	cachedTokens: number;
 	outputTokens: number;
@@ -72,6 +76,8 @@ export interface ActivityEvent {
 
 /** Renderer heartbeat period (§2.10). */
 export const HEARTBEAT_WINDOW_SEC = 30;
+/** Study renderer cadence (HANDOFF item 2); old 30-second events remain valid. */
+export const STUDY_HEARTBEAT_SEC = 60;
 /** Inactivity after which the learner no longer counts as active (§2.10). */
 export const IDLE_TIMEOUT_SEC = 120;
 

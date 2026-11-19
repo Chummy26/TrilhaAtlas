@@ -17,7 +17,12 @@ const { createTeacherAgent } = await import("../src/agent/teacher-agent.ts");
 const { handleChatRequest } = await import("../src/server/chat-handler.ts");
 const { chatStore } = await import("../src/store/chats.ts");
 const { switchStudyDomain, studyToday, studyProfile, recordStudyEvent } = await import("../src/server/study.ts");
-after(() => fs.rmSync(root, { recursive: true, force: true }));
+const { createMemoryService, HashEmbedder } = await import("../src/server/memory/index.ts");
+const memory = createMemoryService({ dataRoot: root, embedder: new HashEmbedder() });
+after(async () => {
+	await memory.close();
+	fs.rmSync(root, { recursive: true, force: true });
+});
 
 function log(domain: string): LearnerEvent[] {
 	const file = path.join(root, "domains", domain, "learner", "events.jsonl");
@@ -52,7 +57,10 @@ it("binds checks to their own lesson, recovers an interrupted append and credits
 		return handleChatRequest(new Request("http://local/api/chat", { method: "POST", body: JSON.stringify({
 			chatId: first.id, input: { type: "answer", toolCallId: "q" + i,
 				answer: { kind: "quiz", dontKnow: !values.length, answers, correct: false, latencyMs: 1234 } },
-		}) }), factory);
+		}) }), factory, undefined, async domain => {
+			await memory.open(domain);
+			return memory.get(domain)!;
+		});
 	}
 	assert.equal((await answer(0, ["B"])).status, 200);
 	assert.equal(log("electronics").length, 2);

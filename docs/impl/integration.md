@@ -18,21 +18,22 @@ This document records how the pure modules (curriculum, learner, lesson, progres
 | Lesson | Home → `begin(lesson)` → `POST /api/chats` | "Começar aula" binds the exposure to the created chat and saves the curriculum node as its graph context. |
 | Quiz checks | `src/server/chat-handler.ts`, `src/server/study.ts`, `src/server/study-log.ts` | The server grades the exact selection against the saved check. Each answered occurrence emits one MCQ evidence event for the curriculum node. Predict and dismissed cards do not count. A pending event is recovered from the durable chat on the next learner read or write. |
 | Didactics | `src/agent/prompts/teacher/22-cadence.md` | Checks happen per arc (2–4 steps), at most one question per message and three per node, with no filler. It replaces "one check per step". |
-| Profile | `/profile`, `studyProfile()` | Account level and XP, tier per domain by FSRS retention, tokens per model, and minutes per day over 14 days. |
+| Profile | `/profile`, `studyProfile()` | Account level and XP, tier per domain by FSRS retention, focused study minutes for the last 14 days, and all-time tokens by model. |
+| Study time | `StudyHeartbeat`, `POST /api/stats/activity` | The home graph, chats and flashcard review send up to 60 seconds per heartbeat. Losing focus or leaving the page flushes the partial interval. After 120 seconds without input, counting pauses until the next interaction. Playing video counts while the page has focus. |
+| Model usage | `src/server/study-usage.ts`, `profile/stats/usage-YYYY-MM.jsonl` | Each provider call records its model, domain at dispatch, operation and reported token counters. This includes tool rounds, side questions, compaction and background agents. Historical chat steps still contribute when they have no corresponding stats entry. |
+| Tutor memory | `src/server/memory/tutor.ts`, `src/server/chat-handler.ts` | Domain turns receive a bounded learner snapshot and relevant evidence from that domain's SQLite file. After a teaching turn is saved, its visible conversation is ingested and consolidated in the background. Practice reads the context. Geral keeps its original conversation flow. |
 
 ## Integration decisions (all can be revisited)
 
 1. **Self-check is weak evidence.** It is recorded with `format: "explain"`, `graderConfidence: 0.5`, `weight: 0.5` and its own item family (`#self`). It can attain a node but never master it alone, because mastery needs at least 2 distinct families and a delayed success.
 2. **"Já domino" is a diagnostic placement with p = 0.9.** The node unlocks its dependents but stays `inferred`, and the planner probes it later.
 3. **Spacing.** A node taught in the last 20 h is not suggested again as "new". Its consolidation comes from the delayed check the next day.
-4. **XP** uses the first graded quiz check per lesson. An exact answer earns grade 3 and full lesson credit. A wrong answer or “não sei” earns grade 0 and effort credit. Later checks update the learner. A lesson without a graded check can earn credit through its self-check. Minutes are the planned minutes until the focus heartbeat exists.
+4. **XP** uses the first graded quiz check per lesson. An exact answer earns grade 3 and full lesson credit. A wrong answer or “não sei” earns grade 0 and effort credit. Later checks update the learner. A lesson without a graded check can earn credit through its self-check. XP uses the lesson's planned minutes.
 5. **Tier core** is the leaves in teaching order, split into 7 stages by cumulative hours (`coreVersion = hours-7@<hash>`). Placements without an FSRS card count with R = 0.9.
-6. **Minutes per day** are estimated from turn timestamps: the gap between turns ≤ 10 min apart, plus 2 min per turn. Days with no chat fall back to the minutes of rated lessons.
+6. **Minutes per day** come from the union of measured intervals across windows. The profile splits time at local midnight. Days before measurement began show zero.
 
 ## Next steps (not connected yet)
 
-- **Focus heartbeat.** Send `ActivityEvent` from the renderer to `stats-store` every 60 s while the window is focused, and replace the minutes estimate with it. The UsageEvent hook in the provider (`src/server/pi/*`) is also missing.
-- **Context memory in turns.** `src/server/memory` (SQLite + FTS5 + e5) exists and is tested, but it is not yet injected into the tutor's context or fed by the extractor at the end of the turn.
 - **Resources per node.** YouTube (Data API BYOK) and open books exist in `src/server/resources`. A UI panel on the node and keys in Settings are still needed.
 - **End-of-session flashcards.** `plugins/flashcards` already has `export-service` (AnkiConnect, Obsidian, `.apkg`). It still needs the end-of-session trigger with the domain id.
 - **Model registry.** `src/core/models` (RoleSpec, resolve) is not used by the existing engines yet. Today the strong/cheap/vision slots still decide.

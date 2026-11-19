@@ -16,7 +16,8 @@ function compact(n: number): string {
 	return fmt.format(n);
 }
 
-function hours(min: number): string {
+function hours(minutes: number): string {
+	const min = Math.round(minutes);
 	if (min < 60) return `${min} min`;
 	return `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, "0")}`;
 }
@@ -108,7 +109,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 				<div className="mb-2 flex items-baseline gap-2">
 					<h2 className="cel-display text-lg">Tokens</h2>
 					<span className="ml-auto text-xs text-muted-foreground">
-						{compact(usage.totalTokens)} em {fmt.format(usage.turns)} turnos
+						{compact(usage.totalTokens)} em {fmt.format(usage.calls)} {usage.calls === 1 ? "chamada" : "chamadas"}
 					</span>
 				</div>
 				{usage.byModel.length === 0 ? (

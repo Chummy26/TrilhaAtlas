@@ -164,6 +164,8 @@ export interface SideChatThread {
 /** Persisted token accounting for one model call. Undefined means the
  * provider did not report that field; absence must not be interpreted as zero. */
 export interface CallUsage {
+	/** Already included in the profile's per-call usage log. */
+	recordedInStats?: true;
 	/** Pi-normalized fresh input tokens; cache buckets are disjoint. */
 	inputTokens: number | undefined;
 	outputTokens: number | undefined;

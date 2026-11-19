@@ -46,6 +46,8 @@ export interface TransformersEmbedderOptions {
 	allowRemoteModels?: boolean;
 	/** Texts per forward pass (default 32). */
 	batchSize?: number;
+	/** Let hybrid recall and grounded extraction proceed while the model warms up. */
+	loadWaitMs?: number;
 	/** Inject the module (tests, alternative builds). Default: dynamic import of @huggingface/transformers. */
 	loader?: () => Promise<TransformersModule>;
 }
@@ -64,6 +66,7 @@ export class TransformersEmbedder implements Embedder {
 	private readonly allowRemoteModels: boolean;
 	private readonly batchSize: number;
 	private readonly loader: () => Promise<TransformersModule>;
+	private readonly loadWaitMs?: number;
 	private pipe: Promise<FeaturePipeline> | null = null;
 
 	constructor(options: TransformersEmbedderOptions = {}) {
@@ -74,6 +77,7 @@ export class TransformersEmbedder implements Embedder {
 		this.allowRemoteModels = options.allowRemoteModels ?? true;
 		this.batchSize = options.batchSize ?? 32;
 		this.loader = options.loader ?? importTransformers;
+		this.loadWaitMs = options.loadWaitMs;
 		if (!Number.isInteger(this.dim) || this.dim < 1) throw new RangeError(`dimensão inválida: ${this.dim}`);
 		if (!Number.isInteger(this.batchSize) || this.batchSize < 1) throw new RangeError(`batchSize inválido: ${this.batchSize}`);
 		this.id = `transformers:${this.model}:${this.dtype}`;
@@ -102,7 +106,17 @@ export class TransformersEmbedder implements Embedder {
 
 	async embed(texts: readonly string[], kind: "query" | "passage"): Promise<Float32Array[]> {
 		if (texts.length === 0) return [];
-		const pipe = await this.pipeline();
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		let pipe: FeaturePipeline;
+		try {
+			const loading = this.pipeline();
+			pipe = this.loadWaitMs === undefined ? await loading : await Promise.race([
+				loading,
+				new Promise<never>((_, reject) => {
+					timer = setTimeout(() => reject(new MemoryError("embedder", "modelo local em carregamento")), this.loadWaitMs);
+				}),
+			]);
+		} finally { clearTimeout(timer); }
 		const prefix = kind === "query" ? "query: " : "passage: ";
 		const out: Float32Array[] = [];
 		for (let i = 0; i < texts.length; i += this.batchSize) {

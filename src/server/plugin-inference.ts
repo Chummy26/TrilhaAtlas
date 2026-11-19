@@ -82,8 +82,8 @@ export function createPluginInference(
 	const dependencies = (): Promise<PluginInferenceDeps> => {
 		check(signal);
 		if (injected) return Promise.resolve(injected);
-		return defaults ??= Promise.all([import("./model-catalog.ts"), import("../agent/models.ts"), import("./keys.ts")]).then(([catalog, models, keys]) => ({
-			catalog: catalog.modelCatalog, providerKeyPresent: keys.providerKeyPresent, engineForSpec: models.piEngineForSpec,
+		return defaults ??= Promise.all([import("./model-catalog.ts"), import("./study-usage.ts"), import("./keys.ts")]).then(([catalog, models, keys]) => ({
+			catalog: catalog.modelCatalog, providerKeyPresent: keys.providerKeyPresent, engineForSpec: (spec, background, lifecycle) => models.studyEngineForSpec("plugin", spec, background, lifecycle),
 		}));
 	};
 	const catalog = async (caller = signal) => {

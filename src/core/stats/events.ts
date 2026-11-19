@@ -17,7 +17,6 @@
  */
 
 import type { CallUsage } from "../contracts.ts";
-import type { BillingKind } from "../models/role-spec.ts";
 import { dayKey, toEpochMs } from "./dates.ts";
 import { IDLE_TIMEOUT_SEC, type ActivityEvent, type ActivityKind, type UsageEvent } from "./types.ts";
 
@@ -29,7 +28,7 @@ export interface UsageContext {
 	connection: string;
 	provider: string;
 	model: string;
-	billing: BillingKind;
+	billing: UsageEvent["billing"];
 	durationMs: number;
 	/** Zone used to derive `day`; UTC when omitted. Use the same zone as the stats reader. */
 	timeZone?: string;

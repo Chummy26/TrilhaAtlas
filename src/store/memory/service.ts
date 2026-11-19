@@ -56,6 +56,7 @@ export class DomainMemoryService implements MemoryService {
 	private readonly maxOpen: number;
 	/** Insertion order = recency order (most recent last). */
 	private readonly handles = new Map<string, MemoryDb>();
+	private readonly draining = new Map<string, Promise<void>>();
 	private activeId: string | null = null;
 	private closed = false;
 
@@ -75,6 +76,8 @@ export class DomainMemoryService implements MemoryService {
 
 	/** Open (or reuse) a domain's memory and make it the active one. */
 	async open(domainId: string): Promise<void> {
+		const pending = this.draining.get(domainId);
+		if (pending) await pending;
 		this.handle(domainId);
 		this.activeId = domainId;
 		await this.evict();
@@ -83,6 +86,17 @@ export class DomainMemoryService implements MemoryService {
 	/** The open handle of a domain, if any (viewer, tests, integration). */
 	get(domainId: string): MemoryDb | undefined {
 		return this.handles.get(domainId);
+	}
+
+	/** Used inside the host's synchronous session/source deletion block. */
+	forgetSessionsIfIdle(domainId: string, ids: readonly string[]): boolean {
+		if (this.closed || this.draining.has(domainId)) return false;
+		const open = this.handles.get(domainId);
+		if (open) return open.forgetSessionsIfIdle(ids);
+		const o = this.options;
+		const embedder = typeof o.embedder === "function" ? o.embedder(domainId) : o.embedder;
+		MemoryDb.forgetStoredSessions(o.dirFor(domainId), { domainId, embedder }, ids);
+		return true;
 	}
 
 	/** The active domain's handle; throws `not-open` before `open`. */
@@ -186,6 +200,10 @@ export class DomainMemoryService implements MemoryService {
 			victims.push(db);
 		}
 		for (const db of victims) this.handles.delete(db.domainId);
-		await Promise.all(victims.map((db) => db.close()));
+		await Promise.all(victims.map(db => {
+			const done = db.close().finally(() => this.draining.delete(db.domainId));
+			this.draining.set(db.domainId, done);
+			return done;
+		}));
 	}
 }

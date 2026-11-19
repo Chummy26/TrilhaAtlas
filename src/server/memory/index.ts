@@ -41,6 +41,8 @@ export interface MemoryServerOptions {
 	dataRoot: string;
 	/** Model call for the memory roles; omitted = no LLM work (record/recall/forget only). */
 	call?: MemoryLlmCall;
+	/** Bind delayed work to the domain which owns its SQLite file. */
+	callFor?: (domainId: string) => MemoryLlmCall;
 	/** Operations the LLM extractor performs (default: all). */
 	ops?: readonly MemoryOp[];
 	/** Default: multilingual-e5-small q8 cached in `profile/model-cache`. */
@@ -57,14 +59,16 @@ export interface MemoryServerOptions {
 
 export function createMemoryService(options: MemoryServerOptions): DomainMemoryService {
 	const root = options.dataRoot;
-	const embedder = options.embedder ?? new TransformersEmbedder({ cacheDir: modelCacheDir(root) });
+	const embedder = options.embedder ?? new TransformersEmbedder({ cacheDir: modelCacheDir(root), loadWaitMs: 200 });
 	const extractor = options.call
 		? createLlmExtractor({ call: options.call, ...(options.promptsDir ? { promptsDir: options.promptsDir } : {}), ...(options.ops ? { ops: options.ops } : {}) })
 		: undefined;
 	return new DomainMemoryService({
 		dirFor: (domainId) => memoryDir(root, domainId),
 		embedder,
-		...(extractor ? { extractorFor: () => extractor } : {}),
+		extractorFor: domainId => options.callFor
+			? createLlmExtractor({ call: options.callFor(domainId), ops: options.ops, promptsDir: options.promptsDir })
+			: extractor,
 		...(options.curriculumFor ? { curriculumFor: options.curriculumFor } : {}),
 		...(options.learnerFor ? { learnerFor: options.learnerFor } : {}),
 		...(options.profile ? { profile: options.profile } : {}),

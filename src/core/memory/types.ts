@@ -96,6 +96,8 @@ export interface RecallResult {
 
 export interface TurnInput {
 	sessionId: string;
+	/** Stable id of the durable transcript entry. A replay does not re-ingest it. */
+	sourceId?: string;
 	role: MessageRole;
 	text: string;
 	ts: number;

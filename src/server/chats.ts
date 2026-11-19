@@ -9,6 +9,8 @@ import { isTurnRunning } from "./turn-liveness.ts";
 import { clearTurnFailure } from "./turn-runs.ts";
 import { discardChatDeliveries } from "./jobs.ts";
 import { sideChats } from "./side-chat.ts";
+import { activeDomainId } from "../../config.ts";
+import { forgetTutorSessionsIfIdle } from "./memory/tutor.ts";
 
 /**
  * Server-side chat entries for the transport layer (app/api/chats*,
@@ -37,7 +39,8 @@ const WIND_DOWN_POLL_MS = 50;
 export type ChatDeleteOutcome =
 	| { ok: false; status: 404; code: "not_found"; error: string }
 	| { ok: false; status: 409; code: "turn_in_flight" | "jobs_running"; error: string; jobIds: string[] }
-	| { ok: false; status: 503; code: "extraction_winding_down"; error: string }
+	| { ok: false; status: 409; code: "domain_changed"; error: string }
+	| { ok: false; status: 503; code: "extraction_winding_down" | "memory_busy" | "memory_unavailable"; error: string }
 	| {
 			ok: true;
 			mode: ChatDeleteMode;
@@ -96,7 +99,18 @@ export function runningWorkBlocker(chatId: string): Extract<ChatDeleteOutcome, {
 	return null;
 }
 
+export function purgeChatMemoryIfIdle(chatIds: readonly string[]): Extract<ChatDeleteOutcome, { status: 503 }> | null {
+	try {
+		if (forgetTutorSessionsIfIdle(activeDomainId(), chatIds)) return null;
+		return { ok: false, status: 503, code: "memory_busy", error: "A memória de estudo está sendo atualizada. Tente novamente em instantes." };
+	} catch (error) {
+		console.error("[memory] session deletion failed", error);
+		return { ok: false, status: 503, code: "memory_unavailable", error: "Não foi possível concluir a limpeza da memória de estudo." };
+	}
+}
+
 export async function deleteChatSession(chatId: string, mode: ChatDeleteMode): Promise<ChatDeleteOutcome> {
+	const domain = activeDomainId();
 	if (!stores.chatStore.getChat(chatId)) {
 		return { ok: false, status: 404, code: "not_found", error: "No such session" };
 	}
@@ -120,9 +134,11 @@ export async function deleteChatSession(chatId: string, mode: ChatDeleteMode): P
 
 	// A result wake or a worker may have started during extraction wind-down.
 	// Recheck immediately before the synchronous purge, with no await gap.
+	if (domain !== activeDomainId()) return { ok: false, status: 409, code: "domain_changed", error: "O domínio da sessão mudou." };
 	const lateBlocker = runningWorkBlocker(chatId);
 	if (lateBlocker) return lateBlocker;
-
+	const memoryBlocker = purgeChatMemoryIfIdle([chatId]);
+	if (memoryBlocker) return memoryBlocker;
 	return finishChatDeletion(chatId, mode);
 }
 

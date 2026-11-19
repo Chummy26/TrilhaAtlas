@@ -47,7 +47,7 @@ Núcleo puro em `src/core/{domains,stats,models}/**`; I/O em `src/store/{domains
   `nodePrefix` único). `removeDomain` move para `domains/.trash/<id>-<stamp>` (recuperável) e recusa o domínio ativo.
 - **Stats**: arquivos por mês UTC de `at`; append = ler + anexar + `writeFileAtomicSync` (sem fallback in-place: perder um
   heartbeat é melhor que arriscar o mês); lote validado inteiro antes de gravar; linhas inválidas são puladas e contadas.
-  Horas = união dos intervalos `[at − min(activeSec, 30 s), at]` (duplicatas nunca contam duas vezes); sessão = gap ≤ 120 s.
+  O perfil soma a união dos intervalos medidos com janelas de até 60 s. Intervalos duplicados contam uma vez. Uma sessão agrupa intervalos separados por até 120 s.
   Heatmap: níveis por limiares em minutos 1/30/90/180 (180 = orçamento diário padrão).
 - **Papéis**: `strongest` em dois estágios (r5 §5.3 princípio 3): dentro de cada conexão manda a ordem do provedor
   (`lineRank` editável → recência na linha → `order`), entre conexões só metadados (reasoning → preço de saída como proxy
@@ -94,6 +94,5 @@ temporário), `platform-models` (cascata, todas as preferências com metadados s
 
 ## Integração pendente (fora deste módulo)
 - `src/core/index.ts`: reexportar `./domains/index.ts`, `./stats/index.ts`, `./models/index.ts` para `components/**`.
-- `src/server/{domains,stats}.ts`: compor os stores com a raiz de `config.ts`, rotas `GET /api/stats`, `POST /api/stats/activity`.
-- Hook do provider: chamar `usageEventFromCall` + `appendUsage` onde `CallUsage` é registrado.
+- O perfil já lê os registros de atividade e de uso. A rota `POST /api/stats/activity` recebe os intervalos do navegador e `src/server/study-usage.ts` registra o consumo por chamada. A consulta genérica `GET /api/stats` segue pendente.
 - Electron main: adapter `CredentialCipher` com `safeStorage` (exemplo no cabeçalho de `credential-store.ts`) e migração dos JSON em claro.

@@ -79,13 +79,23 @@ Este módulo implementa a SÍNTESE §2.3 (contrato `MemoryService`), §2.4(b)(d)
   - Os embeddings ficam num BLOB float32 com `CHECK(length = dim*4)`.
   - As entidades usam chave canônica exata, sem fusão fuzzy.
 
+## Integração com a aula
+
+O tutor monta a consulta a partir da última fala ou resposta do aluno e dos nós em foco. A montagem combina os canais de busca do domínio com o estado atual do currículo. O bloco entra na chamada ao modelo como contexto histórico e fica fora da transcrição salva. O teto é de 12 mil tokens estimados, reduzido conforme o espaço disponível no modelo escolhido.
+
+Quando a aula salva um turno, a memória registra as falas visíveis com um recibo por sessão e mensagem nativa. Reprocessar uma sessão recupera pendências sem duplicar as falas. A extração valida as citações na fonte e a consolidação atualiza os fatos e o modelo do aluno. O diário continua ligado ao encerramento de sessão. A prática consulta a memória do domínio e o modo Geral usa o fluxo original.
+
+As chamadas de fundo usam o modelo configurado para extração e o auditor para julgar conflitos, com a política de uso do provedor e o orçamento diário do domínio. Quando a conexão ou a cota impede a extração, as mensagens originais ficam no SQLite para uma tentativa posterior. A exclusão de uma sessão também remove suas falas e dados derivados da memória, inclusive na exclusão em lote pela biblioteca.
+
+O adaptador de consulta foi portado da integração TypeScript do Hindsight, com a licença preservada em `THIRD_PARTY_NOTICES.md`. A atualização do modelo mental usa as operações do DeepTutor já portadas no núcleo. Os testes de integração usam os critérios de recuperação entre sessões e atualização de conhecimento do LongMemEval e verificam o texto efetivamente recebido pelo modelo. [Hindsight, código-fonte](https://github.com/vectorize-io/hindsight/blob/f6038a742743243c2df4a90b5b0542715f320359/hindsight-integrations/eve/src/provider-core.ts#L159-L175) · [Hindsight, ACL 2026](https://aclanthology.org/2026.acl-demo.27/) · [DeepTutor, operações](https://github.com/HKUDS/DeepTutor/blob/4c1e000d8563c5ac3b231baaaf149dc4dc4d2406/deeptutor/services/memory/ops.py) · [LongMemEval, ICLR 2025](https://arxiv.org/abs/2410.10813)
+
 ## Como testar
 
 ```bash
-node scripts/run-tests.mjs "tests/memory-*.test.ts"
+node scripts/run-tests.mjs "tests/memory-*.test.ts" tests/tutor-memory-flow.test.ts
 ```
 
-São 46 testes em 5 arquivos, todos em diretórios temporários, com extrator falso e hash-embedder. O modelo transformers nunca é carregado.
+Os testes usam diretórios temporários e modelos injetados. `memory-turn-store` verifica migração, repetição e recuperação de falhas. `memory-background-call` verifica admissão e orçamento. `tutor-memory-flow` exercita a entrega entre aulas pelo agente real com provedor simulado.
 
 | Arquivo | O que testa |
 |---|---|

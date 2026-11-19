@@ -110,6 +110,8 @@ export type StepUsageCollector = (usage: Usage) => void;
 
 /** Per-request construction options (the handler wires all of these). */
 export interface AgentBuildOptions {
+	/** Ephemeral domain evidence; never joins the native chat or a tool result. */
+	studyMemory?: string;
 	/** Model + stream function — tests inject a scripted faux engine. */
 	engine?: PiEngine;
 	callPurpose?: { background: boolean };
@@ -284,7 +286,12 @@ function baseAgentOptions(kind: AgentKind, opts: AgentBuildOptions, tools: Agent
 		// UI-only markers (plan-block) drop, the app's id fields strip, and
 		// an abort's dangling question call gets its INTERRUPTED result. It
 		// must never throw (pi's convertToLlm contract).
-		convertToLlm: toLlmMessages,
+		convertToLlm: opts.studyMemory ? messages => {
+			const wire = toLlmMessages(messages);
+			// Pi requires the system message and tool declarations at position zero.
+			wire.splice(wire[0]?.role === "system" ? 1 : 0, 0, { role: "user", content: opts.studyMemory!, timestamp: 0 });
+			return wire;
+		} : toLlmMessages,
 		...(opts.contextUpdates ? { prepareNextTurnWithContext: ({ context }: { context: { messages: AgentMessage[] } }) => {
 			const messages = opts.contextUpdates!(context.messages);
 			return messages.length ? { messages } : undefined;

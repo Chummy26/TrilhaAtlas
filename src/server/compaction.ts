@@ -48,6 +48,7 @@ import {
 import { emit } from "../core/events.ts";
 import type { ChatStore } from "../core/ports.ts";
 import type { PiEngine } from "../agent/models.ts";
+import { chatStepUsage } from "./study-usage.ts";
 import { runSubagent } from "../agent/subagents/pi-run.ts";
 import { isTurnRunning } from "./turn-liveness.ts";
 
@@ -270,16 +271,7 @@ async function compact(deps: CompactionDeps, chatId: string): Promise<void> {
 			messageId: marker.id,
 			at: details.at,
 			model: deps.modelId,
-			steps: [
-				{
-					inputTokens: usage.input,
-					outputTokens: usage.output,
-					cacheReadTokens: usage.cacheRead,
-					cacheWriteTokens: usage.cacheWrite,
-					cacheWrite1hTokens: usage.cacheWrite1h ?? 0,
-					reasoningTokens: usage.reasoning ?? 0,
-				},
-			],
+			steps: [chatStepUsage(usage)],
 		});
 		// Notify-then-fetch: the record gained the marker (the client's
 		// dividers appear) and the status event ends the send gate.

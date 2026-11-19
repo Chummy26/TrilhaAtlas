@@ -42,9 +42,9 @@ export interface StudyProfile {
 	}[];
 	usage: {
 		totalTokens: number;
-		turns: number;
-		byModel: { model: string; tokens: number; input: number; output: number; cached: number; turns: number }[];
+		calls: number;
+		byModel: { model: string; tokens: number; input: number; output: number; cached: number; calls: number }[];
 	};
-	/** Active minutes per day (last 14 days), estimated from turn timestamps + lesson minutes. */
+	/** Active minutes per day (last 14 days), measured from focused activity intervals. */
 	days: { day: string; minutes: number }[];
 }

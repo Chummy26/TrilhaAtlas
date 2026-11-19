@@ -74,7 +74,6 @@ import {
 	type RecallContext,
 	type RecallResult,
 	type SourceMessage,
-	type SupersedeVerdict,
 	type TurnInput,
 } from "../../core/memory/types.ts";
 import { cosine, encodeVector, type Scored } from "../../core/memory/vector.ts";
@@ -209,6 +208,7 @@ export class MemoryDb implements DomainMemory {
 	private readonly title: string;
 	private catalog: MemoryCatalog;
 	private chain: Promise<unknown> = Promise.resolve();
+	private queuedWrites = 0;
 	private closed = false;
 	private lastError: string | null = null;
 	private readonly pendingEmbed = new Set<string>();
@@ -220,7 +220,7 @@ export class MemoryDb implements DomainMemory {
 	private readonly extractScheduled = new Set<string>();
 	private readonly observeScheduled = new Set<string>();
 
-	private constructor(dir: string, options: MemoryDbOptions) {
+	private constructor(dir: string, options: MemoryDbOptions, deletionOnly = false) {
 		if (!options.domainId) throw new MemoryError("invalid-input", "domainId é obrigatório");
 		if (!options.embedder || !(options.embedder.dim > 0)) throw new MemoryError("embedder", "embedder ausente ou com dimensão inválida");
 		this.domainId = options.domainId;
@@ -238,6 +238,12 @@ export class MemoryDb implements DomainMemory {
 		this.db = openSqlDriver(this.path);
 		try {
 			applyMemorySchema(this.db, this.domainId, this.clock());
+			if (deletionOnly) {
+				// Session forget resolves targets in SQL. A cold deletion should
+				// neither change embedding metadata nor schedule model work.
+				this.catalog = new MemoryCatalog(this.embedder.dim);
+				return;
+			}
 			const modelChanged = this.syncEmbeddingModel();
 			this.catalog = loadCatalog(this.db, this.embedder.dim, this.embedder.id);
 			for (const meta of this.catalog.items.values()) {
@@ -253,6 +259,22 @@ export class MemoryDb implements DomainMemory {
 	/** Open (creating if needed) `<dir>/memory.db` for one domain. */
 	static open(dir: string, options: MemoryDbOptions): MemoryDb {
 		return new MemoryDb(dir, options);
+	}
+
+	static forgetStoredSessions(dir: string, options: MemoryDbOptions, ids: readonly string[]): void {
+		if (!fs.statSync(path.join(dir, MEMORY_DB_FILE), { throwIfNoEntry: false })) return;
+		const db = new MemoryDb(dir, options, true);
+		try { db.forgetSessionsIfIdle(ids); }
+		finally { db.closed = true; db.db.close(); }
+	}
+
+	/** Refuse before touching any selected session when a queued write could
+	 * restore its contents. No awaits interleave the checks and the purge. */
+	forgetSessionsIfIdle(ids: readonly string[]): boolean {
+		const existing = ids.filter(id => this.hasSession(id));
+		if (existing.length && this.queuedWrites) return false;
+		for (const sessionId of existing) this.forgetNow({ sessionId }, "hard");
+		return true;
 	}
 
 	// ─── plumbing ────────────────────────────────────────────────────────────
@@ -276,10 +298,11 @@ export class MemoryDb implements DomainMemory {
 
 	/** Run `fn` after every previously scheduled step; failures are reported and re-thrown to the caller. */
 	private schedule<T>(op: string, fn: () => Promise<T> | T): Promise<T> {
+		this.queuedWrites++;
 		const run = this.chain.then(() => {
 			this.assertOpen();
 			return fn();
-		});
+		}).finally(() => { this.queuedWrites--; });
 		this.chain = run.then(
 			() => undefined,
 			(error: unknown) => this.report(op, error),
@@ -414,6 +437,7 @@ export class MemoryDb implements DomainMemory {
 	ingestTurn(t: TurnInput): string | null {
 		this.assertOpen();
 		if (!t || typeof t.sessionId !== "string" || t.sessionId.trim() === "") throw new MemoryError("invalid-input", "sessionId vazio");
+		if (t.sourceId !== undefined && (typeof t.sourceId !== "string" || !t.sourceId.trim())) throw new MemoryError("invalid-input", "sourceId vazio");
 		if (t.role !== "user" && t.role !== "assistant" && t.role !== "tool") throw new MemoryError("invalid-input", `papel inválido: ${String(t.role)}`);
 		if (typeof t.text !== "string") throw new MemoryError("invalid-input", "texto da fala ausente");
 		if (!Number.isFinite(t.ts)) throw new MemoryError("invalid-input", `instante inválido: ${t.ts}`);
@@ -421,13 +445,21 @@ export class MemoryDb implements DomainMemory {
 		if (!text) return null;
 		const nodeIds = [...new Set((Array.isArray(t.nodeIds) ? t.nodeIds : []).filter((n): n is string => typeof n === "string" && n.length > 0))];
 		const sessionId = t.sessionId;
+		const sourceId = t.sourceId;
+		// Most entries on recovery have already been imported. Avoid an
+		// unnecessary write transaction, embedding and extraction for them.
+		if (sourceId !== undefined && this.db.prepare("SELECT 1 FROM ingest_receipts WHERE session_id = ? AND source_id = ?").get(sessionId, sourceId)) return null;
 		const tokens = estimateTokens(text);
 		const seq = this.nextSeq(sessionId);
 		const id = newId("msg", t.ts);
 		const focus = this.focusOf(sessionId);
 		const newFocus = nodeIds.filter((n) => !focus.includes(n));
 
-		this.db.transaction(() => {
+		const inserted = this.db.transaction(() => {
+			if (sourceId !== undefined) {
+				const receipt = this.db.prepare("INSERT INTO ingest_receipts(session_id, source_id) VALUES (?, ?) ON CONFLICT DO NOTHING").run(sessionId, sourceId);
+				if (!receipt.changes) return false;
+			}
 			this.db.prepare("INSERT OR IGNORE INTO sessions(id, started_at) VALUES (?, ?)").run(sessionId, t.ts);
 			const fts = this.db.prepare("INSERT INTO fts(kind, ref_id, text) VALUES ('message', ?, ?)").run(id, text);
 			this.db
@@ -436,7 +468,9 @@ export class MemoryDb implements DomainMemory {
 			if (newFocus.length > 0) {
 				this.db.prepare("UPDATE sessions SET focus_nodes_json = ? WHERE id = ?").run(JSON.stringify([...focus, ...newFocus]), sessionId);
 			}
+			return true;
 		});
+		if (!inserted) return null;
 		this.sessionSeq.set(sessionId, seq);
 		if (newFocus.length > 0) this.sessionFocus.set(sessionId, [...focus, ...newFocus]);
 		const key = itemKey("message", id);
@@ -890,6 +924,15 @@ export class MemoryDb implements DomainMemory {
 		return !!this.db.prepare("SELECT 1 AS x FROM sessions WHERE id = ?").get(sessionId);
 	}
 
+	/** Process durable pending work after a turn; diary and closure belong to endSession. */
+	finishTurn(sessionId: string): Promise<void> {
+		return this.schedule("finishTurn", async () => {
+			if (!this.hasSession(sessionId)) return;
+			await this.extractPending(sessionId, true);
+			await this.consolidateNow({});
+		});
+	}
+
 	/**
 	 * Best-effort pipeline: a failing step (embedder offline, extractor or
 	 * consolidator returning garbage) never prevents the later steps, so the
@@ -1201,25 +1244,21 @@ export class MemoryDb implements DomainMemory {
 			picked.forEach((c, j) => pairs.push({ pairId: `p${i}.${j}`, i, old: recordOf(c.fact.id) }));
 		});
 		if (pairs.length === 0 || !this.extractor?.judge) return plans;
-		let verdicts: Map<string, SupersedeVerdict>;
-		try {
-			const out = await this.extractor.judge({
-				now,
-				pairs: pairs.map((p) => {
-					const f = facts[p.i] as GroundedFact;
-					return {
-						pairId: p.pairId,
-						newFact: { id: ids[p.i] as string, kind: f.kind, text: f.text, validFrom: f.validFrom, recordedAt: now },
-						oldFact: { id: p.old.id, kind: p.old.kind, text: p.old.text, validFrom: p.old.validFrom, recordedAt: p.old.recordedAt },
-					};
-				}),
-			});
-			this.recordUsage(out.usage);
-			verdicts = new Map(out.verdicts.map((v) => [v.pairId, v.verdict]));
-		} catch (error) {
-			this.report("judge", error);
-			return plans;
-		}
+		// A configured judge can be deferred by its model budget. Let the
+		// failure propagate before the extraction transaction marks the source done.
+		const out = await this.extractor.judge({
+			now,
+			pairs: pairs.map((p) => {
+				const f = facts[p.i] as GroundedFact;
+				return {
+					pairId: p.pairId,
+					newFact: { id: ids[p.i] as string, kind: f.kind, text: f.text, validFrom: f.validFrom, recordedAt: now },
+					oldFact: { id: p.old.id, kind: p.old.kind, text: p.old.text, validFrom: p.old.validFrom, recordedAt: p.old.recordedAt },
+				};
+			}),
+		});
+		this.recordUsage(out.usage);
+		const verdicts = new Map(out.verdicts.map((v) => [v.pairId, v.verdict]));
 		const closedIds = new Set<string>();
 		facts.forEach((f, i) => {
 			const plan = plans[i] as SupersessionPlan;

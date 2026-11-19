@@ -47,7 +47,6 @@ import {
 	IDLE_TIMEOUT_SEC,
 	type ActivityEvent,
 	type ActivityKind,
-	type BillingKind,
 	type TimeRange,
 	type UsageEvent,
 } from "./types.ts";
@@ -82,7 +81,7 @@ export interface ModelIdentity {
 	connection: string;
 	provider: string;
 	model: string;
-	billing: BillingKind;
+	billing: UsageEvent["billing"];
 }
 
 export interface UsageRow extends ModelIdentity, TokenTotals {

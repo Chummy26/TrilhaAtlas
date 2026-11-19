@@ -31,7 +31,7 @@
 
 import type { SqlDriver } from "./sql-driver.ts";
 
-export const MEMORY_SCHEMA_VERSION = 1;
+export const MEMORY_SCHEMA_VERSION = 2;
 
 export const MEMORY_PRAGMAS = `
 PRAGMA journal_mode = WAL;
@@ -70,6 +70,13 @@ CREATE TABLE IF NOT EXISTS messages(
 ) STRICT;
 CREATE INDEX IF NOT EXISTS ix_msg_pending ON messages(session_id, extracted, seq);
 CREATE INDEX IF NOT EXISTS ix_msg_ts ON messages(ts);
+
+-- Opaque source ids survive forgetting the content, so replay cannot restore it.
+CREATE TABLE IF NOT EXISTS ingest_receipts(
+	session_id TEXT NOT NULL,
+	source_id TEXT NOT NULL,
+	PRIMARY KEY(session_id, source_id)
+) STRICT, WITHOUT ROWID;
 
 CREATE TABLE IF NOT EXISTS episodes(
 	id TEXT PRIMARY KEY,
@@ -283,8 +290,8 @@ export class MemorySchemaError extends Error {
  */
 export function applyMemorySchema(db: SqlDriver, domainId: string, now: number): void {
 	db.exec(MEMORY_PRAGMAS);
-	db.exec(MEMORY_DDL);
 	db.transaction(() => {
+		db.exec(MEMORY_DDL);
 		const get = db.prepare("SELECT value FROM meta WHERE key = ?");
 		const put = db.prepare("INSERT INTO meta(key, value) VALUES (?, ?)");
 		const version = get.get("schema_version")?.value;
@@ -301,6 +308,9 @@ export function applyMemorySchema(db: SqlDriver, domainId: string, now: number):
 		if (owner !== domainId) {
 			throw new MemorySchemaError(`o banco ${db.path} pertence ao domínio "${String(owner)}", não a "${domainId}"`);
 		}
+		// v1 messages have no native source id. Keep them intact; only new
+		// imports can provide the identity needed for a receipt.
+		if (version === "1") writeMeta(db, "schema_version", String(MEMORY_SCHEMA_VERSION));
 	});
 }
 

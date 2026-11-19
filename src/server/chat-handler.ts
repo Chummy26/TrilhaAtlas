@@ -6,7 +6,8 @@ import {
 	type AgentBuildOptions,
 	type TeachingAgent,
 } from "../agent/teacher-agent.ts";
-import { piEngineForSpec, type PiEngine } from "../agent/models.ts";
+import { chatStepUsage, studyEngineForSpec } from "./study-usage.ts";
+import type { PiEngine } from "../agent/models.ts";
 import { connectionBackgroundAllowed as subscriptionBackgroundAllowed, connectionScopeCurrent, isSubscriptionProvider } from "../agent/subscription-connections.ts";
 import { nativeSubscriptionError } from "../agent/subscription-stream.ts";
 import { chatGPTStreamError } from "../agent/chatgpt-stream.ts";
@@ -14,7 +15,9 @@ import { SubscriptionRequestCycle, type SubscriptionDispatchLifecycle } from "..
 import { reconstructRequestCause } from "../core/native-messages.ts";
 import { createJobRunner } from "../agent/subagents/runner.ts";
 import { createExtractionPipeline } from "../agent/subagents/extraction.ts";
-import type { ModelRole } from "../../config.ts";
+import { activeDomainId, type ModelRole } from "../../config.ts";
+import { openTutorMemory, retainTutorTurn, tutorMemoryText } from "./memory/tutor.ts";
+import { estimateTokens as memoryTokens } from "../core/memory/tokens.ts";
 import {
 	deliverJobResult,
 	noteSteersDurable,
@@ -166,7 +169,7 @@ setTurnRunner(async (chatId, input) => {
  *  FRESH so a settings PUT between dispatch and spawn lands. */
 function resolveEngine(role: ModelRole): PiEngine | undefined {
 	const spec = resolveRoleSpec(role, stores.settingsStore.readSettings());
-	return spec ? piEngineForSpec(spec, true, undefined, retentionForSlot(ROLE_SLOT[role])) : undefined;
+	return spec ? studyEngineForSpec(role, spec, true, undefined, retentionForSlot(ROLE_SLOT[role])) : undefined;
 }
 
 /** Slot policy is independent of model overrides. Read fresh per operation,
@@ -186,6 +189,7 @@ export async function handleChatRequest(
 	req: Request,
 	buildAgent?: (opts: AgentBuildOptions & { teaching: boolean }) => TeachingAgent,
 	sideContext: Pick<SideChatService, "snapshot"> = sideChats,
+	openMemory = openTutorMemory,
 ): Promise<Response> {
 	let body: { chatId?: unknown; input?: unknown };
 	try {
@@ -204,7 +208,7 @@ export async function handleChatRequest(
 		}
 		throw err;
 	}
-	return handleChatInput(chatId, input, buildAgent, sideContext);
+	return handleChatInput(chatId, input, buildAgent, sideContext, openMemory);
 }
 
 /**
@@ -217,7 +221,9 @@ export async function handleChatInput(
 	input: TurnInput,
 	buildAgent?: (opts: AgentBuildOptions & { teaching: boolean }) => TeachingAgent,
 	sideContext: Pick<SideChatService, "snapshot"> = sideChats,
+	openMemory = openTutorMemory,
 ): Promise<Response> {
+	const domainId = activeDomainId();
 	await reconcilePluginQuestionCompatibility(stores.chatStore, chatId);
 	const initialRecord = stores.chatStore.getChat(chatId);
 	if (!initialRecord) {
@@ -337,8 +343,8 @@ export async function handleChatInput(
 	let conversationEngine: PiEngine;
 	let compactionEngine: PiEngine;
 	try {
-		conversationEngine = piEngineForSpec(conversation, () => callPurpose.background, lifecycle, retentionForSlot("strong"));
-		compactionEngine = piEngineForSpec(conversation, true, undefined, retentionForSlot("strong"));
+		conversationEngine = studyEngineForSpec("tutor", conversation, () => callPurpose.background, lifecycle, retentionForSlot("strong"));
+		compactionEngine = studyEngineForSpec("compaction", conversation, true, undefined, retentionForSlot("strong"));
 	}
 	catch { return Response.json({ error: conversation.provider === "chatgpt" ? chatGPTStreamError("model catalog") : isSubscriptionProvider(conversation.provider) ? nativeSubscriptionError(conversation.provider, "model catalog") : "The selected model is unavailable." }, { status: 503 }); }
 	const capturedPolicy = submissionImagePolicyKey(conversationEngine);
@@ -365,7 +371,8 @@ export async function handleChatInput(
 	const modelIdForCompaction = `${conversationEngine.model.provider}:${conversationEngine.model.id}`;
 	const contextWindow = catalogContextLimits().get(modelIdForCompaction);
 	const thresholdTokens = effectiveThresholdTokens(effective.compaction?.thresholdTokens, contextWindow);
-	const systemPromptTokens = Math.ceil(composeInstructions(record.kind === "practice" ? "practice" : "teacher").length / 4);
+	const promptKind = record.kind === "practice" ? "practice" : domainId && !hasProbeDone(record.messages) ? "prober" : "teacher";
+	let systemPromptTokens = Math.ceil(composeInstructions(promptKind, domainId ? effective.agent.prompts : undefined).length / 4);
 	const estimateModel = effective.compaction.includeReasoning ? conversationEngine.model : undefined;
 	const fitsSideContext = (messages: readonly LhMessage[]) => {
 		const live = messages.filter((message) => (message as { role: string }).role !== "system");
@@ -436,6 +443,7 @@ export async function handleChatInput(
 			console.error("[plugins] Agent contributions unavailable:", error);
 		}
 	}
+	if (domainId !== activeDomainId()) return new Response("O domínio da aula mudou.", { status: 409 });
 	const compactedRecord = stores.chatStore.getChat(chatId);
 	if (!compactedRecord) return Response.json({ error: "Unknown chat" }, { status: 404 });
 	record = compactedRecord;
@@ -450,7 +458,7 @@ export async function handleChatInput(
 			if (checkModel) {
 				const spec = resolveConversationSpec(record.settings, effectiveSettings().models.strong);
 				if (!spec || JSON.stringify(spec) !== capturedConversation) return false;
-				const checked = piEngineForSpec(spec, () => callPurpose.background, lifecycle, retentionForSlot("strong"));
+				const checked = studyEngineForSpec("tutor", spec, () => callPurpose.background, lifecycle, retentionForSlot("strong"));
 				if (submissionImagePolicyKey(checked) !== capturedPolicy || checked.level !== conversationEngine.level) return false;
 			}
 			assertPluginQuestionInputAllowed(record.messages, input);
@@ -560,6 +568,14 @@ export async function handleChatInput(
 			return new Response("Your input could not be saved. Please try again.", { status: 500 });
 		}
 		emit("record-changed", { chatId });
+		if (domainId && record.kind !== "practice") {
+			try {
+				const db = await openMemory(domainId);
+				const saved = domainId === activeDomainId() ? stores.chatStore.getChat(chatId) : null;
+				if (saved) retainTutorTurn(db, chatId, saved.messages);
+			}
+			catch { console.warn(`[memory ${domainId}] deferred until the next turn`); }
+		}
 		return settledTurnResponse(); // the cheap terminal — no beginTurn, no turn
 	}
 
@@ -630,15 +646,7 @@ export async function handleChatInput(
 	const turnUsageId = crypto.randomUUID();
 	const steps: CallUsage[] = [];
 	const collectUsage = (usage: Usage) => {
-		steps.push({
-			inputTokens: usage.input,
-			outputTokens: usage.output,
-			cacheReadTokens: usage.cacheRead,
-			cacheWriteTokens: usage.cacheWrite,
-			cacheWrite1hTokens: usage.cacheWrite1h ?? 0,
-			// Optional in pi's Usage — persisted as 0, never dropped.
-			reasoningTokens: usage.reasoning ?? 0,
-		});
+		steps.push(chatStepUsage(usage));
 	};
 
 	// AGENT CONSTRUCTION BRANCH (docs/archive/probe-teach-split.md §2): the transcript
@@ -653,6 +661,18 @@ export async function handleChatInput(
 	// engine build is pure from here; thinking levels clamp natively.
 	// (Built once above the compaction gate; reused verbatim.)
 	const engine = conversationEngine;
+	let memoryDb: Awaited<ReturnType<typeof openMemory>> | undefined;
+	let studyMemory = "";
+	if (domainId) {
+		try {
+			memoryDb = await openMemory(domainId);
+			const window = sideContextWindow(agentMessages, engine.model, contextWindow, input.type === "retry");
+			const capacity = window === undefined ? thresholdTokens : window - Math.min(COMPACTION_RESERVE_TOKENS, engine.model.maxTokens);
+			const used = projectedContextTokens(prospective, systemPromptTokens, estimateModel);
+			studyMemory = await tutorMemoryText(memoryDb, chatId, agentMessages, capacity - used - 8);
+			if (studyMemory) systemPromptTokens += memoryTokens(studyMemory) + 8;
+		} catch { console.warn(`[memory ${domainId}] turn context unavailable`); }
+	}
 	// Provider-qualified stamp (model slots wave): matches the price table's
 	// provider:id keys.
 	const modelId = `${engine.model.provider}:${engine.model.id}`;
@@ -680,6 +700,7 @@ export async function handleChatInput(
 	});
 	let pendingSideBudgetError: Error | undefined;
 	const agentOpts: AgentBuildOptions = {
+		studyMemory,
 		pluginContributions,
 		engine,
 		callPurpose,
@@ -872,6 +893,10 @@ export async function handleChatInput(
 				// merely because a local/provider refusal settled the running turn.
 				const admittedMessages = turnMessages.filter((message) => !tentativeSideIds.has((message as LhMessage).id) || admittedSideIds.has((message as LhMessage).id));
 				const stamped = persistTurn(stores.chatStore, chatId, persistBaseCount, admittedMessages, isAborted);
+				if (memoryDb && record.kind !== "practice") {
+					try { retainTutorTurn(memoryDb, chatId, stores.chatStore.getChat(chatId)?.messages ?? []); }
+					catch { console.warn(`[memory ${domainId}] retention deferred until the next turn`); }
+				}
 				noteSteersDurable(chatId, stores.chatStore.getChat(chatId)?.messages ?? stamped);
 				// usage log append (idempotent per turn id) — the stats bar
 				// refolds this on the client after the turn settles. The
@@ -935,7 +960,7 @@ export async function handleChatInput(
 						const spec = resolveConversationSpec(stores.chatStore.getChat(chatId)?.settings, fresh.models.strong);
 						if (!spec || !connectionBackgroundAllowed(spec.provider)) return null;
 						let kickEngine: PiEngine;
-						try { kickEngine = piEngineForSpec(spec, true, undefined, retentionForSlot("strong")); } catch { return null; }
+						try { kickEngine = studyEngineForSpec("compaction", spec, true, undefined, retentionForSlot("strong")); } catch { return null; }
 						const kickModelId = `${kickEngine.model.provider}:${kickEngine.model.id}`;
 						const freshRecord = stores.chatStore.getChat(chatId);
 						if (!freshRecord) return null;

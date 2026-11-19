@@ -35,6 +35,8 @@ import type { LearnerGraphView } from "../core/learner/graph-view.ts";
 import { emptySnapshot, foldEvents } from "../core/learner/fold.ts";
 import { DEFAULT_LEARNER_PARAMS } from "../core/learner/params.ts";
 import { planDay } from "../core/learner/planner.ts";
+import { buildPromptSnapshot } from "../core/learner/snapshot.ts";
+import { computeSignals } from "../core/learner/signals.ts";
 import type { Evidence, Grade, LearnerEvent, LearnerSnapshot, PlanItem } from "../core/learner/types.ts";
 import { learnerViewOf, nodeBrief, type StudyNodeBrief } from "../core/study/projection.ts";
 import type { StudyDomainList, StudyProfile, StudyToday } from "../core/study/types.ts";
@@ -42,7 +44,12 @@ import { lessonCredit } from "../core/progress/xp.ts";
 import { levelProgress } from "../core/progress/levels.ts";
 import { tierStanding } from "../core/progress/tiers.ts";
 import { retrievability } from "../core/learner/fsrs.ts";
-import { chatsDir } from "../core/domains/paths.ts";
+import { aggregateActivity, aggregateUsage, denseDailySeries } from "../core/stats/aggregate.ts";
+import { addDays, dayKey } from "../core/stats/dates.ts";
+import { parseActivityEvent } from "../core/stats/schema.ts";
+import { chatsDir, isUsableDomainId } from "../core/domains/paths.ts";
+import { STUDY_HEARTBEAT_SEC, WORKSPACE_SCOPE } from "../core/stats/types.ts";
+import { createStatsStore, type StatsStore } from "../store/stats-store.ts";
 import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents } from "./study-log.ts";
 import { gradeStudyQuiz } from "../core/study/quiz.ts";
 import { questionCallsOf, type LhMessage } from "../core/native-messages.ts";
@@ -83,6 +90,14 @@ export function studyDomains(): DomainsStore {
 		s.seeded = true;
 	}
 	return s.store;
+}
+
+export function recordStudyActivity(body: unknown): boolean {
+	const event = parseActivityEvent(body);
+	if (!event || event.activeSec > STUDY_HEARTBEAT_SEC) return false;
+	if (event.domain !== WORKSPACE_SCOPE && (!isUsableDomainId(event.domain) || !studyDomains().hasDomain(event.domain))) return false;
+	if (event.activeSec > 0) createStatsStore(PATHS.data).appendActivity(event);
+	return true;
 }
 
 export function listStudyDomains(): StudyDomainList {
@@ -287,6 +302,21 @@ function learnerSnapshotOf(id: DomainId, view: LearnerGraphView, events: readonl
 	}
 }
 
+export function studyLearnerPrompt(domainId: string) {
+	const store = studyDomains();
+	const manifest = store.readManifest(domainId);
+	const profile = store.readProfile(domainId);
+	const cur = manifest && loadCurriculum(domainId, manifest, profile?.goal.targetNodeIds);
+	if (!cur) return null;
+	const at = new Date().toISOString();
+	const snap = learnerSnapshotOf(domainId, cur.view, readStudyEvents(domainId), at);
+	const budgetMin = profile?.dailyBudgetMin ?? 180;
+	const signals = computeSignals(snap, cur.view, DEFAULT_LEARNER_PARAMS, at);
+	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin, signals });
+	const prompt = buildPromptSnapshot(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, plan, signals });
+	return { prompt, weak: prompt.weak.map(w => ({ nodeId: w.nodeId, weakness: signals.signals.get(w.nodeId)!.weakScore })) };
+}
+
 type NewEvent =
 	| { kind: "exposure"; nodeId: string; minutes: number }
 	| { kind: "self-check"; nodeId: string; grade: Grade; exposureId?: string; sessionId?: string }
@@ -420,32 +450,22 @@ export function studyToday(): StudyToday {
 
 // ─── profile ─────────────────────────────────────────────────────────────────
 
-/** Local calendar day (YYYY-MM-DD) of an instant. */
-function localDay(at: string | number): string {
-	const d = new Date(at);
-	return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
-}
-
 /**
  * XP = credited lesson minutes (progress/xp.ts lessonCredit): a lesson earns
  * XP from the first quiz check or, in its absence, the self-check — passed (grade >= 2) = full credit,
- * otherwise effort credit. Minutes are the lesson's planned minutes until the
- * focus heartbeat lands (next step).
+ * otherwise effort credit. XP uses the planned lesson minutes.
  */
-function domainXp(events: readonly LearnerEvent[]): { xp: number; lessons: number; minutesByDay: Map<string, number> } {
+function domainXp(events: readonly LearnerEvent[]): { xp: number; lessons: number } {
 	let xp = 0;
 	let lessons = 0;
-	const minutesByDay = new Map<string, number>();
 	for (const { exposure, rating } of ratedLessons(events).values()) {
 		if (!rating) continue;
 		const minutes = Math.min(exposure.minutes, 1440);
 		const credit = lessonCredit(minutes, minutes, rating.grade >= 2);
 		xp += credit.minutes * credit.multiplier;
 		lessons++;
-		const day = localDay(rating.at);
-		minutesByDay.set(day, (minutesByDay.get(day) ?? 0) + minutes);
 	}
-	return { xp: Math.round(xp), lessons, minutesByDay };
+	return { xp: Math.round(xp), lessons };
 }
 
 /** Seven tier stages = the curriculum's leaves in teaching order, cut by cumulative hours. */
@@ -485,11 +505,42 @@ function chatTurns(dirs: readonly string[]): TurnUsage[] {
 	return turns;
 }
 
+function profileUsage(stats: StatsStore, domainChatDirs: string[], until: string): StudyProfile["usage"] {
+	type Row = StudyProfile["usage"]["byModel"][number];
+	const models = new Map<string, Row>();
+	let totalTokens = 0;
+	let calls = 0;
+	function add(model: string, input: number, output: number, cached: number, count: number) {
+		const row = models.get(model) ?? { model, input: 0, output: 0, cached: 0, tokens: 0, calls: 0 };
+		row.input += input;
+		row.output += output;
+		row.cached += cached;
+		row.tokens += input + output + cached;
+		row.calls += count;
+		models.set(model, row);
+		totalTokens += input + output + cached;
+		calls += count;
+	}
+	const firstMonth = stats.listMonths("usage")[0];
+	if (firstMonth) {
+		const { events } = stats.readUsage({ from: firstMonth + "-01T00:00:00Z", to: until });
+		for (const row of aggregateUsage(events).byModel) {
+			add(row.provider + ":" + row.model, row.inputTokens, row.outputTokens, row.cachedTokens + row.cacheWriteTokens, row.calls);
+		}
+	}
+	// Preserve historical counters and calls where telemetry could not be written.
+	for (const turn of chatTurns([path.join(PATHS.data, "chats"), ...domainChatDirs])) {
+		for (const step of turn.steps ?? []) {
+			if (!step.recordedInStats) add(turn.model, step.inputTokens ?? 0, step.outputTokens ?? 0, (step.cacheReadTokens ?? 0) + (step.cacheWriteTokens ?? 0), 1);
+		}
+	}
+	return { totalTokens, calls, byModel: [...models.values()].sort((a, b) => b.tokens - a.tokens || a.model.localeCompare(b.model)) };
+}
+
 export function studyProfile(): StudyProfile {
 	const store = studyDomains();
 	const at = new Date().toISOString();
 	const domains: StudyProfile["domains"] = [];
-	const lessonMinutes = new Map<string, number>();
 	let totalXp = 0;
 	const listed = store.listDomains();
 	for (const summary of listed) {
@@ -499,7 +550,6 @@ export function studyProfile(): StudyProfile {
 		const events = readStudyEvents(summary.id);
 		const xp = domainXp(events);
 		totalXp += xp.xp;
-		for (const [day, m] of xp.minutesByDay) lessonMinutes.set(day, (lessonMinutes.get(day) ?? 0) + m);
 		let tier = { label: "Novato", pm: 0, fractions: [0, 0, 0, 0, 0, 0, 0] };
 		let attained = 0;
 		let mastered = 0;
@@ -527,50 +577,23 @@ export function studyProfile(): StudyProfile {
 		domains.push({ id: summary.id, title: manifest.title.pt, accent: manifest.accent, icon: manifest.icon, xp: xp.xp, lessons: xp.lessons, tier, attained, mastered, leaves });
 	}
 
-	const turns = chatTurns([path.join(PATHS.data, "chats"), ...listed.map((d) => chatsDir(PATHS.data, d.id))]);
-	const byModel = new Map<string, { model: string; tokens: number; input: number; output: number; cached: number; turns: number }>();
-	const turnTimes: number[] = [];
-	for (const turn of turns) {
-		const row = byModel.get(turn.model) ?? { model: turn.model, tokens: 0, input: 0, output: 0, cached: 0, turns: 0 };
-		for (const step of turn.steps ?? []) {
-			const input = step.inputTokens ?? 0;
-			const output = step.outputTokens ?? 0;
-			const cached = (step.cacheReadTokens ?? 0) + (step.cacheWriteTokens ?? 0);
-			row.input += input;
-			row.output += output;
-			row.cached += cached;
-			row.tokens += input + output + cached;
-		}
-		row.turns++;
-		byModel.set(turn.model, row);
-		const t = Date.parse(turn.at);
-		if (Number.isFinite(t)) turnTimes.push(t);
-	}
-	let totalTokens = 0;
-	for (const row of byModel.values()) totalTokens += row.tokens;
-
-	// Active time from turn timestamps: consecutive turns <= 10 min apart count
-	// their gap, every turn counts 2 min of reading. Days without chat activity
-	// fall back to the rated lessons' minutes (never both: no double count).
-	turnTimes.sort((a, b) => a - b);
-	const chatMinutes = new Map<string, number>();
-	for (let i = 0; i < turnTimes.length; i++) {
-		const t = turnTimes[i] as number;
-		const gap = i > 0 ? (t - (turnTimes[i - 1] as number)) / 60_000 : Infinity;
-		const day = localDay(t);
-		chatMinutes.set(day, (chatMinutes.get(day) ?? 0) + 2 + (gap <= 10 ? gap : 0));
-	}
-	const days: StudyProfile["days"] = [];
-	for (let k = 13; k >= 0; k--) {
-		const day = localDay(Date.now() - k * 86_400_000);
-		days.push({ day, minutes: Math.round(chatMinutes.get(day) ?? lessonMinutes.get(day) ?? 0) });
-	}
+	const stats = createStatsStore(PATHS.data);
+	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const until = new Date(Date.now() + 1).toISOString();
+	const today = dayKey(at, timeZone);
+	const startDay = addDays(today, -13);
+	const start = new Date(at);
+	start.setDate(start.getDate() - 13);
+	start.setHours(0, 0, 0, 0);
+	const range = { from: start.toISOString(), to: until };
+	const daily = aggregateActivity(stats.readActivity(range).events, { range, timeZone, windowSec: STUDY_HEARTBEAT_SEC });
+	const days = denseDailySeries(daily, startDay, today).map(d => ({ day: d.day, minutes: d.activeSec / 60 }));
 
 	const lp = levelProgress(totalXp);
 	return {
 		account: { level: lp.level, xp: totalXp, xpIntoLevel: Math.round(lp.xpIntoLevel), xpToNext: Math.round(lp.xpToNext), fraction: lp.fraction },
 		domains,
-		usage: { totalTokens, turns: turns.length, byModel: [...byModel.values()].sort((a, b) => b.tokens - a.tokens) },
+		usage: profileUsage(stats, listed.map(d => chatsDir(PATHS.data, d.id)), until),
 		days,
 	};
 }

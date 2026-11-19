@@ -14,7 +14,8 @@ import { collectCitations } from "../core/citations.ts";
 import { COMPACTION_RESERVE_TOKENS } from "../core/compaction.ts";
 import { resolveSideQuestionSpec } from "../core/settings-resolution.ts";
 import { modelsNotConfigured, providerKeyMissing as providerKeyMissingEnvelope } from "../core/settings.ts";
-import { piEngineForSpec, type PiEngine } from "../agent/models.ts";
+import { chatStepUsage, studyEngineForSpec } from "./study-usage.ts";
+import type { PiEngine } from "../agent/models.ts";
 import { isSubscriptionProvider } from "../agent/subscription-connections.ts";
 import { usageWasAdmitted } from "../agent/subscription-request-cycle.ts";
 import { composeSideChatInstructions, streamSideAnswer } from "../agent/side-chat.ts";
@@ -212,11 +213,7 @@ export function createSideChatService(deps: SideChatDeps): SideChatService {
 				}));
 				if (result.usage && usageWasAdmitted(result.usage) && engine.sideUsageAdmitted?.() !== false) {
 					try {
-						deps.chatStore.appendTurnUsage(chatId, { id: run.answerId, messageId: answer.id, at, model: run.model, steps: [{
-							inputTokens: result.usage.input, outputTokens: result.usage.output, cacheReadTokens: result.usage.cacheRead,
-							cacheWriteTokens: result.usage.cacheWrite, cacheWrite1hTokens: result.usage.cacheWrite1h ?? 0,
-							reasoningTokens: result.usage.reasoning ?? 0,
-						}] });
+						deps.chatStore.appendTurnUsage(chatId, { id: run.answerId, messageId: answer.id, at, model: run.model, steps: [chatStepUsage(result.usage)] });
 					} catch { /* deleted session has no usage destination */ }
 				}
 			} catch (error) {
@@ -271,7 +268,7 @@ async function productionEngineFor(record: ChatRecord): Promise<SideEngine | Res
 	if (!providerKeyPresent(spec.provider)) return Response.json(providerKeyMissingEnvelope(spec.provider, ["strong"]), { status: 503 });
 	try {
 		let denied = false;
-		const engine = piEngineForSpec(spec, false, { captured() {}, beforeDispatch() {}, noDispatch() { denied = true; } },
+		const engine = studyEngineForSpec("sideQuestion", spec, false, { captured() {}, beforeDispatch() {}, noDispatch() { denied = true; } },
 			() => stores.settingsStore.readSettings()?.models?.strong?.cacheRetention);
 		return { ...engine, sideUsageAdmitted: () => !denied };
 	} catch { return Response.json({ error: "The selected model is unavailable." }, { status: 503 }); }
