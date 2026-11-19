@@ -78,3 +78,13 @@ it("rejects unresolved region dependencies after a single repair and cancels bef
 		onProgress: done => { if (done === 1) controller.abort(); } }, async () => cancelled.engine), /abort/i);
 	assert.equal(cancelled.calls.length, 2);
 });
+
+it("gives the repair call the rejected draft and the location of an invalid assessment", async () => {
+	const bad = lessons(0);
+	const skill = { ...bad.skills[1], assessment: ["unique rejected assessment"] };
+	const draft = { skills: [bad.skills[0], skill, bad.skills[2]] };
+	const { engine, calls } = scripted([outline, draft, lessons(0), lessons(1), lessons(2)]);
+	await generateDomainCurriculum(input, async () => engine);
+	assert.match(calls[2]!, /skills\.1\.assessment/);
+	assert.match(calls[2]!, /unique rejected assessment/);
+});
