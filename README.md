@@ -6,7 +6,11 @@
   </picture>
 </p>
 
-<p align="center"><strong>An agent harness for learning.</strong></p>
+# TrilhaAtlas
+
+Aplicativo de estudos baseado no [learnharness](https://github.com/amosblomqvist/learnharness), com trilhas independentes de Inglês e Eletrônica. Explore o mapa completo, estude um capítulo ou vídeo na região correspondente e retome a aula pelo cartão **Hoje**.
+
+Consulte o [estado das integrações](docs/impl/integration.md), a [revisão das 809 habilidades de Eletrônica](docs/impl/auditoria-eletronica/README.md) e o [guia do projeto](AGENTS.md). As instruções e os links de distribuição do projeto de origem estão abaixo.
 
 <p align="center">
   <a href="https://learnharness.ai">Download</a> ·
