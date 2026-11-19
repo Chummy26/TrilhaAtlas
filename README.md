@@ -46,6 +46,17 @@ Study records live on your machine. AI calls send the relevant lesson context to
 - **Remembering beyond today’s lesson.** Roediger and Karpicke found that practicing retrieval improved delayed recall of prose passages in their experiments. The app uses short checks and schedules later reviews. [Test-Enhanced Learning](https://pubmed.ncbi.nlm.nih.gov/16507066/)
 - **Remembering earlier conversations.** Hindsight separates source experiences from derived observations. Its design informed how the tutor retrieves evidence from earlier conversations in the same domain. [Hindsight, ACL 2026](https://aclanthology.org/2026.acl-demo.27/)
 
+- **Gradually removing support.** Atkinson, Renkl and Merrill studied how fading worked-out steps and prompting learners to explain the underlying principle affects transfer. TrilhaAtlas moves from a worked example to a partially solved problem and then to independent practice. [Transitioning From Studying Examples to Solving Problems](https://doi.org/10.1037/0022-0663.95.4.774)
+- **Giving hints that support independent practice.** Bastani and colleagues compared forms of AI assistance in high-school mathematics. Their study informed the tutor’s use of targeted hints and a follow-up problem the learner solves independently. [Generative AI without guardrails can harm learning](https://doi.org/10.1073/pnas.2422633122)
+
+## Upstream and related projects
+
+- **Application base.** TrilhaAtlas is derived from Amos Blomqvist’s learnharness, including its study interface and agent infrastructure. [learnharness](https://github.com/amosblomqvist/learnharness)
+- **Code used.** The project uses ts-fsrs to schedule reviews and adapts Hindsight’s recall-query helper for retrieving relevant conversation evidence within a study domain. [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) · [Hindsight](https://github.com/vectorize-io/hindsight) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+- **Design references.** Open Mastery informed how the planner finds the next eligible skills. BloomTutor and DeepTutor informed how the tutor picks up a lesson from previous work. OpenMAIC informed how the tutor opens a specific passage in a linked reading. [Open Mastery](https://github.com/bxxd/open-mastery) · [BloomTutor](https://github.com/Li-Evan/BloomTutor) · [DeepTutor](https://github.com/HKUDS/DeepTutor) · [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC)
+
+See the project’s [pedagogy and memory notes](docs/impl/memoria-pedagogia.md) for how these references shaped the tutor.
+
 ## Contribute
 
 A concrete curriculum correction is a good first contribution. If a lesson assumes a skill you have not reached, open an issue with the domain, the two skill names and an example of the missing step. Reports about a misplaced chapter, an inaccessible video or a confusing map connection are also welcome. [Open an issue](https://github.com/Chummy26/TrilhaAtlas/issues) · [Contributing guide](CONTRIBUTING.md)
