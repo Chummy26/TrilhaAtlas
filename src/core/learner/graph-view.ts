@@ -38,6 +38,7 @@ export interface LearnerGraphNode {
 	version: number;
 	/** Studyable leaf (atom or unrefined stub). Containers are milestones, never taught. */
 	isLeaf: boolean;
+	reinforcementFor?: string;
 	parentId: NodeId | null;
 	children: readonly NodeId[];
 	/** EFFECTIVE clauses (OR of ANDs). */

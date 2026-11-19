@@ -17,6 +17,7 @@ export interface StudyToday {
 	domain: { id: string; title: string; accent: string; icon: string };
 	/** False when the domain has no curriculum yet. */
 	ready: boolean;
+	optionalPractice?: { id: string; title: string };
 	next: (PlanItem & { brief: StudyNodeBrief }) | null;
 	/** A lesson was started and not yet self-checked (≤ 3 days). */
 	pendingCheck: { sessionId: string; exposureId: string; nodeId: string; title: string; at: string } | null;

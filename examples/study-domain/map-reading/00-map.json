@@ -1,0 +1,160 @@
+{
+	"schemaVersion": 1,
+	"domainId": "map-reading",
+	"areaId": "mp",
+	"items": [
+		{
+			"id": "mp",
+			"parentId": null,
+			"kind": "domain",
+			"order": 0,
+			"title": {
+				"pt": "Leitura de mapas",
+				"en": "Map reading"
+			},
+			"summary": "Interpretar símbolos e relevo em uma carta topográfica.",
+			"level": {
+				"scheme": "generic",
+				"band": 0
+			},
+			"hours": {
+				"lo": 0.5,
+				"hi": 0.8
+			}
+		},
+		{
+			"id": "mp.terrain",
+			"parentId": "mp",
+			"kind": "area",
+			"order": 0,
+			"title": {
+				"pt": "Representação do relevo",
+				"en": "Terrain representation"
+			},
+			"summary": "Relacionar marcas gráficas à forma do terreno.",
+			"level": {
+				"scheme": "generic",
+				"band": 0
+			},
+			"hours": {
+				"lo": 0.5,
+				"hi": 0.8
+			}
+		},
+		{
+			"id": "mp.terrain.contours",
+			"parentId": "mp.terrain",
+			"kind": "unit",
+			"order": 0,
+			"title": {
+				"pt": "Curvas de nível",
+				"en": "Contour lines"
+			},
+			"summary": "Ler altura e declividade a partir de curvas.",
+			"level": {
+				"scheme": "generic",
+				"band": 0
+			},
+			"hours": {
+				"lo": 0.5,
+				"hi": 0.8
+			},
+			"anchors": [
+				{
+					"source": "usgs-topo-video",
+					"ref": "Lesson 8 · Map content and access",
+					"embeddable": false
+				}
+			]
+		},
+		{
+			"id": "mp.terrain.contours.height",
+			"parentId": "mp.terrain.contours",
+			"kind": "atom",
+			"order": 0,
+			"title": {
+				"pt": "Seguir uma curva de nível",
+				"en": "Trace a contour line"
+			},
+			"summary": "Compare dois pontos na mesma curva e justifique por que estão à mesma altitude.",
+			"level": {
+				"scheme": "generic",
+				"band": 0
+			},
+			"hours": {
+				"lo": 0.25,
+				"hi": 0.4
+			},
+			"objectives": [
+				"Compare dois pontos na mesma curva e justifique por que estão à mesma altitude."
+			],
+			"assess": [
+				"explain"
+			],
+			"anchors": [
+				{
+					"source": "usgs-symbols",
+					"ref": "What is a Topographic Map?",
+					"embeddable": false
+				}
+			]
+		},
+		{
+			"id": "mp.terrain.contours.slope",
+			"parentId": "mp.terrain.contours",
+			"kind": "atom",
+			"order": 1,
+			"title": {
+				"pt": "Comparar duas encostas",
+				"en": "Compare two slopes"
+			},
+			"summary": "Com a mesma escala e intervalo vertical, escolha a encosta mais íngreme pelo espaçamento entre curvas.",
+			"level": {
+				"scheme": "generic",
+				"band": 0
+			},
+			"hours": {
+				"lo": 0.25,
+				"hi": 0.4
+			},
+			"objectives": [
+				"Com a mesma escala e intervalo vertical, escolha a encosta mais íngreme pelo espaçamento entre curvas."
+			],
+			"assess": [
+				"explain"
+			],
+			"clauses": [
+				[
+					"mp.terrain.contours.height"
+				]
+			],
+			"anchors": [
+				{
+					"source": "usgs-symbols",
+					"ref": "What is a Topographic Map?",
+					"embeddable": false
+				}
+			]
+		}
+	],
+	"sources": [
+		{
+			"id": "usgs-symbols",
+			"title": "USGS · Topographic Map Symbols",
+			"url": "https://pubs.usgs.gov/gip/TopographicMapSymbols/topomapsymbols.pdf",
+			"license": "Publisher reference",
+			"usage": "reference",
+			"kind": "book",
+			"lang": "en"
+		},
+		{
+			"id": "usgs-topo-video",
+			"title": "USGS Trainings · U.S. Geological Survey Topographic Maps",
+			"url": "https://www.youtube.com/watch?v=TC7JpjL_Fok",
+			"license": "Publisher reference",
+			"usage": "reference",
+			"kind": "video",
+			"lang": "en"
+		}
+	]
+}

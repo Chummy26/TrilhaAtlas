@@ -36,6 +36,7 @@ function drawAtlas(
 	camera: Camera,
 	selected: string,
 	hovered: string | undefined,
+	current: string | undefined,
 ) {
 	const { width, height, ratio } = view;
 	const { zoom } = camera;
@@ -50,14 +51,14 @@ function drawAtlas(
 		const w = zone.width * zoom;
 		const h = zone.height * zoom;
 		if (x > width || y > height || x + w < 0 || y + h < 0) continue;
-		const color = tint(zone.color);
+		const color = "#74777a";
 		ctx.beginPath();
 		if (zone.heading === "area") {
 			ctx.roundRect(x, y, w, h, Math.min(24, w / 4, h / 4));
 			ctx.fillStyle = color + "0c";
 			ctx.fill();
 		} else {
-			ctx.arc(x + w / 2, y + h / 2, Math.min(w, h) / 2.4, 0, TAU);
+			ctx.roundRect(x, y, w, h, Math.min(12, w / 4, h / 4));
 			ctx.fillStyle = color + "13";
 			ctx.fill();
 		}
@@ -89,7 +90,7 @@ function drawAtlas(
 			ctx.lineTo(tx, ty);
 			ctx.lineTo(tx - vx * wing * 1.5 + vy * wing, ty - vy * wing * 1.5 - vx * wing);
 		}
-		ctx.strokeStyle = "#684e827f";
+		ctx.strokeStyle = "#60646a65";
 		ctx.lineWidth = 1.35;
 		ctx.stroke();
 	}
@@ -97,7 +98,7 @@ function drawAtlas(
 	function drawEdges(kind: SkillEdge["kind"], prominent: boolean) {
 		const isPre = kind === "prerequisite";
 		ctx.beginPath();
-		ctx.strokeStyle = isPre ? (prominent ? "#694c7a" : "#795a8d50") : kind === "related" ? (prominent ? "#477585" : "#4775853c") : (prominent ? "#797283" : "#79728340");
+		ctx.strokeStyle = isPre ? (prominent ? "#51565d" : "#85888d48") : kind === "related" ? (prominent ? "#687077" : "#767b8030") : (prominent ? "#797283" : "#79728340");
 		ctx.lineWidth = prominent ? 1.65 : 0.75;
 		ctx.setLineDash(kind === "related" ? [3, 4] : []);
 		for (const edge of layout.edges) {
@@ -145,11 +146,11 @@ function drawAtlas(
 		const node = nodes.get(point.id)!;
 		const radius = dotRadius(point, zoom);
 		const active = point.id === selected || point.id === hovered;
-		const color = tint(point.color);
-		if (active) {
+		const color = node.completed ? tint(point.color) : "#64676b";
+		if (active || point.id === current) {
 			ctx.beginPath();
 			ctx.arc(screen.x, screen.y, radius + 6.5, 0, TAU);
-			ctx.fillStyle = "#fae394";
+			ctx.fillStyle = "#f5f3f0";
 			ctx.fill();
 			ctx.strokeStyle = INK;
 			ctx.lineWidth = 1.5;
@@ -157,10 +158,10 @@ function drawAtlas(
 		}
 		if (node.inProgress || node.completed) {
 			ctx.beginPath();
-			ctx.arc(screen.x, screen.y, radius + 2.8, 0, TAU);
-			ctx.fillStyle = node.completed ? "#247e5a40" : "#f4cc8d";
+			ctx.arc(screen.x, screen.y, radius + (relativeZoom < 1.6 ? 1.5 : 2.8), 0, TAU);
+			ctx.fillStyle = node.completed ? color + "38" : "#e0e1e3";
 			ctx.fill();
-			ctx.strokeStyle = node.completed ? "#247e5a" : "#8c510d";
+			ctx.strokeStyle = node.completed ? color : "#4e5054";
 			ctx.lineWidth = 1.2;
 			if (!node.completed) ctx.setLineDash([2, 1.8]);
 			ctx.stroke();
@@ -177,7 +178,7 @@ function drawAtlas(
 		} else {
 			ctx.arc(screen.x, screen.y, radius, 0, TAU);
 		}
-		ctx.fillStyle = node.completed ? "#247e5a" : node.inProgress ? "#b6701b" : active ? "#f6bf52" : landmark || node.state === "available" ? color : color + "cc";
+		ctx.fillStyle = node.completed || landmark || node.state === "available" || active ? color : "#95989c";
 		ctx.fill();
 		if (landmark || active) {
 			ctx.strokeStyle = INK;
@@ -261,7 +262,7 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			frame = requestAnimationFrame(() => {
 				frame = 0;
 				if (camera.current) {
-					const visible = String(drawAtlas(ctx!, layout, nodes, view, camera.current, active.current, hovered));
+					const visible = String(drawAtlas(ctx!, layout, nodes, view, camera.current, active.current, hovered, map.position ?? map.next));
 					if (surface!.dataset.visibleNodeCount !== visible) surface!.dataset.visibleNodeCount = visible;
 					const mode = atOverview.current ? "overview" : "explore";
 					if (surface!.dataset.cameraMode !== mode) surface!.dataset.cameraMode = mode;
@@ -450,7 +451,7 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			cancelAnimationFrame(frame);
 			controls.current = null;
 		};
-	}, [layout, nodes, map.domain]);
+	}, [layout, nodes, map.domain, map.position, map.next]);
 
 	useEffect(() => {
 		active.current = selected;
@@ -474,8 +475,8 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			<div className="pointer-events-none absolute bottom-2 left-2 max-w-[calc(100%-1rem)] rounded-md bg-[#fffaf0] px-2 py-1 text-xs text-[#42394a]">
 				<p id={hintId}>{layout.points.size} nós · Arraste ou use as setas · Zoom com + e −</p>
 				<div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-					<span className="inline-flex items-center gap-1"><span aria-hidden="true" className="size-3 rounded-full border border-dashed border-[#8c510d] bg-[#f4cc8d]" />Em andamento</span>
-					<span className="inline-flex items-center gap-1"><span aria-hidden="true" className="size-3 rounded-full border border-[#247e5a] bg-[#b9ddc7]" />Concluído</span>
+					<span className="inline-flex items-center gap-1"><span aria-hidden="true" className="size-3 rounded-full border border-dashed border-neutral-700 bg-neutral-300" />Em andamento</span>
+					<span className="inline-flex items-center gap-1"><span aria-hidden="true" className="size-3 rounded-full border border-emerald-800 bg-gradient-to-r from-emerald-600 to-indigo-500" />Concluído</span>
 				</div>
 			</div>
 		</div>

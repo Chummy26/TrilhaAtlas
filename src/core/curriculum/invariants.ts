@@ -287,6 +287,12 @@ export function validateReport(snapshot: CurriculumSnapshot, opts: ValidateOptio
 					});
 			}
 		}
+		if (item.reinforcementFor) {
+			const target = sys.index.get(item.reinforcementFor);
+			if (item.kind !== "atom" || target === undefined || target === x || sys.children[target]!.length ||
+				sys.items[target]!.reinforcementFor || sys.parent[target] !== sys.parent[x])
+				errors.push({ code: "hierarchy", message: `Reforço ${id} precisa de uma habilidade irmã da trilha.`, witness: [id, item.reinforcementFor] });
+		}
 		if (item.kind === "atom" && sys.children[x]!.length > 0)
 			errors.push({ code: "hierarchy", message: `átomo ${id} tem filhos; átomos são folhas`, witness: [id, ...sys.children[x]!.map((c) => sys.ids[c]!)] });
 		if (rootId !== null && id !== rootId && !id.startsWith(`${rootId}.`))

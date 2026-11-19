@@ -75,6 +75,7 @@ export interface TriggerOptions {
 	stubRadius?: number;
 	/** Failures that make a weakness trigger (default 2). */
 	weaknessFailures?: number;
+	includeReviewWeakness?: boolean;
 }
 
 export interface TriggerInput {
@@ -199,7 +200,7 @@ export function computeTriggers(source: CurriculumSnapshot | CurriculumIndex, in
 	// 3. Weakness (and big stubs that keep failing).
 	for (const s of input.signals ?? []) {
 		const x = sys.index.get(s.nodeId);
-		if (x === undefined || !isLeaf(x) || known[x] === 1) continue;
+		if (x === undefined || !isLeaf(x) || (known[x] === 1 && !opts.includeReviewWeakness)) continue;
 		if (s.failures < opts.weaknessFailures && !s.missingConcept) continue;
 		const enabled = sys.clauses[x]!.some((alt) => alt.every((y) => known[y] === 1));
 		if (!enabled) continue;

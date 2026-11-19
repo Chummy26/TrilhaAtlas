@@ -70,7 +70,7 @@ export function attainedClosure(source: Source, attained: Iterable<string>): Uin
 		const x = sys.index.get(id);
 		if (x === undefined) continue;
 		if (sys.children[x]!.length === 0) known[x] = 1;
-		else for (const d of denseDescendants(sys, x)) if (sys.children[d]!.length === 0) known[d] = 1;
+		else for (const d of denseDescendants(sys, x)) if (sys.children[d]!.length === 0 && !sys.items[d]!.reinforcementFor) known[d] = 1;
 	}
 	for (let h = sys.treeOrder.length - 1; h >= 0; h--) {
 		const x = sys.treeOrder[h]!;
@@ -78,7 +78,7 @@ export function attainedClosure(source: Source, attained: Iterable<string>): Uin
 		if (kids.length === 0) continue;
 		let all = true;
 		for (const c of kids)
-			if (known[c] !== 1) {
+			if (known[c] !== 1 && !sys.items[c]!.reinforcementFor) {
 				all = false;
 				break;
 			}

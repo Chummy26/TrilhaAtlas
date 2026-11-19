@@ -1,6 +1,6 @@
 # Desktop builds and releases
 
-This is a maintainer reference. For installation and normal use, start with [Getting started](getting-started.md).
+This document describes the inherited desktop packaging pipeline. Use the source installation for TrilhaAtlas. Packaging targets below describe build outputs and do not imply that a TrilhaAtlas installer has been published. For installation and normal use, start with [Getting started](getting-started.md).
 
 ## Platforms and prerequisites
 
@@ -106,5 +106,3 @@ Shell, native-module, packaging/updater, or Electron changes warrant focused pla
 Packaged apps check at startup and every 24 hours by default, download automatically, and install on quit or Restart. **Settings → General** provides release notes, manual checks, status, and Automatic updates. Disabling automatic checks does not cancel downloads/staged installs; manual checks still download updates. Dev builds disable the updater. Errors go to `userData/logs/main.log`; `LH_UPDATE_FEED` is a test-only generic-feed override.
 
 Sources: [`electron/main.cjs`](../electron/main.cjs), [`preload.cjs`](../electron/preload.cjs), [`update-settings.tsx`](../components/settings/update-settings.tsx).
-
-After stable publication, [`notify-website.yml`](../.github/workflows/notify-website.yml) dispatches the tag to the website using `WEBSITE_DISPATCH_TOKEN`. Drafts/prereleases do not trigger it. HTTP 204 means the website update was queued, not deployed or publicly verified.

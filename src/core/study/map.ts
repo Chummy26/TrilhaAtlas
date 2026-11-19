@@ -12,6 +12,7 @@ export interface SkillNode {
 	order: number;
 	level: string;
 	leaf: boolean;
+	reinforcementFor?: string;
 	state: "available" | "known" | "locked" | "group";
 	inProgress: boolean;
 	completed: boolean;
@@ -38,6 +39,7 @@ export interface StudyMaterial {
 	suggested?: boolean;
 	bookKey?: string;
 	saved?: boolean;
+	linkOnly?: boolean;
 }
 
 export interface RegionMaterials {
@@ -60,7 +62,7 @@ export function skillMap(snapshot: CurriculumSnapshot, view: LearnerGraphView, l
 		const progress = learner.nodes[id];
 		const completed = Boolean(progress?.attainedAt || progress?.masteredAt || progress?.demonstratedAt);
 		return {
-			id, title: item.title.pt, parent: item.parentId, order: item.order, kind: item.kind,
+			id, title: item.title.pt, parent: item.parentId, order: item.order, kind: item.kind, reinforcementFor: item.reinforcementFor,
 			level: level.scheme === "cefr" ? level.cefr : level.scheme === "ee" ? ["Fundamentos", "Técnico", "Graduação", "Avançado", "Pesquisa"][level.band]! : String(level.band),
 			region: region.kind === "unit" ? region.id : null, leaf: graphNode.isLeaf,
 			state: state.known.has(id) ? "known" : !graphNode.isLeaf ? "group" : available.has(id) ? "available" : "locked",
@@ -73,7 +75,8 @@ export function skillMap(snapshot: CurriculumSnapshot, view: LearnerGraphView, l
 		if (node.leaf) return;
 		const children = view.nodes.get(node.id)!.children.map(id => byId.get(id)!);
 		for (const child of children) summarizeGroup(child);
-		node.completed = children.length > 0 && children.every(child => child.completed);
+		const required = children.filter(child => !child.reinforcementFor);
+		node.completed = required.length > 0 && required.every(child => child.completed);
 		node.inProgress = !node.completed && children.some(child => child.completed || child.inProgress);
 	}
 	for (const node of nodes) if (!node.parent) summarizeGroup(node);

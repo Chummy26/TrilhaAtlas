@@ -128,6 +128,8 @@ export interface CurriculumItem {
 	supersededBy?: string[];
 	/** Free tags (e.g. "core", "lab", "math-tool", "pronunciation"). */
 	tags?: string[];
+	/** Optional practice for a sibling skill. Excluded from canonical milestones. */
+	reinforcementFor?: string;
 }
 
 /** Non-gating relations stored alongside items. */
@@ -179,7 +181,7 @@ export type ExpansionOp =
 	| { op: "addSubdomain"; id: string; parentId: string; title: LocalizedText; items: NewItemSpec[] }
 	| { op: "retire"; item: string; reroute: { item: string; clause: string[] }[] }
 	| { op: "setHours"; item: string; hours: Hours }
-	| { op: "updateItem"; item: string; fields: Partial<Omit<CurriculumItem, "id" | "domainId" | "parentId" | "clauses" | "kind">> }
+	| { op: "updateItem"; item: string; fields: Partial<Omit<CurriculumItem, "id" | "domainId" | "parentId" | "clauses" | "kind" | "reinforcementFor">> }
 	| { op: "addEdge"; edge: CurriculumEdge };
 
 export type ValidationErrorCode =
@@ -296,5 +298,5 @@ export interface CurriculumSeedFile {
 	items: SeedItem[];
 	edges?: CurriculumEdge[];
 	/** Anchor sources consulted, with license notes. */
-	sources: { id: string; title: string; url?: string; license: string; usage: "reference" | "embedded" }[];
+	sources: { id: string; title: string; url?: string; license: string; usage: "reference" | "embedded"; kind?: "book" | "video"; lang?: string }[];
 }

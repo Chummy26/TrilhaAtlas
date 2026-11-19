@@ -1,5 +1,7 @@
 # Handoff — SOTA study app (branch `estudos-sota`)
 
+Historical snapshot. Current working rules are in the root AGENTS.md and current integrations in docs/impl/integration.md.
+
 Snapshot of 2026-11-19, written by the agent that planned, researched, built the modules and did the first integration. This file is self-contained. Read it first, then:
 
 1. `AGENTS.md`: mandatory project rules.
@@ -32,7 +34,7 @@ Snapshot of 2026-11-19, written by the agent that planned, researched, built the
 
 ## 2. Mandatory rules
 
-- **No guessing (`AGENTS.md`).** Every design or implementation decision belongs to the user. Use AskUserQuestion when anything is ambiguous: naming, behavior, data shape, UX, defaults, scope or prompt wording. Ask one question per call. The flow is plan, then approval, then mechanical implementation.
+- Follow the current root `AGENTS.md` for working rules and curriculum authoring.
 - **Next.js 16.4.3 is "not the Next you know".** Read the relevant guide in `node_modules/next/dist/docs/` before writing Next code.
 - **Import law** (`eslint.config.mjs`):
   - `components/**` imports only `@/src/core` (plus other components).
@@ -219,7 +221,7 @@ npm run dev
 ```
 Você vai continuar o desenvolvimento do app de estudos SOTA neste repositório (C:\Users\nicoolas\Pictures\learnharness, branch estudos-sota, base learnharness + Next.js 16).
 
-Antes de qualquer coisa leia, nesta ordem: docs/HANDOFF.md (contexto completo, pedido original do usuário, decisões, estado, gotchas), AGENTS.md (regras obrigatórias: não adivinhar decisões de design — pergunte com AskUserQuestion, uma pergunta por vez; plano → aprovação → implementação; leia node_modules/next/dist/docs antes de mexer em Next), docs/research/00-SINTESE.md (spec) e docs/impl/integration.md (o que está ligado e o que falta).
+Antes de qualquer coisa leia, nesta ordem: docs/HANDOFF.md (contexto completo, pedido original do usuário, decisões, estado, gotchas), AGENTS.md (regras obrigatórias: convenções atuais do repositório; leia node_modules/next/dist/docs antes de mexer em Next), docs/research/00-SINTESE.md (spec) e docs/impl/integration.md (o que está ligado e o que falta).
 
 Regras: responda em português do Brasil; respeite a lei de imports do eslint (components → só @/src/core; app → só barrels core/server; src/core puro); tabs; imports relativos com .ts; não faça commit sem pedir; não use Workflow nem fan-out de muitos agentes (o usuário está com cota limitada) — trabalhe direto e econômico; teste smoke com LH_DATA_DIR temporário, nunca com a pasta data/ real.
 

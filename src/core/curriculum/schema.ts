@@ -148,6 +148,7 @@ export const CurriculumItemSchema = z.object({
 	aliasOf: CurriculumIdSchema.optional(),
 	supersededBy: z.array(CurriculumIdSchema).optional(),
 	tags: z.array(z.string()).optional(),
+	reinforcementFor: CurriculumIdSchema.optional(),
 });
 
 export const EdgeKindSchema = z.enum(["also_in", "related", "confusable_with", "anchored_to", "covered_by"]);
@@ -205,6 +206,7 @@ export const UpdatableFieldsSchema = z.strictObject(
 		parentId: true,
 		clauses: true,
 		kind: true,
+		reinforcementFor: true,
 	}).partial().shape,
 );
 
@@ -212,7 +214,7 @@ export const UpdatableFieldsSchema = z.strictObject(
 export const ItemPayloadSchema = z.strictObject(CurriculumItemSchema.partial().shape);
 
 /** Keys an `updateItem` must never carry (identity/structure — r3 I1 ids imutáveis). */
-export const IMMUTABLE_ITEM_KEYS = ["id", "domainId", "parentId", "kind"] as const;
+export const IMMUTABLE_ITEM_KEYS = ["id", "domainId", "parentId", "kind", "reinforcementFor"] as const;
 
 export const ExpansionOpSchema = z.discriminatedUnion("op", [
 	z.strictObject({
@@ -315,6 +317,8 @@ export const CurriculumSeedFileSchema = z.strictObject({
 			url: z.string().optional(),
 			license: z.string(),
 			usage: z.enum(["reference", "embedded"]),
+			kind: z.enum(["book", "video"]).optional(),
+			lang: z.string().min(2).max(35).optional(),
 		}),
 	),
 });
@@ -372,6 +376,7 @@ export const ITEM_SHAPE_KEYS = [
 	"aliasOf",
 	"supersededBy",
 	"tags",
+	"reinforcementFor",
 ] as const;
 
 type Rec = Record<string, unknown>;
@@ -491,6 +496,7 @@ export function isCurriculumItemShape(v: unknown): boolean {
 		isProvenance(v.provenance) &&
 		optional(v.aliasOf, isId) &&
 		optional(v.supersededBy, isIdArray) &&
+		optional(v.reinforcementFor, isId) &&
 		optional(v.tags, isStrArray)
 	);
 }

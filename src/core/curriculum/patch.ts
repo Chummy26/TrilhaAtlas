@@ -639,7 +639,7 @@ function bigHoursChange(snapshot: CurriculumSnapshot, id: string, hours: Hours):
  * card. The envelope's own `risk` is the model's claim: the caller decides
  * auto-apply with THIS function, never with `envelope.risk`.
  */
-export function classifyRisk(snapshot: CurriculumSnapshot, env: Pick<PatchEnvelope, "ops">): { risk: "low" | "structural"; reasons: string[] } {
+export function classifyRisk(snapshot: CurriculumSnapshot, env: Pick<PatchEnvelope, "ops"> & Partial<Pick<PatchEnvelope, "itemPayloads">>): { risk: "low" | "structural"; reasons: string[] } {
 	const reasons: string[] = [];
 	const stable = (id: string) => snapshot.items[id]?.status === "stable";
 	for (const op of env.ops) {
@@ -649,7 +649,7 @@ export function classifyRisk(snapshot: CurriculumSnapshot, env: Pick<PatchEnvelo
 				reasons.push(`${describeOp(op)} é estrutural`);
 				break;
 			case "addItem":
-				if (stable(op.parentId)) reasons.push(`addItem ${op.id} altera o marco estável ${op.parentId}`);
+				if (stable(op.parentId) && !env.itemPayloads?.[op.id]?.reinforcementFor) reasons.push(`addItem ${op.id} altera o marco estável ${op.parentId}`);
 				break;
 			case "addAlternative":
 			case "addPrereq":

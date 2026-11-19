@@ -34,7 +34,7 @@ This document records how the pure modules (curriculum, learner, lesson, progres
 
 ## Skill tree and regional materials
 
-The Canvas shows the full active domain from the first frame. Node coordinates are independent of selection and progress. The overview summarizes prerequisite links between groups and the detailed view draws individual dependencies. Amber marks work in progress. Green marks directly attained skills or passed summative checkpoints. Diagnostic placement unlocks the route without awarding a completion marker. A region completes when every leaf completes.
+The Canvas shows the full active domain from the first frame. Node coordinates are independent of selection and progress. The overview summarizes prerequisite links between groups and the detailed view draws individual dependencies. Untouched skills are gray. A ring locates the current lesson, a dashed outline marks work in progress, and completed skills take their area color. Columns follow the authored curriculum, with neighboring areas and units grouped by prerequisite depth. Topic branches and their skills stay together within each unit. Diagnostic placement unlocks the route without awarding a completion marker. A region completes when every core leaf completes.
 
 The electronics release updates existing seeded curricula through their ledger. It preserves node IDs, learner evidence and local field edits. See the [pedagogical review and migration limits](auditoria-eletronica/README.md).
 
@@ -48,10 +48,16 @@ Opening an exploration saves a separate conversation and time spent. It preserve
 
 Hoje uses the saved goal to choose a route. If an overdue prerequisite on that route also shows repeated errors, its existing review slot becomes a reinforcement before the next new skill.
 
+## Optional reinforcement from lesson evidence
+
+After two distinct, graded quiz mistakes on a skill within 14 days, the server checks whether a prerequisite route is already available. A later correct check clears that streak. The background research model sees the two questions, selected answers and regional curriculum. It can decline or propose one short activity. Its response contains teaching content only. The server assigns identity, region and prerequisites, validates the patch and publishes it through the domain ledger under a write lock.
+
+Each target can receive one optional sibling. It inherits the target's entry routes, counts separately from core completion, and appears on the original skill and the daily card. The source goal and historical learner events are preserved. The shared background budget and provider permissions apply. An interrupted write is recovered from the ledger, and repeated visits reuse the same decision. Older checks remain valid learner evidence; automatic expansion uses checks with recorded question context.
+
 ## Next steps (not connected yet)
 - **End-of-session flashcards.** `plugins/flashcards` already has `export-service` (AnkiConnect, Obsidian, `.apkg`). It still needs the end-of-session trigger with the domain id.
 - **Model registry.** `src/core/models` (RoleSpec, resolve) is not used by the existing engines yet. Today the strong/cheap/vision slots still decide.
-- **Procedural expansion.** The patch ledger, `applyPatch`, `computeTriggers` and `classifyRisk` are ready, but the job that asks the `curriculum` role for patches is not connected.
+- **Broader procedural expansion.** Automatic regional reinforcement is connected. New domains, structural proposals, coverage-gap jobs and learner-requested extensions remain future work.
 
 - **Lean.** `formal/` is planned as CI only; Lean is not installed locally.
 - **Progress calibration.** `scripts/calibrate-progression.ts` still exits 1: the skimmer farmer reaches 0.71× (limit 0.7). This needs a rules v2 decision.

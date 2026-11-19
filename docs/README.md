@@ -1,6 +1,8 @@
-# Documentation
+# TrilhaAtlas documentation
 
 ## User guides
+
+- [Author a study domain](authoring-domains.md) — create regions, connect prerequisites and attach optional learning materials.
 
 - [Getting started](getting-started.md) — connections, models, sessions, dictation, files, and notes imports.
 - [Keyboard shortcuts](keyboard.md) — defaults, rebinding, and navigation.

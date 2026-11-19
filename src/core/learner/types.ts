@@ -133,6 +133,8 @@ export interface EvidenceNodeRef {
 export interface Evidence {
 	/** The lesson earning credit for this check (legacy logs omit it). */
 	lessonExposureId?: string;
+	/** Bounded visible quiz text used to diagnose repeated mistakes. */
+	quizContext?: { question: string; answer: string; expected?: string };
 	id: string;
 	/** Monotonic sequence inside the domain log. */
 	seq: number;

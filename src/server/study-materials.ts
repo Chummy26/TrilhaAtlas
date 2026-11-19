@@ -176,6 +176,20 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 	const allNodes = view.ids.map(key => snapshot.items[key]!);
 	const members = allNodes.filter(n => ids.has(n.id));
 	const materials = regionalReading(domain, members);
+	const sources = curriculumSources(domain);
+	const authored = new Map<string, StudyMaterial>();
+	for (const node of members) {
+		for (const anchor of node.anchors) {
+			const source = sources.get(anchor.source);
+			if (!source?.kind || !source.url || !/^https:\/\//i.test(source.url)) continue;
+			const key = JSON.stringify([source.id, anchor.ref]);
+			const material = authored.get(key) ?? { kind: source.kind, title: source.title, part: anchor.ref,
+				url: source.url, lang: source.lang ?? "", nodes: [], linkOnly: true };
+			if (!material.nodes.includes(node.id)) material.nodes.push(node.id);
+			authored.set(key, material);
+		}
+	}
+	materials.push(...authored.values());
 	materials.push(...videos.filter(v => v.nodes.some(key => ids.has(key))).map(m => ({ ...m, nodes: [...m.nodes] })));
 	const videoSearch = !!keyValue("YOUTUBE_API_KEY");
 	const cache = new FileTtlCache(path.join(resourcesDir(PATHS.data, domain), "discoveries"));
@@ -291,7 +305,7 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	const materials = regionMaterials.materials.filter(m => m.nodes.includes(id)).sort((a,b) => Number(!!a.suggested)-Number(!!b.suggested));
 	let excerpt = "";
 	const book = materials.find(m => m.kind === "book");
-	if (withReading && book) excerpt = await excerptFor(domain, book).catch(() => "");
+	if (withReading && book && !book.linkOnly) excerpt = await excerptFor(domain, book).catch(() => "");
 	if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
 	const { route, missing } = node.isLeaf ? lessonRoute(domain,view,events,id) : { route: [], missing: [] };
 	return { brief, minutes, sessionId: main?.kind === "exposure" ? main.sessionId : undefined, explorationId: side?.kind === "exposure" ? side.sessionId : undefined, regionMaterials, materials, excerpt, route, missing };

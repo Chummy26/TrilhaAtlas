@@ -36,7 +36,7 @@ interface OverviewLink {
 }
 
 const STEP = 38;
-const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
 const GAP = 26;
 const PADDING = 22;
 
@@ -119,14 +119,68 @@ export function layoutSkillMap(input: readonly SkillNode[]) {
 		const units = [...regions].sort(([a], [b]) => a && b ? compareNodes(byId.get(a)!, byId.get(b)!) : Number(Boolean(b)) - Number(Boolean(a))).map(([region, members]) => {
 			const children = members.filter(node => node.id !== region)
 				.sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0) || compareNodes(a, b));
-			const radius = STEP * 0.58 * Math.sqrt(children.length);
-			const diameter = Math.max(88, 2 * radius + 2 * PADDING);
-			return { id: region, children, width: diameter, height: diameter };
-		});
-		const packed = pack(units, 1.8);
-		return { id, units, packed, width: Math.max(170, packed.width + PADDING * 2), height: packed.height + 78 };
+			const memberIds = new Set(children.map(n => n.id));
+			const branches = new Map<string, SkillNode[]>();
+			for (const child of children) {
+				const branch = child.parent && memberIds.has(child.parent) ? child.parent : child.id;
+				const list = branches.get(branch) ?? [];
+				list.push(child);
+				branches.set(branch, list);
+			}
+			const orderedBranches = [...branches.values()].sort((a, b) => (rank.get(a[0]!.id) ?? 0) - (rank.get(b[0]!.id) ?? 0));
+			const runs: SkillNode[][] = [];
+			let sequence: SkillNode[] = [];
+			for (const branch of orderedBranches) {
+				if (branch.length === 1) sequence.push(branch[0]!);
+				else {
+					if (sequence.length) runs.push(sequence);
+					runs.push(branch);
+					sequence = [];
+				}
+			}
+			if (sequence.length) runs.push(sequence);
+			const positions = new Map<string, { x: number; y: number }>();
+			let row = 0;
+			let columns = 1;
+			for (const run of runs) {
+				const ordered = run.sort((a, b) => Number(b.kind === "topic") - Number(a.kind === "topic") || (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0) || compareNodes(a,b));
+				for (const [j, n] of ordered.entries()) {
+					const turn = Math.floor(j / 6);
+					const col = turn % 2 === 0 ? j % 6 : 5 - j % 6;
+					positions.set(n.id, { x: col * STEP, y: (row + turn) * STEP + Math.sin(col * Math.PI / 3) * STEP * 0.2 });
+				}
+				row += Math.ceil(run.length / 6);
+				columns = Math.max(columns, Math.min(run.length, 6));
+			}
+			const depths = children.map(n => rank.get(n.id) ?? 0);
+			return { id: region, children, positions, depth: Math.min(...depths),
+				width: Math.max(145, (columns - 1) * STEP + PADDING * 2), height: Math.max(85, row * STEP + 44) };
+		}).sort((a, b) => a.depth - b.depth);
+		const packed = pack(units, 1.65);
+		const depths = units.flatMap(u => u.children.filter(n => n.leaf).map(n => rank.get(n.id) ?? 0)).sort((a,b) => a-b);
+		return { id, units, packed, depth: depths[Math.floor(depths.length / 2)] ?? 0,
+			width: Math.max(200, packed.width + PADDING * 2), height: packed.height + 78 };
 	});
-	const packed = pack(groups, 2.5);
+	// Place regions of similar prerequisite depth together. Fold each column vertically
+	// so the whole domain still fits at overview zoom.
+	const columnCount = Math.max(1, Math.ceil(Math.sqrt(groups.length)));
+	const perColumn = Math.ceil(groups.length / columnCount);
+	let left = 0;
+	let tallest = 0;
+	const boxes: Box[] = [];
+	for (let start = 0; start < groups.length; start += perColumn) {
+		let y = 0;
+		const column = groups.slice(start, start + perColumn);
+		// Preserve the authored foundation at the top of its column, then cluster by dependency depth.
+		const ordered = [column[0]!, ...column.slice(1).sort((a,b) => a.depth - b.depth)];
+		for (const group of ordered) {
+			boxes[groups.indexOf(group)] = { x: left, y, width: group.width, height: group.height };
+			y += group.height + GAP;
+		}
+		tallest = Math.max(tallest, y - GAP);
+		left += Math.max(...column.map(g => g.width)) + GAP * 2;
+	}
+	const packed = { boxes, width: Math.max(0, left - GAP * 2), height: tallest };
 	const top = 92 + Math.floor(Math.max(0, roots.length - 1) / 10) * STEP;
 	const width = Math.max(440, packed.width + PADDING * 2);
 	const height = Math.max(200, packed.height + top + PADDING);
@@ -152,16 +206,23 @@ export function layoutSkillMap(input: readonly SkillNode[]) {
 			if (unit.id) {
 				zones.push({ ...inner, x: left, y: upper, id: unit.id, color, heading: "unit" });
 				const heading = byId.get(unit.id)!;
-				if (!points.has(heading.id)) place(heading, left + inner.width / 2, upper + inner.height / 2, color);
+				if (!points.has(heading.id)) place(heading, left + PADDING, upper + 16, color);
 			}
-			for (const [index, node] of unit.children.entries()) {
-				const angle = index * GOLDEN_ANGLE + i * GOLDEN_ANGLE;
-				const distance = STEP * 0.58 * Math.sqrt(index + 1);
-				place(node, left + inner.width / 2 + Math.cos(angle) * distance, upper + inner.height / 2 + Math.sin(angle) * distance, color);
+			for (const node of unit.children) {
+				const offset = unit.positions.get(node.id)!;
+				place(node, left + PADDING + offset.x, upper + 50 + offset.y, color);
 			}
 		}
 	}
 
+	// Make room for regional titles in the overview while keeping coordinates
+	// independent of screen size, zoom and learner state.
+	const stretch = Math.max(1, Math.min(1.7, 1.55 * height / width));
+	for (const point of points.values()) point.x *= stretch;
+	for (const zone of zones) {
+		zone.x *= stretch;
+		zone.width *= stretch;
+	}
 	const edges: SkillEdge[] = [];
 	const areaSources = new Map<string, Map<string, number>>();
 	const regionSources = new Map<string, Map<string, number>>();
@@ -213,7 +274,7 @@ export function layoutSkillMap(input: readonly SkillNode[]) {
 			}
 		}
 	}
-	return { points, edges, overviewLinks, zones, width, height };
+	return { points, edges, overviewLinks, zones, width: width * stretch, height };
 }
 
 export type SkillLayout = ReturnType<typeof layoutSkillMap>;

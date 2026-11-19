@@ -1,4 +1,10 @@
-# Third-party notices
+# TrilhaAtlas attributions and third-party notices
+
+## Application and curriculum
+
+TrilhaAtlas is a modified version of Amos Blomqvist’s learnharness. This project adds domain curricula, a skill atlas, regional study materials, evidence-driven reinforcement and domain-specific tutor memory. The application is distributed under the GNU Affero General Public License v3.0. The public example curricula in `content/curricula` carry their own CC BY-SA 4.0 license. Linked publications and videos retain their publishers’ terms. [Upstream source](https://github.com/amosblomqvist/learnharness) · [Application license](LICENSE) · [Curriculum license](content/curricula/LICENSE)
+
+## Hindsight
 
 The tutor's bounded recall query in `src/server/memory/tutor.ts` adapts `buildRecallQuery` from [Hindsight's Eve adapter](https://github.com/vectorize-io/hindsight/blob/f6038a742743243c2df4a90b5b0542715f320359/hindsight-integrations/eve/src/provider-core.ts#L159-L175).
 

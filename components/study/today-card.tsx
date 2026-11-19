@@ -61,6 +61,7 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 	}, []);
 	useEffect(read, [read]);
 	useServerEvent("domain-changed", read);
+	useServerEvent("curriculum-expanded", read);
 
 	const post = async (body: Record<string, unknown>): Promise<boolean> => {
 		setPending(true);
@@ -148,6 +149,9 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 			) : (
 				<p className="cel-display text-base">Por hoje é isso. Volte amanhã para as revisões.</p>
 			)}
+			{today.optionalPractice && <Link className="mt-2 block text-sm underline" href={`/mapa?dominio=${encodeURIComponent(today.domain.id)}&no=${encodeURIComponent(today.optionalPractice.id)}`}>
+				Reforço opcional · {today.optionalPractice.title}
+			</Link>}
 		</section>
 	);
 }

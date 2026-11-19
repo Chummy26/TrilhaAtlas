@@ -25,7 +25,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { activeDomainId, PATHS, setActiveDomainId } from "../../config.ts";
-import { applySeedFiles } from "../core/curriculum/ledger.ts";
 import { hoursMid } from "../core/curriculum/hours.ts";
 import type { CurriculumSeedFile, CurriculumSnapshot } from "../core/curriculum/types.ts";
 import { activeDomainFile, curriculumDir } from "../core/domains/paths.ts";
@@ -53,12 +52,12 @@ import { STUDY_HEARTBEAT_SEC, WORKSPACE_SCOPE } from "../core/stats/types.ts";
 import { createStatsStore, type StatsStore } from "../store/stats-store.ts";
 import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents } from "./study-log.ts";
 import { gradeStudyQuiz } from "../core/study/quiz.ts";
+import { failedChecks, queueReinforcements } from "./study-expansion.ts";
 import { skillMap } from "../core/study/map.ts";
 import { questionCallsOf, type LhMessage } from "../core/native-messages.ts";
 import type { TurnUsage } from "../core/contracts/chat.ts";
-import { writeFileAtomicSync } from "../store/atomic-write.ts";
 import { createDomainsStore, type DomainsStore } from "../store/domains-store.ts";
-import { electronicsCurriculumStamp, loadElectronicsCurriculum } from "./curriculum-migration.ts";
+import { electronicsCurriculumStamp, loadDomainCurriculum } from "./curriculum-migration.ts";
 import { anyTurnRunning } from "./turn-liveness.ts";
 
 export class StudyError extends Error {
@@ -175,55 +174,28 @@ function seedFilesOf(id: DomainId): CurriculumSeedFile[] {
  */
 export function loadCurriculum(id: DomainId, manifest: DomainManifest, goals: readonly string[] = []): { snapshot: CurriculumSnapshot; view: LearnerGraphView } | null {
 	const dir = curriculumDir(PATHS.data, id);
-	const snapshotFile = path.join(dir, "snapshot.json");
 	const cache = state().curricula;
-	if (id === "electronics") {
-		const stamp = electronicsCurriculumStamp(dir);
-		const hit = cache.get(id);
-		if (hit?.stamp === stamp) {
-			return goals.length === 0 ? hit : { snapshot: hit.snapshot, view: learnerViewOf(hit.snapshot, goals) };
-		}
-		const loaded = loadElectronicsCurriculum(dir, manifest.edgeMode, () => seedFilesOf(id));
-		if (!loaded) return null;
-		const entry = { ...loaded, view: learnerViewOf(loaded.snapshot) };
-		cache.set(id, entry);
-		return goals.length === 0 ? entry : { snapshot: loaded.snapshot, view: learnerViewOf(loaded.snapshot, goals) };
-	}
-	let stat: fs.Stats | null = null;
-	try {
-		stat = fs.statSync(snapshotFile);
-	} catch {
-		stat = null;
-	}
-	if (stat) {
-		const hit = cache.get(id);
-		if (hit && hit.stamp === stat.mtimeMs && goals.length === 0) return hit;
-		const snapshot = JSON.parse(fs.readFileSync(snapshotFile, "utf8")) as CurriculumSnapshot;
-		const entry = { stamp: stat.mtimeMs, snapshot, view: learnerViewOf(snapshot, goals) };
-		if (goals.length === 0) cache.set(id, entry);
-		return entry;
-	}
-	const files = seedFilesOf(id);
-	if (files.length === 0) return null;
-	const res = applySeedFiles(files, { createdAt: new Date().toISOString(), edgeMode: manifest.edgeMode });
-	if (!res.ok) throw new StudyError(500, `Seed do currículo inválido (${id}): ${res.errors.slice(0, 3).map((e) => e.message).join("; ")}`);
-	fs.mkdirSync(dir, { recursive: true });
-	writeFileAtomicSync(path.join(dir, "ledger.jsonl"), JSON.stringify(res.envelope) + "\n");
-	writeFileAtomicSync(snapshotFile, JSON.stringify(res.snapshot));
-	const written = fs.statSync(snapshotFile);
-	const entry = { stamp: written.mtimeMs, snapshot: res.snapshot, view: learnerViewOf(res.snapshot, goals) };
-	if (goals.length === 0) cache.set(id, entry);
-	return entry;
+	const stamp = electronicsCurriculumStamp(dir);
+	const hit = cache.get(id);
+	if (hit?.stamp === stamp) return goals.length ? { snapshot: hit.snapshot, view: learnerViewOf(hit.snapshot, goals) } : hit;
+	const loaded = loadDomainCurriculum(id, dir, manifest.edgeMode, () => seedFilesOf(id));
+	if (!loaded) return null;
+	const entry = { ...loaded, view: learnerViewOf(loaded.snapshot) };
+	cache.set(id, entry);
+	return goals.length ? { snapshot: entry.snapshot, view: learnerViewOf(entry.snapshot, goals) } : entry;
 }
 
 type CurriculumSource = CurriculumSeedFile["sources"][number];
 const sourceCatalogs = new Map<string, Map<string, CurriculumSource>>();
 
 export function curriculumSources(id: DomainId) {
-	let sources = sourceCatalogs.get(id);
+	const dir = curriculumDir(PATHS.data, id);
+	let sources = sourceCatalogs.get(dir);
 	if (!sources) {
-		sources = new Map(seedFilesOf(id).flatMap(file => file.sources.map(source => [source.id, source] as const)));
-		sourceCatalogs.set(id, sources);
+		const file = path.join(dir, "sources.json");
+		const records: CurriculumSource[] = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : seedFilesOf(id).flatMap(seed => seed.sources);
+		sources = new Map(records.map(source => [source.id, source]));
+		sourceCatalogs.set(dir, sources);
 	}
 	return sources;
 }
@@ -241,7 +213,7 @@ export function validateStudyLesson(raw: unknown, nodeId: string | undefined): S
 	if (!nodeId || !node || (!node.isLeaf && lesson.exploratory !== true)) throw new StudyError(400, "Nó de aula inválido.");
 	const minutes = lesson.minutes;
 	if (typeof minutes !== "number" || !Number.isInteger(minutes) || minutes < 1) throw new StudyError(400, "Duração da aula inválida.");
-	return { domainId: id, nodeId, minutes: Math.min(240, minutes), ...(lesson.exploratory === true && { exploratory: true }) };
+	return { domainId: id, nodeId, minutes: Math.min(240, minutes), ...((node.reinforcementFor || lesson.exploratory === true) && { exploratory: true }) };
 }
 
 export function saveStudyLesson(lesson: StudyLesson, chatId: string, marker: LhMessage, save: () => void) {
@@ -287,6 +259,7 @@ export function saveStudyAnswer(chatId: string, previous: LhMessage[], result: L
 		minutesSinceExposure: Math.max(0, (result.timestamp - Date.parse(exposure.at)) / 60_000),
 	};
 	persistChatEvent(domainId, { chatId, messageId: result.id, event: { kind: "evidence", evidence } }, save);
+	if (graded.grade === 0) queueReinforcements(domainId, [...events, { kind: "evidence", evidence }]);
 }
 
 /** Pair every lesson with its first objective check, or its fallback self-rating.
@@ -323,7 +296,7 @@ function eventNodes(ev: LearnerEvent): string[] {
 	}
 }
 
-function learnerSnapshotOf(id: DomainId, view: LearnerGraphView, events: readonly LearnerEvent[], at: string): LearnerSnapshot {
+export function learnerSnapshotOf(id: DomainId, view: LearnerGraphView, events: readonly LearnerEvent[], at: string): LearnerSnapshot {
 	if (events.length === 0) return emptySnapshot(id, at);
 	try {
 		return foldEvents(null, events, view, DEFAULT_LEARNER_PARAMS);
@@ -461,6 +434,7 @@ export function studyToday(): StudyToday {
 	}
 	const at = new Date().toISOString();
 	const events = readStudyEvents(id);
+	queueReinforcements(id, events);
 	const snap = learnerSnapshotOf(id, cur.view, events, at);
 	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin });
 	// Spacing rule: a node TAUGHT in the last 20 h is not re-taught as "new" —
@@ -480,6 +454,10 @@ export function studyToday(): StudyToday {
 		pendingCheck = { exposureId, nodeId, sessionId, title: cur.view.nodes.get(nodeId)?.title ?? nodeId, at };
 	}
 
+	const support = new Map(Object.values(cur.snapshot.items).filter(n => n.reinforcementFor && n.status !== "deprecated" &&
+		!snap.nodes[n.id]?.attainedAt && !snap.nodes[n.id]?.placedAt).map(n => [n.reinforcementFor, n]));
+	const suggestion = support.size ? failedChecks(events).sort((a,b) => b.checks[0]!.seq - a.checks[0]!.seq)
+		.map(c => support.get(c.target)).find(Boolean) : undefined;
 	let leaves = 0;
 	let attained = 0;
 	let mastered = 0;
@@ -487,7 +465,7 @@ export function studyToday(): StudyToday {
 	let attainedHours = 0;
 	for (const nodeId of cur.view.ids) {
 		const node = cur.view.nodes.get(nodeId);
-		if (!node?.isLeaf) continue;
+		if (!node?.isLeaf || cur.snapshot.items[nodeId]?.reinforcementFor) continue;
 		leaves++;
 		const h = hoursMid(cur.snapshot.items[nodeId]?.hours ?? { lo: 0, hi: 0 });
 		totalHours += h;
@@ -501,6 +479,7 @@ export function studyToday(): StudyToday {
 	return {
 		domain,
 		ready: true,
+		...(suggestion && { optionalPractice: { id: suggestion.id, title: suggestion.title.pt } }),
 		next,
 		pendingCheck,
 		plan: { budgetMin, reviewMinutes: plan.reviewMinutes, newMinutes: plan.newMinutes, items: plan.items.length },
@@ -530,7 +509,7 @@ function domainXp(events: readonly LearnerEvent[]): { xp: number; lessons: numbe
 
 /** Seven tier stages = the curriculum's leaves in teaching order, cut by cumulative hours. */
 function tierCoreOf(view: LearnerGraphView, snapshot: CurriculumSnapshot): { coreVersion: string; stages: string[][] } {
-	const leaves = view.ids.filter((id) => view.nodes.get(id)?.isLeaf);
+	const leaves = view.ids.filter((id) => view.nodes.get(id)?.isLeaf && !snapshot.items[id]?.reinforcementFor);
 	const hoursOf = (id: string) => hoursMid(snapshot.items[id]?.hours ?? { lo: 0, hi: 0 });
 	const total = leaves.reduce((a, id) => a + hoursOf(id), 0) || 1;
 	const stages: string[][] = [[], [], [], [], [], [], []];
@@ -618,7 +597,7 @@ export function studyProfile(): StudyProfile {
 			const snap = learnerSnapshotOf(summary.id, cur.view, events, at);
 			const retention = new Map<string, number>();
 			for (const id of cur.view.ids) {
-				if (!cur.view.nodes.get(id)?.isLeaf) continue;
+				if (!cur.view.nodes.get(id)?.isLeaf || cur.snapshot.items[id]?.reinforcementFor) continue;
 				leaves++;
 				const st = snap.nodes[id];
 				if (st?.masteredAt) mastered++;

@@ -358,7 +358,7 @@ export function planDay(snapshot: LearnerSnapshot, graph: LearnerGraphView, para
 
 	// 3. new nodes ∈ frontier ∩ goal plan, each with its warm-ups (load controller).
 	const plan = opts.goalPlan ?? goalPlanOf(graph, known);
-	const frontier = sig.structure.frontier;
+	const frontier = sig.structure.frontier.filter(id => !graph.nodes.get(id)?.reinforcementFor || graph.nodes.get(id)!.goalWeight > 0);
 	const inPlan = frontier.filter((id) => plan.has(id));
 	const pool = inPlan.length > 0 ? inPlan : frontier;
 	const U = unlockValues(graph, params.planner.gamma);

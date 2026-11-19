@@ -38,6 +38,7 @@ export function learnerViewOf(snapshot: CurriculumSnapshot, goalIds: readonly st
 			title: item.title.pt,
 			version: item.version,
 			isLeaf: children.length === 0,
+			reinforcementFor: item.reinforcementFor,
 			parentId: item.parentId !== null && live.has(item.parentId) ? item.parentId : null,
 			children,
 			clauses: effectiveClausesOf(sys, id),

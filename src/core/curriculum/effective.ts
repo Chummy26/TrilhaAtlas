@@ -385,7 +385,8 @@ export function buildEffectiveSystem(items: Readonly<Record<string, CurriculumIt
 		entry[x] = own;
 		const kids = childLists[x]!;
 		if (kids.length > 0) {
-			clauses[x] = [kids.length > 1 ? [...kids].sort((a, b) => a - b) : [...kids]];
+			const required = kids.filter(child => !live[child]!.reinforcementFor);
+			clauses[x] = [required.sort((a, b) => a - b)];
 		} else {
 			clauses[x] = own;
 			hoursLo[x] = item.hours.lo;

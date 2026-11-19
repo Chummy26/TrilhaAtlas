@@ -1,92 +1,49 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/lh_banner_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/lh_banner_light.png">
-    <img src="docs/assets/lh_banner_light.png" alt="LearnHarness" width="640">
-  </picture>
-</p>
-
 # TrilhaAtlas
 
-Aplicativo de estudos baseado no [learnharness](https://github.com/amosblomqvist/learnharness), com trilhas independentes de Inglês e Eletrônica. Explore o mapa completo, estude um capítulo ou vídeo na região correspondente e retome a aula pelo cartão **Hoje**.
+Build a skill map for a subject you want to learn. TrilhaAtlas pairs each skill with a tutor, optional readings and videos, and a record of what you have practiced. Your next lesson can build on work from last week or take a detour into something that caught your interest.
 
-Consulte o [estado das integrações](docs/impl/integration.md), a [revisão das 809 habilidades de Eletrônica](docs/impl/auditoria-eletronica/README.md) e o [guia do projeto](AGENTS.md). As instruções e os links de distribuição do projeto de origem estão abaixo.
+![Electronics skill map with completed skills and a selected lesson](docs/assets/trilhaatlas-map.png)
 
-<p align="center">
-  <a href="https://learnharness.ai">Download</a> ·
-  <a href="#how-it-works">How it works</a> ·
-  <a href="docs/README.md">Documentation</a> ·
-  <a href="https://github.com/amosblomqvist/learnharness/issues">Issues</a> ·
-  <a href="https://discord.gg/5tCHHQEB2e">Discord</a>
-</p>
+*An example curriculum shown with simulated progress.*
 
-LearnHarness uses AI agents to plan and teach lessons from your current understanding to your goal. It builds a detailed picture of what you understand and how you reason. That picture is updated as you learn.
+## Start with your own subject
 
-Instead of just giving you an explanation, it uses your answers and thinking to decide what you need next. Teaching builds understanding one reasoning step at a time. Practice makes it usable. A persistent knowledge graph carries it across sessions.
+A map begins with something you want to be able to do. To read a topographic map, for example, first learn what a contour line represents. Then use the distance between contour lines to compare two slopes. A field guide can serve both skills, while a video can introduce the region as a whole.
 
-![LearnHarness teaching session](docs/assets/teaching-session.png)
+Copy the small map-reading example, adapt its objectives and prerequisites, and import the folder into your local workspace. You can write a curriculum yourself or ask a coding agent to follow the authoring guide. Electronics and English are larger public examples you can explore immediately. [Domain authoring guide](docs/authoring-domains.md) · [Starter curriculum](examples/study-domain/map-reading/00-map.json)
 
-## How it works
+Zoom out to see the whole subject. Zoom in to follow a prerequisite, open a specific chapter, or try a lesson before you commit to that path. Completed skills take on color. Each subject keeps its own conversations, evidence and tutor memory on your machine.
 
-1. **Measure.** Before teaching, the agent finds where your understanding ends on each part the lesson depends on. Your answers, confidence, and thinking show it where to start.
-2. **Plan.** It works out a dependency map from that starting point to your goal. You can see the plan, and the lesson adapts when your understanding turns out different.
-3. **Teach.** Each step builds on something you already understand. You predict, get an explanation, and check your understanding. Confusions are repaired before anything is built on them. The aim is for the goal to feel obviously true, not merely familiar.
-4. **Practice.** Separate sessions pose varied problems that require the right knowledge to come to mind without being named first. Problems and hints adapt to your reasoning.
+## When a lesson gets difficult
 
-**Think out loud.** The thinking fields let you explain your reasoning, uncertainties, and reactions in your own words. This is how the agent gets a detailed picture rather than just a record of right and wrong answers. You can type or use dictation.
+Suppose two different quiz questions reveal the same difficulty reading a contour interval. If the prerequisites are in place, the tutor can propose a short lesson on the missing step. The app checks the proposal and places the new skill beside the original. You can open it from the map or the daily study card. Your completed skills, main goal and core progress carry forward.
 
-**Bring your files.** In the desktop app, attach PDFs, photos, or any other file with the paperclip, or drag them in. The file stays where it is: the message carries its path, and the agent reads it from there.
+Reinforcement uses your configured background model and the domain’s token budget. The model can skip a proposal when the evidence is unclear or an existing skill already covers the gap.
 
-The agent can also research questions in the background, create visual explanations, show your own images in the lesson and mark them up with arrows and labels, and build interactive demonstrations.
+## Run it locally
 
-## Knowledge that carries forward
+With Node.js 26 and npm installed, run
 
-What you are taught accumulates as propositions and reasoning chains: individual claims and the premises that lead to them. The graph shows this structure, with links back to the source sessions. You can also import notes.
-
-Future teaching sessions can read the graph instead of starting from scratch. Practice sessions can draw their material from it. It stores the ideas and their connections, not ratings of your ability.
-
-![LearnHarness knowledge graph](docs/assets/knowledge-graph.png)
-
-## Download and get started
-
-**[Download from learnharness.ai](https://learnharness.ai)** · [GitHub Releases](https://github.com/amosblomqvist/learnharness/releases)
-
-- **macOS (Apple Silicon):** signed and notarized DMG. Drag the app to Applications.
-- **Windows (x64):** run the installer. It is currently unsigned; Windows may show an “unknown publisher” or SmartScreen warning.
-- **Linux (x64):** make the AppImage executable and open it, or install the Debian/Ubuntu `.deb`.
-
-Choose your models, then start a session with what you want to understand. You can use provider API keys, supported subscription connections in the desktop app, an installed [Claude Code CLI](docs/claude-code.md), or a [custom OpenAI-compatible endpoint](docs/custom-providers.md), including a local model server. Optional dictation and web search use separate service keys. Web research can use a Tavily, Brave, Exa, Firecrawl, or Ollama key in Settings → Providers → Search. Ollama search uses its hosted service, not a local model server.
-
-See [Getting started](docs/getting-started.md) for model setup, dictation, files, and notes imports, and [context, caching, and costs](docs/compaction-accounting.md) for advanced cache preferences.
-
-All three platforms support in-app updates.
-
-## Your keys, your data
-
-- **Your keys and models.** No LearnHarness subscription or markup. Billing depends on your provider, CLI configuration, subscription, or local setup. The live cost meter estimates known API costs, not subscription, CLI, or custom-endpoint charges.
-- **Local storage.** Your chats, graph, settings, and API keys live on your machine. Learning records are plain files you can inspect.
-- **External services.** Models run through your configured providers. Model requests send the context needed for the task; web research and dictation also contact external services. Local storage does not mean offline processing.
-- **Inspectable behavior.** System prompts are visible and editable. The app is open source under the AGPL-3.0 license.
-
-## Development and support
-
-```bash
+```sh
+git clone https://github.com/Chummy26/TrilhaAtlas.git
+cd TrilhaAtlas
 npm ci
 npm run plugins:setup
-npm run dev        # http://localhost:3000
-npm test           # fixtures and fake providers
+npm run dev
 ```
 
-See the [documentation index](docs/README.md) for all guides, [development](docs/development.md) for setup and checks, [architecture](docs/architecture.md) for the runtime, [keyboard shortcuts](docs/keyboard.md), [themes](docs/themes.md) for the theme file format, and [desktop builds and releases](docs/desktop-release.md).
+Open **http://localhost:3000** and choose a study domain. You can browse the map before connecting a model. To start an AI lesson, open **Settings → Providers**, connect a provider, then select your models. The study interface and lesson guidance are currently in Brazilian Portuguese.
 
-For trusted local plugins, start with the [authoring guide and capability map](docs/plugin-authoring.md). It links the question, practice-problem, submission, view-context and UI contracts. Use [`examples/plugins/`](examples/plugins/) for small runnable templates, [`plugins/`](plugins/) for feature source projects, and the [host architecture](docs/plugin-architecture.md) for internals.
+Study records live on your machine. AI calls send the relevant lesson context to the provider you select. The profile shows study time and token usage by model. [Development guide](docs/development.md) · [Integration details](docs/impl/integration.md)
 
-Questions, bug reports, and feature requests: [GitHub Issues](https://github.com/amosblomqvist/learnharness/issues).
+## Research behind the design
 
-Security vulnerabilities: report privately as described in [SECURITY.md](SECURITY.md), not in public issues.
+- **Estimating understanding over time.** Corbett and Anderson modeled how a learner’s knowledge changes with practice. TrilhaAtlas uses knowledge tracing and graded answers to update its estimate for each skill. [Knowledge Tracing](https://doi.org/10.1007/BF01099821)
+- **Remembering beyond today’s lesson.** Roediger and Karpicke found that practicing retrieval improved delayed recall of prose passages in their experiments. The app uses short checks and schedules later reviews. [Test-Enhanced Learning](https://pubmed.ncbi.nlm.nih.gov/16507066/)
+- **Remembering earlier conversations.** Hindsight separates source experiences from derived observations. Its design informed how the tutor retrieves evidence from earlier conversations in the same domain. [Hindsight, ACL 2026](https://aclanthology.org/2026.acl-demo.27/)
 
-## License
+## Contribute
 
-[AGPL-3.0](LICENSE)
+A concrete curriculum correction is a good first contribution. If a lesson assumes a skill you have not reached, open an issue with the domain, the two skill names and an example of the missing step. Reports about a misplaced chapter, an inaccessible video or a confusing map connection are also welcome. [Open an issue](https://github.com/Chummy26/TrilhaAtlas/issues) · [Contributing guide](CONTRIBUTING.md)
 
-The app is free and open forever. If we ever charge for anything, it will be for convenience — managed keys, hosting — never for features you can run locally.
+TrilhaAtlas builds on Amos Blomqvist’s learnharness. The application is licensed under AGPL-3.0 and the bundled curriculum data under CC BY-SA 4.0. [Upstream project](https://github.com/amosblomqvist/learnharness) · [Application license](LICENSE) · [Curriculum license](content/curricula/LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)

@@ -42,6 +42,7 @@ export interface ServerEvents {
 	"plugin-message": { pluginId: string; topic: string; data?: unknown };
 	/** The active study domain changed (null = "Geral"): every per-world view refetches. */
 	"domain-changed": { domainId: string | null };
+	"curriculum-expanded": { domainId: string; nodeId: string };
 }
 
 export type ServerEventType = keyof ServerEvents;
@@ -63,6 +64,7 @@ export const SERVER_EVENT_TYPES = [
 	"plugins-changed",
 	"plugin-message",
 	"domain-changed",
+	"curriculum-expanded",
 ] as const satisfies readonly ServerEventType[];
 
 /** One notification: distribute over the vocabulary so narrowing `type`

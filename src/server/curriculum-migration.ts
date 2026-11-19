@@ -3,8 +3,9 @@ import path from "node:path";
 import changes from "../../content/curriculum-revisions/electronics-v2.json";
 import { canonicalJson, fnv1a64Hex } from "../core/curriculum/certificate.ts";
 import { applySeedFiles, replayLedger } from "../core/curriculum/ledger.ts";
+import { applyPatch, classifyRisk } from "../core/curriculum/patch.ts";
 import { applySeedRevision, isSeedRevision, type SeedRevision } from "../core/curriculum/seed-revision.ts";
-import type { CurriculumSeedFile, CurriculumSnapshot, ValidationError } from "../core/curriculum/types.ts";
+import type { CurriculumSeedFile, CurriculumSnapshot, PatchEnvelope, ValidationError } from "../core/curriculum/types.ts";
 import type { DomainManifest } from "../core/domains/types.ts";
 import { writeFileAtomicSync } from "../store/atomic-write.ts";
 
@@ -15,7 +16,7 @@ type Rule = { before: string; after: unknown };
 const release: Record<string, Record<string, Rule>> = changes;
 
 function invalid(errors: readonly ValidationError[]): never {
-	throw new Error(`Currículo de Eletrônica inválido: ${errors.slice(0, 3).map((error) => error.message).join("; ")}`);
+	throw new Error(`Currículo inválido: ${errors.slice(0, 3).map((error) => error.message).join("; ")}`);
 }
 
 function optionalText(file: string): string | undefined {
@@ -27,7 +28,7 @@ function optionalText(file: string): string | undefined {
 }
 
 /** The PID owner is published atomically inside a nonempty directory. */
-function withCurriculumLock<T>(dir: string, action: () => T): T {
+export function withCurriculumLock<T>(dir: string, action: () => T): T {
 	fs.mkdirSync(dir, { recursive: true });
 	const lock = path.join(dir, ".revision-lock");
 	const pending = fs.mkdtempSync(path.join(dir, ".revision-lock-"));
@@ -109,10 +110,16 @@ function revisionFor(snapshot: CurriculumSnapshot, baseline: CurriculumSnapshot)
 	};
 }
 
-export function loadElectronicsCurriculum(
+export function loadElectronicsCurriculum(dir: string, edgeMode: DomainManifest["edgeMode"], readSeeds: () => CurriculumSeedFile[]) {
+	return loadDomainCurriculum("electronics", dir, edgeMode, readSeeds);
+}
+
+export function loadDomainCurriculum(
+	domain: string,
 	dir: string,
 	edgeMode: DomainManifest["edgeMode"],
 	readSeeds: () => CurriculumSeedFile[],
+	proposal?: (current: CurriculumSnapshot) => PatchEnvelope | undefined,
 ): { snapshot: CurriculumSnapshot; stamp: string } | null {
 	return withCurriculumLock(dir, () => {
 		const ledgerFile = path.join(dir, "ledger.jsonl");
@@ -129,10 +136,11 @@ export function loadElectronicsCurriculum(
 			}
 			const files = readSeeds();
 			if (files.length === 0) return null;
-			const seeded = applySeedFiles(files, { ...opts, createdAt: new Date().toISOString(), promptVersion: SEED_VERSION });
+			const seeded = applySeedFiles(files, { ...opts, createdAt: new Date().toISOString(), ...(domain === "electronics" && { promptVersion: SEED_VERSION }) });
 			if (!seeded.ok) invalid(seeded.errors);
 			snapshot = seeded.snapshot;
-			writeFileAtomicSync(ledgerFile, JSON.stringify(seeded.envelope) + "\n");
+			ledger = JSON.stringify(seeded.envelope) + "\n";
+			writeFileAtomicSync(ledgerFile, ledger);
 		} else {
 			const entries = ledger.split(/\r?\n/).filter((line) => line.trim()).map((line) => JSON.parse(line));
 			const replay = replayLedger(entries, opts);
@@ -147,11 +155,11 @@ export function loadElectronicsCurriculum(
 					canonicalJson(current.edges) !== canonicalJson(snapshot.edges)
 				);
 				if (current.version > snapshot.version || diverged) {
-					throw new Error("O snapshot local de Eletrônica diverge do ledger e foi preservado.");
+					throw new Error(`O snapshot local do domínio ${domain} diverge do ledger e foi preservado.`);
 				}
 			}
 
-			if (entries[0].provenance.promptVersion === "seed-v1" && !entries.some((entry) => isSeedRevision(entry) && entry.revision === REVISION)) {
+			if (domain === "electronics" && entries[0].provenance.promptVersion === "seed-v1" && !entries.some((entry) => isSeedRevision(entry) && entry.revision === REVISION)) {
 				const original = entries.length === 1 ? replay : replayLedger(entries.slice(0, 1), opts);
 				if (!original.ok) invalid(original.errors);
 				const revision = revisionFor(snapshot, original.snapshot);
@@ -170,11 +178,19 @@ export function loadElectronicsCurriculum(
 					console.warn("[curriculum] Eletrônica: pré-requisitos locais preservados após conflito na revisão", reasons.slice(0, 3));
 				}
 				if (!ledger.endsWith("\n")) ledger += "\n";
-				writeFileAtomicSync(ledgerFile, ledger + JSON.stringify(revision) + "\n");
+				ledger += JSON.stringify(revision) + "\n";
+				writeFileAtomicSync(ledgerFile, ledger);
 				snapshot = migrated.next;
 			}
 		}
 
+		const envelope = proposal?.(snapshot);
+		if (envelope && snapshot.domainId === domain && classifyRisk(snapshot, envelope).risk === "low") {
+			const result = applyPatch(snapshot, envelope, opts);
+			if (!result.ok) invalid(result.errors);
+			writeFileAtomicSync(ledgerFile, ledger.trimEnd() + "\n" + JSON.stringify(envelope) + "\n");
+			snapshot = result.next;
+		}
 		const serialized = JSON.stringify(snapshot);
 		if (stored !== serialized) writeFileAtomicSync(snapshotFile, serialized);
 		return { snapshot, stamp: electronicsCurriculumStamp(dir) };

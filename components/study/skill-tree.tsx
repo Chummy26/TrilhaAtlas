@@ -58,10 +58,10 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		{detail && <>
 			<p className="text-sm leading-relaxed">{detail.brief.summary}</p>
 			{detail.sessionId ? <Link className="cel-button cel-button-primary px-4 py-2" href={"/chat/" + encodeURIComponent(detail.sessionId)}>Continuar aula</Link> :
-				node.leaf && node.state !== "locked" && <button type="button" className="cel-button cel-button-primary px-4 py-2" disabled={busy} onClick={() => start(false)}>Começar aula</button>}
+				node.leaf && !node.reinforcementFor && node.state !== "locked" && <button type="button" className="cel-button cel-button-primary px-4 py-2" disabled={busy} onClick={() => start(false)}>Começar aula</button>}
 			{node.state === "locked" && <p className="text-sm text-muted-foreground">{detail.missing.length ? "Para acompanhar, ajuda conhecer " + detail.missing.map(m => m.title).join(" · ") + "." : "Há pré-requisitos pendentes."} Você pode explorar mesmo assim.</p>}
 			<div>{detail.explorationId ? <Link href={"/chat/" + encodeURIComponent(detail.explorationId)} className="cel-button px-3 py-1.5">Retomar exploração</Link> :
-				<button type="button" className="cel-button px-3 py-1.5" disabled={busy} onClick={() => start(true)}>{node.leaf ? "Explorar em aula avulsa" : "Explorar em uma aula panorâmica"}</button>}</div>
+				<button type="button" className="cel-button px-3 py-1.5" disabled={busy} onClick={() => start(true)}>{node.reinforcementFor ? "Estudar reforço" : node.leaf ? "Explorar em aula avulsa" : "Explorar em uma aula panorâmica"}</button>}</div>
 		</>}
 		{node.region && <>
 		<h3 className="cel-display text-base">{node.kind === "unit" ? "Materiais da região" : "Materiais do nó"}</h3>
@@ -104,6 +104,7 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; initialNode?: string; onStart: (l: LessonStart) => void; busy: boolean }) {
 	const router = useRouter();
 	useServerEvent("domain-changed", () => router.replace("/"));
+	useServerEvent("curriculum-expanded", event => { if (event.domainId === map.domain) router.refresh(); });
 	const byId = useMemo(() => new Map(map.nodes.map(n => [n.id,n])),[map.nodes]);
 	const root = map.nodes.find(n => !n.parent)!;
 	const [id,setId] = useState(initialNode && byId.has(initialNode) ? initialNode : root.id);
@@ -114,7 +115,7 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 	const rows = q ? map.nodes.filter(n => n.title.toLocaleLowerCase("pt-BR").includes(q)).slice(0,60) :
 		map.nodes.filter(n => n.parent === scope.id || (selected.leaf && n.region === scope.id && n.leaf)).sort((a,b) => a.order-b.order);
 	const anchor = byId.get(map.position ?? map.next ?? "");
-	const leaves = useMemo(() => map.nodes.filter(n => n.leaf), [map.nodes]);
+	const leaves = useMemo(() => map.nodes.filter(n => n.leaf && !n.reinforcementFor), [map.nodes]);
 	const completed = leaves.filter(n => n.completed).length;
 	const [locate, setLocate] = useState(0);
 	const trail: SkillNode[] = [selected];
@@ -140,6 +141,8 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 			<aside className="cel-card space-y-3 p-4 xl:col-start-2 xl:row-span-2" aria-live="polite">
 				<p className="text-xs text-muted-foreground">{[category, progress ?? (selected.leaf ? STATUS[selected.state] : undefined)].filter(Boolean).join(" · ")}</p>
 				<h2 className="cel-display text-xl">{selected.title}</h2>
+				{selected.reinforcementFor && <button type="button" className="text-sm underline" onClick={() => pick(selected.reinforcementFor!)}>Reforço opcional de {byId.get(selected.reinforcementFor)?.title}</button>}
+				{map.nodes.filter(n => n.reinforcementFor === id).map(n => <button key={n.id} type="button" className="cel-button px-3 py-2" onClick={() => { pick(n.id); setLocate(v => v + 1); }}>Estudar reforço · {n.title}</button>)}
 				{selected.kind === "domain" && <>
 					<p className="text-sm text-muted-foreground">{map.nodes.filter(n => n.kind === "unit").length} regiões · {map.nodes.filter(n => n.leaf).length} habilidades</p>
 					{map.next && <button type="button" onClick={() => pick(map.next!)} className="cel-button cel-button-primary px-3 py-2">{map.reinforcement ? "Abrir reforço" : "Próxima habilidade"}</button>}

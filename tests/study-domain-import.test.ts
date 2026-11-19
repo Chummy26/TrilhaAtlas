@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { it } from "node:test";
+
+it("opens an imported domain with a book and regional video, and preserves it on repeat import", async t => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "lh-domain-import-"));
+	process.env.LH_DATA_DIR = root;
+	process.env.LH_AUTH_FILE = path.join(root, "auth.json");
+	t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+	const install = () => spawnSync(process.execPath, ["--import", "tsx", "scripts/import-study-domain.ts", "examples/study-domain/map-reading"], { encoding: "utf8" });
+	const first = install();
+	assert.equal(first.status, 0, first.stderr);
+	const { switchStudyDomain, studyMap, studyToday, recordStudyEvent } = await import("../src/server/study.ts");
+	const { readRegionMaterials, studyMapLesson } = await import("../src/server/study-materials.ts");
+	const subject = "map-reading";
+	const intro = "mp.terrain.contours.height";
+	const next = "mp.terrain.contours.slope";
+	switchStudyDomain(subject);
+	assert.equal(studyToday().next?.nodeId, intro);
+	assert.equal(studyMap().nodes.find(node => node.id === next)?.state, "locked");
+	const materials = (await readRegionMaterials(subject, intro)).materials;
+	assert.ok(materials.some(m => m.kind === "book" && m.nodes.includes(intro) && m.nodes.includes(next)));
+	assert.ok(materials.some(m => m.kind === "video" && m.nodes.includes("mp.terrain.contours")));
+	assert.equal((await studyMapLesson(subject, intro, true)).excerpt, "");
+	recordStudyEvent({ kind: "known", nodeId: intro });
+	assert.notEqual(install().status, 0);
+	assert.equal(studyMap().nodes.find(node => node.id === next)?.state, "available");
+});

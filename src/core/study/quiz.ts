@@ -19,5 +19,8 @@ export function gradeStudyQuiz(input: unknown, callId: string, details: unknown)
 	if (new Set(indices).size !== indices.length || (!quiz.multiSelect && indices.length > 1)) return null;
 	const grade: 0 | 3 = !answer.dontKnow && isCorrect(indices, key.indices) ? 3 : 0;
 	const ms = answer.latencyMs;
-	return { grade, options: options.length, ...(typeof ms === "number" && Number.isSafeInteger(ms) && ms >= 0 ? { latencyMs: ms } : {}) };
+	const labels = (choices: readonly number[]) => choices.map(i => options[i - 1]!.label).join(", ").slice(0, 400);
+	return { grade, options: options.length,
+		...(grade === 0 && { quizContext: { question: quiz.question.slice(0, 600), answer: answer.dontKnow ? "Não sei" : labels(indices), expected: labels(key.indices) } }),
+		...(typeof ms === "number" && Number.isSafeInteger(ms) && ms >= 0 ? { latencyMs: ms } : {}) };
 }

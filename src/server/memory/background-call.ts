@@ -56,7 +56,7 @@ function rememberUnloggedUsage(domain: string, tokens: number) {
 	budget.unlogged.set(domain, { day, tokens: tokens + (previous?.day === day ? previous.tokens : 0) });
 }
 
-function requestContext(request: MemoryLlmRequest, engine: PiEngine) {
+function requestContext(request: MemoryLlmRequest | ExpansionRequest, engine: PiEngine) {
 	const timestamp = Date.now();
 	const messages = request.messages.map((turn): Message => {
 		if (turn.role === "user") return { role: "user", content: turn.content, timestamp };
@@ -72,10 +72,16 @@ function requestContext(request: MemoryLlmRequest, engine: PiEngine) {
 /** Until the role registry is integrated, the memory judge uses the auditor
  * override; all other memory roles use the extractor override and cheap slot. */
 export function domainMemoryLlmCall(domain: string, engineFor: typeof piEngineForSpec = piEngineForSpec): MemoryLlmCall {
-	return async request => {
+	return domainBackgroundCall(domain, engineFor);
+}
+
+type ExpansionRequest = Omit<MemoryLlmRequest, "role" | "op"> & { role: "curriculum"; op: "reinforce" };
+
+export function domainBackgroundCall(domain: string, engineFor: typeof piEngineForSpec = piEngineForSpec) {
+	return async (request: MemoryLlmRequest | ExpansionRequest) => {
 		if (dailyAllowance(domain) <= 0) throw new Error("Orçamento diário de memória esgotado.");
 		const settings = stores.settingsStore.readSettings();
-		const role = request.role === "judge" ? "auditor" : "extractor";
+		const role = request.role === "curriculum" ? "researcher" : request.role === "judge" ? "auditor" : "extractor";
 		const spec = resolveRoleSpec(role, settings) ?? resolveRoleSpec("extractor", settings);
 		if (!spec) throw new Error("Configure um modelo para a extração de memória.");
 		if (spec.provider === CLAUDE_CODE_PROVIDER || !connectionBackgroundAllowed(spec.provider)) {
@@ -96,7 +102,7 @@ export function domainMemoryLlmCall(domain: string, engineFor: typeof piEngineFo
 		// UTF-8 bytes include the envelopes and conservatively cover input
 		// tokenization. At settlement the ledger uses reported, disjoint buckets.
 		const reserved = Buffer.byteLength(JSON.stringify(context.messages)) + outputCeiling;
-		const observed = observeEngineUsage(engine, "memory." + request.op, { domain, background: true, reservedTokens: reserved });
+		const observed = observeEngineUsage(engine, (request.role === "curriculum" ? "curriculum." : "memory.") + request.op, { domain, background: true, reservedTokens: reserved });
 		let admitted = false;
 		function release() {
 			if (!admitted) return;
@@ -125,7 +131,7 @@ export function domainMemoryLlmCall(domain: string, engineFor: typeof piEngineFo
 			return source;
 		});
 		try {
-			const reply = await stream(engine.model, context, { maxTokens: maxOutput, maxRetries: 0, sessionId: "memory-" + domain }).result();
+			const reply = await stream(engine.model, context, { maxTokens: maxOutput, maxRetries: 0, sessionId: (request.role === "curriculum" ? "curriculum-" : "memory-") + domain }).result();
 			const usage = reply.usage;
 			if (reply.stopReason !== "stop") throw new Error(reply.errorMessage ?? "Resposta de memória incompleta.");
 			return {
