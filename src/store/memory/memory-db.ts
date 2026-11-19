@@ -882,7 +882,7 @@ export class MemoryDb implements DomainMemory {
 		const now = this.now();
 		let profile = "";
 		try {
-			profile = this.profile ? await this.profile.text() : "";
+			profile = this.profile ? await this.profile.text(this.domainId) : "";
 		} catch (error) {
 			this.report("profile", error);
 		}

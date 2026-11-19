@@ -31,6 +31,16 @@ function titleOf(graph: LearnerGraphView, id: NodeId): string {
 	return clip(graph.nodes.get(id)?.title ?? id, TITLE_MAX);
 }
 
+/** Show the observed choices with their source sessions. Keep solution keys out of recall. */
+export function recentQuizErrorLines(snapshot: LearnerPromptSnapshot): string[] {
+	const group = snapshot.recentErrors;
+	if (!group) return [];
+	return [
+		`Erros recentes em questões distintas — ${clip(group.title, TITLE_MAX)}`,
+		...group.checks.map(check => `- ${clip(check.question, 120)} · resposta: ${clip(check.answer, 60)} ([aula de ${check.at.slice(0, 10)}](/chat/${encodeURIComponent(check.sessionId)}))`),
+	];
+}
+
 const KIND_LABEL: Record<PlanItem["kind"], string> = {
 	review: "Revisar",
 	vehicle: "Revisão combinada",
@@ -89,7 +99,7 @@ export function buildPromptSnapshot(
 
 /** Compact pt-BR rendering for the prompt (stable order → prompt-cache friendly). */
 export function renderPromptSnapshot(s: LearnerPromptSnapshot): string {
-	const lines: string[] = ["## Estado do aluno"];
+	const lines: string[] = ["## Estado do aluno", ...recentQuizErrorLines(s)];
 	lines.push(
 		s.frontier.length > 0
 			? `Pronto para aprender: ${s.frontier.map((f) => `${f.title} (prontidão ${Math.round(f.readiness * 100)}%)`).join("; ")}.`

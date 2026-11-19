@@ -28,6 +28,7 @@ import { formatDay, relativeDayPt } from "./temporal.ts";
 import { estimateTokens, fitLines, truncateToTokens } from "./tokens.ts";
 import { MemoryError, type DiaryEntry, type FactKind, type MemoryItemKind, type MentalModelEntry, type MessageRole } from "./types.ts";
 import type { LearnerPromptSnapshot } from "../learner/types.ts";
+import { recentQuizErrorLines } from "../learner/snapshot.ts";
 
 export interface ContextBudgets {
 	profile: number;
@@ -271,7 +272,7 @@ export function packRecall<T extends RenderableItem>(ranked: readonly T[], budge
 /** ~300-token learner snapshot (r2 §9.14) as pt-BR lines. */
 export function renderLearnerSnapshot(s: LearnerPromptSnapshot | null | undefined): string {
 	if (!s) return "";
-	const lines: string[] = [];
+	const lines = recentQuizErrorLines(s);
 	if (s.frontier.length > 0) lines.push(`Fronteira: ${s.frontier.map((f) => `${f.title} (prontidão ${Math.round(f.readiness * 100)}%)`).join("; ")}`);
 	if (s.topMastered.length > 0) lines.push(`Dominados: ${s.topMastered.map((m) => m.title).join("; ")}`);
 	if (s.weak.length > 0) lines.push(`Pontos fracos: ${s.weak.map((w) => (w.misconception ? `${w.title} (equívoco: ${w.misconception})` : w.title)).join("; ")}`);

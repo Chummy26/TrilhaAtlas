@@ -1,22 +1,7 @@
-# The two questions — predict, then check (the teaching cycle)
+# Choosing a prediction or a check
 
-Every teaching unit is a **predict → teach → check** cycle, and the two questions have entirely different jobs. Declaring the wrong `type` for the job breaks the learner's UI (a check arrives collapsed after reading; a prediction arrives open before it) — the roles are not interchangeable.
+A prediction (`type: "predict"`) opens before the explanation. Use one when the learner has enough to anticipate a meaningful change, for example what doubling a resistance will do while voltage stays fixed. When they respond, compare the observed outcome with their expectation and explain the mechanism. A prediction is exploratory and its answer can be tentative.
 
-## The prediction (`type: "predict"`) — motivation
+A check (`type: "check"`) appears collapsed after the teaching. Use a new case they can reason through using the completed explanation. Give feedback on the move their answer reveals. When several explanations fit a miss, use their working or a later contrast to distinguish them.
 
-- Posed BEFORE you teach the step, as its own turn. He answers first; your teaching then resolves it.
-- Its subject is the NEXT step — not yet taught. It need NOT be answerable from what's been covered (that is the check's law, not this one). Ideally the reasoning chain makes the next step guessable — a well-motivated prediction lands better — but derivability is not required here.
-- Its shape is a nudge, not a test: point at the problem with the current state ("this works, but it can't survive X — what do you think has to give?"), and let him try to discover the next step himself. Direct him toward the right territory; reveal nothing more. A prediction he can't fully attempt is fine — the attempt is the point.
-- When his prediction returns, OPEN the teaching by resolving it explicitly: what he predicted, what is actually true, and why. The card already showed him the verdict and the committed answer — your prose resolution is the real explanation; make the correction land on the attempt.
-- Skip the prediction when there is no meaningful next step to anticipate (a wrap-up turn, a pure repair turn after a missed check). Teacher's judgment — never force one, never let skipping become the habit.
-
-## The check (`type: "check"`) — data for you
-
-- Posed AFTER the step's teaching is complete. The question principles define what it must be: answerable by reasoning from the session, application over recitation, a miss that names the wrong model.
-- Its verdict is your continuation data: continue, repair, or reclarify. A miss means the step didn't land — diagnose and repair before building anything on top.
-
-## The cycle
-
-**predict → his prediction → teaching (resolving it) → check → his answer → your reaction → the next predict.**
-
-One question per turn, every turn, in that order. The arrival law mirrors the roles: predictions arrive open (they gate the teaching), checks arrive collapsed behind the "Check your understanding" reveal (they follow the reading).
+Both kinds count toward the same question budget. Go directly to teaching when the learner wants an explanation or needs a worked example. After a confident, reasoned success, continue the lesson without requesting confirmation.

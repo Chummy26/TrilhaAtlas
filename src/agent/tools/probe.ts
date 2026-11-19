@@ -53,10 +53,9 @@ export function probeDoneTool(ctx: ProbeDoneContext): Record<string, AgentTool<a
 			label: "probe_done",
 			description:
 				"Conclude the probing phase and hand off to the teaching phase. Call this ONCE, when the probe is " +
-				"complete: every strand the lesson depends on is bracketed (a floor he reliably gets right AND a " +
-				"ceiling where it runs out), and his learning goal is concrete. The input IS the learner assessment — " +
-				"one strand per dependency the lesson will rest on, with your read of where his edge sits on it " +
-				"(floor, ceiling, misconceptions, what to build from). It streams to the learner live and becomes " +
+				"complete: the goal and a useful teaching entry point are clear. Record the relevant strands, " +
+				"what the evidence shows and anything still untested. The input IS the learner assessment. " +
+				"It streams to the learner live and becomes " +
 				"the handoff artifact the teacher plans from. Refused while a question is still open, and after " +
 				"the probe is already concluded. After it succeeds, say your closing sentence and end your turn.",
 			// The core-owned schema (contracts/probe.ts) — the SAME schema the UI

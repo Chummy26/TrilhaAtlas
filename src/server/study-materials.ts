@@ -1,5 +1,6 @@
 import path from "node:path";
 import { parseHTML } from "linkedom";
+import { FormBodyLimitError, readBoundedFormData } from "../../lib/bounded-form-data.ts";
 import { activeDomainId, PATHS } from "../../config.ts";
 import sections from "../../content/resources/sections.json" with { type: "json" };
 import type { CurriculumItem } from "../core/curriculum/types.ts";
@@ -21,7 +22,9 @@ import { createDefaultRegistry } from "./resources/registry.ts";
 import { curriculumSources, lessonRoute, loadCurriculum, studyDomains, StudyError } from "./study.ts";
 import { readStudyEvents } from "./study-log.ts";
 import { getChat } from "./chats.ts";
-import { importFromUrl, listLibrary, readLibraryChunks } from "./resources/user-library.ts";
+import { detectFormat, importBookFile, importFromUrl, listLibrary, readLibraryChunks, type ImportedBook } from "./resources/user-library.ts";
+import { MAX_BOOK_BODY_BYTES, MAX_BOOK_BYTES } from "../../lib/book-import-limits.ts";
+import { linkRegionalReading, regionalReadingList, unlinkRegionalReading } from "./resources/region-readings.ts";
 
 const contents: Record<string, { part: string; url: string; nodes?: string[] }[]> = sections;
 const videos: StudyMaterial[] = [
@@ -48,9 +51,9 @@ function catalog(domain: string) {
 	return booksForDomain(seeds.books, domain);
 }
 
-function regionalReading(domain: string, nodes: CurriculumItem[]) {
+function regionalReading(domain: string, nodes: CurriculumItem[], linked: Set<string>) {
 	const saved = listLibrary(libraryDir(PATHS.data));
-	const origins = new Set(saved.flatMap(b => b.origin.kind === "url" ? [b.origin.href] : []));
+	const origins = new Set(saved.flatMap(b => b.origin.kind === "url" && linked.has(b.sha256) ? [b.origin.href] : []));
 	const materials: StudyMaterial[] = [];
 	const books: BookCandidate[] = [];
 	for (const book of catalog(domain)) {
@@ -175,7 +178,8 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 	collect(region.id);
 	const allNodes = view.ids.map(key => snapshot.items[key]!);
 	const members = allNodes.filter(n => ids.has(n.id));
-	const materials = regionalReading(domain, members);
+	const localReadings = regionalReadingList(domain, region.id);
+	const materials = regionalReading(domain, members, new Set(localReadings.map(r => r.id)));
 	const sources = curriculumSources(domain);
 	const authored = new Map<string, StudyMaterial>();
 	for (const node of members) {
@@ -229,16 +233,42 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 	const positions = new Map(members.map((m,i) => [m.id,i]));
 	const firstNode = (m: StudyMaterial) => Math.min(...m.nodes.map(k => positions.get(k) ?? Infinity));
 	materials.sort((a,b) => firstNode(a)-firstNode(b) || Number(!!a.suggested)-Number(!!b.suggested));
-	return { region: region.id, materials, references: readingReferences(domain, members), videoSearch, message };
+	return { region: region.id, materials, localReadings, references: readingReferences(domain, members), videoSearch, message };
 }
 
-const downloads = new Map<string, Promise<unknown>>();
+export async function updateRegionalReading(domain: string, id: string, request: Request) {
+	const { region } = current(domain, id);
+	if (request.method === "DELETE") {
+		unlinkRegionalReading(domain, region.id, new URL(request.url).searchParams.get("pdf") ?? "");
+	} else {
+		let form: FormData;
+		try { form = await readBoundedFormData(request, MAX_BOOK_BODY_BYTES, request.signal); }
+		catch (e) { throw new StudyError(e instanceof FormBodyLimitError ? 413 : 400, "Selecione um PDF ou EPUB de até 64 MiB."); }
+		const file = form.get("file");
+		if (!file || typeof file === "string" || !file.size || file.size > MAX_BOOK_BYTES) throw new StudyError(400, "Selecione um PDF ou EPUB de até 64 MiB.");
+		const bytes = new Uint8Array(await file.arrayBuffer());
+		if (!detectFormat(bytes)) throw new StudyError(400, "Formato inválido. Selecione um PDF ou EPUB.");
+		let book: ImportedBook;
+		try { book = await importBookFile({ libraryRoot: libraryDir(PATHS.data), bytes, fileName: file.name, signal: request.signal }); }
+		catch { throw new StudyError(422, "Não foi possível ler o livro. Confira se ele abre sem senha."); }
+		current(domain, id);
+		linkRegionalReading(domain, region.id, book.meta);
+	}
+	return readRegionMaterials(domain, id);
+}
+
+const downloads = new Map<string, Promise<ImportedBook>>();
 export async function downloadRegionalBook(domain: string, id: string, key: string) {
 	const region = await readRegionMaterials(domain,id);
 	const book = catalog(domain).find(b => b.key === key);
 	if (!book?.downloadUrl || !region.materials.some(m => m.bookKey === key)) throw new StudyError(404,"Livro indisponível nesta região.");
 	if (region.materials.some(m => m.bookKey === key && m.saved)) return region;
 	const libraryRoot = libraryDir(PATHS.data);
+	const existing = listLibrary(libraryRoot).find(b => b.origin.kind === "url" && b.origin.href === book.downloadUrl);
+	if (existing) {
+		linkRegionalReading(domain, region.region, existing);
+		return readRegionMaterials(domain, id);
+	}
 	const flight = libraryRoot + "/" + key;
 	let download = downloads.get(flight);
 	if (!download) {
@@ -247,8 +277,11 @@ export async function downloadRegionalBook(domain: string, id: string, key: stri
 			.finally(() => downloads.delete(flight));
 		downloads.set(flight,download);
 	}
-	try { await download; }
+	let imported: ImportedBook;
+	try { imported = await download; }
 	catch { throw new StudyError(502,"Não foi possível importar o PDF da editora. O link de leitura continua disponível."); }
+	current(domain, id);
+	linkRegionalReading(domain, region.region, imported.meta);
 	return readRegionMaterials(domain,id);
 }
 
@@ -302,7 +335,8 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	const main = previous(false);
 	const side = previous(true);
 	const regionMaterials: RegionMaterials = region.kind === "unit" ? await readRegionMaterials(domain, id) : { region: id, materials: [], references: [], videoSearch: false };
-	const materials = regionMaterials.materials.filter(m => m.nodes.includes(id)).sort((a,b) => Number(!!a.suggested)-Number(!!b.suggested));
+	const materials = regionMaterials.materials.filter(m => m.nodes.includes(id) || m.nodes.includes(region.id))
+		.sort((a,b) => Number(b.nodes.includes(id)) - Number(a.nodes.includes(id)) || Number(!!a.suggested) - Number(!!b.suggested));
 	let excerpt = "";
 	const book = materials.find(m => m.kind === "book");
 	if (withReading && book && !book.linkOnly) excerpt = await excerptFor(domain, book).catch(() => "");

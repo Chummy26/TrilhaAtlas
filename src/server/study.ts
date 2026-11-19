@@ -33,7 +33,7 @@ import { emit } from "../core/events.ts";
 import type { LearnerGraphView } from "../core/learner/graph-view.ts";
 import { emptySnapshot, foldEvents } from "../core/learner/fold.ts";
 import { DEFAULT_LEARNER_PARAMS } from "../core/learner/params.ts";
-import { planDay } from "../core/learner/planner.ts";
+import { planDay, routeTo } from "../core/learner/planner.ts";
 import { buildPromptSnapshot } from "../core/learner/snapshot.ts";
 import { computeSignals } from "../core/learner/signals.ts";
 import { structuralState } from "../core/learner/kst.ts";
@@ -320,18 +320,39 @@ export function lessonRoute(id: DomainId, view: LearnerGraphView, events: Learne
 	return alternatives.sort((a,b) => a.missing.length-b.missing.length || a.route.length-b.route.length)[0]!;
 }
 
-export function studyLearnerPrompt(domainId: string) {
+export function studyLearnerPrompt(domainId: string, focus: readonly string[] = []) {
 	const store = studyDomains();
 	const manifest = store.readManifest(domainId);
 	const profile = store.readProfile(domainId);
 	const cur = manifest && loadCurriculum(domainId, manifest, profile?.goal.targetNodeIds);
 	if (!cur) return null;
 	const at = new Date().toISOString();
-	const snap = learnerSnapshotOf(domainId, cur.view, readStudyEvents(domainId), at);
+	const events = readStudyEvents(domainId);
+	const snap = learnerSnapshotOf(domainId, cur.view, events, at);
 	const budgetMin = profile?.dailyBudgetMin ?? 180;
 	const signals = computeSignals(snap, cur.view, DEFAULT_LEARNER_PARAMS, at);
 	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin, signals });
 	const prompt = buildPromptSnapshot(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, plan, signals });
+	const failures = focus.length ? failedChecks(events) : [];
+	if (failures.length) {
+		const streaks = new Map(failures.map(candidate => [candidate.target, candidate.checks]));
+		const relevant = new Set([...focus, ...focus.flatMap(id => routeTo(id, cur.view, signals))]);
+		for (const id of relevant) {
+			const checks = streaks.get(id);
+			const node = cur.view.nodes.get(id);
+			if (!node || !checks) continue;
+			const sourcesExist = checks.every(({ sessionId }) => /^[A-Za-z0-9_-]+$/.test(sessionId)
+				&& fs.existsSync(path.join(chatsDir(PATHS.data, domainId), sessionId + ".json")));
+			if (!sourcesExist) continue;
+			prompt.recentErrors = {
+				title: node.title,
+				checks: checks.map(({ quizContext, at, sessionId }) => ({
+					question: quizContext!.question, answer: quizContext!.answer, at, sessionId,
+				})),
+			};
+			break;
+		}
+	}
 	return { prompt, weak: prompt.weak.map(w => ({ nodeId: w.nodeId, weakness: signals.signals.get(w.nodeId)!.weakScore })) };
 }
 

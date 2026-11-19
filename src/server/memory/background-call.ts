@@ -2,6 +2,7 @@ import { normalizeContext, type Message } from "@earendil-works/pi-ai";
 import { PATHS } from "../../../config.ts";
 import { piEngineForSpec, type PiEngine } from "../../agent/models.ts";
 import { connectionBackgroundAllowed, isSubscriptionProvider } from "../../agent/subscription-connections.ts";
+import { chatGPTReportedLimits } from "../../agent/chatgpt-bridge.ts";
 import { usageWasAdmitted } from "../../agent/subscription-request-cycle.ts";
 import { workerRequestStream } from "../../agent/worker-request-admission.ts";
 import { CLAUDE_CODE_PROVIDER } from "../../core/contracts/claude-code.ts";
@@ -84,10 +85,10 @@ export function domainBackgroundCall(domain: string, engineFor: typeof piEngineF
 		const role = request.role === "curriculum" ? "researcher" : request.role === "judge" ? "auditor" : "extractor";
 		const spec = resolveRoleSpec(role, settings) ?? resolveRoleSpec("extractor", settings);
 		if (!spec) throw new Error("Configure um modelo para a extração de memória.");
+		if (isSubscriptionProvider(spec.provider)) await refreshConnectionCatalog(spec.provider);
 		if (spec.provider === CLAUDE_CODE_PROVIDER || !connectionBackgroundAllowed(spec.provider)) {
 			throw new Error("O provedor selecionado não permite memória em segundo plano.");
 		}
-		if (isSubscriptionProvider(spec.provider)) await refreshConnectionCatalog(spec.provider);
 		if (!providerKeyPresent(spec.provider)) throw new Error("A conexão do modelo de memória está indisponível.");
 		const engine = engineFor(spec, true, undefined, () => stores.settingsStore.readSettings()?.models?.cheap?.cacheRetention);
 		const context = requestContext(request, engine);
@@ -98,7 +99,9 @@ export function domainBackgroundCall(domain: string, engineFor: typeof piEngineF
 		// can add a separate thinking allowance even with an explicit maxTokens.
 		const expandedThinking = engine.level && engine.level !== "off"
 			&& (engine.model.api === "anthropic-messages" || engine.model.api === "bedrock-converse-stream");
-		const outputCeiling = spec.provider === "chatgpt" || expandedThinking ? engine.model.maxTokens : maxOutput;
+		const planLimits = spec.provider === "chatgpt" ? chatGPTReportedLimits(engine.model) : undefined;
+		if (planLimits && !planLimits.maxTokens && !planLimits.contextWindow) throw new Error("O modelo não informou limites para reservar o orçamento em segundo plano.");
+		const outputCeiling = planLimits?.maxTokens ?? planLimits?.contextWindow ?? (expandedThinking ? engine.model.maxTokens : maxOutput);
 		// UTF-8 bytes include the envelopes and conservatively cover input
 		// tokenization. At settlement the ledger uses reported, disjoint buckets.
 		const reserved = Buffer.byteLength(JSON.stringify(context.messages)) + outputCeiling;

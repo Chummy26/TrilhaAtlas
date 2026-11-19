@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { describe, it } from "node:test";
 import * as fs from "node:fs";
 import type { LhMessage } from "../src/core/native-messages.ts";
@@ -224,6 +225,12 @@ describe("batchRuns — token-budgeted, consecutive, never splits a message", ()
 });
 
 describe("batchTag — deterministic, ref-stable, mutation-sensitive", () => {
+	it("matches existing SHA-256 fingerprints for saved multilingual lessons", () => {
+		const message = teacher("m1", "Medição de tensão ⚡");
+		const fingerprint = createHash("sha256").update(JSON.stringify(["assistant", ["TEACHER [m1] Medição de tensão ⚡"]])).digest("hex");
+		assert.equal(messageFingerprint(message), fingerprint);
+		assert.equal(batchTag(coverageSlots([message])), createHash("sha256").update(fingerprint).digest("hex").slice(0, 12));
+	});
 	it("the same members in the same order → the same 12-hex tag; a different order is a different batch", () => {
 		const slots = coverageSlots([teacher("m1", "aaaa"), teacher("m2", "bbbb")]);
 		assert.equal(batchTag(slots), batchTag(coverageSlots([teacher("m1", "aaaa"), teacher("m2", "bbbb")])));

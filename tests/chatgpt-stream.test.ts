@@ -7,7 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { backgroundCaptureDir, backgroundCaptureStream, createBackgroundCapture } from "../src/agent/background-capture.ts";
 import { piModels, piEngineForSpec } from "../src/agent/models.ts";
-import { chatGPTAbortController, chatGPTModels, refreshChatGPTModels } from "../src/agent/chatgpt-bridge.ts";
+import { chatGPTAbortController, chatGPTModels, chatGPTReportedLimits, refreshChatGPTModels } from "../src/agent/chatgpt-bridge.ts";
 import { chatGPTHistory, chatGPTPayload } from "../src/agent/chatgpt-stream.ts";
 
 const originalSend = Object.getOwnPropertyDescriptor(process, "send");
@@ -53,11 +53,16 @@ const usage = { input_tokens: 10, output_tokens: 4, total_tokens: 14, input_toke
 const complete = (output: unknown[] = []) => ({ type: "response.completed", response: { id: "resp_scratch", status: "completed", output, usage } });
 const context = () => normalizeContext({ systemPrompt: "Scratch teacher instructions", messages: [{ role: "user", content: [{ type: "text", text: "Scratch learning material" }, { type: "image", data: "c2NyYXRjaA==", mimeType: "image/png" }], timestamp: 1 }], tools: [{ name: "scratch_tool", description: "Scratch local tool", parameters: Type.Object({ value: Type.String() }) }] });
 
-test("catalog intersects supported capabilities, without inventing model limits", () => {
-	assert.equal(chatGPTModels().length, 1);
+test("both known and newly entitled models are selectable, with missing limits undisclosed", () => {
+	assert.equal(chatGPTModels().length, 2);
 	assert.equal(chatGPTModels()[0]!.provider, "chatgpt");
 	assert.equal(chatGPTModels()[0]!.contextWindow, model.contextWindow);
 	assert.deepEqual(chatGPTModels()[0]!.input, model.input);
+	const future = chatGPTModels()[1]!;
+	assert.equal(future.id, "unknown-capabilities");
+	assert.deepEqual(future.input, ["text"]);
+	assert.equal(future.reasoning, false);
+	assert.deepEqual(chatGPTReportedLimits(future), { contextWindow: null, maxTokens: null });
 });
 
 test("alias resolves only OAuth; native Responses body is stateless/namespaced, image/history preserved and logical output retained", async () => {

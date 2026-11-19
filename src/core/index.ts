@@ -123,3 +123,4 @@ export * as learner from "./learner/index.ts";
 export * as lesson from "./lesson/index.ts";
 export * as memory from "./memory/index.ts";
 export * as resources from "./resources/index.ts";
+export type { DomainCreationStatus } from "./study/creation.ts";

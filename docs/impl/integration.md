@@ -4,6 +4,10 @@ This document records how the pure modules (curriculum, learner, lesson, progres
 
 ## What is live
 
+The home domain menu opens `/dominios/novo`. Its creation request runs against the selected foreground model and reports progress while the learner can keep studying. The installer validates the complete curriculum, writes its sources and ledger together, and leaves the active domain selected until the learner opens the new map. [Domain authoring](../authoring-domains.md)
+
+The teacher receives domain history, recent graded mistakes when relevant, and passages retrieved from books linked to the current region. [Tutor behavior and research](memoria-pedagogia.md) · [Public retrieval evaluation](memory.md#retrieval-check-on-public-conversation-histories)
+
 | Piece | Where | Behavior |
 |---|---|---|
 | Cel theme | `app/layout.tsx`, `components/settings/appearance.tsx`, `electron/appearance-chrome.cjs` | `data-theme-family` is set on `<html>` in SSR and on live theme changes. The factory default theme is `cel-papel`; `cel-noite` is in the picker. |

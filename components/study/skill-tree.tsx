@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
-import { useSettingsDialog } from "@/components/settings/settings-dialog";
 import { useSettingsSaved } from "@/components/settings-signal";
 import type { RegionMaterials, SkillMap, SkillNode, StudyNodeBrief } from "@/src/core";
 import { lessonStatement, type LessonStart } from "./today-card.tsx";
@@ -16,7 +15,6 @@ type NodeDetail = { brief: StudyNodeBrief; minutes: number; sessionId?: string; 
 
 function Materials({ domain, node, onStart, busy }: { domain: string; node: SkillNode; onStart: (l: LessonStart) => void; busy: boolean }) {
 	const [data, setData] = useState<RegionMaterials>();
-	const { open: openSettings } = useSettingsDialog();
 	const [revision, setRevision] = useState(0);
 	useSettingsSaved(section => { if (section === "keys") setRevision(r => r + 1); });
 	const [detail, setDetail] = useState<NodeDetail>();
@@ -47,11 +45,23 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		} catch (e) { setError(e instanceof Error ? e.message : "Não foi possível buscar materiais."); }
 		finally { setSearching(false); }
 	}
+	async function updateBook(file?: File, removeId = "") {
+		setSearching(true); setError("");
+		try {
+			const form = new FormData();
+			if (file) form.set("file", file);
+			const res = await fetch(endpoint + "&pdf=" + encodeURIComponent(removeId), { method: file ? "POST" : "DELETE", body: file ? form : undefined });
+			const result = await res.json();
+			if (!res.ok) throw new Error(result.error ?? "Não foi possível atualizar o livro.");
+			setData(result);
+		} catch (e) { setError(e instanceof Error ? e.message : "Não foi possível atualizar o livro."); }
+		finally { setSearching(false); }
+	}
 	function start(exploratory: boolean) {
 		if (detail) onStart({ domainId: domain, minutes: detail.minutes, title: node.title, exploratory,
 			context: { id: node.id, name: node.title, statement: lessonStatement(detail.brief, detail.minutes) } });
 	}
-	const materials = data?.materials.filter(m => node.kind === "unit" || m.nodes.includes(node.id)) ?? [];
+	const materials = data?.materials.filter(m => node.kind === "unit" || m.nodes.includes(node.id) || m.nodes.includes(data.region)) ?? [];
 	const titles = [...new Set(materials.map(m => m.title))];
 	const otherParts = node.kind === "unit" ? [] : data?.materials.filter(m => !materials.some(own => own.url === m.url)) ?? [];
 	return <div className="space-y-4">
@@ -65,9 +75,24 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		</>}
 		{node.region && <>
 		<h3 className="cel-display text-base">{node.kind === "unit" ? "Materiais da região" : "Materiais do nó"}</h3>
+		{data?.localReadings?.map(book => <div key={book.id} className="flex items-center justify-between gap-2 text-sm">
+			<span>{book.title}</span>
+			<button type="button" aria-label={"Desvincular " + book.title + " da região"} disabled={searching} onClick={() => void updateBook(undefined, book.id)}>Desvincular</button>
+		</div>)}
+		{data && <details className="text-sm">
+			<summary className="cursor-pointer">Livros da região{data.localReadings?.length ? " (" + data.localReadings.length + ")" : ""}</summary>
+			<p className="my-2 text-xs text-muted-foreground">O tutor pode enviar trechos relevantes destes livros ao modelo escolhido durante a aula.</p>
+			<label className="block">Adicionar PDF ou EPUB de até 64 MiB
+				<input type="file" accept="application/pdf,application/epub+zip,.pdf,.epub" disabled={searching} className="mt-1 block w-full text-xs" onChange={e => {
+					const file = e.currentTarget.files?.[0]; e.currentTarget.value = "";
+					if (file) void updateBook(file);
+				}} />
+			</label>
+
+		</details>}
 		{error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 		{!data && !error && <p role="status" className="text-sm">Carregando…</p>}
-		{data && !materials.length && <p className="text-sm text-muted-foreground">Ainda sem material vinculado.</p>}
+		{data && !materials.length && !data.localReadings?.length && <p className="text-sm text-muted-foreground">Ainda sem material vinculado.</p>}
 		{titles.map(title => {
 			const group = materials.filter(m => m.title === title);
 			const first = group[0]!;
@@ -83,7 +108,7 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		})}
 		{data && <button type="button" className="cel-button mr-2 px-3 py-1 text-sm" disabled={searching} onClick={() => discover("book")}>{searching ? "Buscando…" : "Buscar livros"}</button>}
 		{data?.videoSearch ? <button type="button" className="cel-button px-3 py-1 text-sm" disabled={searching} onClick={() => discover("video")}>Buscar vídeos</button>
-			: data && <button className="text-xs underline" onClick={() => openSettings("keys","YOUTUBE_API_KEY")}>Configurar YouTube</button>}
+			: data && <a className="text-sm underline" href={"https://www.youtube.com/results?" + new URLSearchParams({ search_query: node.title + " " + (detail?.brief.summary ?? "").slice(0, 90) })} target="_blank" rel="noreferrer">Pesquisar no YouTube</a>}
 		{otherParts.length > 0 && <details className="text-sm">
 			<summary className="cursor-pointer">Outros trechos da região</summary>
 			{otherParts.map(m => <a key={m.url + !!m.suggested} href={m.url} target="_blank" rel="noreferrer" className="my-2 block underline">{m.title} · {m.part}{m.suggested && " · Sugestão"}</a>)}

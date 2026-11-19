@@ -204,9 +204,9 @@ export interface LearnerPort {
 	appendEvidence?(candidates: readonly DialogueEvidence[]): MaybePromise<void>;
 }
 
-/** Global profile (≤300 tokens, read-only in every domain; r4 §7.3). */
+/** Learner profile for the requesting domain (≤300 tokens, read-only). */
 export interface ProfilePort {
-	text(): MaybePromise<string>;
+	text(domainId: string): MaybePromise<string>;
 }
 
 // ─── Extractor port (LLM; implemented in src/server/memory/extractor.ts) ────

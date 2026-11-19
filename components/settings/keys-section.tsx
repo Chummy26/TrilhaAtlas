@@ -485,6 +485,9 @@ export function KeysSection({
 
 	return (
 		<div ref={editorScopeRef} className="contents">
+			<SettingsGroup label="Subscriptions" testid="group-subscriptions">
+				<SubscriptionConnections />
+			</SettingsGroup>
 			<SettingsGroup label="Model API keys" testid="group-provider-keys">
 				{providerRows.map((status) => (
 					<KeyTableRow
@@ -572,9 +575,6 @@ export function KeysSection({
 				</div>}
 			</SettingsGroup>
 
-			<SettingsGroup label="Subscriptions" testid="group-subscriptions">
-				<SubscriptionConnections />
-			</SettingsGroup>
 
 			<SettingsGroup label="External CLI" testid="group-external-cli">
 				<ClaudeCodeInstallationStatus />

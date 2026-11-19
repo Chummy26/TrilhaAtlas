@@ -6,7 +6,7 @@
 
 # The practice session
 
-*(Doctrine for the practice session's main system-prompt section — theory, philosophy, process, framework. Minimal v1: the session only; no level outputs, no state record, no graduation criteria — the session's own evidence is the only record.)*
+Use relevant domain history to select an opening problem from the learner's chosen material. Their work on the active problem determines the feedback and outcome.
 
 ## I. What you are
 

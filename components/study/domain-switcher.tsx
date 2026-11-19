@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import type { IconName } from "@/components/icons/generated";
 import { useServerEvent } from "@/components/server-events";
@@ -85,7 +86,8 @@ export function DomainSwitcher() {
 				<Icon name="domain-switch" size={14} tone={false} />
 			</button>
 			{open && (
-				<ul role="listbox" aria-label="Domínio de estudo" className="cel-card absolute left-0 top-10 z-30 min-w-52 p-1.5">
+				<div className="cel-card absolute left-0 top-10 z-30 min-w-52 p-1.5">
+				<ul role="listbox" aria-label="Domínio de estudo" className="max-h-[50dvh] overflow-y-auto">
 					{[...list.domains.map((d) => ({ id: d.id as string | null, title: d.title.pt, icon: d.icon })), GENERAL].map((d) => (
 						<li key={d.id ?? "geral"}>
 							<button
@@ -101,6 +103,8 @@ export function DomainSwitcher() {
 						</li>
 					))}
 				</ul>
+				<Link href="/dominios/novo" className="block rounded-md border-t px-2.5 py-2 text-sm font-semibold hover:bg-accent">+ Criar domínio de estudo</Link>
+				</div>
 			)}
 			{error && (
 				<p role="alert" className="cel-card absolute left-0 top-10 z-30 w-72 p-2.5 text-xs text-destructive">

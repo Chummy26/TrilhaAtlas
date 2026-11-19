@@ -3,10 +3,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { after, it } from "node:test";
-import { createFauxCore, fauxAssistantMessage, fauxText, fauxThinking } from "@earendil-works/pi-ai";
+import { createFauxCore, fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall } from "@earendil-works/pi-ai";
 import { CONTEXT_BUDGETS } from "../src/core/memory/assemble.ts";
 import { estimateTokens } from "../src/core/memory/tokens.ts";
-import { newUserMessage } from "../src/core/native-messages.ts";
+import { newAnswerResult, newGraphContextMessage, newUserMessage } from "../src/core/native-messages.ts";
+import { normalizeOptions, seededRandom, shuffleOptions } from "../src/core/question-core.ts";
+import { tinyPdf } from "./helpers/tiny-pdf.ts";
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "lh-tutor-memory-flow-"));
 process.env.LH_DATA_DIR = root;
@@ -66,9 +68,9 @@ async function openMemory(domain: string) {
 	return service.get(domain)!;
 }
 
-async function lesson(domain: string | null, kind: "teach" | "practice" = "teach") {
+async function lesson(domain: string | null, kind: "teach" | "practice" = "teach", selectedNode?: string) {
 	switchStudyDomain(domain);
-	const nodeId = domain ? studyToday().next!.nodeId : undefined;
+	const nodeId = selectedNode ?? (domain ? studyToday().next!.nodeId : undefined);
 	const graphContext = nodeId ? { propositions: [{ id: nodeId, name: "Lesson", statement: "Session focus." }] } : undefined;
 	const response = await createChat(new Request("http://local/api/chats", { method: "POST", body: JSON.stringify({
 		title: "Study", kind, graphContext, studyLesson: domain && kind === "teach" ? { domainId: domain, minutes: 15 } : undefined,
@@ -104,7 +106,10 @@ async function ask(chat: Awaited<ReturnType<typeof lesson>>, text: string) {
 
 it("passes grounded memory and the learner snapshot on the real model wire, scoped to the study domain", async () => {
 	const first = await lesson("english");
+	const { studyDomains } = await import("../src/server/study.ts");
+	studyDomains().updateProfile("english", p => ({ ...p, goal: { ...p.goal, text: "Present a field report" }, dailyBudgetMin: 200 }));
 	const firstContext = await ask(first, original);
+	assert.ok(firstContext.includes("Present a field report") && firstContext.includes("200 min"));
 	const frontier = studyLearnerPrompt("english")!.prompt.frontier[0]!.title;
 	assert.ok(firstContext.includes(frontier));
 	assert.ok(!firstContext.includes(original));
@@ -116,14 +121,35 @@ it("passes grounded memory and the learner snapshot on the real model wire, scop
 	assert.deepEqual(fact.sourceMsgIds, [english.sessionMessages(first.id)[0]!.id]);
 	assert.deepEqual(calls, ["english/extract", "english/consolidate"]);
 
+	const { POST: upload, DELETE: unlink } = await import("../app/api/study/materials/route.ts");
+	const nodeId = english.sessionMessages(first.id)[0]!.nodeIds[0]!;
+	const uploadUrl = "http://local/api/study/materials?" + new URLSearchParams({ domain: "english", node: nodeId, pdf: "" });
+	const quote = "The saffron notebook illustrates how prepositions express location.";
+	const pdf = tinyPdf([{ runs: [{ text: quote, x: 72, y: 700 }] }]);
+	const form = new FormData();
+	form.set("file", new File([Uint8Array.from(pdf)], "Grammar field notes.pdf", { type: "application/pdf" }));
+	const uploaded = await upload(new Request(uploadUrl, { method: "POST", body: form }));
+	assert.equal(uploaded.status, 200);
+	const linked = (await uploaded.json()).localReadings[0];
+	assert.ok(linked.readable);
+
 	const second = await lesson("english");
 	const secondContext = await ask(second, lookup);
+	assert.ok(secondContext.includes("## Leitura da região"));
+	assert.ok(secondContext.includes("Grammar field notes") && secondContext.includes("páginas físicas 1"));
+	assert.ok(secondContext.includes(quote), "the model actually receives the searchable text extracted from the regional PDF");
+	const unrelatedNode = "en.speaking.a1.greetings";
+	assert.notEqual(unrelatedNode, nodeId);
+	const unrelated = newGraphContextMessage([{ id: unrelatedNode, name: "Greetings", statement: "" }], []);
+	assert.ok(!(await tutorMemoryText(english, second.id, [unrelated, newUserMessage(lookup)], 2500)).includes(quote),
+		"searching identical words in another region does not include the book");
 	assert.match(secondContext, /Fronteira:/);
 	assert.ok(secondContext.includes(`[aluno disse] ${original}`) || secondContext.includes(`fonte: “${original}”`),
 		"the next lesson must receive an attributed learner quotation from the previous lesson");
 	assert.ok(!secondContext.includes(hidden));
 	assert.ok(estimateTokens(secondContext) <= CONTEXT_BUDGETS.total);
 	await english.flush();
+	assert.ok(!JSON.stringify(english.sessionMessages(second.id)).includes(quote), "derived textbook excerpts never become learner statements");
 	const bounded = await tutorMemoryText(english, second.id, [newUserMessage(lookup)], 80);
 	assert.ok(bounded.length > 0 && estimateTokens(bounded) <= 80);
 	assert.equal(await tutorMemoryText(english, second.id, [newUserMessage(lookup)], 1), "");
@@ -144,6 +170,8 @@ it("passes grounded memory and the learner snapshot on the real model wire, scop
 	const electronics = await lesson("electronics");
 	const otherContext = await ask(electronics, lookup);
 	assert.match(otherContext, /Fronteira:/);
+	assert.ok(!otherContext.includes(quote));
+	assert.ok(!otherContext.includes("Present a field report"));
 	assert.doesNotMatch(otherContext, /saffron|indigo|notebook preference/i);
 	await service.get("electronics")!.flush();
 
@@ -151,4 +179,56 @@ it("passes grounded memory and the learner snapshot on the real model wire, scop
 	const previousOpens = opens.length;
 	assert.equal(await ask(general, lookup), "");
 	assert.equal(opens.length, previousOpens);
+	switchStudyDomain("english");
+	const removed = await unlink(new Request(uploadUrl + linked.id, { method: "DELETE" }));
+	assert.equal(removed.status, 200);
+	const afterRemoval = await tutorMemoryText(english, second.id, [newUserMessage(lookup)], 2500);
+	assert.ok(!afterRemoval.includes(quote) && !afterRemoval.includes("Leitura da região"));
+});
+
+it("sends two distinct graded mistakes on the current prerequisite and clears the suggestion after a correct check", async () => {
+	const { saveStudyAnswer, studyDomains } = await import("../src/server/study.ts");
+	const domain = "electronics";
+	const prerequisite = "ee.math.algebra.sci-notation.powers-of-ten";
+	const skill = "ee.math.algebra.sci-notation.si-prefixes";
+	const source = await lesson(domain, "teach", prerequisite);
+	const practice = await lesson(domain, "practice", skill);
+	studyDomains().updateManifest(domain, manifest => ({ ...manifest, backgroundBudget: { ...manifest.backgroundBudget, enabled: false } }));
+	const reader = () => ask(practice, "Quero aplicar potências de dez aos prefixos.");
+	const heading = "Erros recentes em questões distintas";
+	function check(id: string, question: string, correctAnswer: string, wrongAnswer: string, correct = false) {
+		const options = [{ label: correctAnswer }, { label: wrongAnswer }];
+		const input = { type: "check", nodeId: "powers", question, options, correctAnswer, explanation: "Gabarito interno." };
+		const call = fauxAssistantMessage([fauxToolCall("quiz", input, { id })], { stopReason: "toolUse" });
+		const previous = [...chatStore.getChat(source.id)!.messages, { ...call, id: "ask-" + id }];
+		const selected = correct ? correctAnswer : wrongAnswer;
+		const order = shuffleOptions(normalizeOptions(options), seededRandom(id));
+		const submission = newAnswerResult(id, "quiz", { kind: "quiz", answers: [
+			{ label: selected, value: selected, index: order.findIndex(o => o.value === selected) + 1 },
+		] });
+		saveStudyAnswer(source.id, previous, submission, () => chatStore.saveMessages(source.id, [...previous, submission]));
+	}
+	const first = "Qual a forma decimal de 10⁻³?";
+	const second = "Como escrever 2 × 10⁻⁴ em decimal?";
+	check("one", first, "0,001", "1000");
+	check("duplicate", first, "0,001", "1000");
+	assert.ok(!(await reader()).includes(heading), "repeating the same question is one observation");
+	check("two", second, "0,0002", "20000");
+	const beforeRepair = await reader();
+	assert.ok(beforeRepair.includes(heading) && beforeRepair.includes(first) && beforeRepair.includes(second));
+	assert.ok(beforeRepair.includes("1000") && beforeRepair.includes("20000"));
+	assert.ok(beforeRepair.includes("/chat/" + source.id));
+	assert.doesNotMatch(beforeRepair, /0,0002|Gabarito interno/);
+	const teacher = await lesson(domain, "teach", skill);
+	assert.ok((await ask(teacher, "Retomar a aula de prefixos.")).includes(heading));
+	const other = await lesson(domain, "practice", "ee.digital.boolean.boolean-algebra");
+	assert.ok(!(await ask(other, "Retomar a habilidade selecionada.")).includes(heading));
+
+	check("success", "Qual a forma decimal de 3 × 10⁻²?", "0,03", "300", true);
+	assert.ok(!(await reader()).includes(heading));
+	check("again-one", first, "0,001", "1000");
+	check("again-two", second, "0,0002", "20000");
+	assert.ok((await reader()).includes(heading));
+	assert.ok(chatStore.deleteChat(source.id));
+	assert.ok(!(await reader()).includes(heading), "deleted source conversations must not return through the learner ledger");
 });

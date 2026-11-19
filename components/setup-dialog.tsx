@@ -59,8 +59,8 @@ import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
 /** The pickers' slot identity — same roster language as the Agent
  *  section's slot rows. */
 const SLOT_META: Record<ModelSlotName, { label: string; roster: string }> = {
-	strong: { label: "Strong", roster: "Prober, teacher" },
-	cheap: { label: "Cheap", roster: "Researcher, demo builder, extractor, auditor" },
+	strong: { label: "Strong", roster: "Aulas e criação de domínios" },
+	cheap: { label: "Cheap", roster: "Pesquisa, memória e reforço" },
 	vision: { label: "Vision", roster: "Visual maker + PDF reader" },
 };
 const SLOT_ORDER: readonly ModelSlotName[] = ["strong", "cheap", "vision"];
@@ -162,9 +162,11 @@ export function SetupKeysBody({
 }) {
 	return (
 		<div className="flex flex-col gap-3 px-6 py-5" data-testid="setup-stage-keys">
-			<p className="text-xs text-muted-foreground">
-				Choose your AI provider and paste its API key. You’ll pick your models next.
-			</p>
+			<section>
+				<h3 className="mb-3 font-ui text-sm">Conectar uma assinatura</h3>
+				<SubscriptionConnections setup />
+			</section>
+			<h3 className="mt-2 border-t border-border/60 pt-4 font-ui text-xs text-muted-foreground">Chave de API ou servidor local</h3>
 			<div className="flex flex-col gap-2">
 				<div ref={menuAnchor} className="relative max-w-96">
 					<button
@@ -228,7 +230,6 @@ export function SetupKeysBody({
 					</p>
 				)}
 			</div>
-			<div className="mt-2 border-t border-border/60 pt-4"><h3 className="mb-3 font-ui text-xs text-muted-foreground">Subscriptions</h3><SubscriptionConnections setup /></div>
 		</div>
 	);
 }
@@ -459,7 +460,7 @@ function OpenSetupDialog({ onClose, onDone }: SetupDialogProps) {
 				{stage === "loading" ? (
 					!failed && <p data-testid="setup-stage-loading" role="status" className="px-6 py-5 text-xs text-muted-foreground">Loading models…</p>
 				) : stage === "keys" ? (
-					<div className="flex flex-col px-6 py-5">{keysBody}</div>
+					<div className="flex flex-col overflow-y-auto">{keysBody}</div>
 				) : (
 					<div className="flex flex-col gap-4 overflow-y-auto px-6 py-5" data-testid="setup-stage-pickers">
 						<p className="text-xs text-muted-foreground">
@@ -489,6 +490,16 @@ function OpenSetupDialog({ onClose, onDone }: SetupDialogProps) {
 										)}
 									</span>
 									<span className="text-xs text-muted-foreground/70">{SLOT_META[slot].roster}</span>
+									{slot === "strong" && metadata?.provider === "chatgpt" && metadata.input.includes("image") && (!picked.cheap || !picked.vision) && (
+										<button type="button" className="self-start text-xs underline underline-offset-2" onClick={() => {
+											for (const other of ["cheap", "vision"] as const) {
+												if (picked[other]) continue;
+												editedSlots.current.add(other);
+												setPicked(prev => ({ ...prev, [other]: metadata }));
+												setLevels(prev => ({ ...prev, [other]: populateLevel(level, metadata.supportedLevels) }));
+											}
+										}}>Usar este modelo também nos papéis restantes</button>
+									)}
 									{slot !== "strong" && <><ChatGPTBackgroundAccess provider={entry?.provider} /><NativeSubscriptionBackgroundAccess provider={entry?.provider} /></>}
 									<div className="flex items-center gap-2">
 										<div className="relative flex-1">

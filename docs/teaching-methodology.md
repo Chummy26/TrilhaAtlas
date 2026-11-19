@@ -36,7 +36,7 @@ The order is governed by one rule: **move one reasoning step at a time.** Start 
 Two consequences follow immediately:
 
 - **Every landing is self-evident.** Each step extends the held structure by one connection, so the new fact inherits the obviousness of what it rests on. The whole session is a chain of small "of course" moments, ending at the goal.
-- **Errors surface instantly.** A gap or misconception reveals itself the moment it's stepped on — not three nodes later, when everything built on it is corrupted. Because the step was small, the failure is precisely localized; strengthen or repair the weak spot *before continuing*, and never build on anything not yet held as obviously true.
+- **A learner's work can locate a gap.** When the result is wrong, their reasoning may show which earlier step needs another example. An isolated choice can have several explanations.
 
 ## 6. Foundations
 
@@ -79,19 +79,19 @@ Presentation mode is chosen **per step**, as a means to clarity — never as a r
 
 Explicitness is a tool. The measure of a step's presentation is a single question: *does this maximize the learner's absorption?*
 
-## 9. Checks — after every reasoning step
+## 9. Checks at the end of a teaching arc
 
-Every reasoning step ends with a check: a graded question verifying that the step actually landed. This is not bookkeeping; it is the error-catching mechanism of Section 5 — a step that didn't land is found the moment it's stepped on, precisely localized by the check, and strengthened before anything is built on it.
+Teach the connected steps that make one idea usable. For a new procedure, show a worked example, leave one meaningful step for the learner in a similar case, and offer a fresh application once they can perform that step. A check earns its place when the answer will change the next teaching move.
 
-The cadence also shapes the session's rhythm: each check pauses the lesson for the learner's answer, so teaching advances in a rhythm of step → check → repair-or-continue. *(Locked decision, 2026-09-24: one check per reasoning step. If the rhythm proves unpleasant in practice, revisit — but the default is every step.)*
+A prediction can motivate an exploration. A check follows the completed explanation. The active teacher instructions budget at most one question per turn and three conversational questions per skill. A worked example can end with its result. [Evidence and implementation](impl/memoria-pedagogia.md)
 
 ## 10. What this demands of the implementation
 
 Criteria the theory establishes for the system (not the spec — the spec follows the theory):
 
-1. **The prober must produce precise states.** Both knowledge states — held-with-brackets, and a concrete goal — or the minimal tree cannot be drawn. Probing is not a formality; its precision is the ceiling on planning quality.
+1. **The prober identifies a useful entry point.** Record what the learner demonstrated and which prerequisites remain untested. A selected curriculum skill already supplies its objective.
 2. **Planning must be real work.** The minimal tree is searched, not guessed: scope the field, find what the goal actually depends on, prune what's held, choose the route. The plan artifact shown to the learner is the coarse view (Section 7b) — its quality is the visible evidence of the search.
-3. **Teaching moves in single steps, checked individually.** One reasoning step at a time, each landing verified (Section 9), each repaired before continuing. Never multi-step lectures followed by one check; never building on an unchecked step.
+3. **Practice follows the explanation.** A fresh application shows whether the learner can use an idea independently and helps the teacher choose the next example (Section 9).
 4. **The plan tree's resolution must not leak into the lesson.** Plan nodes are structural landmarks, not lesson segments. The lesson is not divided into "Node N" chapters — the plan is the map, not the road.
 5. **Delivery is efficient by default.** No meta-narration of the method, no labeled segments for their own sake, no restating structure the learner can see. Explicitness only where it serves absorption (Section 8).
 6. **The system owns the logistics.** Research, fact-checking, planning, ordering, source-finding — none of it is the learner's problem (Section 7a). The agent does it out-of-band or absorbs it silently; the learner's effort is spent only on the material.

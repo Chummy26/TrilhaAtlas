@@ -44,6 +44,7 @@ export interface StudyMaterial {
 
 export interface RegionMaterials {
 	region: string;
+	localReadings?: { id: string; title: string; readable: boolean }[];
 	materials: StudyMaterial[];
 	references: { title: string; url?: string; parts: string[] }[];
 	videoSearch: boolean;

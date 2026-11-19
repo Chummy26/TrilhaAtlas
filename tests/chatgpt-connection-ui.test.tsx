@@ -80,7 +80,7 @@ test("Providers is the first/default page; General closes the native group befor
  assert.equal(parseHTML(html).document.querySelector('[data-testid="settings-nav-keys"]')?.textContent, "Providers");
 });
 
-test("Providers has five ordered sections including External CLI; unknown variables stay masked/read-only at the end of Model API keys", async () => {
+test("Providers starts with subscriptions; unknown variables stay masked/read-only at the end of Model API keys", async () => {
  globalThis.fetch = async (url) => {
   if (url === "/api/claude-code") return Response.json({ state: "not-found", version: null, minimumVersion: "2.1.259" });
   assert.equal(url, "/api/keys");
@@ -88,7 +88,7 @@ test("Providers has five ordered sections including External CLI; unknown variab
  };
  fixture(); await mount(<KeysSection />);
  const headings = [...document.querySelectorAll('[data-testid^="group-"] > p')].map((el) => el.textContent);
- assert.deepEqual(headings, ["Model API keys", "Subscriptions", "External CLI", "Dictation", "Search"]);
+ assert.deepEqual(headings, ["Subscriptions", "Model API keys", "External CLI", "Dictation", "Search", "Materiais de estudo"]);
  assert(byTest("claude-code-installation").closest('[data-testid="group-external-cli"]'));
  assert(byTest("key-deepgram_api_key").closest('[data-testid="group-dictation"]'));
  assert(byTest("key-tavily_api_key").closest('[data-testid="group-search"]'));
@@ -102,9 +102,9 @@ test("Providers has five ordered sections including External CLI; unknown variab
  assert.equal(byTest("unknown-FUTURE_VAR").textContent, "FUTURE_VAR…abcd"); assert(!byTest("unknown-FUTURE_VAR").querySelector("input, button"));
 });
 
-test("disconnected row uses shared Connect action; initial default is ON; cancel discards draft without OAuth/global mutation", async () => {
+test("setup offers the branded ChatGPT sign-in; cancel discards draft without OAuth/global mutation", async () => {
  const f = fixture(); await mount(<ChatGPTConnection setup />);
- assert.equal(byTest("chatgpt-connection").textContent, "ChatGPTConnect");
+ assert.equal(byTest("chatgpt-connection").textContent?.trim(), "Continue with ChatGPT");
  assert(!document.body.textContent?.includes(CHATGPT_NOTICE)); const trigger = byTest("chatgpt-login");
  assert.match(trigger.className, /cursor-pointer/); assert.match(trigger.className, /hover:bg-accent/); assert.match(trigger.className, /focus-visible:ring/);
  await click(trigger); assert.equal(f.calls.login.length, 0); assert(document.body.textContent?.includes(CHATGPT_NOTICE));

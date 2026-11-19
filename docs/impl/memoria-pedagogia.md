@@ -1,0 +1,25 @@
+# Como o tutor usa o histórico e a leitura
+
+Ao retomar uma aula, o tutor recebe o objetivo da habilidade e pode usar a meta do aluno, o tempo disponível e as evidências recentes do domínio para escolher onde começar. Uma explicação anterior indica contato com o assunto. Uma solução que o aluno produziu sem ajuda permite começar por uma aplicação mais difícil. Quando falta histórico, o professor parte de um exemplo acessível. A sondagem usa `probe` ou `recall` apenas quando a resposta muda o ponto de partida.
+
+Por exemplo, duas respostas em que o aluno troca o sinal de um expoente podem justificar um contraste antes de trabalhar prefixos SI. O turno recebe as duas perguntas, as escolhas e os links para as aulas de origem. O tutor pode mostrar uma conversão, deixar o último passo de outra para o aluno e depois mudar a grandeza para verificar se ele aplica o método sozinho. O par de erros identifica o que investigar. A explicação do aluno ajuda a distinguir um engano de cálculo de uma dificuldade conceitual.
+
+A seleção usa os mesmos dois erros em questões distintas, dentro de 14 dias, usados para propor reforço. Ela prioriza a habilidade selecionada e os pré-requisitos da rota escolhida pelo planejador. Um acerto posterior encerra aquela sequência. As perguntas das aulas excluídas ficam fora da retomada. O bloco de erros omite o gabarito. O bloco **Leitura da região** fornece o trecho que pode sustentar a explicação. O tutor cita obra, seção e página física ou intervalo conforme o material recebido. Um título solto pode ser indicado para leitura. Quando o aluno pergunta por uma página cujo conteúdo está indisponível, o tutor precisa obter o trecho ou explicitar essa lacuna.
+
+## Estudos e decisões
+
+| Resultado observado | Decisão no TrilhaAtlas |
+| --- | --- |
+| No ensaio pré-registrado Google/Eedi com 1.179 alunos e dez semanas de matemática, os grupos de IA com histórico personalizado e com contexto apenas da questão tiveram resultados semelhantes. O tempo mediano até a resposta passou de 16 para 19 segundos com o histórico. | Recuperar evidência que mude o exemplo, o apoio ou a próxima tentativa. Evitar recapitular o perfil inteiro. [Relatório técnico, §3.5](https://services.google.com/fh/files/misc/learnlm_oct26.pdf#page=12) |
+| Bastani et al. observaram que alunos com acesso ao GPT Base na prática tiveram desempenho 17% menor que o controle na prova sem assistência. As dicas elaboradas com professores mitigaram o efeito no grupo GPT Tutor. | Dar uma pista dirigida ao passo em que ocorreu o erro e voltar a avaliar o princípio em um problema novo. Distinguir sucesso assistido de desempenho independente. [PNAS, 2025](https://doi.org/10.1073/pnas.2422633122) |
+| Nos dois experimentos de Atkinson, Renkl e Merrill, combinar a retirada gradual de passos resolvidos com explicações sobre o princípio favoreceu a transferência para outros problemas. | Usar exemplo completo, passo a completar e aplicação independente em habilidades procedimentais. A quantidade de apoio depende da tentativa atual. [Journal of Educational Psychology, 2003](https://doi.org/10.1037/0022-0663.95.4.774) |
+
+## Implementações consultadas
+
+O BloomTutor usa as dúvidas anotadas pelo aluno para dosar a próxima explicação. O DeepTutor testa se o objetivo e o próximo foco chegam ao tutor na conversa seguinte. No TrilhaAtlas, esses sinais orientam a retomada dentro do domínio. Uma tentativa recente pode justificar outro ponto de partida. [BloomTutor, orientação sobre anotações](https://github.com/Li-Evan/BloomTutor/blob/5f13f54d1243a6b83e87b6bef24c6fbd6ec3fc0f/skills/bloom-tutor/references/articles.md) · [DeepTutor, teste de retomada](https://github.com/HKUDS/DeepTutor/blob/4c1e000d8563c5ac3b231baaaf149dc4dc4d2406/tests/agents/chat/test_learning_journal_injection.py)
+
+O OpenMAIC distingue listar o material de ler um trecho localizado no documento. O Open Mastery calcula a fronteira de estudo no grafo. Aproveitamos essas decisões com a página física efetivamente extraída e com a rota de pré-requisitos calculada pelo planejador do TrilhaAtlas. [OpenMAIC, instruções de leitura](https://github.com/THU-MAIC/OpenMAIC/blob/cb225a52a181f4dbbca5526821238acbb93f3117/lib/server/agent-runtime/material-prompt.ts) · [Open Mastery, cálculo da fronteira](https://github.com/bxxd/open-mastery/blob/2b6c156dbc9c96d6c95d6771ab88408ef15b1035/engine/crates/core/src/graph.rs#L133-L149)
+
+## Verificação local
+
+Os testes de composição verificam as instruções entregues à sondagem, ao professor e à prática. O teste de integração usa um provedor simulado para inspecionar o contexto enviado, com perguntas corrigidas pelo servidor, um PDF sintético e diretórios temporários. Cobre duas questões iguais, duas questões distintas, habilidade sem relação, acerto posterior, remoção da fonte e isolamento entre domínios. A adesão de cada modelo às instruções e o efeito na retenção após semanas de estudo permanecem sem medição local. [Composição dos prompts](../../tests/practice-agents.test.ts) · [Fluxo do tutor](../../tests/tutor-memory-flow.test.ts)

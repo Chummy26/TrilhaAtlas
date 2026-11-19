@@ -2,6 +2,10 @@
 
 Start with a task the learner wants to perform. In the map-reading example, the learner compares two slopes on a topographic map. That requires understanding elevation along a contour line. Those two skills form a short route you can teach and test. [Complete example](../examples/study-domain/map-reading/00-map.json)
 
+## Generate a map in the app
+
+Open the domain menu, choose **Criar domínio de estudo**, describe the outcome and select a connected model. Generation plans the regions first, then authors and validates their skills. Each region has separate book and video queries. The catalog supplies the titles and links that actually appear. Generation uses its own new domain ID. Open the finished map when you are ready to switch subjects.
+
 ## Build and import a map
 
 1. Copy the example folder outside the checkout. Choose a unique lowercase `domainId` and a two- to four-letter lowercase root ID. Replace every node ID, parent and prerequisite consistently. The root title becomes the domain name in the app.

@@ -6,6 +6,7 @@ const crypto = require("node:crypto");
 const http = require("node:http");
 const fs = require("node:fs/promises");
 const path = require("node:path");
+const execFile = require("node:util").promisify(require("node:child_process").execFile);
 
 const ISSUER = "https://auth.openai.com";
 const RESOURCE = "https://api.openai.com/v1";
@@ -20,6 +21,7 @@ const publicError = (err) => ({
 	cancelled: "ChatGPT sign-in cancelled.",
 	timeout: "ChatGPT sign-in timed out. Try again.",
 	storage: "ChatGPT credentials could not be read or saved. Check local file access, then reconnect before making requests.",
+	permissions: "O Windows não conseguiu proteger o arquivo de login. Use uma pasta local NTFS do seu perfil e tente de novo.",
 	identity: "ChatGPT sign-in could not be verified. Select the intended saved account and try again.",
 	scope: "ChatGPT plan permission is missing. Reconnect and authorize ChatGPT plan use.",
 	disconnected: "This ChatGPT connection is disconnected. Reconnect in Providers.",
@@ -50,6 +52,34 @@ function validateState(state) {
 	return state;
 }
 
+// Node's POSIX mode does not set a Windows DACL. Restrict the newly created
+// empty file before writing secrets. The fixed script receives only the path.
+async function protectWindowsFile(file) {
+	const script = `
+		$ErrorActionPreference = 'Stop'
+		$f = $env:TRILHA_CREDENTIAL_FILE
+		$sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+		$acl = [IO.File]::GetAccessControl($f)
+		$dacl = 'D:P(A;;FA;;;SY)'
+		if ($sid -ne 'S-1-5-18') { $dacl += '(A;;FA;;;' + $sid + ')' }
+		$acl.SetSecurityDescriptorSddlForm($dacl, [Security.AccessControl.AccessControlSections]::Access)
+		[IO.File]::SetAccessControl($f, $acl)
+		$saved = [IO.File]::GetAccessControl($f)
+		$rules = $saved.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier])
+		if (!$saved.AreAccessRulesProtected -or !$rules.Count) { throw 'Unprotected file' }
+		foreach ($rule in $rules) {
+			if ($rule.IdentityReference.Value -notin @($sid, 'S-1-5-18') -or $rule.IsInherited -or $rule.AccessControlType -ne 'Allow') { throw 'Unexpected access rule' }
+		}
+	`;
+	const system = process.env.SystemRoot;
+	if (!system || !path.isAbsolute(system)) throw fail("permissions");
+	try {
+		await execFile(path.join(system, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"), ["-NoProfile", "-NonInteractive", "-Command", script], {
+			windowsHide: true, timeout: 15000, env: { SystemRoot: system, TRILHA_CREDENTIAL_FILE: file },
+		});
+	} catch { throw fail("permissions"); }
+}
+
 /** Private, unencrypted JSON outside learning data. No OS credential-store access. */
 function fileStore(file) {
 	return {
@@ -68,6 +98,7 @@ function fileStore(file) {
 			try {
 				await fs.mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
 				handle = await fs.open(temp, "wx", 0o600);
+				if (process.platform === "win32") await protectWindowsFile(temp);
 				await handle.writeFile(`${JSON.stringify(state)}\n`);
 				await handle.sync();
 				await handle.close();
@@ -78,8 +109,8 @@ function fileStore(file) {
 					const dir = await fs.open(path.dirname(file), "r");
 					try { await dir.sync(); } finally { await dir.close(); }
 				}
-			} catch {
-				throw fail("storage");
+			} catch (error) {
+				throw error.code === "permissions" ? error : fail("storage");
 			} finally {
 				await handle?.close().catch(() => {});
 				await fs.unlink(temp).catch(() => {});
@@ -294,7 +325,7 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 				// Reject duplicate parameters and unsolicited callbacks without consuming a valid pending attempt.
 				if (["state", "code", "client_id", "error"].some((key) => params.getAll(key).length > 1) || params.get("state") !== expectedState) { res.writeHead(400).end("Sign-in could not be verified."); return; }
 				consumed = true;
-				res.writeHead(200, { "content-type": "text/plain; charset=utf-8" }).end("Return to LearnHarness to view the sign-in result. You may close this tab.");
+				res.writeHead(200, { "content-type": "text/plain; charset=utf-8" }).end("Volte ao TrilhaAtlas para concluir o login. Você pode fechar esta aba.");
 				cleanup();
 				try {
 					if (params.has("error")) throw fail(params.get("error") === "access_denied" ? "cancelled" : "identity");
@@ -336,7 +367,7 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 			const url = new URL(AUTHORIZE);
 			url.search = new URLSearchParams({
 				client_id: selected?.clientId ?? "dynamic_agent_client",
-				...(selected ? {} : { agent_name_hint: "LearnHarness" }),
+				...(selected ? {} : { agent_name_hint: "TrilhaAtlas" }),
 				ext_agent_host_id: state.hostId,
 				...(selected?.tokens?.idToken ? { id_token_hint: selected.tokens.idToken } : {}),
 				...(selected?.email ? { login_hint: selected.email } : {}),
@@ -423,7 +454,15 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 			const body = await json(`${RESOURCE}/models`, { headers: { Authorization: `Bearer ${token.accessToken}` }, signal: AbortSignal.any([transportAbort.signal, AbortSignal.timeout(15000)]) });
 			authorized(false, undefined, token.epoch);
 			if (sequence !== catalogSequence || active()?.id !== token.accountId || !Array.isArray(body.models)) throw fail("catalog");
-			const visible = body.models.filter((m) => m && m.visibility === "list" && nonempty(m.slug) && typeof m.display_name === "string").map((m) => ({ id: m.slug, name: m.display_name }));
+			const visible = body.models
+				.filter(m => m?.visibility === "list" && m.supported_in_api !== false && nonempty(m.slug) && typeof m.display_name === "string")
+				.map(m => ({
+					id: m.slug, name: m.display_name,
+					...(Number.isSafeInteger(m.context_window) && m.context_window > 0 && { contextWindow: m.context_window }),
+					...(Number.isSafeInteger(m.max_output_tokens) && m.max_output_tokens > 0 && { maxOutput: m.max_output_tokens }),
+					...(Array.isArray(m.input_modalities) && { input: m.input_modalities.filter(mode => mode === "text" || mode === "image") }),
+					...(Array.isArray(m.supported_reasoning_levels) && { efforts: m.supported_reasoning_levels.map(level => level?.effort).filter(effort => typeof effort === "string") }),
+				}));
 			const changed = JSON.stringify(visible) !== JSON.stringify(catalog);
 			catalog = visible;
 			if (changed) authorityRevision++;

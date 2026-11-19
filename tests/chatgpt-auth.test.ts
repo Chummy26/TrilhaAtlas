@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -71,7 +72,7 @@ test("PKCE/state/nonce/host identity and exact ephemeral 127.0.0.1 callback; no 
 		await f.service.login();
 		const params = f.url.searchParams;
 		assert.equal(params.get("client_id"), "dynamic_agent_client");
-		assert.equal(params.get("agent_name_hint"), "LearnHarness");
+		assert.equal(params.get("agent_name_hint"), "TrilhaAtlas");
 		assert.equal(params.get("ext_agent_host_id"), f.saved.hostId);
 		assert.equal(new URL(params.get("redirect_uri")!).hostname, "127.0.0.1");
 		assert.equal(new URL(params.get("redirect_uri")!).pathname, "/auth/callback");
@@ -244,9 +245,36 @@ test("account catalog is scoped, visibility filtered, and cleared on disconnect"
 	} finally { f.service.close(); }
 });
 
-test("private JSON file round-trips global state; creation and atomic replacement are owner-only", async () => {
+test("retains account capabilities for future model IDs and excludes models ineligible for API use", async () => {
+	const f = await loggedIn({ provider: async target => target.endsWith("/models") ? Response.json({ models: [
+		{ slug: "future", display_name: "Future", visibility: "list", supported_in_api: true, context_window: 128000, max_output_tokens: 20000, input_modalities: ["text", "image"], supported_reasoning_levels: [{ effort: "high" }] },
+		{ slug: "web-only", display_name: "Web only", visibility: "list", supported_in_api: false },
+	] }) : undefined });
+	try {
+		assert.deepEqual((await f.service.models()).models, [{ id: "future", name: "Future", contextWindow: 128000, maxOutput: 20000, input: ["text", "image"], efforts: ["high"] }]);
+	} finally { await f.service.close(); }
+});
+
+test("private JSON file round-trips global state and protects both creation and atomic replacement", async () => {
 	const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lh-chatgpt-storage-"));
 	const file = path.join(dir, "private", "chatgpt-credentials.json");
+	const windows = process.platform === "win32";
+	const icacls = path.join(process.env.SystemRoot ?? "", "System32", "icacls.exe");
+	async function assertPrivateFile() {
+		if (!windows) {
+			assert.equal((await fs.stat(file)).mode & 0o777, 0o600);
+			return;
+		}
+		const sid = execFileSync(path.join(process.env.SystemRoot!, "System32", "whoami.exe"), ["/user", "/fo", "csv", "/nh"], { windowsHide: true, encoding: "utf8" }).match(/"(S-1-[\d-]+)"\s*$/)?.[1];
+		assert.ok(sid);
+		const dump = path.join(dir, "dacl.txt");
+		execFileSync(icacls, [file, "/save", dump, "/q"], { windowsHide: true });
+		const descriptor = (await fs.readFile(dump, "utf16le")).split(/\r?\n/)[1]!;
+		assert.match(descriptor, /^D:P/);
+		const allowed = [...descriptor.matchAll(/\(A;;FA;;;([^)]+)\)/g)].map(m => m[1]).sort();
+		assert.deepEqual(allowed, sid === "S-1-5-18" ? ["SY"] : [sid, "SY"].sort());
+		assert.equal(allowed.length, descriptor.match(/\(/g)?.length, "only the owner and SYSTEM have access");
+	}
 	try {
 		const store = fileStore(file);
 		assert.equal(await store.read(), null);
@@ -254,11 +282,12 @@ test("private JSON file round-trips global state; creation and atomic replacemen
 		await store.write(data);
 		assert.deepEqual(JSON.parse(await fs.readFile(file, "utf8")), data, "ordinary JSON, not an encrypted envelope");
 		assert.deepEqual(await store.read(), data);
-		assert.equal((await fs.stat(path.dirname(file))).mode & 0o777, 0o700);
-		assert.equal((await fs.stat(file)).mode & 0o777, 0o600);
-		await fs.chmod(file, 0o644);
+		if (!windows) assert.equal((await fs.stat(path.dirname(file))).mode & 0o777, 0o700);
+		await assertPrivateFile();
+		if (windows) execFileSync(icacls, [file, "/grant", "*S-1-1-0:R", "/q"], { windowsHide: true });
+		else await fs.chmod(file, 0o644);
 		await store.write({ ...data, allowBackgroundUse: true });
-		assert.equal((await fs.stat(file)).mode & 0o777, 0o600, "replacement never inherits a permissive old mode");
+		await assertPrivateFile();
 		assert.equal((await store.read()).allowBackgroundUse, true);
 		assert.deepEqual(await fs.readdir(path.dirname(file)), ["chatgpt-credentials.json"]);
 	} finally { await fs.rm(dir, { recursive: true, force: true }); }

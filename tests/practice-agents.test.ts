@@ -22,6 +22,7 @@ import { CONCLUDE_ACK_TEXT } from "../src/core/contracts/chat.ts";
 import { concludeInputObject, concludeTool, createPracticeGate, problemTool, practiceTools } from "../src/agent/tools/practice.ts";
 import { composeInstructions, createPracticeAgent } from "../src/agent/teacher-agent.ts";
 import { allSegmentPaths } from "../src/agent/prompt-segments.ts";
+import { probeDoneTool } from "../src/agent/tools/probe.ts";
 
 // ── fixtures ─────────────────────────────────────────────────────────────────
 
@@ -325,6 +326,38 @@ describe("persistent practice nudges", () => {
 });
 
 // ── the prompt composition ──────────────────────────────────────────────────
+
+describe("pedagogy in the prompts composed for actual study turns", () => {
+	it("gives all three roles the evidence hierarchy and the citation contract for a regional reading", () => {
+		for (const kind of ["prober", "teacher", "practice"] as const) {
+			const prompt = composeInstructions(kind, {});
+			assert.ok(prompt.includes("[Study memory"), kind);
+			assert.match(prompt, /current request/i);
+			assert.match(prompt, /unaided (?:attempt|work|answer)/i);
+			assert.match(prompt, /superseded/i);
+			assert.ok(prompt.includes("Leitura da região"), kind);
+			assert.match(prompt, /physical PDF page/i);
+			assert.match(prompt, /reading suggestion/i);
+		}
+	});
+
+	it("hands a selected objective to teaching with an honest account of any untested prerequisite", () => {
+		const prompt = composeInstructions("prober", {});
+		assert.match(prompt, /curriculum objective/i);
+		assert.match(prompt, /`probe` or `recall`/);
+		assert.match(prompt, /untested/i);
+		assert.doesNotMatch(prompt, /escalate until it does/);
+		const done = probeDoneTool({ chatId: "study", chatStore: {} as never, deliver: () => {} }).probe_done!;
+		assert.match(done.description, /untested/i);
+	});
+
+	it("fades the worked example into an independent case with room for a question-free explanation", () => {
+		const prompt = composeInstructions("teacher", {});
+		assert.match(prompt, /worked example[\s\S]*last step[\s\S]*independent case/i);
+		assert.match(prompt, /two unsuccessful attempts/i);
+		assert.doesNotMatch(prompt, /one question per turn, every turn|as many questions as it deserves|a short run of quiz questions/i);
+	});
+});
 
 describe("practice prompt composition (own directory + the formatting appendix)", () => {
 	it("composes base + doctrine — never the teaching base or question/confidence mechanics", () => {

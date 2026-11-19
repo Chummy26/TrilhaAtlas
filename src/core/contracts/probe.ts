@@ -55,8 +55,7 @@ export const probeDoneInputSchema = Type.Object({
 					}),
 					assessment: Type.String({
 						description:
-							"Where his edge sits on this strand: the floor (what he reliably gets right), the ceiling (where it runs out), " +
-							"misconceptions found, and what the lesson should build from.",
+							"What the learner demonstrated, any observed difficulty or untested prerequisite, and where teaching should begin.",
 					}),
 				}),
 				{ minItems: 1, description: "Every strand the planned lesson will depend on, each with your read of his edge on it." },

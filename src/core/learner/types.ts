@@ -255,6 +255,10 @@ export interface LearnerPromptSnapshot {
 	frontier: { nodeId: NodeId; title: string; readiness: number }[];
 	topMastered: { nodeId: NodeId; title: string }[];
 	weak: { nodeId: NodeId; title: string; misconception?: string }[];
+	recentErrors?: {
+		title: string;
+		checks: { question: string; answer: string; at: string; sessionId: string }[];
+	};
 	dueReviews: number;
 	todayPlan: string[];
 }

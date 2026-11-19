@@ -83,6 +83,10 @@ Este módulo implementa a SÍNTESE §2.3 (contrato `MemoryService`), §2.4(b)(d)
 
 O tutor monta a consulta a partir da última fala ou resposta do aluno e dos nós em foco. A montagem combina os canais de busca do domínio com o estado atual do currículo. O bloco entra na chamada ao modelo como contexto histórico e fica fora da transcrição salva. O teto é de 12 mil tokens estimados, reduzido conforme o espaço disponível no modelo escolhido.
 
+O perfil fornece a meta, o nível inicial registrado e o tempo planejado no domínio. Em **Mapa → Materiais → PDFs da região**, o aluno pode vincular ou desvincular um exemplar próprio. PDFs de editora salvos pelo painel passam pelo mesmo índice. O original fica na biblioteca local. Cada domínio mantém um índice SQLite FTS5 separado em `resources/regional-readings.sqlite`. Na aula, o BM25 busca pela pergunta e pelos títulos da habilidade nas obras vinculadas à região. Uma pergunta livre pode consultar os livros vinculados ao domínio inteiro.
+
+O bloco **Leitura da região** traz até dois trechos com título, seção quando disponível e página física ou intervalo de páginas da seção extraída. Ele ocupa até 700 tokens estimados dentro do mesmo orçamento do turno. A busca requer texto extraível e correspondência lexical. Um PDF digitalizado sem camada de texto aparece marcado no painel. Desvincular o livro interrompe sua recuperação naquela região e conserva o original na biblioteca pessoal.
+
 Quando a aula salva um turno, a memória registra as falas visíveis com um recibo por sessão e mensagem nativa. Reprocessar uma sessão recupera pendências sem duplicar as falas. A extração valida as citações na fonte e a consolidação atualiza os fatos e o modelo do aluno. O diário continua ligado ao encerramento de sessão. A prática consulta a memória do domínio e o modo Geral usa o fluxo original.
 
 As chamadas de fundo usam o modelo configurado para extração e o auditor para julgar conflitos, com a política de uso do provedor e o orçamento diário do domínio. Quando a conexão ou a cota impede a extração, as mensagens originais ficam no SQLite para uma tentativa posterior. A exclusão de uma sessão também remove suas falas e dados derivados da memória, inclusive na exclusão em lote pela biblioteca.
@@ -132,3 +136,15 @@ Lacunas conhecidas (não corrigidas nesta revisão):
 - `buildContext` pode listar em `items` um item de recall que o teto total cortou do texto.
 - `fitLines` mantém o começo de uma linha recente maior que o orçamento.
 - A resolução de entidades usa só chave exata.
+## Retrieval check on public conversation histories
+
+We ran the app's SQLite recall path on the first two non-abstention questions in each of the six LongMemEval-S categories, using the full conversation history for each question (40–53 sessions). Each case got a fresh database. Only speaker, text, session and timestamp entered the index. Gold evidence labels were used for scoring after retrieval. The default 2,000-token recall budget applied. [LongMemEval protocol](https://github.com/xiaowu0162/LongMemEval#-dataset-format) · [Dataset revision](https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/tree/98d7416)
+
+| Retrieval configuration | Cases returning a relevant session | Gold evidence turns returned | Cases returning all gold turns |
+| --- | ---: | ---: | ---: |
+| Multilingual E5-small (q8) and the app's recall channels | 12/12 | 17/25 | 8/12 |
+| Deterministic hash embeddings with the same pipeline | 12/12 | 18/25 | 7/12 |
+
+In multi-session case `6d550036`, E5 returned a relevant conversation but missed all four annotated turns. A tutor that needs an exact detail should inspect the source or ask the learner when the retrieved passage is insufficient. This sample measures retrieval from raw history. Generated answers, background extraction, abstention, and educational outcomes require separate evaluations. It does not establish a benchmark ranking.
+
+To reproduce, download `longmemeval_s_cleaned.json` and run `node --import tsx scripts/evaluate-study-memory.ts <file> e5 2` or replace `e5` with `hash`. The script creates temporary databases and caches the public embedding model next to the dataset. It uses no provider account.

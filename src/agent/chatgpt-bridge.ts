@@ -1,11 +1,21 @@
 import type { Model } from "@earendil-works/pi-ai";
+import { ESTIMATED_CONTEXT_WINDOW, ESTIMATED_MAX_OUTPUT } from "../core/models/merge.ts";
+import { DEFAULT_THINKING_ORDER } from "../core/settings.ts";
 import { onWebSubscriptionPacket, webSubscriptionRequest, webSubscriptionsEnabled } from "./subscription-runtime.ts";
 import type { ChatGPTStatus } from "../core/contracts/chatgpt.ts";
 import type { AdmissionScope, NoDispatchKind } from "./chatgpt-request-cycle.ts";
 export type { ChatGPTStatus } from "../core/contracts/chatgpt.ts";
 export interface Stamp { epoch: number; authorityRevision: number; revision: number }
 interface StatusValue extends Stamp { status: ChatGPTStatus }
-interface ModelsValue extends StatusValue { accountId: string | null; models: { id: string; name: string }[] }
+interface AccountModel {
+	id: string;
+	name: string;
+	contextWindow?: number;
+	maxOutput?: number;
+	input?: ("text" | "image")[];
+	efforts?: string[];
+}
+interface ModelsValue extends StatusValue { accountId: string | null; models: AccountModel[] }
 interface LeaseValue extends Stamp { accessToken: string; accountId: string }
 interface Pending { op: string; resolve: (v: unknown) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }
 interface BridgeState {
@@ -111,7 +121,42 @@ export async function chatGPTDenial(scope: AdmissionScope | undefined, controlle
  if (controller.signal.reason === "all" || !chatGPTScopeCurrent(scope)) return "all";
  return !chatGPTBackgroundAllowed() ? "background" : "other";
 }
-/** Preserve account order; unknown capabilities/windows are never fabricated. */
+interface PlanModel extends Model<"openai-responses"> {
+	unreportedContext: boolean;
+	unreportedOutput: boolean;
+}
+
+function accountModel(entry: AccountModel, known?: Model<"openai-responses">): PlanModel {
+	const context = entry.contextWindow ?? known?.contextWindow;
+	const output = entry.maxOutput ?? known?.maxTokens;
+	const efforts = entry.efforts;
+	const levels = ["off", ...DEFAULT_THINKING_ORDER] as const;
+	const thinkingLevelMap = efforts ? Object.fromEntries(levels.map(level => [
+		level, efforts.includes(level) ? level : level === "off" && efforts.includes("none") ? "none" : null,
+	])) : known?.thinkingLevelMap;
+	return {
+		...known,
+		id: entry.id, name: entry.name, provider: "chatgpt", api: "openai-responses", baseUrl: "https://api.openai.com/v1",
+		reasoning: efforts ? DEFAULT_THINKING_ORDER.some(level => efforts.includes(level)) : known?.reasoning ?? false,
+		thinkingLevelMap,
+		input: entry.input?.length ? entry.input : known?.input ?? ["text"],
+		contextWindow: context ?? ESTIMATED_CONTEXT_WINDOW,
+		maxTokens: output ?? Math.min(context ?? ESTIMATED_CONTEXT_WINDOW, ESTIMATED_MAX_OUTPUT),
+		unreportedContext: context === undefined, unreportedOutput: output === undefined,
+		headers: undefined, samplingParams: undefined,
+		cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+	};
+}
+
+/** Keep internal planning estimates out of client-facing usage meters. */
+export function chatGPTReportedLimits(model: { contextWindow: number; maxTokens: number }) {
+	return {
+		contextWindow: "unreportedContext" in model && model.unreportedContext ? null : model.contextWindow,
+		maxTokens: "unreportedOutput" in model && model.unreportedOutput ? null : model.maxTokens,
+	};
+}
+
+/** Entitlement and ordering come exclusively from the active account. */
 export async function refreshChatGPTModels(supported: Model<"openai-responses">[]): Promise<void> {
  const state = bridge();
  if (!runtimeConnected()) { clearCatalog(state); return; }
@@ -122,10 +167,7 @@ export async function refreshChatGPTModels(supported: Model<"openai-responses">[
   acceptStatus(state, value);
   if (value.epoch !== state.stamp.epoch || value.authorityRevision !== state.stamp.authorityRevision || value.accountId !== state.status.activeId || !chatGPTConnected()) return;
   state.catalogAccount = value.accountId;
-  state.models = value.models.flatMap((entry) => {
-   const known = supported.find((m) => m.id === entry.id && m.api === "openai-responses");
-   return known ? [{ ...known, provider: "chatgpt", name: entry.name, headers: undefined, samplingParams: undefined, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }] : [];
-  });
+		state.models = value.models.map(entry => accountModel(entry, supported.find(m => m.id === entry.id)));
  } catch { if (sequence === state.catalogRequest) clearCatalog(state); }
 }
 export function chatGPTAbortController(background = true): { controller: AbortController; release: () => void } {
