@@ -64,11 +64,11 @@
 				"pt": "Choque elétrico e NR-10",
 				"en": "Electric shock and NR-10"
 			},
-			"summary": "Efeitos fisiológicos da corrente, caminhos de corrente pelo corpo, primeiros socorros e princípios da NR-10.",
-			"scope": "Dentro: limiares de corrente, resistência do corpo, caminhos perigosos, desenergização, NR-10 em visão geral. Fora: treinamento obrigatório presencial.",
+			"summary": "Risco de choque, fatores de exposição e reconhecimento da desenergização em contexto de segurança profissional.",
+			"scope": "Dentro: corrente, tensão de contato, impedância do corpo, trajeto, duração e desenergização em visão conceitual. Fora: autorização de trabalho, treinamento regulamentar e prática em instalações.",
 			"objectives": [
-				"Explicar por que a corrente, e não a tensão, determina a gravidade do choque",
-				"Listar os passos de desenergização segura previstos na NR-10"
+				"Explicar como tensão de contato, impedância do corpo, trajeto e duração influenciam o risco de choque",
+				"Identificar em estudo de caso os controles de desenergização previstos na NR-10 aplicável"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -182,17 +182,16 @@
 				"pt": "Trabalho seguro com rede elétrica",
 				"en": "Safe work with mains"
 			},
-			"summary": "Transformador isolador, isolação dupla, risco de aterrar a ponta do osciloscópio na rede, sondas diferenciais e categorias CAT.",
-			"scope": "Dentro: isolador, categorias CAT de instrumentos, sondas diferenciais, uma mão no bolso. Fora: manutenção em média tensão.",
+			"summary": "Análise de riscos a partir de diagramas e documentação de instrumentos para medições em instalações.",
+			"scope": "Dentro: aterramento de proteção, referência do osciloscópio, categorias de medição, limites da sonda diferencial e análise de casos. Fora: qualquer prática na rede, manutenção e procedimentos de trabalho energizado.",
 			"objectives": [
-				"Explicar o risco de conectar o terra do osciloscópio a um ponto da rede",
-				"Selecionar instrumentos com categoria CAT adequada"
+				"Identificar em um diagrama por que o retorno aterrado de um osciloscópio pode causar um curto na rede",
+				"Distinguir categoria de medição, tensão nominal e limite de modo comum em documentação de sondas e instrumentos"
 			],
-			"bloom": "evaluate",
+			"bloom": "analyze",
 			"assess": [
-				"lab",
 				"explain",
-				"numeric"
+				"interpret"
 			],
 			"level": {
 				"scheme": "ee",
@@ -316,7 +315,8 @@
 			"clauses": [
 				[
 					"ee.dc.basics.schematics",
-					"ee.dc.basics.resistors-practical"
+					"ee.dc.basics.resistors-practical",
+					"ee.instruments.safety.electrical-safety"
 				]
 			],
 			"hours": {
@@ -424,7 +424,7 @@
 				"en": "Multimeter"
 			},
 			"summary": "Medição de tensão, corrente, resistência e continuidade; ligação em paralelo e em série; fusíveis do instrumento.",
-			"scope": "Dentro: medidas CC e CA, continuidade, diodo, ligação correta, True RMS. Fora: medidas de alta precisão.",
+			"scope": "Dentro: tensão, corrente e resistência em circuitos de bancada de baixa energia, continuidade, teste de diodo e interpretação qualitativa da leitura eficaz e das limitações em CA. Fora: cálculo de RMS, medições na rede e metrologia de precisão.",
 			"objectives": [
 				"Medir tensão, corrente e resistência com a ligação correta",
 				"Explicar por que medir corrente em paralelo queima o fusível"
@@ -553,7 +553,7 @@
 				"en": "Function generator"
 			},
 			"summary": "Formas de onda, offset, ciclo de trabalho, saída de 50 Ω e diferença entre carga de alta impedância e de 50 Ω.",
-			"scope": "Dentro: formas de onda, offset, duty cycle, impedância de saída, modo High-Z. Fora: geradores arbitrários avançados.",
+			"scope": "Dentro: configuração de formas de onda, offset, duty cycle, terminação de 50 Ω, impedância de saída e indicação High-Z. Fora: cálculo de RMS e geradores arbitrários avançados.",
 			"objectives": [
 				"Configurar amplitude, offset e frequência de um sinal",
 				"Explicar por que a amplitude dobra ao trocar a carga de 50 Ω por alta impedância"
@@ -573,8 +573,8 @@
 			},
 			"clauses": [
 				[
-					"ee.ac.phasors.ac-waveforms",
-					"ee.dc.theorems.thevenin"
+					"ee.math.trig.sinusoids.sinusoid-parameters",
+					"ee.dc.basics.sources"
 				]
 			],
 			"hours": {
@@ -619,7 +619,7 @@
 				"en": "Oscilloscope: timebase, trigger and coupling"
 			},
 			"summary": "Escalas vertical e horizontal, trigger por borda, acoplamento CC/CA e medições automáticas.",
-			"scope": "Dentro: escala, trigger, acoplamento, cursores, medições automáticas. Fora: decodificação serial e FFT.",
+			"scope": "Dentro: escala, trigger, acoplamento, cursores, medições automáticas e identificação do retorno aterrado em bancada. Fora: rede elétrica, decodificação serial e FFT.",
 			"objectives": [
 				"Configurar o osciloscópio para estabilizar e medir um sinal periódico",
 				"Usar cursores para medir período, amplitude e defasagem"
@@ -639,7 +639,7 @@
 			},
 			"clauses": [
 				[
-					"ee.ac.phasors.ac-waveforms",
+					"ee.math.trig.sinusoids.phase-shift",
 					"ee.instruments.bench.multimeter"
 				]
 			],
@@ -748,7 +748,7 @@
 				"en": "Oscilloscope: acquisition, FFT and decoding"
 			},
 			"summary": "Taxa de amostragem, profundidade de memória, modos de aquisição, triggers avançados, FFT e decodificação de barramentos.",
-			"scope": "Dentro: amostragem e memória, modos de aquisição, triggers avançados, FFT, decodificação serial. Fora: análise de jitter.",
+			"scope": "Dentro: taxa de amostragem, memória, aliasing, aquisição, triggers avançados, leitura qualitativa de FFT com janela predefinida e decodificação serial com referência fornecida. Fora: teoria de FFT e análise de jitter.",
 			"objectives": [
 				"Escolher taxa de amostragem e memória para capturar um evento",
 				"Usar a FFT do osciloscópio para inspecionar harmônicos"
@@ -1038,10 +1038,10 @@
 				"en": "Four-wire low-resistance measurement"
 			},
 			"summary": "Método Kelvin, resistência de cabos e contatos e pontes de medição.",
-			"scope": "Dentro: Kelvin, 4 fios, pontes de medição. Fora: microhmímetros de potência.",
+			"scope": "Dentro: fonte de corrente, terminais de sense e força, medição Kelvin e erro residual. Fora: pontes resistivas e microhmímetros de potência.",
 			"objectives": [
-				"Explicar por que a medição a 4 fios elimina a resistência dos cabos",
-				"Medir um resistor shunt a 4 fios"
+				"Explicar por que uma ligação Kelvin reduz o erro por queda nos cabos de corrente",
+				"Medir um shunt a quatro fios e comparar a leitura com a de dois fios"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -1055,8 +1055,7 @@
 			},
 			"clauses": [
 				[
-					"ee.instruments.measurement.loading-instruments",
-					"ee.dc.laws.wye-delta"
+					"ee.instruments.measurement.loading-instruments"
 				]
 			],
 			"hours": {
@@ -1598,7 +1597,7 @@
 				"en": "Optical and proximity sensors"
 			},
 			"summary": "Fototransistores, LDRs, barreiras ópticas, encoders e sensores indutivos e capacitivos de proximidade.",
-			"scope": "Dentro: LDR, fototransistor, encoders, proximidade indutiva e capacitiva. Fora: sensores de imagem.",
+			"scope": "Dentro: sensores ópticos, LDR, fototransistor, encoders incrementais e seleção por alcance e ambiente. Fora: sensores de imagem e sensores de proximidade não ópticos.",
 			"objectives": [
 				"Escolher um sensor de presença para uma aplicação",
 				"Explicar o funcionamento de um encoder óptico incremental"
@@ -1676,7 +1675,8 @@
 			"clauses": [
 				[
 					"ee.instruments.sensors.sensor-principles",
-					"ee.ac.magnetic.ideal-transformer"
+					"ee.ac.magnetic.ideal-transformer",
+					"ee.dc.basics.power-energy-dc"
 				]
 			],
 			"hours": {

@@ -111,6 +111,21 @@ export class FileTtlCache implements TtlCache {
 		await fs.promises.rm(this.fileOf(key), { force: true });
 	}
 
+	/** Cached discoveries are shared by all matching nodes in a domain. */
+	async valuesWithPrefix<T>(prefix: string, maxAgeMs: number): Promise<T[]> {
+		let files: string[];
+		try { files = await fs.promises.readdir(this.dir); }
+		catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return []; throw error; }
+		const result: T[] = [];
+		for (const file of files.filter(f => f.endsWith(".json"))) {
+			let entry: { key: string; storedAt: number; value: T };
+			try { entry = JSON.parse(await fs.promises.readFile(path.join(this.dir,file), "utf8")); }
+			catch { continue; }
+			if (this.now() - entry.storedAt <= maxAgeMs && entry.key.startsWith(prefix)) result.push(entry.value);
+		}
+		return result;
+	}
+
 	/** Delete entries older than `maxAgeMs`; returns how many were removed. */
 	async purge(maxAgeMs: number): Promise<number> {
 		let names: string[];

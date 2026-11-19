@@ -826,8 +826,8 @@
 			"summary": "Integrador de Miller, resistor de fuga, diferenciador e seus problemas práticos.",
 			"scope": "Dentro: integrador, resistor de fuga, diferenciador prático. Fora: filtros de variáveis de estado.",
 			"objectives": [
-				"Analisar a saída de um integrador para uma entrada degrau ou quadrada",
-				"Explicar por que o diferenciador puro é instável na prática"
+				"Calcular por áreas de trechos constantes a saída de um integrador para uma entrada em degrau ou quadrada",
+				"Explicar a amplificação de ruído em alta frequência no diferenciador ideal e o efeito de limitar sua banda"
 			],
 			"bloom": "analyze",
 			"assess": [
@@ -843,7 +843,7 @@
 			"clauses": [
 				[
 					"ee.analog.opamp.inverting-noninverting",
-					"ee.dc.storage.capacitor-element"
+					"ee.ac.frequency.transfer-function-jw"
 				]
 			],
 			"hours": {
@@ -1048,7 +1048,8 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.opamp.opamp-nonidealities"
+					"ee.analog.opamp.opamp-nonidealities",
+					"ee.ac.frequency.passive-filters"
 				]
 			],
 			"hours": {
@@ -1116,7 +1117,8 @@
 			"clauses": [
 				[
 					"ee.analog.opamp.inverting-noninverting",
-					"ee.analog.diodes.diode-models"
+					"ee.analog.diodes.diode-models",
+					"ee.ac.transients1.rc-natural"
 				]
 			],
 			"hours": {
@@ -1165,10 +1167,10 @@
 				"en": "Transimpedance amplifier"
 			},
 			"summary": "Conversão corrente-tensão para fotodiodos, estabilidade com capacitância de entrada e escolha do capacitor de realimentação.",
-			"scope": "Dentro: TIA, capacitância de entrada, compensação, banda. Fora: TIAs de comunicação óptica.",
+			"scope": "Dentro: fonte de fotocorrente e capacitância de entrada fornecidas, conversão corrente-tensão, curva de banda e seleção preliminar de compensação por gráfico do fabricante. Fora: derivação de estabilidade de malha e TIAs de comunicação óptica.",
 			"objectives": [
-				"Projetar um TIA para um fotodiodo",
-				"Escolher o capacitor de realimentação para evitar oscilação"
+				"Dimensionar a resistência de realimentação para uma faixa de fotocorrente dada",
+				"Usar a capacitância de entrada e a orientação do fabricante para selecionar um capacitor inicial e verificar a resposta ao degrau"
 			],
 			"bloom": "create",
 			"assess": [
@@ -1376,7 +1378,8 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.bjt-dc.bjt-models-circuit"
+					"ee.analog.bjt-dc.bjt-models-circuit",
+					"ee.dc.storage.inductor-element"
 				]
 			],
 			"hours": {
@@ -1438,7 +1441,8 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.bjt-dc.bjt-models-circuit"
+					"ee.analog.bjt-dc.bjt-models-circuit",
+					"ee.dc.laws.loading"
 				]
 			],
 			"hours": {
@@ -1675,7 +1679,8 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.mos-dc.mos-models-circuit"
+					"ee.analog.mos-dc.mos-models-circuit",
+					"ee.dc.storage.capacitor-element"
 				]
 			],
 			"hours": {
@@ -1732,7 +1737,8 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.mos-dc.mos-models-circuit"
+					"ee.analog.mos-dc.mos-models-circuit",
+					"ee.dc.laws.loading"
 				]
 			],
 			"hours": {
@@ -2381,7 +2387,7 @@
 				"en": "Multistage and cascode amplifiers"
 			},
 			"summary": "Cascata de estágios, efeito de carga entre estágios e a configuração cascode.",
-			"scope": "Dentro: cascata, carga entre estágios, cascode BJT e MOS, Darlington. Fora: par diferencial.",
+			"scope": "Dentro: cascata com carga e cascode na família BJT ou MOS estudada. Fora: projeto de estágios mistos, Darlington e pares diferenciais.",
 			"objectives": [
 				"Calcular o ganho de um amplificador de dois estágios com carga entre estágios",
 				"Explicar como o cascode aumenta a resistência de saída"
@@ -2509,17 +2515,16 @@
 				"pt": "Espelhos de corrente",
 				"en": "Current mirrors"
 			},
-			"summary": "Espelhos simples, cascode e Wilson com BJT e MOSFET, erros de cópia e resistência de saída.",
-			"scope": "Dentro: espelho simples, cascode, Wilson, Widlar, erros. Fora: espelhos de baixa tensão avançados.",
+			"summary": "Espelho simples da família BJT ou MOS, erros de cópia, resistência de saída e comparação com um cascode fornecido.",
+			"scope": "Dentro: espelho simples, erro e resistência de saída na família BJT ou MOS estudada, comparação com um cascode de topologia fornecida. Fora: síntese de espelhos especializados.",
 			"objectives": [
-				"Calcular a corrente de saída e a resistência de saída de um espelho",
-				"Comparar espelhos simples e cascode"
+				"Calcular a corrente e a resistência de saída de um espelho simples BJT ou MOS",
+				"Comparar um espelho simples com um cascode fornecido em resistência de saída e faixa de conformidade"
 			],
 			"bloom": "analyze",
 			"assess": [
 				"numeric",
-				"derivation",
-				"design",
+				"explain",
 				"simulate"
 			],
 			"level": {
@@ -2577,8 +2582,8 @@
 			"summary": "Fonte de corrente como carga para obter alto ganho em um único estágio.",
 			"scope": "Dentro: carga ativa, ganho com r_o, sensibilidade à polarização. Fora: CMFB.",
 			"objectives": [
-				"Calcular o ganho de um estágio com carga ativa",
-				"Explicar por que a carga ativa exige realimentação de modo comum em saídas diferenciais"
+				"Calcular o ganho de um estágio na família estudada com carga ativa",
+				"Explicar o compromisso entre resistência de saída e excursão de um estágio com carga ativa"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -2642,7 +2647,7 @@
 				"en": "Differential pair"
 			},
 			"summary": "Operação em grande sinal, ganho diferencial e de modo comum e análise por meio-circuito.",
-			"scope": "Dentro: par diferencial BJT e MOS, grande sinal, meio-circuito, carga ativa. Fora: amplificadores totalmente diferenciais.",
+			"scope": "Dentro: par diferencial da família BJT ou MOS estudada, transferência de grande sinal, meio-circuito e carga resistiva. Fora: carga ativa, CMFB e amplificadores totalmente diferenciais.",
 			"objectives": [
 				"Calcular o ganho diferencial e de modo comum de um par diferencial",
 				"Esboçar a característica de transferência de grande sinal"
@@ -2770,8 +2775,8 @@
 				"pt": "Estágios de saída: classes A, B e AB",
 				"en": "Output stages: classes A, B and AB"
 			},
-			"summary": "Seguidor classe A, push-pull classe B, distorção de crossover, classe AB, eficiência e proteção.",
-			"scope": "Dentro: classes A, B e AB, eficiência, distorção de crossover, proteção térmica. Fora: amplificadores classe D (ver eletrônica de potência).",
+			"summary": "Seguidor classe A, push-pull classe B, distorção de crossover, polarização classe AB e eficiência em circuitos fornecidos.",
+			"scope": "Dentro: classes A, B e AB e dissipação no tipo de transistor conhecido, com circuitos de referência. Fora: projeto de proteção térmica e amplificadores classe D.",
 			"objectives": [
 				"Calcular a eficiência de estágios classe A e B",
 				"Projetar a polarização de um estágio classe AB"
@@ -2856,7 +2861,8 @@
 				[
 					"ee.analog.ic-building.diff-pair",
 					"ee.analog.ic-building.active-loads",
-					"ee.analog.ic-building.output-stages"
+					"ee.analog.ic-building.output-stages",
+					"ee.analog.opamp.opamp-nonidealities"
 				]
 			],
 			"hours": {
@@ -2952,7 +2958,7 @@
 				"en": "Low- and high-frequency response"
 			},
 			"summary": "Modelos de alta frequência dos transistores e a resposta completa de um amplificador.",
-			"scope": "Dentro: modelos de alta frequência, polos, banda de passagem. Fora: Miller.",
+			"scope": "Dentro: modelo capacitivo fornecido, polos de baixa e alta frequência e banda de passagem na família BJT ou MOS estudada. Fora: teorema de Miller e extração dos parâmetros do dispositivo.",
 			"objectives": [
 				"Identificar polos de baixa e alta frequência de um amplificador",
 				"Esboçar o Bode completo de um amplificador EC ou FC"
@@ -3010,10 +3016,10 @@
 				"en": "Miller effect"
 			},
 			"summary": "Multiplicação da capacitância de realimentação pelo ganho e sua consequência na banda.",
-			"scope": "Dentro: teorema de Miller, capacitância de Miller, divisão de polos. Fora: compensação.",
+			"scope": "Dentro: teorema de Miller, capacitância equivalente e polo de entrada em estágio capacitivo fornecido, BJT ou MOS. Fora: compensação e projeto de cascode.",
 			"objectives": [
-				"Calcular a capacitância de Miller e o polo de entrada",
-				"Explicar por que o cascode atenua o efeito Miller"
+				"Transformar um capacitor de realimentação pelo teorema de Miller",
+				"Estimar o polo de entrada e comparar com o resultado da rede original"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -3028,12 +3034,7 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.freq.amp-freq-response",
-					"ee.semi.bjt.bjt-hf"
-				],
-				[
-					"ee.analog.freq.amp-freq-response",
-					"ee.semi.mos.mosfet-capacitances"
+					"ee.analog.freq.amp-freq-response"
 				]
 			],
 			"hours": {
@@ -3325,7 +3326,8 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.feedback.feedback-concepts"
+					"ee.analog.feedback.feedback-concepts",
+					"ee.ac.sdomain.two-ports"
 				]
 			],
 			"hours": {
@@ -3372,7 +3374,7 @@
 			"scope": "Dentro: polos em malha fechada, margens de ganho e fase, relação com overshoot. Fora: Nyquist completo.",
 			"objectives": [
 				"Determinar margens de ganho e fase a partir do Bode do ganho de malha",
-				"Relacionar margem de fase a overshoot e ringing"
+				"Relacionar margem de fase a overshoot para um modelo dominante de segunda ordem e identificar os limites dessa aproximação"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -3388,7 +3390,8 @@
 			"clauses": [
 				[
 					"ee.analog.feedback.feedback-concepts",
-					"ee.analog.freq.amp-freq-response"
+					"ee.analog.freq.amp-freq-response",
+					"ee.ac.transients2.rlc-step"
 				]
 			],
 			"hours": {
@@ -3554,8 +3557,8 @@
 			"summary": "Condições de ganho e fase para oscilação e o papel da não linearidade na amplitude.",
 			"scope": "Dentro: condições de oscilação, partida e limitação de amplitude. Fora: teoria de osciladores não lineares.",
 			"objectives": [
-				"Aplicar o critério de Barkhausen para obter frequência e ganho necessários",
-				"Explicar como a amplitude se estabiliza"
+				"Usar as condições de magnitude e fase para identificar uma frequência candidata de oscilação sustentada",
+				"Distinguir condições de partida de pequeno sinal e limitação de amplitude em regime permanente"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -3633,7 +3636,7 @@
 			"clauses": [
 				[
 					"ee.analog.oscillators.barkhausen",
-					"ee.ac.frequency.bandpass-notch"
+					"ee.ac.frequency.passive-filters"
 				]
 			],
 			"hours": {
@@ -3802,11 +3805,11 @@
 				"pt": "PLL: detector de fase, VCO e aplicações",
 				"en": "PLL basics: phase detector, VCO and applications"
 			},
-			"summary": "Malha de captura de fase com detector de fase, filtro de malha e VCO, faixas de captura e de travamento, síntese de frequência e demodulação com PLLs discretos.",
-			"scope": "Dentro: diagrama de blocos, detectores de fase XOR e PFD, VCO, filtro de malha de 1ª e 2ª ordem, travamento, síntese N·f_ref, demodulação FM. Fora: PLL integrado, ruído de fase e fracionário-N (ver RF e CI).",
+			"summary": "Malha de fase travada: detector de fase, filtro, VCO, travamento e síntese inteira-N com divisor de frequência.",
+			"scope": "Dentro: detector de fase, filtro, VCO como bloco, travamento, divisor e síntese inteira-N. Fora: dimensionamento dinâmico da malha, demodulação FM, projeto em transistor e síntese fracionária.",
 			"objectives": [
-				"Explicar como a malha leva o VCO a travar em fase com a referência",
-				"Dimensionar um sintetizador inteiro-N simples com divisor de frequência"
+				"Explicar a correção de erro de fase e o estado de travamento pelo diagrama de blocos",
+				"Escolher N para obter uma frequência de saída dada e identificar as limitações da grade de frequências"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -3823,8 +3826,8 @@
 			},
 			"clauses": [
 				[
-					"ee.analog.oscillators.relaxation-555",
-					"ee.analog.feedback.stability-margins"
+					"ee.analog.feedback.feedback-concepts",
+					"ee.digital.seq.registers-counters"
 				]
 			],
 			"softPrereqs": [
@@ -3931,7 +3934,6 @@
 			},
 			"clauses": [
 				[
-					"ee.ac.frequency.bode",
 					"ee.ac.sdomain.poles-zeros"
 				]
 			],
@@ -3990,7 +3992,7 @@
 			"clauses": [
 				[
 					"ee.analog.filters.filter-specs",
-					"ee.analog.opamp.inverting-noninverting"
+					"ee.analog.opamp.opamp-nonidealities"
 				]
 			],
 			"hours": {
@@ -4257,7 +4259,7 @@
 			"scope": "Dentro: regulador série, LDO, dropout, PSRR, ESR e estabilidade, proteção. Fora: LDO integrado.",
 			"objectives": [
 				"Calcular a dissipação e a eficiência de um regulador linear",
-				"Escolher o capacitor de saída de um LDO para estabilidade"
+				"Selecionar o capacitor de saída e a faixa de ESR pela documentação de um LDO"
 			],
 			"bloom": "evaluate",
 			"assess": [
@@ -4273,7 +4275,8 @@
 			"clauses": [
 				[
 					"ee.analog.regulators.references",
-					"ee.analog.feedback.feedback-concepts"
+					"ee.analog.feedback.feedback-concepts",
+					"ee.analog.regulators.thermal"
 				]
 			],
 			"hours": {
@@ -4440,7 +4443,9 @@
 			"clauses": [
 				[
 					"ee.analog.opamp.summing-difference",
-					"ee.digital.numbers.number-systems"
+					"ee.digital.numbers.number-systems",
+					"ee.ac.frequency.passive-filters",
+					"ee.ac.transients1.rc-pulse"
 				]
 			],
 			"hours": {
@@ -4537,7 +4542,7 @@
 				"en": "Converter errors and specifications"
 			},
 			"summary": "Offset, erro de ganho, DNL, INL, códigos ausentes, ruído de quantização, SNR, SINAD e ENOB, e a leitura da folha de dados de um conversor.",
-			"scope": "Dentro: erros estáticos, DNL e INL, monotonicidade, SNR ideal 6,02N + 1,76 dB, SINAD, ENOB, jitter de amostragem em visão, folhas de dados. Fora: testes de produção e figuras de mérito de projeto de CI (ver CI).",
+			"scope": "Dentro: erro de offset e ganho, DNL, INL, monotonicidade, SNR ideal de senoide em escala cheia, SINAD e ENOB a partir de dados fornecidos. Fora: testes de produção e figuras de mérito de CI.",
 			"objectives": [
 				"Calcular DNL, INL e ENOB a partir de medições",
 				"Escolher um conversor comercial pelas especificações da folha de dados"
@@ -4946,7 +4951,7 @@
 				"en": "Audio amplifier, phase 2: build and measurement"
 			},
 			"summary": "Montar o amplificador projetado, ajustar a polarização, medir ganho, resposta em frequência, potência e distorção e comparar com a simulação.",
-			"scope": "Dentro: montagem, ajuste de polarização, medição de ganho, banda, potência e distorção, relatório comparando medição e simulação. Fora: certificação de produto.",
+			"scope": "Dentro: montagem de um protótipo didático de baixa tensão, com fonte de bancada limitada em corrente e carga resistiva, ajuste de polarização e comparação com simulação. Fora: ligação à rede, protótipo de alta potência e certificação.",
 			"objectives": [
 				"Montar e ajustar com segurança um amplificador de potência discreto",
 				"Medir ganho, banda e distorção e explicar as diferenças em relação à simulação"
@@ -4964,7 +4969,11 @@
 			"clauses": [
 				[
 					"ee.analog.design.discrete-amp-design",
-					"ee.instruments.bench.oscilloscope-advanced"
+					"ee.instruments.bench.oscilloscope-advanced",
+					"ee.instruments.bench.bench-supply",
+					"ee.instruments.bench.breadboard",
+					"ee.instruments.bench.function-generator",
+					"ee.analog.regulators.thermal"
 				]
 			],
 			"hours": {
@@ -5004,8 +5013,8 @@
 				"pt": "Front-end de sensor, fase 1: especificação e simulação",
 				"en": "Sensor front-end, phase 1: specification and simulation"
 			},
-			"summary": "Partir do sensor e do ADC de destino, definir ganho, banda e orçamento de erro, escolher o amplificador de instrumentação e o filtro antialiasing e simular a cadeia.",
-			"scope": "Dentro: especificação, orçamento de erro e de ruído, escolha de componentes, escalonamento para a faixa do ADC, simulação da cadeia. Fora: montagem (fase 2) e firmware de aquisição.",
+			"summary": "Partir de um sensor e de um ADC de destino, definir o orçamento simplificado de erro e simular ganho, antialiasing e faixa de entrada.",
+			"scope": "Dentro: orçamento simplificado de erro com valores fornecidos, amplificação diferencial ou não inversora conforme o sensor, filtro antialiasing e faixa do ADC. Fora: orçamento espectral de ruído, montagem e firmware de aquisição.",
 			"objectives": [
 				"Montar o orçamento de erro de uma cadeia de medição",
 				"Projetar ganho, filtro e escalonamento para a faixa do ADC"
@@ -5081,7 +5090,9 @@
 			"clauses": [
 				[
 					"ee.analog.design.sensor-frontend-design",
-					"ee.instruments.measurement.uncertainty"
+					"ee.instruments.measurement.uncertainty",
+					"ee.instruments.bench.bench-supply",
+					"ee.instruments.bench.breadboard"
 				]
 			],
 			"hours": {

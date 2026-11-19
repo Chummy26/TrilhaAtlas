@@ -72,23 +72,13 @@
 			],
 			"bloom": "understand",
 			"assess": [
-				"numeric",
-				"derivation",
-				"design",
-				"simulate"
+				"explain"
 			],
 			"level": {
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.ac.sdomain.poles-zeros"
-				],
-				[
-					"ee.signals.laplace-z.laplace-systems"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2,
 				"hi": 3
@@ -145,7 +135,9 @@
 				[
 					"ee.control.modeling.control-intro",
 					"ee.math.ode.second-order",
-					"ee.physics.magnetism.magnetic-field-force"
+					"ee.physics.magnetism.magnetic-field-force",
+					"ee.math.transforms.laplace-def",
+					"ee.physics.magnetism.faraday-lenz.motional-emf"
 				]
 			],
 			"hours": {
@@ -202,7 +194,12 @@
 			},
 			"clauses": [
 				[
-					"ee.control.modeling.control-intro"
+					"ee.control.modeling.control-intro",
+					"ee.ac.sdomain.poles-zeros"
+				],
+				[
+					"ee.control.modeling.control-intro",
+					"ee.signals.laplace-z.laplace-systems"
 				]
 			],
 			"hours": {
@@ -485,7 +482,7 @@
 			},
 			"clauses": [
 				[
-					"ee.control.modeling.block-reduction"
+					"ee.control.response.time-specs"
 				]
 			],
 			"hours": {
@@ -527,7 +524,7 @@
 			"scope": "Dentro: S e T, rejeição de perturbações, ruído de sensor, compromissos. Fora: limites de Bode.",
 			"objectives": [
 				"Calcular o efeito de uma perturbação na saída em malha fechada",
-				"Explicar o compromisso entre rejeição de perturbação e de ruído"
+				"Explicar em faixas de frequência o compromisso entre rejeição de perturbação e de ruído de sensor"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -542,7 +539,7 @@
 			},
 			"clauses": [
 				[
-					"ee.control.modeling.block-reduction"
+					"ee.control.freq-design.bode-control"
 				]
 			],
 			"hours": {
@@ -651,8 +648,7 @@
 			},
 			"clauses": [
 				[
-					"ee.control.response.routh",
-					"ee.control.response.time-specs"
+					"ee.control.response.routh"
 				]
 			],
 			"hours": {
@@ -876,11 +872,9 @@
 			},
 			"clauses": [
 				[
-					"ee.control.freq-design.bode-control"
+					"ee.control.freq-design.bode-control",
+					"ee.math.transforms.complex-analysis"
 				]
-			],
-			"softPrereqs": [
-				"ee.math.transforms.complex-analysis"
 			],
 			"hours": {
 				"lo": 3,
@@ -1083,11 +1077,11 @@
 				"pt": "Ações P, I e D",
 				"en": "P, I and D actions"
 			},
-			"summary": "Efeito de cada ação sobre erro, estabilidade e resposta, e o PID em forma paralela e padrão.",
-			"scope": "Dentro: P, PI, PD, PID, formas paralela e padrão, filtro derivativo. Fora: sintonia.",
+			"summary": "Ações P, I e D e seus efeitos sobre a resposta de uma malha realimentada.",
+			"scope": "Dentro: ações P, I e D, formas paralela e padrão, filtro derivativo e hipótese de estabilidade da malha para erro em regime. Fora: sintonia.",
 			"objectives": [
-				"Prever o efeito de cada ganho na resposta",
-				"Explicar por que a ação integral zera o erro a degrau"
+				"Prever o efeito qualitativo de cada ação em uma planta dada",
+				"Explicar em que condições a ação integral zera o erro a degrau"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -1756,7 +1750,9 @@
 			"clauses": [
 				[
 					"ee.control.pid.pid",
-					"ee.signals.laplace-z.z-transform"
+					"ee.signals.laplace-z.z-transform",
+					"ee.signals.sampling.sampling-theorem",
+					"ee.control.freq-design.bode-control"
 				]
 			],
 			"hours": {
@@ -1813,8 +1809,7 @@
 			},
 			"clauses": [
 				[
-					"ee.control.digital.discretization",
-					"ee.signals.sampling.sampling-theorem"
+					"ee.control.digital.discretization"
 				]
 			],
 			"hours": {
@@ -1870,8 +1865,8 @@
 			"clauses": [
 				[
 					"ee.control.digital.digital-design",
-					"ee.embedded.periph.timers-pwm",
-					"ee.embedded.periph.adc"
+					"ee.embedded.periph.adc",
+					"ee.digital.numbers.fixed-float"
 				]
 			],
 			"hours": {
@@ -2062,11 +2057,11 @@
 				"pt": "Controle preditivo baseado em modelo",
 				"en": "Model predictive control"
 			},
-			"summary": "Horizonte de predição, otimização com restrições, horizonte deslizante e implementação.",
-			"scope": "Dentro: formulação QP, restrições, horizonte deslizante, estabilidade em visão. Fora: MPC não linear.",
+			"summary": "Formulação e simulação de um MPC linear com restrições em um exemplo pequeno.",
+			"scope": "Dentro: montar o programa quadrático de horizonte finito para um modelo linear discreto fornecido e aplicar horizonte deslizante em simulação. Fora: prova geral de estabilidade e MPC não linear.",
 			"objectives": [
-				"Formular um MPC linear com restrições",
-				"Comparar MPC e LQR em presença de restrições"
+				"Formular um MPC linear com restrições de estado e entrada",
+				"Comparar MPC e LQR em uma simulação com restrição ativa"
 			],
 			"bloom": "create",
 			"assess": [
@@ -2082,7 +2077,8 @@
 			"clauses": [
 				[
 					"ee.control.advanced.lqr-kalman",
-					"ee.control.digital.digital-design"
+					"ee.control.digital.digital-design",
+					"ee.research.tools.optimization-design"
 				]
 			],
 			"hours": {
@@ -2187,9 +2183,9 @@
 			},
 			"clauses": [
 				[
-					"ee.control.digital.digital-design",
+					"ee.signals.laplace-z.z-transform",
 					"ee.math.prob.stats-measurement",
-					"ee.math.linalg.vector-spaces"
+					"ee.math.linalg.vector-spaces.least-squares"
 				]
 			],
 			"hours": {
@@ -2426,11 +2422,11 @@
 				"pt": "Controle em rede e por eventos",
 				"en": "Networked and event-triggered control"
 			},
-			"summary": "Atrasos e perdas de pacotes, amostragem por eventos e coprojeto de controle e comunicação.",
-			"scope": "Dentro: atrasos, perdas, amostragem por eventos, coprojeto. Fora: protocolos de rede industrial.",
+			"summary": "Controle em rede com atrasos, perdas e transmissão disparada por eventos.",
+			"scope": "Dentro: atrasos e perdas em rede, efeito no laço discreto e uma regra simples de transmissão por erro. Fora: implementação de protocolos e provas gerais de estabilidade sob perdas.",
 			"objectives": [
-				"Avaliar o efeito de atrasos de rede na estabilidade",
-				"Projetar uma regra de disparo por eventos"
+				"Simular o efeito de atraso e perdas de pacotes em uma malha discreta",
+				"Comparar uma regra de transmissão por erro com transmissão periódica em um caso parametrizado"
 			],
 			"bloom": "create",
 			"assess": [
@@ -2445,8 +2441,9 @@
 			},
 			"clauses": [
 				[
-					"ee.control.digital.embedded-control",
-					"ee.control.advanced.robust-hinf"
+					"ee.control.digital.digital-design",
+					"ee.control.freq-design.robustness-intro",
+					"ee.embedded.comms.network-fundamentals"
 				]
 			],
 			"hours": {
@@ -2479,11 +2476,11 @@
 				"pt": "Controle baseado em dados e aprendizado",
 				"en": "Data-driven and learning-based control"
 			},
-			"summary": "Aprendizado por reforço, controle por dados com garantias e controle preditivo aprendido.",
-			"scope": "Dentro: RL, controle por dados, MPC aprendido, certificação de segurança. Fora: teoria de aprendizado.",
+			"summary": "Avaliação em simulação de um controlador por aprendizado por reforço em planta simples.",
+			"scope": "Dentro: algoritmo de aprendizado por reforço fornecido, comparação com política de referência e teste de restrições em simulação de planta simples. Fora: teoria de aprendizado e certificação formal de segurança.",
 			"objectives": [
-				"Implementar um controlador por aprendizado por reforço num sistema simples",
-				"Avaliar garantias de segurança de um controlador aprendido"
+				"Executar em simulação um controlador por aprendizado por reforço com algoritmo fornecido",
+				"Medir violações de restrições em cenários dados e delimitar o que os testes demonstram"
 			],
 			"bloom": "evaluate",
 			"assess": [
@@ -2499,7 +2496,8 @@
 			"clauses": [
 				[
 					"ee.control.advanced.mpc",
-					"ee.control.advanced.system-identification"
+					"ee.control.advanced.system-identification",
+					"ee.research.tools.ml-for-ee"
 				]
 			],
 			"hours": {

@@ -82,7 +82,7 @@
 			},
 			"clauses": [
 				[
-					"ee.dc.storage.practical-c-l"
+					"ee.dc.basics.schematics"
 				]
 			],
 			"hours": {
@@ -366,7 +366,8 @@
 			},
 			"clauses": [
 				[
-					"ee.pcb.design.layout-basics"
+					"ee.pcb.design.layout-basics",
+					"ee.ac.phasors.impedance"
 				]
 			],
 			"hours": {
@@ -480,7 +481,8 @@
 			"clauses": [
 				[
 					"ee.pcb.layout.grounding",
-					"ee.analog.opamp.opamp-nonidealities"
+					"ee.analog.opamp.opamp-nonidealities",
+					"ee.analog.converters.adc-architectures"
 				]
 			],
 			"hours": {
@@ -702,7 +704,8 @@
 			"clauses": [
 				[
 					"ee.rf.tlines.tline-transients",
-					"ee.pcb.design.layout-basics"
+					"ee.pcb.design.layout-basics",
+					"ee.rf.tlines.planar-lines"
 				]
 			],
 			"hours": {
@@ -796,11 +799,11 @@
 				"pt": "Diafonia",
 				"en": "Crosstalk"
 			},
-			"summary": "Acoplamento capacitivo e indutivo, diafonia próxima e distante e regras de espaçamento.",
-			"scope": "Dentro: NEXT, FEXT, regra 3W, guard traces. Fora: análise de canais acoplados completos.",
+			"summary": "Acoplamento entre trilhas, efeitos de geometria e redução de diafonia.",
+			"scope": "Dentro: NEXT, FEXT, geometria do retorno e espaçamento conforme stackup, com comparação de exemplos. Fora: extração completa de parâmetros multiconductores.",
 			"objectives": [
-				"Explicar a origem da diafonia próxima e distante",
-				"Aplicar regras de espaçamento para reduzir crosstalk"
+				"Explicar as origens capacitiva e indutiva da diafonia próxima e distante",
+				"Escolher espaçamento a partir de geometria e limite de diafonia fornecidos"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -870,7 +873,8 @@
 			},
 			"clauses": [
 				[
-					"ee.pcb.si.termination"
+					"ee.pcb.si.termination",
+					"ee.pcb.si.crosstalk"
 				]
 			],
 			"hours": {
@@ -926,7 +930,7 @@
 			"clauses": [
 				[
 					"ee.pcb.si.differential-signaling",
-					"ee.instruments.bench.probes"
+					"ee.instruments.bench.oscilloscope-advanced"
 				]
 			],
 			"hours": {
@@ -1091,7 +1095,8 @@
 			"clauses": [
 				[
 					"ee.pcb.emc.emc-fundamentals",
-					"ee.ac.frequency.passive-filters"
+					"ee.ac.frequency.passive-filters",
+					"ee.pcb.layout.power-layout"
 				]
 			],
 			"hours": {
@@ -1415,7 +1420,8 @@
 			"clauses": [
 				[
 					"ee.pcb.project.pcb-capture-placement",
-					"ee.pcb.design.assembly-dfa"
+					"ee.pcb.design.assembly-dfa",
+					"ee.pcb.si.si-basics"
 				]
 			],
 			"hours": {
@@ -1449,11 +1455,11 @@
 				"pt": "Placa de sinal misto, fase 3: montagem, bring-up e medições",
 				"en": "Mixed-signal board, phase 3: assembly, bring-up and measurements"
 			},
-			"summary": "Montagem, inspeção, energização gradual, bring-up com firmware mínimo e medições de alimentação, ruído e interfaces.",
-			"scope": "Dentro: montagem, inspeção, energização gradual, bring-up, medições e registro de erratas para a próxima revisão. Fora: certificação.",
+			"summary": "Bring-up e documentação de uma placa de sinal misto previamente fabricada e montada.",
+			"scope": "Dentro: inspeção de placa montada de baixa tensão, fonte com limite de corrente, roteiro de energização, medições e erratas. Quando houver microcontrolador, usar firmware de teste fornecido. Fora: prazo de fabricação, montagem completa e certificação.",
 			"objectives": [
-				"Executar o bring-up da placa com segurança",
-				"Documentar medições e erratas para a próxima revisão"
+				"Executar a primeira energização de uma placa montada de baixa tensão com limite de corrente e critérios de interrupção",
+				"Registrar tensões, consumo, teste funcional e erratas para a próxima revisão"
 			],
 			"bloom": "create",
 			"assess": [

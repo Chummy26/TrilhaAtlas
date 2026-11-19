@@ -1,0 +1,508 @@
+{
+	"liec-dc": [
+		{
+			"part": "Chapter 1: Basic Concepts Of Electricity",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_1.html"
+		},
+		{
+			"part": "Chapter 2: Ohm'S Law",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html"
+		},
+		{
+			"part": "How voltage, current, and resistance relate",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87160",
+			"nodes": [
+				"ee.dc.basics.ohms-law"
+			]
+		},
+		{
+			"part": "An analogy for Ohm's Law",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87161"
+		},
+		{
+			"part": "Power in electric circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87162"
+		},
+		{
+			"part": "Calculating electric power",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87163"
+		},
+		{
+			"part": "Resistors",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87164"
+		},
+		{
+			"part": "Nonlinear conduction",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87165"
+		},
+		{
+			"part": "Circuit wiring",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87166"
+		},
+		{
+			"part": "Polarity of voltage drops",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87167"
+		},
+		{
+			"part": "Computer simulation of electric circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html#xtocid87168"
+		},
+		{
+			"part": "Chapter 3: Electrical Safety",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_3.html"
+		},
+		{
+			"part": "Chapter 4: Scientific Notation And Metric Prefixes",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_4.html"
+		},
+		{
+			"part": "Scientific notation",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_4.html#xtocid87340",
+			"nodes": [
+				"ee.math.algebra.sci-notation.powers-of-ten"
+			]
+		},
+		{
+			"part": "Arithmetic with scientific notation",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_4.html#xtocid87341"
+		},
+		{
+			"part": "Metric notation",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_4.html#xtocid87342",
+			"nodes": [
+				"ee.math.algebra.sci-notation.si-prefixes"
+			]
+		},
+		{
+			"part": "Metric prefix conversions",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_4.html#xtocid87343",
+			"nodes": [
+				"ee.math.algebra.sci-notation.conversions-practice"
+			]
+		},
+		{
+			"part": "Hand calculator use",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_4.html#xtocid87344"
+		},
+		{
+			"part": "Scientific notation in SPICE",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_4.html#xtocid87345"
+		},
+		{
+			"part": "Chapter 5: Series And Parallel Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html"
+		},
+		{
+			"part": "What are \"series\" and \"parallel\" circuits?",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87430",
+			"nodes": [
+				"ee.dc.laws.series-parallel"
+			]
+		},
+		{
+			"part": "Simple series circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87431"
+		},
+		{
+			"part": "Simple parallel circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87432"
+		},
+		{
+			"part": "Conductance",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87433"
+		},
+		{
+			"part": "Power calculations",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87434"
+		},
+		{
+			"part": "Correct use of Ohm's Law",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87435"
+		},
+		{
+			"part": "Component failure analysis",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87436"
+		},
+		{
+			"part": "Building simple resistor circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_5.html#xtocid87437"
+		},
+		{
+			"part": "Chapter 6: Divider Circuits And Kirchhoff'S Laws",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_6.html"
+		},
+		{
+			"part": "Voltage divider circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_6.html#xtocid87520",
+			"nodes": [
+				"ee.dc.laws.dividers"
+			]
+		},
+		{
+			"part": "Kirchhoff's Voltage Law (KVL)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_6.html#xtocid87521",
+			"nodes": [
+				"ee.dc.laws.kvl"
+			]
+		},
+		{
+			"part": "Current divider circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_6.html#xtocid87522"
+		},
+		{
+			"part": "Kirchhoff's Current Law (KCL)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_6.html#xtocid87523",
+			"nodes": [
+				"ee.dc.laws.kcl"
+			]
+		},
+		{
+			"part": "Chapter 7: Series-Parallel Combination Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_7.html"
+		},
+		{
+			"part": "Chapter 8: Dc Metering Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_8.html"
+		},
+		{
+			"part": "Chapter 9: Electrical Instrumentation Signals",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_9.html"
+		},
+		{
+			"part": "Chapter 10: Dc Network Analysis",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html"
+		},
+		{
+			"part": "What is network analysis?",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87880"
+		},
+		{
+			"part": "Branch current method",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87881"
+		},
+		{
+			"part": "Mesh current method",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87882",
+			"nodes": [
+				"ee.dc.methods.mesh"
+			]
+		},
+		{
+			"part": "Mesh Current, conventional method",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87883"
+		},
+		{
+			"part": "Mesh current by inspection",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87884"
+		},
+		{
+			"part": "Node voltage method",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87885",
+			"nodes": [
+				"ee.dc.methods.nodal"
+			]
+		},
+		{
+			"part": "Introduction to network theorems",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87886"
+		},
+		{
+			"part": "Millman's Theorem",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87887"
+		},
+		{
+			"part": "Superposition Theorem",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87888"
+		},
+		{
+			"part": "Thevenin's Theorem",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid87889"
+		},
+		{
+			"part": "Norton's Theorem",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid878810"
+		},
+		{
+			"part": "Thevenin-Norton equivalencies",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid878811"
+		},
+		{
+			"part": "Millman's Theorem revisited",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid878812"
+		},
+		{
+			"part": "Maximum Power Transfer Theorem",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid878813"
+		},
+		{
+			"part": "Δ-Y and Y-Δ conversions",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_10.html#xtocid878814"
+		},
+		{
+			"part": "Chapter 11: Batteries And Power Systems",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_11.html"
+		},
+		{
+			"part": "Chapter 12: The Physics Of Conductors And Insulators",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_12.html"
+		},
+		{
+			"part": "Chapter 13: Capacitors",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_13.html"
+		},
+		{
+			"part": "Chapter 14: Magnetism And Electromagnetism",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_14.html"
+		},
+		{
+			"part": "Chapter 15: Inductors",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_15.html"
+		},
+		{
+			"part": "Chapter 16: Rc And L/R Time Constants",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_16.html"
+		}
+	],
+	"liec-ac": [
+		{
+			"part": "Chapter 1: Basic Ac Theory",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_1.html"
+		},
+		{
+			"part": "Chapter 2: Complex Numbers",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_2.html"
+		},
+		{
+			"part": "Chapter 3: Reactance And Impedance -- Inductive",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_3.html"
+		},
+		{
+			"part": "Chapter 4: Reactance And Impedance -- Capacitive",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_4.html"
+		},
+		{
+			"part": "Chapter 5: Reactance And Impedance -- R, L, And C",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_5.html"
+		},
+		{
+			"part": "Chapter 6: Resonance",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_6.html"
+		},
+		{
+			"part": "Chapter 7: Mixed-Frequency Ac Signals",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_7.html"
+		},
+		{
+			"part": "Chapter 8: Filters",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_8.html"
+		},
+		{
+			"part": "Chapter 9: Transformers",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_9.html"
+		},
+		{
+			"part": "Chapter 10: Polyphase Ac Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_10.html"
+		},
+		{
+			"part": "Chapter 11: Power Factor",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_11.html"
+		},
+		{
+			"part": "Chapter 12: Ac Metering Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_12.html"
+		},
+		{
+			"part": "Chapter 13: Ac Motors",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_13.html"
+		},
+		{
+			"part": "Chapter 14: Transmission Lines",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/AC/AC_14.html"
+		}
+	],
+	"liec-semi": [
+		{
+			"part": "Chapter 1: Amplifiers And Active Devices",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_1.html"
+		},
+		{
+			"part": "Chapter 2: Solid-State Device Theory",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_2.html"
+		},
+		{
+			"part": "Chapter 3: Diodes And Rectifiers",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_3.html"
+		},
+		{
+			"part": "Chapter 4: Bipolar Junction Transistors",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_4.html"
+		},
+		{
+			"part": "Chapter 5: Junction Field-Effect Transistors ***Incomplete***",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_5.html"
+		},
+		{
+			"part": "Chapter 6: Insulated-Gate Field-Effect Transistors ***Incomplete***",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_6.html"
+		},
+		{
+			"part": "Chapter 7: Thyristors",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_7.html"
+		},
+		{
+			"part": "Chapter 8: Operational Amplifiers",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_8.html"
+		},
+		{
+			"part": "Chapter 9: Practical Analog Semiconductor Circuits ***Incomplete***",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_9.html"
+		},
+		{
+			"part": "Chapter 10: Active Filters ***Pending***",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_10.html"
+		},
+		{
+			"part": "Chapter 11: Dc Motor Drives ***Pending***",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_11.html"
+		},
+		{
+			"part": "Chapter 12: Inverters And Ac Motor Drives ***Pending***",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_12.html"
+		},
+		{
+			"part": "Chapter 13: Electron Tubes",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Semi/SEMI_13.html"
+		}
+	],
+	"liec-digital": [
+		{
+			"part": "Chapter 1: Numeration Systems",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_1.html"
+		},
+		{
+			"part": "Chapter 2: Binary Arithmetic",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_2.html"
+		},
+		{
+			"part": "Chapter 3: Logic Gates",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_3.html"
+		},
+		{
+			"part": "Chapter 4: Switches",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_4.html"
+		},
+		{
+			"part": "Chapter 5: Electromechanical Relays",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_5.html"
+		},
+		{
+			"part": "Chapter 6: Ladder Logic",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_6.html"
+		},
+		{
+			"part": "Chapter 7: Boolean Algebra",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_7.html"
+		},
+		{
+			"part": "Chapter 8: Karnaugh Mapping",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_8.html"
+		},
+		{
+			"part": "Chapter 9: Combinational Logic Functions",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_9.html"
+		},
+		{
+			"part": "Chapter 10: Multivibrators",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_10.html"
+		},
+		{
+			"part": "Chapter 11: Sequential Circuits ***Incomplete***",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_11.html"
+		},
+		{
+			"part": "Chapter 12: Shift Registers",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_12.html"
+		},
+		{
+			"part": "Chapter 13: Digital-Analog Conversion",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_13.html"
+		},
+		{
+			"part": "Chapter 14: Digital Communication",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_14.html"
+		},
+		{
+			"part": "Chapter 15: Digital Storage (Memory)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_15.html"
+		},
+		{
+			"part": "Chapter 16: Principles Of Digital Computing",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Digital/DIGI_16.html"
+		}
+	],
+	"liec-exper": [
+		{
+			"part": "Chapter 1: Introduction",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_1.html"
+		},
+		{
+			"part": "Chapter 2: Basic Concepts And Test Equipment",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_2.html"
+		},
+		{
+			"part": "Chapter 3: Dc Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_3.html"
+		},
+		{
+			"part": "Chapter 4: Ac Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_4.html"
+		},
+		{
+			"part": "Chapter 5: Discrete Semiconductor Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_5.html"
+		},
+		{
+			"part": "Chapter 6: Analog Integrated Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_6.html"
+		},
+		{
+			"part": "Chapter 7: Digital Integrated Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_7.html"
+		},
+		{
+			"part": "Chapter 8: 555 Timer Circuits",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/Exper/EXP_8.html"
+		}
+	],
+	"essentials-of-linguistics": [
+		{
+			"part": "3.6 The International Phonetic Alphabet",
+			"url": "https://ecampusontario.pressbooks.pub/essentialsoflinguistics2/chapter/3-6-the-international-phonetic-alphabet/",
+			"nodes": [
+				"en.pron.foundations.ipa-intro",
+				"en.pron.foundations.spelling-sound",
+				"en.pron.foundations.ipa-intro.vowel-symbols",
+				"en.pron.foundations.ipa-intro.consonant-symbols"
+			]
+		},
+		{
+			"part": "3.10 Transcribing Vowels in Canadian English",
+			"url": "https://ecampusontario.pressbooks.pub/essentialsoflinguistics2/chapter/3-10-transcribing-vowels-in-canadian-english/",
+			"nodes": [
+				"en.pron.foundations.vowel-system",
+				"en.pron.foundations.vowel-system.vowel-chart",
+				"en.pron.foundations.vowel-system.schwa-intro"
+			]
+		}
+	],
+	"voa-learning-english": [
+		{
+			"part": "Lesson 1: Welcome!",
+			"url": "https://learningenglish.voanews.com/a/lets-learn-english-lesson-one/3111026.html",
+			"nodes": [
+				"en.speaking.a1.greetings"
+			]
+		}
+	]
+}

@@ -120,16 +120,15 @@
 				"en": "BJT and MOSFET transistors, qualitatively"
 			},
 			"summary": "Como a base de um BJT e a porta de um MOSFET controlam a corrente principal; terminais, polaridades NPN/PNP e canal N/P.",
-			"scope": "Dentro: terminais, controle por corrente e por tensão, regiões corte, ativa e saturação em nível conceitual. Fora: modelos quantitativos.",
+			"scope": "Dentro: terminais, controle por V_BE e relação aproximada I_C ≈ β I_B no BJT em ativa direta, controle por V_GS no MOSFET, corte, ativa direta e saturação do BJT, triodo e saturação do MOSFET. Fora: modelos quantitativos.",
 			"objectives": [
 				"Identificar terminais e polaridades de BJTs e MOSFETs",
-				"Explicar a diferença entre controle por corrente (BJT) e por tensão (MOSFET)"
+				"Distinguir as correntes de entrada em regime CC e explicar por que saturação denota regiões diferentes nos dois dispositivos"
 			],
 			"bloom": "understand",
 			"assess": [
-				"derivation",
 				"explain",
-				"numeric"
+				"interpret"
 			],
 			"level": {
 				"scheme": "ee",
@@ -660,7 +659,7 @@
 				"en": "pn junction in equilibrium"
 			},
 			"summary": "Região de depleção, potencial interno, campo elétrico e larguras de depleção pela aproximação de depleção.",
-			"scope": "Dentro: potencial interno, aproximação de depleção, larguras e campo máximo. Fora: junções graduais.",
+			"scope": "Dentro: integração da equação do campo em uma dimensão na aproximação de depleção, potencial interno, larguras e campo máximo. Fora: junções graduais.",
 			"objectives": [
 				"Calcular o potencial interno e as larguras de depleção",
 				"Esboçar carga, campo e potencial ao longo da junção"
@@ -677,7 +676,8 @@
 			},
 			"clauses": [
 				[
-					"ee.semi.materials.drift-diffusion"
+					"ee.semi.materials.drift-diffusion",
+					"ee.physics.electrostatics.gauss-law.gauss-statement"
 				]
 			],
 			"hours": {
@@ -721,10 +721,10 @@
 				"en": "Diode I–V characteristic (Shockley equation)"
 			},
 			"summary": "Injeção de minoritários, corrente de saturação, equação de Shockley e desvios em baixa e alta corrente.",
-			"scope": "Dentro: derivação da equação do diodo, I_S, dependência com a temperatura, fator de idealidade. Fora: modelos de alta injeção completos.",
+			"scope": "Dentro: perfis de excesso de portadores fornecidos, injeção de minoritários, equação de Shockley, I_S, fator de idealidade e dependência térmica. Fora: resolver a EDO de continuidade e tratar alta injeção.",
 			"objectives": [
-				"Derivar a equação de Shockley a partir da injeção de minoritários",
-				"Calcular a variação de V_D com a temperatura"
+				"Explicar como as condições de injeção de minoritários produzem o fator exponencial na lei do diodo, usando perfis de difusão fornecidos",
+				"Calcular a corrente e a tensão direta em condições dadas e interpretar a dependência com a temperatura"
 			],
 			"bloom": "analyze",
 			"assess": [
@@ -849,8 +849,8 @@
 			"summary": "Mecanismos de ruptura por tunelamento e por avalanche e sua dependência com a dopagem e a temperatura.",
 			"scope": "Dentro: tunelamento, avalanche, coeficiente de temperatura. Fora: ruptura em dispositivos de potência.",
 			"objectives": [
-				"Distinguir ruptura Zener de avalanche",
-				"Explicar por que diodos Zener de cerca de 5,6 V têm baixo coeficiente de temperatura"
+				"Distinguir ruptura por tunelamento de multiplicação por impacto",
+				"Interpretar o sinal e a ordem de grandeza do coeficiente de temperatura em uma folha de dados"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -1027,8 +1027,8 @@
 			"summary": "Injeção do emissor, transporte na base e coleta, ganhos α e β e regiões ativa, saturação e corte.",
 			"scope": "Dentro: fluxos de portadores, α, β, regiões de operação. Fora: modelos de circuito.",
 			"objectives": [
-				"Explicar como uma pequena corrente de base controla a corrente de coletor",
-				"Identificar a região de operação a partir das polarizações das junções"
+				"Relacionar V_BE, injeção de minoritários e correntes de coletor e base em ativa direta",
+				"Identificar a região de operação pela polarização das duas junções"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -1518,8 +1518,8 @@
 			"summary": "Modulação do comprimento de canal (λ), condução subliminar exponencial e saturação da velocidade.",
 			"scope": "Dentro: λ e r_o, inclinação subliminar, saturação de velocidade, inversão fraca e moderada. Fora: modelos BSIM.",
 			"objectives": [
-				"Calcular r_o a partir de λ",
-				"Explicar a inclinação subliminar de cerca de 60–100 mV/década"
+				"Calcular r_o na região de saturação a partir de λ e do ponto de operação",
+				"Interpretar a inclinação subliminar em mV/década e explicar por que o limite térmico depende da temperatura"
 			],
 			"bloom": "apply",
 			"assess": [

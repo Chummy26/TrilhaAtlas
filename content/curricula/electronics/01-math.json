@@ -381,10 +381,10 @@
 				"pt": "Isolar uma variável em fórmulas",
 				"en": "Solving formulas for a variable"
 			},
-			"summary": "Manipular equações do 1º grau e fórmulas literais (ex.: P = V²/R) para isolar a grandeza pedida.",
+			"summary": "Manipular equações do primeiro grau, como P = V·I, e fórmulas com potências simples, como P = V²/R, informando o domínio antes de escolher uma raiz.",
 			"objectives": [
-				"Isolar qualquer variável de uma fórmula com produtos, quocientes e potências simples",
-				"Verificar a solução substituindo-a de volta na equação"
+				"Isolar uma incógnita em fórmulas com operações inversas, explicitando restrições de domínio",
+				"Conferir por substituição e explicar quando V² = PR admite duas raízes reais ou apenas um valor físico"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -672,11 +672,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.linear-equations"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.9,
 				"hi": 4.05
@@ -735,6 +731,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.linear-equations.isolate-variable"
+				]
 			]
 		},
 		{
@@ -997,11 +998,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.functions-graphs"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.45
@@ -1060,6 +1057,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.sci-notation.powers-of-ten"
+				]
 			]
 		},
 		{
@@ -1092,7 +1094,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.algebra.exponentials-logs.exponent-rules"
+					"ee.math.algebra.exponentials-logs.exponent-rules",
+					"ee.math.algebra.functions-graphs.linear-functions"
 				]
 			],
 			"encompasses": [
@@ -1141,7 +1144,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.algebra.exponentials-logs.exponential-functions"
+					"ee.math.algebra.exponentials-logs.exponential-functions",
+					"ee.math.algebra.functions-graphs.transformations-inverse"
 				]
 			],
 			"hours": {
@@ -1277,11 +1281,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.exponentials-logs"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 1.95,
 				"hi": 2.6
@@ -1314,10 +1314,10 @@
 				"pt": "Decibel: razões de potência e de amplitude",
 				"en": "The decibel: power and amplitude ratios"
 			},
-			"summary": "Definição do dB como 10·log de uma razão de potências e 20·log de uma razão de tensões, e quando cada fórmula vale.",
+			"summary": "Definir dB como razão logarítmica e obter a relação entre razões de potência e de tensão sobre impedâncias resistivas iguais.",
 			"objectives": [
-				"Converter razões de potência e de tensão para dB e de volta",
-				"Explicar por que tensão usa 20·log e potência usa 10·log"
+				"Converter razões de potência e de tensão em dB e realizar a conversão inversa em cargas resistivas iguais",
+				"Derivar o fator 20 de 10·log₁₀(P₂/P₁), substituindo P = V_RMS²/R para o mesmo R"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -1340,6 +1340,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.exponentials-logs.logarithms",
+					"ee.math.algebra.linear-equations.fractions-proportions"
+				]
 			]
 		},
 		{
@@ -1398,13 +1404,13 @@
 			"parentId": "ee.math.algebra.decibels",
 			"order": 2,
 			"title": {
-				"pt": "Unidades absolutas: dBm, dBV e dBµV",
-				"en": "Absolute units: dBm, dBV and dBµV"
+				"pt": "Níveis com referência: dBm, dBV e dBµV",
+				"en": "Referenced levels: dBm, dBV, and dBµV"
 			},
 			"summary": "Níveis referidos a 1 mW, 1 V ou 1 µV, conversões entre eles e a dependência da impedância de referência no dBm.",
 			"objectives": [
-				"Converter potência em mW para dBm e de volta",
-				"Converter um nível em dBm para tensão RMS sobre 50 Ω"
+				"Converter potência em mW para dBm e tensões RMS para dBV e dBµV",
+				"Converter dBm em tensão RMS sobre 50 Ω usando a relação P = V_RMS²/R fornecida"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -1420,7 +1426,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.algebra.decibels.db-mental"
+					"ee.math.algebra.decibels.db-definition",
+					"ee.math.algebra.sci-notation.si-prefixes"
 				]
 			],
 			"hours": {
@@ -1462,6 +1469,7 @@
 			},
 			"clauses": [
 				[
+					"ee.math.algebra.decibels.db-mental",
 					"ee.math.algebra.decibels.absolute-db"
 				]
 			],
@@ -1558,11 +1566,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.functions-graphs"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.55,
 				"hi": 3.5
@@ -1595,7 +1599,7 @@
 				"pt": "Ângulos em graus e radianos",
 				"en": "Angles in degrees and radians"
 			},
-			"summary": "Medida de ângulos em radianos, conversão de graus e comprimento de arco; por que a engenharia usa ω em rad/s.",
+			"summary": "Começar pelo arco de meia volta, 180° = π rad, e usar múltiplos e frações dessa equivalência para converter ângulos. Relacionar ângulo, raio e comprimento de arco com θ = s/r.",
 			"objectives": [
 				"Converter ângulos entre graus e radianos",
 				"Relacionar ângulo, raio e comprimento de arco"
@@ -1790,7 +1794,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.trig.trig-basics.unit-circle"
+					"ee.math.trig.trig-basics.unit-circle",
+					"ee.math.algebra.functions-graphs.linear-functions"
 				]
 			],
 			"hours": {
@@ -1827,11 +1832,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.math.trig.trig-basics"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 1.9,
 				"hi": 2.65
@@ -1890,6 +1891,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.trig.trig-basics.unit-circle"
+				]
 			]
 		},
 		{
@@ -2012,7 +2018,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.trig.identities.sum-difference"
+					"ee.math.trig.identities.sum-difference",
+					"ee.math.trig.trig-basics.vectors-components"
 				]
 			],
 			"encompasses": [
@@ -2063,11 +2070,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.math.trig.trig-basics"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.55,
 				"hi": 3.5
@@ -2126,6 +2129,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.trig.trig-basics.trig-graphs"
+				]
 			]
 		},
 		{
@@ -2199,7 +2207,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.trig.sinusoids.phase-shift"
+					"ee.math.trig.sinusoids.phase-shift",
+					"ee.math.trig.identities.sum-difference"
 				]
 			],
 			"encompasses": [
@@ -2390,11 +2399,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.linear-equations"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.55,
 				"hi": 3.5
@@ -2458,6 +2463,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.exponentials-logs.exponent-rules"
+				]
 			]
 		},
 		{
@@ -2488,7 +2498,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.complex.complex-arith.imaginary-unit"
+					"ee.math.complex.complex-arith.imaginary-unit",
+					"ee.math.trig.trig-basics.vectors-components"
 				]
 			],
 			"hours": {
@@ -2621,7 +2632,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.complex.complex-arith.conjugate-division"
+					"ee.math.complex.complex-arith.conjugate-division",
+					"ee.math.algebra.linear-equations.systems-2x2"
 				]
 			],
 			"encompasses": [
@@ -2671,12 +2683,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.complex.complex-arith",
-					"ee.math.trig.trig-basics"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.5,
 				"hi": 3.5
@@ -2745,6 +2752,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.complex.complex-arith.conjugate-division"
+				]
 			]
 		},
 		{
@@ -2922,18 +2934,13 @@
 			},
 			"clauses": [
 				[
-					"ee.math.complex.polar-euler.polar-mult-div",
-					"ee.math.complex.polar-euler.euler-formula"
+					"ee.math.complex.polar-euler.polar-mult-div"
 				]
 			],
 			"encompasses": [
 				{
 					"id": "ee.math.complex.polar-euler.polar-mult-div",
 					"w": 0.6
-				},
-				{
-					"id": "ee.math.complex.polar-euler.euler-formula",
-					"w": 0.3
 				}
 			],
 			"hours": {
@@ -2974,12 +2981,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.complex.polar-euler",
-					"ee.math.trig.sinusoids"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.55,
 				"hi": 3.5
@@ -3049,6 +3051,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.complex.polar-euler.rotating-phasor",
+					"ee.math.trig.sinusoids.sin-cos-conversion"
+				]
 			]
 		},
 		{
@@ -3086,10 +3094,6 @@
 				{
 					"id": "ee.math.complex.phasor-math.phasor-definition",
 					"w": 0.4
-				},
-				{
-					"id": "ee.math.trig.sinusoids.sum-same-freq",
-					"w": 0.5
 				}
 			],
 			"hours": {
@@ -3112,10 +3116,10 @@
 				"pt": "Derivada e integral viram multiplicação por jω",
 				"en": "Differentiation and integration become multiplication by jω"
 			},
-			"summary": "A derivada de uma senoide corresponde a multiplicar o fasor por jω e a integral a dividi-lo por jω: a chave para transformar EDOs em álgebra.",
+			"summary": "Aplicar a derivada como multiplicação por jω e a integração da componente senoidal como divisão por jω, com ω ≠ 0. Identificar separadamente a constante de integração, que fica fora do fasor.",
 			"objectives": [
-				"Aplicar d/dt ↔ jω e ∫dt ↔ 1/(jω) a fasores",
-				"Explicar o adiantamento de 90° da derivada de uma senoide"
+				"Obter os fasores da derivada e da antiderivada senoidal para uma frequência não nula",
+				"Explicar o avanço de 90° da derivada e a posição da constante de integração no domínio do tempo"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -3133,7 +3137,7 @@
 			"clauses": [
 				[
 					"ee.math.complex.phasor-math.phasor-definition",
-					"ee.math.calc.derivatives.trig-exp-derivatives"
+					"ee.math.calc.integrals.antiderivatives"
 				]
 			],
 			"encompasses": [
@@ -3229,7 +3233,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.complex.phasor-math.phasor-definition"
+					"ee.math.complex.phasor-math.phasor-definition",
+					"ee.math.calc.integral-apps.rms-value"
 				]
 			],
 			"hours": {
@@ -3317,11 +3322,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.exponentials-logs"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.5,
 				"hi": 3.5
@@ -3385,6 +3386,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.functions-graphs.function-concept"
+				]
 			]
 		},
 		{
@@ -3416,7 +3422,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.limits-continuity.limit-intuition"
+					"ee.math.calc.limits-continuity.limit-intuition",
+					"ee.math.algebra.linear-equations.fractions-proportions"
 				]
 			],
 			"encompasses": [
@@ -3464,7 +3471,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.limits-continuity.limit-laws"
+					"ee.math.calc.limits-continuity.limit-laws",
+					"ee.math.algebra.exponentials-logs.exponential-functions"
 				]
 			],
 			"hours": {
@@ -3507,7 +3515,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.limits-continuity.limit-intuition"
+					"ee.math.calc.limits-continuity.limit-intuition",
+					"ee.math.algebra.functions-graphs.piecewise"
 				]
 			],
 			"encompasses": [
@@ -3599,11 +3608,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.calc.limits-continuity"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 3.05,
 				"hi": 4.2
@@ -3673,6 +3678,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.limits-continuity.limit-laws",
+					"ee.math.algebra.functions-graphs.linear-functions"
+				]
 			]
 		},
 		{
@@ -3687,7 +3698,7 @@
 			},
 			"summary": "Derivar polinômios e potências, inclusive com expoentes negativos e fracionários, sem recorrer à definição.",
 			"objectives": [
-				"Derivar polinômios e potências com expoente real",
+				"Derivar polinômios e potências reais nos pontos em que a expressão e sua derivada estão definidas",
 				"Derivar somas termo a termo"
 			],
 			"bloom": "apply",
@@ -3843,7 +3854,9 @@
 			"clauses": [
 				[
 					"ee.math.calc.derivatives.chain-rule",
-					"ee.math.trig.sinusoids.phase-shift"
+					"ee.math.calc.limits-continuity.special-limits",
+					"ee.math.trig.sinusoids.phase-shift",
+					"ee.math.algebra.exponentials-logs.logarithms"
 				]
 			],
 			"encompasses": [
@@ -3941,11 +3954,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.calc.derivatives"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.6
@@ -4014,6 +4023,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.derivatives.higher-order",
+					"ee.math.calc.limits-continuity.continuity"
+				]
 			]
 		},
 		{
@@ -4028,8 +4043,8 @@
 			},
 			"summary": "Modelar e otimizar grandezas físicas, como a resistência de carga que maximiza a potência entregue por uma fonte com resistência interna.",
 			"objectives": [
-				"Montar a função objetivo e as restrições de um problema de otimização",
-				"Mostrar por derivação que a potência na carga é máxima quando R_L = R_th"
+				"Montar uma função objetivo simples e explicitar o intervalo permitido para a variável",
+				"Maximizar P(R_L) = V_th²·R_L/(R_th + R_L)² para R_th > 0, com o modelo fornecido"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -4046,7 +4061,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.derivative-apps.extrema"
+					"ee.math.calc.derivative-apps.extrema",
+					"ee.math.calc.derivatives.product-quotient"
 				]
 			],
 			"encompasses": [
@@ -4105,6 +4121,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.derivatives.power-sum-rules"
+				]
 			]
 		},
 		{
@@ -4135,7 +4156,9 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.derivative-apps.linearization"
+					"ee.math.calc.derivative-apps.linearization",
+					"ee.math.calc.derivatives.product-quotient",
+					"ee.math.calc.derivatives.chain-rule"
 				]
 			],
 			"encompasses": [
@@ -4229,11 +4252,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.calc.derivatives"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.65
@@ -4302,6 +4321,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.derivatives.trig-exp-derivatives"
+				]
 			]
 		},
 		{
@@ -4340,6 +4364,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.limits-continuity.limit-intuition",
+					"ee.math.algebra.functions-graphs.linear-functions"
+				]
 			]
 		},
 		{
@@ -4474,7 +4504,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.integrals.substitution"
+					"ee.math.calc.integrals.substitution",
+					"ee.math.calc.derivatives.product-quotient"
 				]
 			],
 			"encompasses": [
@@ -4520,11 +4551,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.calc.integrals"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.55
@@ -4592,6 +4619,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.integrals.substitution",
+					"ee.math.algebra.functions-graphs.piecewise"
+				]
 			]
 		},
 		{
@@ -4689,6 +4722,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.integrals.ftc"
+				]
 			]
 		},
 		{
@@ -4720,7 +4758,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.integral-apps.charge-energy-integration"
+					"ee.math.calc.integral-apps.charge-energy-integration",
+					"ee.math.algebra.functions-graphs.piecewise"
 				]
 			],
 			"encompasses": [
@@ -4779,6 +4818,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.integrals.ftc",
+					"ee.math.calc.limits-continuity.limits-infinity"
+				]
 			]
 		},
 		{
@@ -4805,11 +4850,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.calc.derivative-apps"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.5,
 				"hi": 3.5
@@ -4873,6 +4914,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.limits-continuity.limit-laws",
+					"ee.math.algebra.exponentials-logs.exponent-rules"
+				]
 			]
 		},
 		{
@@ -4905,14 +4952,9 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.series-taylor.sequences-series"
+					"ee.math.calc.series-taylor.sequences-series",
+					"ee.math.calc.derivatives.higher-order"
 				]
-			],
-			"encompasses": [
-				{
-					"id": "ee.math.calc.derivative-apps.linearization",
-					"w": 0.5
-				}
 			],
 			"hours": {
 				"lo": 0.55,
@@ -5087,11 +5129,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.calc.derivative-apps"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.65
@@ -5154,6 +5192,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.functions-graphs.reading-plots"
+				]
 			]
 		},
 		{
@@ -5184,7 +5227,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.multivariable.multivar-functions"
+					"ee.math.calc.multivariable.multivar-functions",
+					"ee.math.calc.derivatives.higher-order"
 				]
 			],
 			"encompasses": [
@@ -5213,10 +5257,10 @@
 				"pt": "Diferencial total e propagação de incertezas",
 				"en": "Total differential and uncertainty propagation"
 			},
-			"summary": "df = Σ ∂f/∂xᵢ dxᵢ para estimar variações e propagar tolerâncias de componentes por pior caso e por soma quadrática.",
+			"summary": "Usar df = Σ ∂f/∂xᵢ dxᵢ para estimar variações. Distinguir limites de tolerância, somados em pior caso, de incertezas-padrão independentes, combinadas em quadratura.",
 			"objectives": [
 				"Estimar a variação de uma grandeza a partir das variações dos parâmetros",
-				"Propagar tolerâncias de resistores numa fórmula por pior caso e por soma quadrática"
+				"Comparar limite de pior caso e incerteza-padrão combinada em um exemplo com resistores e dados fornecidos"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -5239,10 +5283,6 @@
 				{
 					"id": "ee.math.calc.multivariable.partial-derivatives",
 					"w": 0.6
-				},
-				{
-					"id": "ee.math.calc.derivative-apps.related-rates-sensitivity",
-					"w": 0.4
 				}
 			],
 			"hours": {
@@ -5284,7 +5324,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.multivariable.partial-derivatives"
+					"ee.math.calc.multivariable.partial-derivatives",
+					"ee.math.trig.trig-basics.vectors-components"
 				]
 			],
 			"hours": {
@@ -5326,7 +5367,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.multivariable.gradient"
+					"ee.math.calc.multivariable.gradient",
+					"ee.math.calc.derivative-apps.extrema"
 				]
 			],
 			"encompasses": [
@@ -5378,8 +5420,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.multivariable",
-					"ee.math.calc.integrals"
+					"ee.math.calc.multivariable.partial-derivatives",
+					"ee.math.calc.integrals.substitution"
 				]
 			],
 			"hours": {
@@ -5433,12 +5475,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.calc.multivariable",
-					"ee.math.calc.integrals"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.7,
 				"hi": 3.7
@@ -5502,6 +5539,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.multivariable.gradient"
+				]
 			]
 		},
 		{
@@ -5532,7 +5574,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.vector-calc.vector-fields"
+					"ee.math.calc.vector-calc.vector-fields",
+					"ee.math.calc.integrals.substitution"
 				]
 			],
 			"encompasses": [
@@ -5770,11 +5813,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.linear-equations"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.6
@@ -5837,6 +5876,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.linear-equations.systems-2x2"
+				]
 			]
 		},
 		{
@@ -6016,10 +6060,6 @@
 				{
 					"id": "ee.math.linalg.matrices.determinants",
 					"w": 0.6
-				},
-				{
-					"id": "ee.math.algebra.linear-equations.systems-3x3",
-					"w": 0.3
 				}
 			],
 			"hours": {
@@ -6056,11 +6096,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.linalg.matrices"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.6
@@ -6129,6 +6165,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.linalg.matrices.matrix-ops",
+					"ee.math.algebra.linear-equations.systems-3x3"
+				]
 			]
 		},
 		{
@@ -6339,11 +6381,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.linalg.linear-systems"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.7,
 				"hi": 3.65
@@ -6407,6 +6445,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.linalg.linear-systems.rank-solutions"
+				]
 			]
 		},
 		{
@@ -6438,7 +6481,9 @@
 			},
 			"clauses": [
 				[
-					"ee.math.linalg.eigen.eigen-concept"
+					"ee.math.linalg.eigen.eigen-concept",
+					"ee.math.linalg.matrices.determinants",
+					"ee.math.algebra.functions-graphs.quadratic-power"
 				]
 			],
 			"encompasses": [
@@ -6534,7 +6579,9 @@
 			},
 			"clauses": [
 				[
-					"ee.math.linalg.eigen.characteristic-poly"
+					"ee.math.linalg.eigen.characteristic-poly",
+					"ee.math.linalg.vector-spaces.span-independence",
+					"ee.math.linalg.matrices.inverse"
 				]
 			],
 			"encompasses": [
@@ -6569,8 +6616,8 @@
 			},
 			"summary": "Calcular autovalores com uma biblioteca numérica, conferir à mão casos 2×2 e avaliar a estabilidade de um sistema pelos sinais das partes reais.",
 			"objectives": [
-				"Obter autovalores e autovetores com software e validar um caso à mão",
-				"Classificar a estabilidade de um sistema linear pelos autovalores"
+				"Obter autovalores e autovetores com software e validar um caso pelo resíduo Av − λv",
+				"Comparar autovalores numéricos e analíticos numa matriz 2×2 com autovalores reais distintos"
 			],
 			"bloom": "analyze",
 			"assess": [
@@ -6637,11 +6684,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.linalg.linear-systems"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.7,
 				"hi": 3.7
@@ -6704,6 +6747,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.linalg.linear-systems.rank-solutions"
+				]
 			]
 		},
 		{
@@ -6962,11 +7010,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.calc.integrals"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.6
@@ -7030,6 +7074,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.derivatives.higher-order"
+				]
 			]
 		},
 		{
@@ -7062,7 +7111,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.ode.first-order.ode-concepts"
+					"ee.math.ode.first-order.ode-concepts",
+					"ee.math.calc.integrals.substitution"
 				]
 			],
 			"encompasses": [
@@ -7117,10 +7167,6 @@
 				{
 					"id": "ee.math.ode.first-order.separable",
 					"w": 0.5
-				},
-				{
-					"id": "ee.math.calc.integrals.by-parts",
-					"w": 0.3
 				}
 			],
 			"hours": {
@@ -7165,12 +7211,6 @@
 				[
 					"ee.math.ode.first-order.integrating-factor"
 				]
-			],
-			"encompasses": [
-				{
-					"id": "ee.math.algebra.exponentials-logs.exp-equations",
-					"w": 0.5
-				}
 			],
 			"hours": {
 				"lo": 0.5,
@@ -7253,11 +7293,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.ode.first-order"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.6
@@ -7325,6 +7361,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.ode.first-order.time-constant"
+				]
 			]
 		},
 		{
@@ -7400,7 +7441,8 @@
 			"clauses": [
 				[
 					"ee.math.ode.second-order.second-order-form",
-					"ee.math.complex.polar-euler.euler-formula"
+					"ee.math.complex.polar-euler.euler-formula",
+					"ee.math.complex.complex-arith.quadratic-complex-roots"
 				]
 			],
 			"encompasses": [
@@ -7548,11 +7590,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.ode.second-order"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.7,
 				"hi": 3.65
@@ -7615,6 +7653,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.ode.second-order.ivp-practice"
+				]
 			]
 		},
 		{
@@ -7785,7 +7828,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.ode.forced-response.sinusoidal-steady-state"
+					"ee.math.ode.forced-response.sinusoidal-steady-state",
+					"ee.math.trig.identities.double-angle-product"
 				]
 			],
 			"encompasses": [
@@ -7828,11 +7872,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.ode.second-order"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.7,
 				"hi": 3.65
@@ -7888,6 +7928,7 @@
 			},
 			"clauses": [
 				[
+					"ee.math.ode.second-order.second-order-form",
 					"ee.math.linalg.matrices.matrix-ops"
 				]
 			],
@@ -8192,11 +8233,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.calc.integrals"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.75,
 				"hi": 3.7
@@ -8239,7 +8276,7 @@
 				"pt": "Definição da transformada de Laplace",
 				"en": "Definition of the Laplace transform"
 			},
-			"summary": "F(s) = ∫₀^∞ f(t)e^(−st) dt, a variável complexa s = σ + jω e a região de convergência.",
+			"summary": "Introduzir a transformada unilateral pela integral imprópria. Começar pelo caso de parâmetro real e interpretar Re(s) como amortecimento do núcleo antes de calcular a região de convergência.",
 			"objectives": [
 				"Calcular as transformadas do degrau, da exponencial e da rampa pela definição",
 				"Explicar por que s é complexo e o que é a região de convergência"
@@ -8260,7 +8297,7 @@
 			"clauses": [
 				[
 					"ee.math.calc.integral-apps.improper-integrals",
-					"ee.math.complex.complex-arith"
+					"ee.math.complex.polar-euler.euler-formula"
 				]
 			],
 			"encompasses": [
@@ -8308,8 +8345,7 @@
 			},
 			"clauses": [
 				[
-					"ee.math.transforms.laplace-def.laplace-definition",
-					"ee.math.complex.polar-euler.euler-formula"
+					"ee.math.transforms.laplace-def.laplace-definition"
 				]
 			],
 			"encompasses": [
@@ -8404,7 +8440,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.transforms.laplace-def.laplace-properties"
+					"ee.math.transforms.laplace-def.laplace-properties",
+					"ee.math.calc.integrals.by-parts"
 				]
 			],
 			"hours": {
@@ -8429,8 +8466,8 @@
 			},
 			"summary": "Obter f(0⁺) e f(∞) diretamente de F(s) e reconhecer quando o teorema do valor final não se aplica.",
 			"objectives": [
-				"Aplicar os teoremas do valor inicial e do valor final",
-				"Verificar as condições de validade do valor final (polos no semiplano esquerdo)"
+				"Aplicar os teoremas do valor inicial e do valor final a funções racionais com condições satisfeitas",
+				"Verificar se todos os polos de sF(s), após simplificação, estão no semiplano esquerdo aberto antes de aplicar o teorema do valor final"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -8446,7 +8483,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.transforms.laplace-def.derivative-integral-property"
+					"ee.math.transforms.laplace-def.derivative-integral-property",
+					"ee.math.transforms.inverse-laplace.poles-zeros"
 				]
 			],
 			"encompasses": [
@@ -8493,11 +8531,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.transforms.laplace-def"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.75,
 				"hi": 3.65
@@ -8542,8 +8576,8 @@
 			},
 			"summary": "F(s) como razão de polinômios, polos e zeros no plano s e a ligação entre a posição do polo e a forma da resposta no tempo.",
 			"objectives": [
-				"Localizar polos e zeros de F(s) no plano s",
-				"Associar polos reais e complexos a exponenciais e senoides amortecidas"
+				"Localizar polos e zeros de funções racionais simplificadas no plano s",
+				"Associar polos reais e pares complexos aos pares de transformada de exponenciais e senoides amortecidas"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -8571,6 +8605,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.transforms.laplace-def.laplace-definition",
+					"ee.math.complex.complex-arith.quadratic-complex-roots"
+				]
 			]
 		},
 		{
@@ -8601,7 +8641,9 @@
 			},
 			"clauses": [
 				[
-					"ee.math.transforms.inverse-laplace.poles-zeros"
+					"ee.math.transforms.inverse-laplace.poles-zeros",
+					"ee.math.transforms.laplace-def.transform-table",
+					"ee.math.algebra.linear-equations.systems-2x2"
 				]
 			],
 			"hours": {
@@ -8689,7 +8731,9 @@
 			},
 			"clauses": [
 				[
-					"ee.math.transforms.inverse-laplace.partial-fractions-distinct"
+					"ee.math.transforms.inverse-laplace.partial-fractions-distinct",
+					"ee.math.trig.identities.a-cos-plus-b-sin",
+					"ee.math.transforms.laplace-def.laplace-properties"
 				]
 			],
 			"encompasses": [
@@ -8741,7 +8785,8 @@
 			"clauses": [
 				[
 					"ee.math.transforms.inverse-laplace.partial-fractions-repeated",
-					"ee.math.transforms.inverse-laplace.complex-poles-inverse"
+					"ee.math.transforms.inverse-laplace.complex-poles-inverse",
+					"ee.math.transforms.laplace-def.initial-final-value"
 				]
 			],
 			"encompasses": [
@@ -8792,12 +8837,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.transforms.inverse-laplace",
-					"ee.math.ode.forced-response"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.7,
 				"hi": 3.65
@@ -8872,6 +8912,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.transforms.inverse-laplace.inverse-practice",
+					"ee.math.ode.forced-response.homogeneous-particular"
+				]
 			]
 		},
 		{
@@ -9081,12 +9127,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.calc.integral-apps",
-					"ee.math.trig.identities"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.6
@@ -9160,6 +9201,12 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.calc.integrals.ftc",
+					"ee.math.trig.identities.double-angle-product"
+				]
 			]
 		},
 		{
@@ -9217,8 +9264,8 @@
 			},
 			"summary": "Usar simetrias para prever quais coeficientes são nulos e reduzir as integrais.",
 			"objectives": [
-				"Identificar simetrias e prever os coeficientes nulos",
-				"Calcular coeficientes integrando só meio período"
+				"Identificar simetrias par, ímpar e de meia onda e prever os coeficientes nulos",
+				"Reduzir a integral para funções pares ou ímpares com origem de fase adequada"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -9331,7 +9378,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.transforms.fourier-series-math.complex-fourier"
+					"ee.math.transforms.fourier-series-math.complex-fourier",
+					"ee.math.calc.integral-apps.rms-value"
 				]
 			],
 			"encompasses": [
@@ -9359,11 +9407,11 @@
 				"pt": "Funções de variável complexa: polos, resíduos e contornos",
 				"en": "Functions of a complex variable: poles, residues and contours"
 			},
-			"summary": "Funções analíticas e condições de Cauchy-Riemann, polos e zeros, integrais de contorno, teorema dos resíduos e princípio do argumento, a base da Laplace inversa e do critério de Nyquist.",
+			"summary": "Introduzir analiticidade e a integral ao longo de um contorno parametrizado. Em polos simples, calcular resíduos por limite e explorar graficamente como a imagem de um contorno registra zeros e polos.",
 			"scope": "Dentro: funções analíticas, Cauchy-Riemann, singularidades, séries de Laurent em visão, integrais de contorno, resíduos, princípio do argumento, mapeamento conforme em visão. Fora: teoria geral de funções analíticas e superfícies de Riemann.",
 			"objectives": [
-				"Calcular resíduos e usá-los para avaliar integrais de contorno e transformadas inversas",
-				"Aplicar o princípio do argumento para contar zeros e polos dentro de um contorno"
+				"Calcular resíduos em polos simples e integrá-los em exemplos racionais de contorno fechado",
+				"Aplicar o princípio do argumento para contar zeros e polos em exemplos racionais sem singularidades sobre o contorno"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -9379,9 +9427,9 @@
 			},
 			"clauses": [
 				[
-					"ee.math.complex.polar-euler",
-					"ee.math.calc.multivariable",
-					"ee.math.calc.integrals"
+					"ee.math.complex.polar-euler.polar-form",
+					"ee.math.calc.vector-calc.line-integrals",
+					"ee.math.complex.complex-arith.quadratic-complex-roots"
 				]
 			],
 			"hours": {
@@ -9489,11 +9537,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.functions-graphs"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.6
@@ -9556,6 +9600,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.functions-graphs.function-concept"
+				]
 			]
 		},
 		{
@@ -9760,11 +9809,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.prob.probability-basics"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.65
@@ -9818,12 +9863,6 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"encompasses": [
-				{
-					"id": "ee.math.prob.probability-basics.binomial",
-					"w": 0.4
-				}
-			],
 			"hours": {
 				"lo": 0.5,
 				"hi": 0.7
@@ -9832,6 +9871,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.prob.probability-basics.sample-spaces"
+				]
 			]
 		},
 		{
@@ -9953,7 +9997,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.prob.random-variables.continuous-rv"
+					"ee.math.prob.random-variables.continuous-rv",
+					"ee.math.algebra.exponentials-logs.exp-equations"
 				]
 			],
 			"encompasses": [
@@ -10002,7 +10047,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.prob.random-variables.expectation-variance"
+					"ee.math.prob.random-variables.expectation-variance",
+					"ee.math.prob.probability-basics.conditional-independence"
 				]
 			],
 			"encompasses": [
@@ -10045,11 +10091,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.prob.random-variables"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.7,
 				"hi": 3.7
@@ -10111,6 +10153,11 @@
 			"tags": [
 				"core",
 				"math-tool"
+			],
+			"clauses": [
+				[
+					"ee.math.prob.random-variables.continuous-rv"
+				]
 			]
 		},
 		{
@@ -10190,7 +10237,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.prob.gaussian.normal-distribution"
+					"ee.math.prob.gaussian.normal-distribution",
+					"ee.math.prob.random-variables.sums-covariance"
 				]
 			],
 			"encompasses": [
@@ -10333,11 +10381,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.prob.gaussian"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.6
@@ -10400,7 +10444,8 @@
 			"tags": [
 				"core",
 				"math-tool"
-			]
+			],
+			"clauses": []
 		},
 		{
 			"id": "ee.math.prob.stats-measurement.confidence-intervals",
@@ -10414,8 +10459,8 @@
 			},
 			"summary": "σ/√n e o intervalo de confiança com z e com t de Student para poucas amostras.",
 			"objectives": [
-				"Calcular o intervalo de confiança de uma média",
-				"Escolher entre z e t conforme o tamanho da amostra"
+				"Calcular o intervalo de confiança de uma média em exemplos com amostragem independente e condições fornecidas",
+				"Distinguir intervalo z com σ populacional conhecido de intervalo t com σ estimado pela amostra normal"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -10431,7 +10476,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.prob.stats-measurement.descriptive-stats"
+					"ee.math.prob.stats-measurement.descriptive-stats",
+					"ee.math.prob.gaussian.clt"
 				]
 			],
 			"encompasses": [
@@ -10479,7 +10525,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.prob.stats-measurement.confidence-intervals"
+					"ee.math.prob.stats-measurement.descriptive-stats",
+					"ee.math.calc.multivariable.total-differential"
 				]
 			],
 			"encompasses": [
@@ -10528,7 +10575,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.prob.stats-measurement.descriptive-stats"
+					"ee.math.prob.stats-measurement.descriptive-stats",
+					"ee.math.algebra.functions-graphs.linear-functions"
 				]
 			],
 			"hours": {
@@ -10794,7 +10842,8 @@
 			"clauses": [
 				[
 					"ee.math.numerical.python-numpy.numpy-arrays",
-					"ee.math.algebra.functions-graphs"
+					"ee.math.algebra.functions-graphs.reading-plots",
+					"ee.math.algebra.exponentials-logs.log-scales-plots"
 				]
 			],
 			"encompasses": [
@@ -10946,11 +10995,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.math.numerical.python-numpy"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 3.2,
 				"hi": 4.3
@@ -11011,6 +11056,11 @@
 				"core",
 				"math-tool",
 				"computing"
+			],
+			"clauses": [
+				[
+					"ee.math.numerical.python-numpy.python-basics"
+				]
 			]
 		},
 		{
@@ -11044,7 +11094,8 @@
 			"clauses": [
 				[
 					"ee.math.numerical.numerical-methods.floating-point",
-					"ee.math.calc.derivative-apps.linearization"
+					"ee.math.calc.derivative-apps.linearization",
+					"ee.math.calc.limits-continuity.continuity"
 				]
 			],
 			"encompasses": [
@@ -11143,7 +11194,7 @@
 			},
 			"clauses": [
 				[
-					"ee.math.numerical.numerical-methods.numerical-integration",
+					"ee.math.numerical.numerical-methods.floating-point",
 					"ee.math.ode.first-order.time-constant"
 				]
 			],
@@ -11248,7 +11299,8 @@
 			"clauses": [
 				[
 					"ee.math.numerical.numerical-methods.error-order",
-					"ee.math.numerical.numerical-methods.root-finding"
+					"ee.math.numerical.numerical-methods.root-finding",
+					"ee.math.numerical.python-numpy.numpy-arrays"
 				]
 			],
 			"encompasses": [
@@ -11354,7 +11406,7 @@
 			},
 			"clauses": [
 				[
-					"ee.math.algebra.functions-graphs"
+					"ee.math.algebra.functions-graphs.function-concept"
 				]
 			],
 			"hours": {
@@ -11388,7 +11440,7 @@
 				"pt": "Aritmética modular e polinômios sobre GF(2)",
 				"en": "Modular arithmetic and polynomials over GF(2)"
 			},
-			"summary": "Divisibilidade, máximo divisor comum, congruências, aritmética módulo 2^n e divisão de polinômios sobre GF(2), a base de CRCs, embaralhadores e criptografia.",
+			"summary": "Praticar a divisão euclidiana de inteiros e calcular inversos por Euclides estendido. Em seguida, somar coeficientes binários por XOR e usar o mesmo raciocínio de quociente e resto em polinômios de GF(2), como no CRC.",
 			"scope": "Dentro: divisão euclidiana, mdc e algoritmo de Euclides estendido, congruências, inverso modular, aritmética binária modular, polinômios sobre GF(2). Fora: corpos finitos gerais e criptoanálise.",
 			"objectives": [
 				"Calcular congruências e inversos modulares pelo algoritmo de Euclides estendido",
@@ -11408,7 +11460,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.discrete.logic-sets-proofs"
+					"ee.math.discrete.logic-sets-proofs",
+					"ee.math.algebra.linear-equations.fractions-proportions"
 				]
 			],
 			"hours": {
@@ -11464,7 +11517,7 @@
 			"clauses": [
 				[
 					"ee.math.discrete.logic-sets-proofs",
-					"ee.math.linalg.matrices"
+					"ee.math.linalg.matrices.vectors-matrices"
 				]
 			],
 			"hours": {

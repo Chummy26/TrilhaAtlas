@@ -32,12 +32,22 @@ This document records how the pure modules (curriculum, learner, lesson, progres
 5. **Tier core** is the leaves in teaching order, split into 7 stages by cumulative hours (`coreVersion = hours-7@<hash>`). Placements without an FSRS card count with R = 0.9.
 6. **Minutes per day** come from the union of measured intervals across windows. The profile splits time at local midnight. Days before measurement began show zero.
 
-## Next steps (not connected yet)
+## Skill tree and regional materials
 
-- **Resources per node.** YouTube (Data API BYOK) and open books exist in `src/server/resources`. A UI panel on the node and keys in Settings are still needed.
+The Canvas shows the full active domain from the first frame. Node coordinates are independent of selection and progress. The overview summarizes prerequisite links between groups and the detailed view draws individual dependencies. Amber marks work in progress. Green marks directly attained skills or passed summative checkpoints. Diagnostic placement unlocks the route without awarding a completion marker. A region completes when every leaf completes.
+
+The electronics release updates existing seeded curricula through their ledger. It preserves node IDs, learner evidence and local field edits. See the [pedagogical review and migration limits](auditoria-eletronica/README.md).
+
+Hoje opens `/mapa`. Each curriculum unit owns a region. The view uses the learner's effective prerequisites and frontier, with clickable links to other regions. Starting a leaf uses the same model setup, lesson marker and evidence path as Hoje. “Continuar aula” reopens the most recent existing lesson for that leaf.
+
+The region groups materials by title and links to precise chapters or published video timestamps. Curated links live in `content/resources/sections.json` and the study material service. Catalog-title and search matches are provisional. A YouTube key enables additional video discovery. A Wikibooks lookup searches section titles. Both run on request. Matches with specific sections or timestamps can appear in other regions of that domain. Opening a lesson includes its sources and a short book excerpt when available. Saving an available publisher PDF imports it into the existing local library.
+
+The regional bibliography reuses the curriculum's textbook, course and learner-reference anchors. It displays the cited scope and publisher link when available. Only materials linked to the selected node are included in its lesson. Other sections stay accessible under “Outros trechos da região”.
+
+## Next steps (not connected yet)
 - **End-of-session flashcards.** `plugins/flashcards` already has `export-service` (AnkiConnect, Obsidian, `.apkg`). It still needs the end-of-session trigger with the domain id.
 - **Model registry.** `src/core/models` (RoleSpec, resolve) is not used by the existing engines yet. Today the strong/cheap/vision slots still decide.
 - **Procedural expansion.** The patch ledger, `applyPatch`, `computeTriggers` and `classifyRisk` are ready, but the job that asks the `curriculum` role for patches is not connected.
-- **Graph view of the curriculum (sigma).** It is not built; the home still shows the original proposition graph.
+
 - **Lean.** `formal/` is planned as CI only; Lean is not installed locally.
 - **Progress calibration.** `scripts/calibrate-progression.ts` still exits 1: the skimmer farmer reaches 0.71× (limit 0.7). This needs a rules v2 decision.

@@ -79,6 +79,7 @@ export const RESOURCE_HOST_ALLOWLIST: readonly string[] = Object.freeze([
 	// Other official open sources named in the research.
 	"ocw.mit.edu",
 	"learningenglish.voanews.com",
+	"ecampusontario.pressbooks.pub",
 	"directory.doabooks.org",
 	"library.oapen.org",
 	"archive.org",

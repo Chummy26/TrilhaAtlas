@@ -140,8 +140,7 @@
 			},
 			"clauses": [
 				[
-					"ee.power.supplies.power-supply-arch",
-					"ee.analog.regulators.thermal"
+					"ee.power.supplies.power-supply-arch"
 				]
 			],
 			"hours": {
@@ -350,8 +349,8 @@
 			"summary": "Projeto de transformadores para conversores isolados, indutância de dispersão e isolação.",
 			"scope": "Dentro: escolha de núcleo e espiras, dispersão, intercalação, isolação. Fora: transformadores planares avançados.",
 			"objectives": [
-				"Projetar um transformador para um flyback ou forward",
-				"Explicar o efeito da dispersão no conversor"
+				"Dimensionar a relação de espiras, o núcleo e os enrolamentos para formas de onda e potência especificadas",
+				"Explicar como a indutância de dispersão influencia a tensão no desligamento"
 			],
 			"bloom": "create",
 			"assess": [
@@ -762,8 +761,8 @@
 			},
 			"clauses": [
 				[
-					"ee.power.dcdc.boost-buckboost",
-					"ee.power.magnetics.transformer-design"
+					"ee.power.magnetics.transformer-design",
+					"ee.power.dcdc.dcm"
 				]
 			],
 			"hours": {
@@ -820,7 +819,8 @@
 			},
 			"clauses": [
 				[
-					"ee.power.dcdc.buck"
+					"ee.power.dcdc.buck",
+					"ee.power.components.gate-drivers"
 				]
 			],
 			"hours": {
@@ -1612,7 +1612,7 @@
 			"clauses": [
 				[
 					"ee.power.dcdc.boost-buckboost",
-					"ee.ac.power.power-factor"
+					"ee.power.acdc.power-quality"
 				]
 			],
 			"hours": {
@@ -1670,7 +1670,8 @@
 			"clauses": [
 				[
 					"ee.power.dcdc.bridge-converters",
-					"ee.ac.threephase.three-phase"
+					"ee.ac.threephase.three-phase",
+					"ee.math.transforms.fourier-series-math"
 				]
 			],
 			"hours": {
@@ -2324,7 +2325,8 @@
 				[
 					"ee.power.dcdc.isolated-converters",
 					"ee.power.components.snubbers",
-					"ee.ac.frequency.resonance"
+					"ee.ac.frequency.resonance",
+					"ee.math.transforms.fourier-series-math"
 				]
 			],
 			"hours": {
@@ -2500,7 +2502,9 @@
 			"clauses": [
 				[
 					"ee.power.acdc.inverters",
-					"ee.semi.opto.photodiodes"
+					"ee.semi.opto.photodiodes",
+					"ee.analog.oscillators.pll-basics",
+					"ee.ac.threephase.power-grid-basics"
 				]
 			],
 			"hours": {
@@ -2616,7 +2620,8 @@
 			"clauses": [
 				[
 					"ee.power.control.current-mode",
-					"ee.control.digital.discretization"
+					"ee.control.digital.discretization",
+					"ee.embedded.periph.timers-pwm"
 				]
 			],
 			"hours": {
@@ -2783,7 +2788,8 @@
 			"clauses": [
 				[
 					"ee.power.advanced.renewables",
-					"ee.power.advanced.digital-control-power"
+					"ee.power.advanced.digital-control-power",
+					"ee.power.machines.space-vectors"
 				]
 			],
 			"hours": {

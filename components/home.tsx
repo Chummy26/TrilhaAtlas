@@ -19,7 +19,8 @@ import { OPENING_PROMPT_FAILURE } from "@/components/opening-prompt";
 import { PathInput } from "@/components/path-input";
 import { AttachFilesButton } from "@/components/attach-files-button";
 import { SessionStarter } from "@/components/start-session";
-import type { TurnUsage } from "@/src/core";
+import type { SkillMap, TurnUsage } from "@/src/core";
+import { SkillTree } from "./study/skill-tree.tsx";
 import { DomainSwitcher } from "@/components/study/domain-switcher";
 import { TodayCard, type LessonStart } from "@/components/study/today-card";
 import { Icon } from "@/components/icons/icon";
@@ -33,9 +34,13 @@ import Link from "next/link";
  */
 export function Home({
 	initialConfigured,
+	map,
+	initialNode,
 	rendering = true,
 }: {
 	initialConfigured: boolean;
+	map?: SkillMap;
+	initialNode?: string;
 	/** GRAPH RENDERING off (owner, 2026-10-06): the home's main view is
 	 * the chains view, not the canvas. Read server-side per navigation —
 	 * changing the setting applies on the next visit home. */
@@ -180,6 +185,11 @@ export function Home({
 		}
 	};
 
+	if (map) return <>
+		<SkillTree map={map} initialNode={initialNode} busy={busy} onStart={begin} />
+		{startError && <p role="alert" className="fixed bottom-4 right-4 cel-card p-3">{OPENING_PROMPT_FAILURE}</p>}
+		<SetupDialog open={setupOpen} onClose={() => setSetupOpen(false)} onDone={() => setSetupOpen(false)} />
+	</>;
 	return (
 		<div className="relative h-dvh">
 			{/* Window-drag strip (merged chrome, owner 2026-09-17): a dedicated

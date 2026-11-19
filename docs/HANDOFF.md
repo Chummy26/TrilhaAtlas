@@ -191,9 +191,7 @@ npm run dev
 3. **Context memory in turns.**
    - *Starting point:* `src/server/memory/index.ts` and `src/agent/prompts/memory/*.md`.
    - *Done when:* each tutor turn receives the domain memory block (≤12k tokens) plus the learner snapshot (`buildPromptSnapshot` in `src/core/learner/snapshot.ts`), and the `extractor` consolidates at the end of the turn.
-4. **Resources per node** (videos in order, PT/EN with captions or dubbing, plus named books per region).
-   - *Starting point:* `src/server/resources/**` and `content/resources/*.json`.
-   - *Done when:* there is a panel on the "Hoje" card or in the lesson, and a YouTube key field in Settings.
+4. **Region materials — integrated.** Open the skill tree from Hoje or “Materiais da aula” from a curriculum chat. Each unit is a region. Chapters and video segments may cover multiple regions of the same domain. YouTube discovery uses the key in Settings → Providers → Materiais de estudo. Curated material works offline, and discovered matches are marked as suggestions.
 5. **End-of-session flashcards.**
    - *Starting point:* `plugins/flashcards/src/export-service.ts` and `docs/impl/flashcards-export.md`.
    - *Done when:* the trigger runs at the end of a lesson, decks are per domain, and the Obsidian/Anki options live in Settings.
@@ -204,7 +202,7 @@ npm run dev
    - *Starting point:* `src/core/models` (`RoleSpec`, `resolve`) and the existing engines, which still use the strong/cheap/vision slots (`config.ts ModelRole`, settings).
    - *Note:* this is a large change; ask the user design questions first.
 8. **Per-domain onboarding.** Set `DomainProfile` (daily budget, goal, starting level) and run the diagnostic placement. There is no UI yet; the default is 180 min per day.
-9. **Curriculum map view** (sigma.js, per domain): see `docs/research/extra-jacomyal__sigma.js.md`.
+9. **Curriculum map — integrated.** `/mapa` opens with every node of the active domain on a zoomable Canvas. Overview links summarize actual prerequisites. Zoom reveals regions and individual skills. The learner's recorded progress drives the amber and green markers. The electronics curriculum and its upgrade for existing installations are described in [the individual review](impl/auditoria-eletronica/README.md).
 10. **Plugin data per domain.** `src/server/plugins.ts` (`pluginDirectory`, `core-plugin-data`) is still global.
 11. **Lean.** The `formal/` folder is planned, with CI only (`docs/research/r10-formalizacao-lean.md`); Lean is not installed locally.
 12. **Progress calibration.** The script exits 1: the skimmer farmer reaches 0.71× (limit 0.7). This needs a rules v2 decision from the user.

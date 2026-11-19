@@ -206,7 +206,8 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.c.c-basics"
+					"ee.embedded.c.c-basics",
+					"ee.digital.boolean.boolean-algebra"
 				]
 			],
 			"hours": {
@@ -426,7 +427,7 @@
 			"summary": "Buffers circulares, filas, pilhas, listas com alocação estática, tabelas de consulta, busca e ordenação e a análise de custo em tempo e memória.",
 			"scope": "Dentro: buffer circular, fila, pilha, lista ligada com memória estática, tabelas de consulta, busca binária, ordenação simples, notação O. Fora: estruturas de dados avançadas e alocação dinâmica em tempo real.",
 			"objectives": [
-				"Implementar um buffer circular seguro entre produtor e consumidor",
+				"Implementar um buffer circular de capacidade fixa e testar retorno ao início, vazio e cheio",
 				"Escolher a estrutura de dados e o algoritmo adequados a restrições de tempo e de memória"
 			],
 			"bloom": "apply",
@@ -559,8 +560,7 @@
 			},
 			"clauses": [
 				[
-					"ee.digital.arch.isa-riscv",
-					"ee.embedded.c.bitwise"
+					"ee.embedded.c.structs-volatile"
 				]
 			],
 			"hours": {
@@ -622,8 +622,8 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.mcu.mcu-architecture",
-					"ee.digital.arch.assembly"
+					"ee.embedded.c.toolchain",
+					"ee.embedded.mcu.clocks-reset"
 				]
 			],
 			"hours": {
@@ -862,7 +862,7 @@
 			"clauses": [
 				[
 					"ee.embedded.mcu.dev-env",
-					"ee.embedded.c.structs-volatile"
+					"ee.digital.boolean.logic-families"
 				]
 			],
 			"hours": {
@@ -1021,8 +1021,8 @@
 				"pt": "ADC no microcontrolador",
 				"en": "Microcontroller ADC"
 			},
-			"summary": "Amostragem e retenção, tempo de aquisição, referência, resolução efetiva e disparo por timer.",
-			"scope": "Dentro: configuração do ADC, tempo de amostragem, impedância de fonte, referência, ENOB. Fora: projeto de ADCs.",
+			"summary": "Converta códigos do ADC em tensão a partir da referência e da resolução. Depois configure a sequência de canais e o disparo por timer, e verifique se a entrada se estabiliza no tempo de aquisição.",
+			"scope": "Dentro: códigos e tensão de referência, passo ideal LSB, aquisição RC a partir da impedância de fonte, disparo por timer e introdução a ENOB. Fora: teorema da amostragem, modelos estatísticos de quantização e projeto de ADCs.",
 			"objectives": [
 				"Configurar o ADC com disparo por timer",
 				"Calcular o tempo de amostragem para uma impedância de fonte"
@@ -1040,13 +1040,14 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.periph.gpio",
-					"ee.signals.sampling.quantization",
+					"ee.embedded.periph.timers-pwm",
+					"ee.ac.transients1.rc-natural",
 					"ee.dc.laws.loading"
 				]
 			],
 			"softPrereqs": [
-				"ee.analog.converters.converter-errors"
+				"ee.analog.converters.converter-errors",
+				"ee.signals.sampling.quantization"
 			],
 			"hours": {
 				"lo": 3,
@@ -1162,7 +1163,6 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.periph.interrupts",
 					"ee.embedded.periph.adc"
 				]
 			],
@@ -1222,7 +1222,6 @@
 			"clauses": [
 				[
 					"ee.embedded.periph.timers-pwm",
-					"ee.embedded.mcu.clocks-reset",
 					"ee.dc.practice.batteries"
 				]
 			],
@@ -1396,11 +1395,9 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.periph.interrupts"
+					"ee.embedded.periph.interrupts",
+					"ee.embedded.c.data-structures"
 				]
-			],
-			"softPrereqs": [
-				"ee.embedded.c.data-structures"
 			],
 			"hours": {
 				"lo": 3,
@@ -1526,7 +1523,8 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.periph.gpio"
+					"ee.embedded.periph.gpio",
+					"ee.ac.transients1.rc-natural"
 				]
 			],
 			"hours": {
@@ -1588,7 +1586,7 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.comms.uart"
+					"ee.embedded.periph.interrupts"
 				]
 			],
 			"hours": {
@@ -1779,7 +1777,7 @@
 			},
 			"clauses": [
 				[
-					"ee.digital.numbers.error-codes"
+					"ee.digital.numbers.number-systems"
 				]
 			],
 			"hours": {
@@ -2617,7 +2615,7 @@
 				"pt": "Integração de sensores",
 				"en": "Sensor integration"
 			},
-			"summary": "Sensores digitais por I²C e SPI, condicionamento para o ADC, calibração e filtragem no firmware.",
+			"summary": "Integre um sensor digital por I²C ou SPI, dependendo do dispositivo, e um sensor analógico pelo ADC. Calibre as leituras e aplique uma média móvel em firmware.",
 			"scope": "Dentro: sensores digitais e analógicos, calibração, filtros simples em firmware. Fora: fusão de sensores.",
 			"objectives": [
 				"Integrar um sensor digital e um analógico ao firmware",
@@ -2637,6 +2635,10 @@
 			"clauses": [
 				[
 					"ee.embedded.comms.i2c",
+					"ee.embedded.periph.adc"
+				],
+				[
+					"ee.embedded.comms.spi",
 					"ee.embedded.periph.adc"
 				]
 			],
@@ -2696,6 +2698,9 @@
 			"clauses": [
 				[
 					"ee.embedded.comms.spi"
+				],
+				[
+					"ee.embedded.comms.i2c"
 				]
 			],
 			"hours": {
@@ -2854,7 +2859,8 @@
 			"clauses": [
 				[
 					"ee.digital.hdl.fpga-flow",
-					"ee.embedded.software.drivers"
+					"ee.embedded.software.drivers",
+					"ee.digital.vlsi.rtl-methodology"
 				]
 			],
 			"hours": {
@@ -3252,10 +3258,10 @@
 				"pt": "Nó IoT, fase 2: OTA, testes e robustez",
 				"en": "IoT node, phase 2: OTA, testing and robustness"
 			},
-			"summary": "Atualização remota com rollback, testes automatizados, watchdog e recuperação de falhas e medição do consumo e da confiabilidade do enlace.",
-			"scope": "Dentro: OTA, testes, tratamento de falhas, medições de consumo e de taxa de entrega. Fora: infraestrutura de nuvem.",
+			"summary": "Integração de um nó IoT com RTOS e telemetria, atualização testada em bancada pelo esquema A/B e recuperação após falhas de rede, energia ou imagem.",
+			"scope": "Dentro: atualização A/B, verificação de corrupção por CRC, rollback e teste de falhas em bancada com o serviço existente. Fora: desenho de assinatura digital, provisionamento de chaves e política de boot seguro.",
 			"objectives": [
-				"Implementar atualização remota segura com rollback",
+				"Implementar atualização remota A/B com verificação de corrupção e rollback",
 				"Demonstrar a recuperação do nó após falhas de rede e de energia"
 			],
 			"bloom": "create",

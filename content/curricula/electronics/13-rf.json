@@ -90,7 +90,8 @@
 				[
 					"ee.physics.electrostatics.gauss-law",
 					"ee.physics.magnetism.ampere-biot",
-					"ee.math.calc.vector-calc"
+					"ee.math.calc.vector-calc",
+					"ee.physics.electrostatics.capacitance-physics"
 				]
 			],
 			"hours": {
@@ -1434,7 +1435,8 @@
 			"clauses": [
 				[
 					"ee.rf.antennas.dipoles-monopoles",
-					"ee.rf.tlines.planar-lines"
+					"ee.rf.tlines.planar-lines",
+					"ee.rf.tlines.input-impedance"
 				]
 			],
 			"hours": {
@@ -1483,10 +1485,10 @@
 				"en": "Propagation and link budget"
 			},
 			"summary": "Equação de Friis, perda no espaço livre, margem de enlace e efeitos de propagação.",
-			"scope": "Dentro: Friis, perda no espaço livre, margem, multipercurso em visão. Fora: modelos de canal estatísticos.",
+			"scope": "Dentro: aplicar Friis em espaço livre, contabilizar ganhos e perdas em dB e usar uma sensibilidade de receptor fornecida. Fora: derivação da sensibilidade e modelos estatísticos de canal.",
 			"objectives": [
 				"Calcular o orçamento de enlace de um sistema de rádio",
-				"Estimar o alcance a partir da sensibilidade do receptor"
+				"Estimar o alcance em espaço livre a partir de uma sensibilidade de receptor fornecida e margem especificada"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -1681,7 +1683,8 @@
 				[
 					"ee.math.calc.series-taylor",
 					"ee.rf.networks.s-parameters",
-					"ee.math.trig.identities"
+					"ee.math.trig.identities",
+					"ee.math.algebra.decibels"
 				]
 			],
 			"hours": {
@@ -1739,8 +1742,8 @@
 			"clauses": [
 				[
 					"ee.rf.systems.rf-noise-nf",
-					"ee.rf.systems.nonlinearity-rf",
-					"ee.signals.comms.digital-modulation"
+					"ee.signals.comms.digital-modulation",
+					"ee.rf.circuits.mixers-discrete"
 				]
 			],
 			"hours": {
@@ -1796,6 +1799,7 @@
 			"clauses": [
 				[
 					"ee.rf.systems.nonlinearity-rf",
+					"ee.signals.dsp.windowing-spectral",
 					"ee.instruments.bench.oscilloscope-advanced"
 				]
 			],
@@ -1906,7 +1910,8 @@
 			"clauses": [
 				[
 					"ee.rf.networks.matching-lumped",
-					"ee.rf.networks.s-parameters"
+					"ee.rf.networks.s-parameters",
+					"ee.analog.small-signal.amp-concepts"
 				]
 			],
 			"hours": {
@@ -2315,7 +2320,8 @@
 			"clauses": [
 				[
 					"ee.analog.freq.cascode-bandwidth",
-					"ee.rf.rfic.rfic-passives"
+					"ee.rf.rfic.rfic-passives",
+					"ee.analog.feedback.feedback-concepts"
 				]
 			],
 			"hours": {
@@ -2738,11 +2744,11 @@
 				"pt": "Integração de transceptores",
 				"en": "Transceiver integration"
 			},
-			"summary": "Planejamento de blocos, acoplamentos no substrato, isolamento, calibração e testes de um transceptor integrado.",
-			"scope": "Dentro: planejamento, acoplamentos, calibração, testes. Fora: padrões de comunicação específicos.",
+			"summary": "Integração arquitetural de um transceptor CMOS e planejamento de testes.",
+			"scope": "Dentro: planejar a cadeia de recepção e as interfaces com transmissão e sintetizador, orçamento de ganho, caminhos de acoplamento e testes. Fora: implementação de um transceptor completo e conformidade com padrão.",
 			"objectives": [
-				"Planejar os blocos e níveis de um transceptor integrado",
-				"Identificar mecanismos de acoplamento indesejado no chip"
+				"Planejar os blocos e níveis de um transceptor a partir de especificação fornecida",
+				"Identificar caminhos de acoplamento e escolher um teste para cada caminho crítico"
 			],
 			"bloom": "create",
 			"assess": [
@@ -2759,7 +2765,8 @@
 				[
 					"ee.rf.rfic.cmos-lna",
 					"ee.rf.rfic.cmos-mixers",
-					"ee.rf.rfic.pll-synth"
+					"ee.rf.rfic.pll-synth",
+					"ee.rf.systems.transceiver-architectures"
 				]
 			],
 			"hours": {

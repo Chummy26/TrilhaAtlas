@@ -800,7 +800,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.integral-apps"
+					"ee.math.calc.integrals.riemann-definite",
+					"ee.math.trig.sinusoids"
 				]
 			],
 			"hours": {
@@ -1008,7 +1009,8 @@
 			"clauses": [
 				[
 					"ee.ac.phasors.impedance",
-					"ee.dc.theorems.thevenin"
+					"ee.dc.theorems.norton",
+					"ee.dc.methods.mesh"
 				]
 			],
 			"encompasses": [
@@ -1561,7 +1563,7 @@
 				"en": "Bode plots"
 			},
 			"summary": "Assíntotas de polos e zeros, inclinações de ±20 dB/década e aproximação da fase.",
-			"scope": "Dentro: Bode assintótico de módulo e fase, polos e zeros reais e complexos. Fora: estabilidade de malha.",
+			"scope": "Dentro: Bode assintótico de módulo e fase, fatores de primeira ordem com polos e zeros reais e ganhos constantes. Fora: pares complexos de segunda ordem e estabilidade de malha.",
 			"objectives": [
 				"Traçar o Bode assintótico de uma função com polos e zeros reais",
 				"Ler ganho e fase em uma frequência a partir do Bode"
@@ -1956,7 +1958,8 @@
 			},
 			"clauses": [
 				[
-					"ee.ac.sdomain.s-domain-circuits"
+					"ee.ac.sdomain.s-domain-circuits",
+					"ee.ac.frequency.bode"
 				]
 			],
 			"hours": {
@@ -2070,7 +2073,8 @@
 			"clauses": [
 				[
 					"ee.ac.phasors.ac-analysis",
-					"ee.dc.theorems.thevenin-dependent"
+					"ee.dc.theorems.thevenin-dependent",
+					"ee.math.linalg.matrices.matrix-ops"
 				]
 			],
 			"hours": {
@@ -2287,7 +2291,7 @@
 				"en": "Real transformer: equivalent circuit and losses"
 			},
 			"summary": "Indutância de magnetização, dispersão, perdas no cobre e no núcleo, ensaios de vazio e curto.",
-			"scope": "Dentro: circuito equivalente, regulação, rendimento, ensaios. Fora: projeto de magnéticos de alta frequência.",
+			"scope": "Dentro: ajuste do circuito equivalente com dados fornecidos de circuito aberto e curto, cálculo de regulação e rendimento. Fora: condução de ensaios em transformadores de rede e projeto em alta frequência.",
 			"objectives": [
 				"Montar o circuito equivalente de um transformador a partir de ensaios",
 				"Calcular regulação e rendimento"
@@ -2305,6 +2309,7 @@
 			"clauses": [
 				[
 					"ee.ac.magnetic.ideal-transformer",
+					"ee.ac.power.instantaneous-average",
 					"ee.physics.magnetism.magnetic-materials"
 				]
 			],
@@ -2531,16 +2536,15 @@
 				"en": "Brazilian mains: voltages, earthing and RCDs"
 			},
 			"summary": "Tensões 127/220 V e 220/380 V, 60 Hz, padrão de tomadas NBR 14136, esquemas TN e TT, terra versus neutro e dispositivo DR.",
-			"scope": "Dentro: tensões de distribuição, tomadas, esquemas de aterramento, DR, DPS. Fora: projeto de instalações.",
+			"scope": "Dentro: leitura de documentação sobre tensões nominais, neutro, proteção, aterramento e funções de DR e DPS. Fora: manobras, ensaios e projeto de instalações.",
 			"objectives": [
-				"Explicar a diferença entre neutro e terra e o funcionamento do DR",
-				"Identificar as tensões disponíveis em instalações residenciais brasileiras"
+				"Distinguir neutro de condutor de proteção e explicar a função do DR",
+				"Interpretar tensões nominais fase-neutro e fase-fase em documentação de distribuição brasileira"
 			],
 			"bloom": "understand",
 			"assess": [
-				"numeric",
-				"derivation",
-				"sketch"
+				"explain",
+				"interpret"
 			],
 			"misconceptions": [
 				"Usar o neutro como terra de proteção"
@@ -2551,7 +2555,7 @@
 			},
 			"clauses": [
 				[
-					"ee.ac.phasors.ac-waveforms"
+					"ee.math.trig.sinusoids.sinusoid-parameters"
 				]
 			],
 			"hours": {
@@ -2596,7 +2600,7 @@
 				"en": "Electric machines: overview"
 			},
 			"summary": "Princípios de motores CC, de indução e síncronos, curvas de torque e campo girante.",
-			"scope": "Dentro: princípio de operação, campo girante, curvas torque-velocidade, placa do motor. Fora: projeto de máquinas.",
+			"scope": "Dentro: formação do campo girante, princípio da indução, escorregamento, curvas torque-velocidade e placa. Fora: dimensionamento e ligação de motores.",
 			"objectives": [
 				"Explicar como o campo girante produz torque em um motor de indução",
 				"Interpretar os dados de placa de um motor"
@@ -2613,7 +2617,8 @@
 			},
 			"clauses": [
 				[
-					"ee.ac.threephase.three-phase"
+					"ee.ac.threephase.three-phase",
+					"ee.physics.magnetism.faraday-lenz"
 				]
 			],
 			"hours": {

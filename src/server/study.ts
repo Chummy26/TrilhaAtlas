@@ -27,7 +27,7 @@ import path from "node:path";
 import { activeDomainId, PATHS, setActiveDomainId } from "../../config.ts";
 import { applySeedFiles } from "../core/curriculum/ledger.ts";
 import { hoursMid } from "../core/curriculum/hours.ts";
-import type { CurriculumSnapshot } from "../core/curriculum/types.ts";
+import type { CurriculumSeedFile, CurriculumSnapshot } from "../core/curriculum/types.ts";
 import { activeDomainFile, curriculumDir } from "../core/domains/paths.ts";
 import type { DomainId, DomainManifest, DomainProfile } from "../core/domains/types.ts";
 import { emit } from "../core/events.ts";
@@ -37,6 +37,7 @@ import { DEFAULT_LEARNER_PARAMS } from "../core/learner/params.ts";
 import { planDay } from "../core/learner/planner.ts";
 import { buildPromptSnapshot } from "../core/learner/snapshot.ts";
 import { computeSignals } from "../core/learner/signals.ts";
+import { structuralState } from "../core/learner/kst.ts";
 import type { Evidence, Grade, LearnerEvent, LearnerSnapshot, PlanItem } from "../core/learner/types.ts";
 import { learnerViewOf, nodeBrief, type StudyNodeBrief } from "../core/study/projection.ts";
 import type { StudyDomainList, StudyProfile, StudyToday } from "../core/study/types.ts";
@@ -52,10 +53,12 @@ import { STUDY_HEARTBEAT_SEC, WORKSPACE_SCOPE } from "../core/stats/types.ts";
 import { createStatsStore, type StatsStore } from "../store/stats-store.ts";
 import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents } from "./study-log.ts";
 import { gradeStudyQuiz } from "../core/study/quiz.ts";
+import { skillMap } from "../core/study/map.ts";
 import { questionCallsOf, type LhMessage } from "../core/native-messages.ts";
 import type { TurnUsage } from "../core/contracts/chat.ts";
 import { writeFileAtomicSync } from "../store/atomic-write.ts";
 import { createDomainsStore, type DomainsStore } from "../store/domains-store.ts";
+import { electronicsCurriculumStamp, loadElectronicsCurriculum } from "./curriculum-migration.ts";
 import { anyTurnRunning } from "./turn-liveness.ts";
 
 export class StudyError extends Error {
@@ -70,7 +73,7 @@ export class StudyError extends Error {
 // ─── domains ─────────────────────────────────────────────────────────────────
 
 type StudyGlobal = {
-	__lhStudy?: { root: string; store: DomainsStore; seeded: boolean; curricula: Map<string, { mtimeMs: number; snapshot: CurriculumSnapshot; view: LearnerGraphView }> };
+	__lhStudy?: { root: string; store: DomainsStore; seeded: boolean; curricula: Map<string, { stamp: number | string; snapshot: CurriculumSnapshot; view: LearnerGraphView }> };
 };
 
 function state() {
@@ -153,7 +156,7 @@ function requireActive(): { id: DomainId; manifest: DomainManifest; profile: Dom
 
 // ─── curriculum ──────────────────────────────────────────────────────────────
 
-function seedFilesOf(id: DomainId): unknown[] {
+function seedFilesOf(id: DomainId): CurriculumSeedFile[] {
 	const dir = path.join(/* turbopackIgnore: true */ PATHS.root, "content", "curricula", id);
 	let names: string[];
 	try {
@@ -161,7 +164,7 @@ function seedFilesOf(id: DomainId): unknown[] {
 	} catch {
 		return [];
 	}
-	return names.map((n) => JSON.parse(fs.readFileSync(path.join(dir, n), "utf8").replace(/^﻿/, "")) as unknown);
+	return names.map((n) => JSON.parse(fs.readFileSync(path.join(dir, n), "utf8").replace(/^﻿/, "")) as CurriculumSeedFile);
 }
 
 /**
@@ -174,6 +177,18 @@ export function loadCurriculum(id: DomainId, manifest: DomainManifest, goals: re
 	const dir = curriculumDir(PATHS.data, id);
 	const snapshotFile = path.join(dir, "snapshot.json");
 	const cache = state().curricula;
+	if (id === "electronics") {
+		const stamp = electronicsCurriculumStamp(dir);
+		const hit = cache.get(id);
+		if (hit?.stamp === stamp) {
+			return goals.length === 0 ? hit : { snapshot: hit.snapshot, view: learnerViewOf(hit.snapshot, goals) };
+		}
+		const loaded = loadElectronicsCurriculum(dir, manifest.edgeMode, () => seedFilesOf(id));
+		if (!loaded) return null;
+		const entry = { ...loaded, view: learnerViewOf(loaded.snapshot) };
+		cache.set(id, entry);
+		return goals.length === 0 ? entry : { snapshot: loaded.snapshot, view: learnerViewOf(loaded.snapshot, goals) };
+	}
 	let stat: fs.Stats | null = null;
 	try {
 		stat = fs.statSync(snapshotFile);
@@ -182,9 +197,9 @@ export function loadCurriculum(id: DomainId, manifest: DomainManifest, goals: re
 	}
 	if (stat) {
 		const hit = cache.get(id);
-		if (hit && hit.mtimeMs === stat.mtimeMs && goals.length === 0) return hit;
+		if (hit && hit.stamp === stat.mtimeMs && goals.length === 0) return hit;
 		const snapshot = JSON.parse(fs.readFileSync(snapshotFile, "utf8")) as CurriculumSnapshot;
-		const entry = { mtimeMs: stat.mtimeMs, snapshot, view: learnerViewOf(snapshot, goals) };
+		const entry = { stamp: stat.mtimeMs, snapshot, view: learnerViewOf(snapshot, goals) };
 		if (goals.length === 0) cache.set(id, entry);
 		return entry;
 	}
@@ -196,9 +211,21 @@ export function loadCurriculum(id: DomainId, manifest: DomainManifest, goals: re
 	writeFileAtomicSync(path.join(dir, "ledger.jsonl"), JSON.stringify(res.envelope) + "\n");
 	writeFileAtomicSync(snapshotFile, JSON.stringify(res.snapshot));
 	const written = fs.statSync(snapshotFile);
-	const entry = { mtimeMs: written.mtimeMs, snapshot: res.snapshot, view: learnerViewOf(res.snapshot, goals) };
+	const entry = { stamp: written.mtimeMs, snapshot: res.snapshot, view: learnerViewOf(res.snapshot, goals) };
 	if (goals.length === 0) cache.set(id, entry);
 	return entry;
+}
+
+type CurriculumSource = CurriculumSeedFile["sources"][number];
+const sourceCatalogs = new Map<string, Map<string, CurriculumSource>>();
+
+export function curriculumSources(id: DomainId) {
+	let sources = sourceCatalogs.get(id);
+	if (!sources) {
+		sources = new Map(seedFilesOf(id).flatMap(file => file.sources.map(source => [source.id, source] as const)));
+		sourceCatalogs.set(id, sources);
+	}
+	return sources;
 }
 
 // ─── learner log ─────────────────────────────────────────────────────────────
@@ -302,6 +329,17 @@ function learnerSnapshotOf(id: DomainId, view: LearnerGraphView, events: readonl
 	}
 }
 
+/** Find a prerequisite route the student can actually take, including inherited alternatives. */
+export function lessonRoute(id: DomainId, view: LearnerGraphView, events: LearnerEvent[], nodeId: string): string[] {
+	const clauses = view.nodes.get(nodeId)?.clauses ?? [];
+	if (!clauses.length) return [];
+	const learner = learnerSnapshotOf(id, view, events, new Date().toISOString());
+	const { known } = structuralState(learner, view);
+	const accessible = clauses.filter(clause => clause.every(key => known.has(key)));
+	const route = accessible.sort((a,b) => a.length-b.length)[0] ?? [];
+	return route.map(key => view.nodes.get(key)!.title);
+}
+
 export function studyLearnerPrompt(domainId: string) {
 	const store = studyDomains();
 	const manifest = store.readManifest(domainId);
@@ -383,6 +421,16 @@ export function recordStudyEvent(input: NewEvent): StudyToday {
 }
 
 // ─── "Hoje" ──────────────────────────────────────────────────────────────────
+
+export function studyMap() {
+	const { id, manifest } = requireActive();
+	const cur = loadCurriculum(id, manifest);
+	if (!cur) throw new StudyError(404, "Currículo indisponível.");
+	const learner = learnerSnapshotOf(id, cur.view, readStudyEvents(id), new Date().toISOString());
+	const map = skillMap(cur.snapshot, cur.view, learner, manifest.title.pt);
+	map.next = studyToday().next?.nodeId;
+	return map;
+}
 
 export function studyToday(): StudyToday {
 	const { id, manifest, profile } = requireActive();

@@ -65,7 +65,7 @@
 				"en": "Signal classification, energy and power"
 			},
 			"summary": "Sinais contínuos e discretos, periódicos, pares e ímpares, de energia e de potência.",
-			"scope": "Dentro: classificação de sinais, energia, potência, periodicidade em tempo discreto. Fora: sinais aleatórios.",
+			"scope": "Dentro: sinais contínuos e discretos, energia, potência média, periodicidade, simetria e a introdução à soma finita, à série geométrica e ao limite da média para calcular essas grandezas. Fora: sinais aleatórios.",
 			"objectives": [
 				"Classificar sinais como de energia ou de potência e calcular cada uma",
 				"Determinar o período de sinais discretos senoidais"
@@ -86,7 +86,7 @@
 			},
 			"clauses": [
 				[
-					"ee.math.calc.integral-apps"
+					"ee.math.calc.integrals.ftc"
 				]
 			],
 			"hours": {
@@ -369,7 +369,8 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.lti.convolution-dt"
+					"ee.signals.lti.convolution-dt",
+					"ee.ac.transients1.rc-natural"
 				]
 			],
 			"hours": {
@@ -710,7 +711,7 @@
 				"en": "Discrete-time Fourier transform"
 			},
 			"summary": "Espectro periódico de sequências, pares básicos e resposta em frequência de sistemas discretos.",
-			"scope": "Dentro: DTFT, periodicidade 2π, pares, resposta em frequência discreta. Fora: DFT.",
+			"scope": "Dentro: DTFT direta e inversa, série geométrica, periodicidade 2π, pares, produto no tempo e convolução periódica em frequência, resposta em frequência discreta. Fora: DFT.",
 			"objectives": [
 				"Calcular a DTFT de sequências simples",
 				"Obter a resposta em frequência de um filtro de média móvel"
@@ -728,7 +729,8 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.fourier.ft-properties"
+					"ee.signals.lti.convolution-dt",
+					"ee.math.complex.polar-euler.euler-formula"
 				]
 			],
 			"hours": {
@@ -1054,7 +1056,8 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.laplace-z.z-transform"
+					"ee.signals.laplace-z.z-transform",
+					"ee.signals.lti.difference-diff-eq"
 				]
 			],
 			"hours": {
@@ -1274,7 +1277,7 @@
 			"summary": "Quantização uniforme, erro de quantização como ruído, SNR de 6,02N + 1,76 dB e dither.",
 			"scope": "Dentro: quantização uniforme, modelo de ruído, SNR ideal, dither. Fora: sigma-delta.",
 			"objectives": [
-				"Calcular o SNR ideal de quantização de N bits",
+				"Calcular o SNR ideal de quantização de N bits para uma senoide em fundo de escala sob o modelo de erro uniforme",
 				"Explicar o efeito do dither em sinais pequenos"
 			],
 			"bloom": "apply",
@@ -1349,7 +1352,7 @@
 			"clauses": [
 				[
 					"ee.signals.sampling.reconstruction",
-					"ee.signals.fourier.dtft"
+					"ee.signals.dsp.fir-design"
 				]
 			],
 			"hours": {
@@ -1654,8 +1657,8 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.laplace-z.system-functions",
-					"ee.analog.filters.filter-specs"
+					"ee.analog.filters.filter-specs",
+					"ee.signals.dsp.fir-design"
 				]
 			],
 			"hours": {
@@ -1717,7 +1720,6 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.dsp.fir-design",
 					"ee.signals.dsp.iir-design",
 					"ee.digital.numbers.fixed-float"
 				]
@@ -2129,7 +2131,8 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.sampling.quantization"
+					"ee.signals.sampling.quantization",
+					"ee.signals.fourier.frequency-response-lti"
 				]
 			],
 			"hours": {
@@ -2555,7 +2558,8 @@
 			"clauses": [
 				[
 					"ee.signals.random.lti-random",
-					"ee.math.linalg.vector-spaces"
+					"ee.math.linalg.vector-spaces",
+					"ee.signals.dsp.fir-design"
 				]
 			],
 			"hours": {
@@ -2612,7 +2616,6 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.dsp.windowing-spectral",
 					"ee.signals.sampling.multirate"
 				]
 			],
@@ -2816,7 +2819,7 @@
 				"en": "Detection and estimation theory"
 			},
 			"summary": "Testes de hipóteses, Neyman-Pearson, curvas ROC, estimadores ML e MAP e o limite de Cramér-Rao.",
-			"scope": "Dentro: hipóteses, Neyman-Pearson, ROC, ML, MAP, CRLB. Fora: estimação não paramétrica.",
+			"scope": "Dentro: começar com duas hipóteses simples, contar falsos alarmes e detecções em amostras gaussianas e traçar uma ROC, depois tratar Neyman-Pearson, ML, MAP, informação de Fisher e CRLB. Fora: estimação não paramétrica.",
 			"objectives": [
 				"Derivar o detector ótimo para um sinal conhecido em ruído gaussiano",
 				"Calcular o limite de Cramér-Rao de um estimador"
@@ -2833,7 +2836,8 @@
 			"clauses": [
 				[
 					"ee.signals.random.lti-random",
-					"ee.math.linalg.eigen"
+					"ee.math.linalg.eigen",
+					"ee.math.calc.multivariable"
 				]
 			],
 			"hours": {
@@ -3005,7 +3009,8 @@
 			"clauses": [
 				[
 					"ee.signals.comms.ber-awgn",
-					"ee.signals.dsp.dft-fft"
+					"ee.signals.dsp.dft-fft",
+					"ee.math.linalg.vector-spaces"
 				]
 			],
 			"hours": {

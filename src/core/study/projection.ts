@@ -79,6 +79,7 @@ export interface StudyNodeBrief {
 	/** Ancestor titles below the domain root, outermost first (e.g. ["Análise CA", "Fasores"]). */
 	path: string[];
 	summary: string;
+	scope: string;
 	objectives: string[];
 	misconceptions: string[];
 	hours: Hours;
@@ -103,6 +104,7 @@ export function nodeBrief(snapshot: CurriculumSnapshot, id: string): StudyNodeBr
 		title: item.title.pt,
 		path,
 		summary: item.summary,
+		scope: item.scope,
 		objectives: [...item.objectives],
 		misconceptions: [...(item.misconceptions ?? [])],
 		hours: { ...item.hours },

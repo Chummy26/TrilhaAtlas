@@ -259,8 +259,8 @@
 			"summary": "Fontes independentes ideais, resistência interna, curva I–V de fontes reais e limites de operação.",
 			"scope": "Dentro: fontes ideais de tensão e corrente, resistência interna, curva I–V. Fora: fontes dependentes.",
 			"objectives": [
-				"Modelar uma fonte real por fonte ideal e resistência interna",
-				"Prever a tensão terminal de uma fonte real sob carga"
+				"Modelar uma fonte de tensão real por uma fonte ideal e uma resistência interna em série",
+				"Prever a tensão terminal de uma fonte de tensão real sob carga"
 			],
 			"bloom": "analyze",
 			"assess": [
@@ -503,7 +503,7 @@
 				"en": "Kirchhoff's current law (KCL)"
 			},
 			"summary": "Conservação de carga em nós e superfícies fechadas.",
-			"scope": "Dentro: LKC em nós e supernós, consequências para associação em série. Fora: análise nodal sistemática.",
+			"scope": "Dentro: LKC em um nó e balanço de correntes na fronteira de um conjunto de nós. Fora: método nodal e análise com supernós.",
 			"objectives": [
 				"Aplicar a LKC para encontrar correntes desconhecidas em um nó",
 				"Aplicar a LKC a uma superfície fechada contendo vários elementos"
@@ -808,7 +808,7 @@
 			"scope": "Dentro: transformação Y-Δ, ponte de Wheatstone, equilíbrio. Fora: pontes de CA.",
 			"objectives": [
 				"Converter redes estrela em triângulo e vice-versa",
-				"Calcular a condição de equilíbrio de uma ponte de Wheatstone"
+				"Calcular a condição de equilíbrio de uma ponte resistiva pela igualdade das tensões dos divisores"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -821,7 +821,7 @@
 			},
 			"clauses": [
 				[
-					"ee.dc.laws.series-parallel"
+					"ee.dc.laws.dividers"
 				]
 			],
 			"hours": {
@@ -920,7 +920,7 @@
 				"en": "Nodal analysis"
 			},
 			"summary": "Escolha do nó de referência, equações de LKC em termos das tensões nodais e solução do sistema.",
-			"scope": "Dentro: nodal com fontes de corrente e de tensão aterradas. Fora: supernó.",
+			"scope": "Dentro: análise nodal de circuitos resistivos com fontes de corrente e fontes de tensão aterradas, até duas tensões incógnitas. Fora: supernós.",
 			"objectives": [
 				"Escrever as equações nodais de um circuito resistivo",
 				"Resolver o sistema de equações nodais e obter correntes de ramo"
@@ -937,7 +937,8 @@
 			"clauses": [
 				[
 					"ee.dc.laws.kcl",
-					"ee.dc.basics.sources"
+					"ee.dc.basics.sources",
+					"ee.math.algebra.linear-equations.systems-2x2"
 				]
 			],
 			"softPrereqs": [
@@ -990,7 +991,7 @@
 				"en": "Mesh analysis"
 			},
 			"summary": "Correntes de malha em circuitos planares e equações de LKT.",
-			"scope": "Dentro: malhas em circuitos planares com fontes de tensão. Fora: circuitos não planares.",
+			"scope": "Dentro: análise de circuitos planares com fontes de tensão, até duas correntes de malha incógnitas. Fora: supermalhas e circuitos não planares.",
 			"objectives": [
 				"Escrever as equações de malha de um circuito planar",
 				"Escolher entre nodal e malhas conforme o circuito"
@@ -1007,7 +1008,8 @@
 			"clauses": [
 				[
 					"ee.dc.laws.kvl",
-					"ee.dc.basics.sources"
+					"ee.dc.basics.sources",
+					"ee.math.algebra.linear-equations.systems-2x2"
 				]
 			],
 			"softPrereqs": [
@@ -1369,7 +1371,7 @@
 				"en": "Thévenin equivalent"
 			},
 			"summary": "Tensão de circuito aberto e resistência equivalente vistas de dois terminais.",
-			"scope": "Dentro: Thévenin com fontes independentes, medição de V_th e R_th. Fora: fontes dependentes.",
+			"scope": "Dentro: Thévenin com fontes independentes, tensão em aberto e resistência de saída calculadas. Fora: medição em bancada e fontes dependentes.",
 			"objectives": [
 				"Calcular o equivalente de Thévenin de uma rede resistiva",
 				"Usar o equivalente para analisar cargas diferentes rapidamente"
@@ -1896,8 +1898,8 @@
 			"summary": "i = C dv/dt, continuidade da tensão, comportamento em CC, energia armazenada e associações série e paralelo.",
 			"scope": "Dentro: relação i–v, continuidade, regime CC, energia, associações. Fora: transientes RC.",
 			"objectives": [
-				"Calcular a corrente em um capacitor a partir da forma de onda da tensão",
-				"Calcular a capacitância equivalente de associações"
+				"Calcular a corrente em um capacitor a partir de trechos constantes ou lineares da tensão",
+				"Calcular a capacitância equivalente e a energia armazenada"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -1961,8 +1963,8 @@
 			"summary": "v = L di/dt, continuidade da corrente, comportamento em CC, energia armazenada e associações.",
 			"scope": "Dentro: relação v–i, continuidade, regime CC, energia, associações. Fora: transientes RL.",
 			"objectives": [
-				"Calcular a tensão em um indutor a partir da forma de onda da corrente",
-				"Explicar o pico de tensão ao abrir o circuito de um indutor"
+				"Calcular a tensão em um indutor a partir de trechos constantes ou lineares da corrente",
+				"Explicar o pico de tensão ao tentar interromper a corrente de um indutor"
 			],
 			"bloom": "apply",
 			"assess": [

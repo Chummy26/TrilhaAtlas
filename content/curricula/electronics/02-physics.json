@@ -77,11 +77,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.math.algebra.sci-notation"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.5,
 				"hi": 3.5
@@ -149,6 +145,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.math.algebra.sci-notation.si-prefixes"
+				]
 			]
 		},
 		{
@@ -357,11 +358,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.electrostatics.charge-coulomb"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.55,
 				"hi": 3.55
@@ -423,6 +420,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.electrostatics.charge-coulomb.coulomb-law"
+				]
 			]
 		},
 		{
@@ -453,7 +455,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.electric-field.field-concept"
+					"ee.physics.electrostatics.electric-field.field-concept",
+					"ee.physics.electrostatics.charge-coulomb.force-superposition"
 				]
 			],
 			"encompasses": [
@@ -523,10 +526,10 @@
 				"pt": "Campo uniforme e movimento de cargas",
 				"en": "Uniform fields and charge motion"
 			},
-			"summary": "O campo entre placas paralelas e a aceleração de elétrons, como nos tubos de raios catódicos e na deriva em semicondutores.",
+			"summary": "Usar a força elétrica em campo uniforme e fórmulas fornecidas de movimento com aceleração constante e trabalho.",
 			"objectives": [
-				"Calcular a aceleração e a trajetória de uma carga num campo uniforme",
-				"Calcular a energia ganha por um elétron acelerado"
+				"Calcular aceleração e trajetória unidimensional usando F = ma e uma fórmula de posição fornecida",
+				"Calcular a variação da energia cinética em deslocamento paralelo ao campo usando ΔK = F·Δx"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -582,7 +585,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.electric-field.field-lines"
+					"ee.physics.electrostatics.electric-field.field-lines",
+					"ee.physics.electrostatics.charge-coulomb.conductors-insulators-induction"
 				]
 			],
 			"encompasses": [
@@ -624,11 +628,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.electrostatics.electric-field"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.6
@@ -689,6 +689,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.electrostatics.electric-field.field-concept",
+					"ee.math.trig.trig-basics.right-triangle"
+				]
 			]
 		},
 		{
@@ -703,8 +709,8 @@
 			},
 			"summary": "O fluxo total por uma superfície fechada é a carga interna dividida por ε₀: a lei como soma de contribuições sobre a superfície.",
 			"objectives": [
-				"Aplicar a lei de Gauss para obter a carga interna a partir do fluxo",
-				"Explicar por que cargas externas não contribuem para o fluxo total"
+				"Encontrar a carga interna a partir do fluxo elétrico líquido de uma superfície fechada",
+				"Explicar por que o fluxo líquido devido a uma carga externa é zero embora o campo possa ser diferente de zero"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -721,7 +727,7 @@
 			"clauses": [
 				[
 					"ee.physics.electrostatics.gauss-law.electric-flux",
-					"ee.math.calc.integrals.riemann-definite"
+					"ee.physics.electrostatics.electric-field.point-charge-field"
 				]
 			],
 			"encompasses": [
@@ -798,8 +804,8 @@
 			},
 			"summary": "Usar Gauss para mostrar que a carga fica na superfície dos condutores e obter o campo entre placas paralelas, E = σ/ε₀.",
 			"objectives": [
-				"Obter o campo entre placas paralelas com a lei de Gauss",
-				"Explicar a ausência de campo em cavidades de condutores"
+				"Obter o campo de placas paralelas ideais com a lei de Gauss",
+				"Explicar a ausência de campo numa cavidade fechada sem cargas dentro de um condutor em equilíbrio eletrostático"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -815,7 +821,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.gauss-law.symmetric-fields"
+					"ee.physics.electrostatics.gauss-law.symmetric-fields",
+					"ee.physics.electrostatics.electric-field.conductors-equilibrium"
 				]
 			],
 			"encompasses": [
@@ -866,6 +873,8 @@
 			},
 			"clauses": [
 				[
+					"ee.physics.electrostatics.electric-field.point-charge-field",
+					"ee.physics.electrostatics.charge-coulomb.charge-distributions",
 					"ee.math.calc.integrals.substitution"
 				]
 			],
@@ -912,11 +921,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.electrostatics.electric-field"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.55
@@ -953,10 +958,10 @@
 				"pt": "Energia potencial elétrica",
 				"en": "Electric potential energy"
 			},
-			"summary": "Trabalho da força elétrica, o campo eletrostático como conservativo e a energia potencial de pares de cargas.",
+			"summary": "Introduzir o trabalho de uma força, seu sinal e a convenção U = 0 no infinito junto com a energia eletrostática de duas cargas.",
 			"objectives": [
-				"Calcular a energia potencial de um sistema de cargas pontuais",
-				"Relacionar o trabalho da força elétrica com a variação de energia potencial"
+				"Calcular a energia potencial de duas ou três cargas somando sobre pares distintos",
+				"Relacionar o sinal do trabalho da força elétrica à variação de energia potencial"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -970,12 +975,6 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"encompasses": [
-				{
-					"id": "ee.physics.electrostatics.electric-field.uniform-field-motion",
-					"w": 0.4
-				}
-			],
 			"hours": {
 				"lo": 0.5,
 				"hi": 0.7
@@ -983,6 +982,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.electrostatics.charge-coulomb.coulomb-law"
+				]
 			]
 		},
 		{
@@ -1103,7 +1107,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.potential.point-potential"
+					"ee.physics.electrostatics.potential.point-potential",
+					"ee.physics.electrostatics.electric-field.field-lines"
 				]
 			],
 			"encompasses": [
@@ -1134,7 +1139,7 @@
 			"summary": "A unidade eV, sua conversão para joules e energias típicas em dispositivos, como o gap de semicondutores.",
 			"objectives": [
 				"Converter energias entre eV e J",
-				"Calcular a velocidade de um elétron acelerado por uma tensão"
+				"Calcular a velocidade não relativística de um elétron acelerado a partir do repouso usando ΔK = e·|ΔV| e K = mv²/2 fornecida"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -1185,12 +1190,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.electrostatics.potential",
-					"ee.physics.electrostatics.gauss-law"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.65
@@ -1252,6 +1252,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.electrostatics.potential.potential-voltage"
+				]
 			]
 		},
 		{
@@ -1283,7 +1288,9 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.capacitance-physics.capacitance-definition"
+					"ee.physics.electrostatics.capacitance-physics.capacitance-definition",
+					"ee.physics.electrostatics.gauss-law.conductors-gauss",
+					"ee.physics.electrostatics.potential.field-potential-relation"
 				]
 			],
 			"encompasses": [
@@ -1330,7 +1337,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.capacitance-physics.parallel-plate"
+					"ee.physics.electrostatics.capacitance-physics.parallel-plate",
+					"ee.math.calc.integral-apps.improper-integrals"
 				]
 			],
 			"encompasses": [
@@ -1400,10 +1408,10 @@
 				"pt": "Laboratório: capacitância de placas improvisadas",
 				"en": "Lab: capacitance of improvised plates"
 			},
-			"summary": "Montar placas de papel-alumínio com dielétrico de papel ou plástico, medir C com multímetro ou medidor LCR e comparar com εA/d.",
+			"summary": "Estimar a capacitância de placas pequenas desligadas de fontes, com capacímetro e compensação do valor de fundo dos cabos. Usar medidas fornecidas se o instrumento não resolver a escala.",
 			"objectives": [
-				"Medir capacitâncias pequenas reduzindo a influência dos cabos e de capacitâncias parasitas",
-				"Comparar medição e modelo e explicar as diferenças, como o efeito de borda"
+				"Estimar a capacitância das placas pela diferença entre a leitura do conjunto e a leitura de fundo",
+				"Comparar a estimativa com εA/d, discutindo resolução do capacímetro e efeito de borda"
 			],
 			"bloom": "analyze",
 			"assess": [
@@ -1462,11 +1470,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.electrostatics.capacitance-physics"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 1.95,
 				"hi": 2.75
@@ -1533,6 +1537,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.electrostatics.capacitance-physics.capacitance-definition",
+					"ee.math.calc.integrals.ftc"
+				]
 			]
 		},
 		{
@@ -1586,10 +1596,10 @@
 				"pt": "Energia com dielétricos e força entre placas",
 				"en": "Energy with dielectrics and force between plates"
 			},
-			"summary": "Como a energia muda ao inserir um dielétrico com a fonte ligada ou desligada e a força de atração entre as placas.",
+			"summary": "Comparar a energia de campo com carga fixa e com tensão fixa. Começar pela variação de energia a carga fixa e incluir o trabalho da fonte no balanço de força para tensão constante.",
 			"objectives": [
-				"Comparar a energia antes e depois de inserir um dielétrico a carga constante e a tensão constante",
-				"Calcular a força entre as placas pela variação de energia"
+				"Comparar a energia de campo com e sem dielétrico nos casos Q fixo e V fixo",
+				"Calcular a força a partir da variação de energia, incluindo a contribuição da fonte para V fixo"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -1605,7 +1615,9 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.field-energy.energy-density"
+					"ee.physics.electrostatics.field-energy.energy-density",
+					"ee.physics.electrostatics.capacitance-physics.dielectrics",
+					"ee.math.calc.derivative-apps.linearization"
 				]
 			],
 			"encompasses": [
@@ -1635,8 +1647,8 @@
 			},
 			"summary": "Ordens de grandeza de energia e potência em capacitores reais e o risco de choque de capacitores carregados.",
 			"objectives": [
-				"Estimar a energia e a potência de pico de descargas de capacitores",
-				"Explicar por que um capacitor desligado da fonte ainda pode ser perigoso"
+				"Estimar a energia disponível e a potência inicial de um modelo com capacitor e carga resistiva dados",
+				"Relacionar energia e tensão residuais aos cuidados de bancada, usando exemplos teóricos"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -1748,11 +1760,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.physics.electrostatics.charge-coulomb"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 1.9,
 				"hi": 2.55
@@ -1819,6 +1827,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.electrostatics.charge-coulomb.electric-charge",
+					"ee.math.algebra.linear-equations.isolate-variable"
+				]
 			]
 		},
 		{
@@ -1915,8 +1929,8 @@
 			},
 			"summary": "Correntes constantes, pulsantes e alternadas no tempo e a ideia de corrente instantânea i = dq/dt.",
 			"objectives": [
-				"Classificar formas de onda de corrente",
-				"Calcular a carga transferida por uma corrente constante por partes"
+				"Distinguir corrente constante, variável sempre no mesmo sentido e alternada em gráficos com sinal",
+				"Calcular a carga líquida transferida por uma corrente constante por partes pela soma de I·Δt"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -1932,7 +1946,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.current.current-drift.current-definition"
+					"ee.physics.current.current-drift.current-definition",
+					"ee.math.algebra.functions-graphs.piecewise"
 				]
 			],
 			"hours": {
@@ -1968,11 +1983,7 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [
-				[
-					"ee.physics.current.current-drift"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 1.9,
 				"hi": 2.7
@@ -2038,6 +2049,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.current.current-drift.current-definition",
+					"ee.math.algebra.sci-notation.si-units-dimensional"
+				]
 			]
 		},
 		{
@@ -2074,6 +2091,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.current.resistivity.resistance-resistivity"
+				]
 			]
 		},
 		{
@@ -2152,7 +2174,8 @@
 			"clauses": [
 				[
 					"ee.physics.current.resistivity.resistance-resistivity",
-					"ee.physics.electrostatics.electric-field.field-concept"
+					"ee.physics.electrostatics.potential.field-potential-relation",
+					"ee.physics.current.current-drift.drift-velocity"
 				]
 			],
 			"encompasses": [
@@ -2197,12 +2220,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.current.current-drift",
-					"ee.physics.electrostatics.potential"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 1.9,
 				"hi": 2.7
@@ -2275,6 +2293,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.current.current-drift.current-definition",
+					"ee.physics.electrostatics.potential.potential-voltage"
+				]
 			]
 		},
 		{
@@ -2498,12 +2522,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.current.current-drift",
-					"ee.physics.electrostatics.electric-field"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.6
@@ -2570,6 +2589,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.current.current-drift.current-definition"
+				]
 			]
 		},
 		{
@@ -2613,6 +2637,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.math.trig.trig-basics.vectors-components"
+				]
 			]
 		},
 		{
@@ -2625,10 +2654,10 @@
 				"pt": "Força de Lorentz sobre cargas em movimento",
 				"en": "Lorentz force on moving charges"
 			},
-			"summary": "F = qv × B (mais qE), o movimento circular de cargas num campo uniforme e aplicações como o espectrômetro de massa.",
+			"summary": "Aplicar a força magnética a cargas em movimento e usar a relação de aceleração centrípeta fornecida para o caso perpendicular.",
 			"objectives": [
-				"Calcular a força e o raio da trajetória de uma carga num campo uniforme",
-				"Explicar por que a força magnética não muda a energia cinética da carga"
+				"Calcular a força magnética e obter o raio pela condição |q|vB = mv²/r no caso v perpendicular a B",
+				"Explicar por que a força perpendicular à velocidade não muda a energia cinética"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -2674,10 +2703,10 @@
 				"pt": "Força sobre fio com corrente e torque em espira",
 				"en": "Force on a current-carrying wire and torque on a loop"
 			},
-			"summary": "F = IL × B, o torque numa espira e o princípio do motor CC e do galvanômetro.",
+			"summary": "Aplicar a força sobre um fio e calcular o torque de um par de forças em uma espira retangular, com braço de alavanca indicado no desenho.",
 			"objectives": [
 				"Calcular a força sobre um condutor retilíneo num campo uniforme",
-				"Calcular o torque numa espira e explicar o funcionamento de um motor CC"
+				"Calcular o torque numa espira retangular por braço de alavanca dado e identificar em que posições o torque se anula"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -2744,7 +2773,9 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.magnetic-field-force.lorentz-force"
+					"ee.physics.magnetism.magnetic-field-force.lorentz-force",
+					"ee.physics.current.current-drift.drift-velocity",
+					"ee.physics.electrostatics.potential.field-potential-relation"
 				]
 			],
 			"encompasses": [
@@ -2786,11 +2817,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.magnetism.magnetic-field-force"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.65
@@ -2862,6 +2889,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.magnetism.magnetic-field-force.magnetic-field-concept",
+					"ee.physics.magnetism.magnetic-field-force.cross-product-rhr"
+				]
 			]
 		},
 		{
@@ -2892,7 +2925,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.ampere-biot.wire-field"
+					"ee.physics.magnetism.ampere-biot.wire-field",
+					"ee.physics.magnetism.magnetic-field-force.force-on-wire"
 				]
 			],
 			"encompasses": [
@@ -3019,7 +3053,7 @@
 				"pt": "Laboratório: campo de uma bobina",
 				"en": "Lab: field of a coil"
 			},
-			"summary": "Medir o campo de uma bobina com sensor Hall ou magnetômetro de celular, variando corrente e distância, e comparar com o modelo.",
+			"summary": "Comparar a relação entre corrente e campo no eixo com o modelo de solenoide longo. Trabalhar com bobina de baixa tensão e sensor calibrado ou dados fornecidos e retirar da leitura o campo medido com corrente zero.",
 			"objectives": [
 				"Medir B em função da corrente e verificar a proporcionalidade",
 				"Comparar o campo medido no eixo com a previsão teórica"
@@ -3045,10 +3079,6 @@
 				{
 					"id": "ee.physics.magnetism.ampere-biot.ampere-law",
 					"w": 0.5
-				},
-				{
-					"id": "ee.physics.magnetism.magnetic-field-force.hall-effect",
-					"w": 0.4
 				}
 			],
 			"hours": {
@@ -3085,11 +3115,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.magnetism.ampere-biot"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.65
@@ -3155,6 +3181,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.magnetism.magnetic-field-force.magnetic-field-concept",
+					"ee.physics.electrostatics.gauss-law.electric-flux"
+				]
 			]
 		},
 		{
@@ -3187,7 +3219,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.faraday-lenz.magnetic-flux"
+					"ee.physics.magnetism.faraday-lenz.magnetic-flux",
+					"ee.math.calc.derivatives.trig-exp-derivatives"
 				]
 			],
 			"encompasses": [
@@ -3275,7 +3308,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.faraday-lenz.lenz-law"
+					"ee.physics.magnetism.faraday-lenz.lenz-law",
+					"ee.physics.magnetism.magnetic-field-force.force-on-wire"
 				]
 			],
 			"encompasses": [
@@ -3303,7 +3337,7 @@
 				"pt": "Laboratório: indução com ímã e bobina",
 				"en": "Lab: induction with a magnet and a coil"
 			},
-			"summary": "Observar a fem induzida ao mover um ímã numa bobina (com osciloscópio ou multímetro), variando velocidade e polaridade, e a frenagem por correntes parasitas.",
+			"summary": "Interpretar traços de tensão fornecidos ou captados por uma bobina sem fonte conectada, comparando a polaridade e a velocidade do ímã. Relacionar a variação observada do fluxo à fem e à frenagem magnética.",
 			"objectives": [
 				"Relacionar amplitude e sinal da fem com a velocidade e a polaridade do ímã",
 				"Explicar a frenagem magnética pela lei de Lenz"
@@ -3369,11 +3403,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.magnetism.faraday-lenz"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.65,
 				"hi": 3.65
@@ -3418,7 +3448,7 @@
 			"summary": "L = NΦ/I, a fem autoinduzida v = L·di/dt e a inércia da corrente num indutor.",
 			"objectives": [
 				"Calcular a fem autoinduzida a partir de di/dt",
-				"Explicar por que a corrente num indutor não varia instantaneamente"
+				"Explicar a continuidade da corrente de um indutor ideal quando a tensão permanece finita"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -3445,6 +3475,12 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.magnetism.faraday-lenz.faraday-law",
+					"ee.physics.current.current-drift.current-waveforms"
+				]
 			]
 		},
 		{
@@ -3476,7 +3512,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.inductance-physics.self-inductance"
+					"ee.physics.magnetism.inductance-physics.self-inductance",
+					"ee.physics.magnetism.ampere-biot.ampere-law"
 				]
 			],
 			"encompasses": [
@@ -3564,7 +3601,9 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.inductance-physics.solenoid-inductance"
+					"ee.physics.magnetism.inductance-physics.self-inductance",
+					"ee.physics.current.energy-power-physics.power-vi",
+					"ee.math.calc.integrals.ftc"
 				]
 			],
 			"encompasses": [
@@ -3611,14 +3650,11 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.inductance-physics.magnetic-energy"
+					"ee.physics.magnetism.inductance-physics.self-inductance",
+					"ee.physics.current.resistivity.resistance-resistivity"
 				]
 			],
 			"encompasses": [
-				{
-					"id": "ee.physics.magnetism.inductance-physics.magnetic-energy",
-					"w": 0.4
-				},
 				{
 					"id": "ee.math.algebra.exponentials-logs.exponential-functions",
 					"w": 0.3
@@ -3657,11 +3693,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.magnetism.inductance-physics"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2,
 				"hi": 2.8
@@ -3727,6 +3759,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.magnetism.ampere-biot.ampere-law"
+				]
 			]
 		},
 		{
@@ -3758,7 +3795,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.magnetic-materials.magnetization"
+					"ee.physics.magnetism.magnetic-materials.magnetization",
+					"ee.physics.magnetism.inductance-physics.solenoid-inductance"
 				]
 			],
 			"hours": {
@@ -3799,7 +3837,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.magnetic-materials.magnetization"
+					"ee.physics.magnetism.magnetic-materials.magnetization",
+					"ee.physics.magnetism.inductance-physics.solenoid-inductance"
 				]
 			],
 			"encompasses": [
@@ -3846,7 +3885,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.magnetism.magnetic-materials.hysteresis-saturation"
+					"ee.physics.magnetism.magnetic-materials.hysteresis-saturation",
+					"ee.physics.magnetism.faraday-lenz.lenz-law"
 				]
 			],
 			"hours": {
@@ -3932,12 +3972,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.magnetism.faraday-lenz",
-					"ee.physics.electrostatics.gauss-law"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.6,
 				"hi": 3.6
@@ -4004,6 +4039,13 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.physics.magnetism.ampere-biot.ampere-law",
+					"ee.physics.magnetism.faraday-lenz.faraday-law",
+					"ee.physics.electrostatics.capacitance-physics.parallel-plate"
+				]
 			]
 		},
 		{
@@ -4081,11 +4123,12 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 2
 			},
 			"clauses": [
 				[
-					"ee.physics.waves.maxwell-overview.four-equations"
+					"ee.physics.waves.maxwell-overview.four-equations",
+					"ee.math.calc.vector-calc.integral-theorems"
 				]
 			],
 			"hours": {
@@ -4126,7 +4169,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.waves.maxwell-overview.four-equations"
+					"ee.physics.waves.maxwell-overview.four-equations",
+					"ee.physics.waves.em-waves.wave-basics"
 				]
 			],
 			"hours": {
@@ -4216,11 +4260,7 @@
 				"scheme": "ee",
 				"band": 1
 			},
-			"clauses": [
-				[
-					"ee.physics.waves.maxwell-overview"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 2.5,
 				"hi": 3.5
@@ -4281,6 +4321,11 @@
 			"status": "stable",
 			"tags": [
 				"core"
+			],
+			"clauses": [
+				[
+					"ee.math.trig.sinusoids.phase-shift"
+				]
 			]
 		},
 		{
@@ -4312,7 +4357,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.waves.em-waves.wave-basics"
+					"ee.physics.waves.em-waves.wave-basics",
+					"ee.physics.waves.maxwell-overview.four-equations"
 				]
 			],
 			"encompasses": [
@@ -4399,7 +4445,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.waves.em-waves.em-wave-structure"
+					"ee.physics.waves.em-waves.em-wave-structure",
+					"ee.math.calc.integral-apps.average-value"
 				]
 			],
 			"hours": {
@@ -4538,7 +4585,8 @@
 			},
 			"clauses": [
 				[
-					"ee.physics.waves.em-waves"
+					"ee.physics.waves.em-waves.wave-basics",
+					"ee.physics.electrostatics.potential.electron-volt"
 				]
 			],
 			"hours": {
@@ -4566,11 +4614,11 @@
 				"pt": "Dualidade onda-partícula, poços de potencial e tunelamento",
 				"en": "Wave-particle duality, potential wells and tunnelling"
 			},
-			"summary": "Comprimento de onda de de Broglie, princípio da incerteza, partícula em um poço de potencial, quantização da energia e tunelamento, em tratamento qualitativo e semiquantitativo.",
+			"summary": "Relacionar dualidade e estados ligados por um poço unidimensional ideal. Trabalhar a analogia com uma corda fixa, usar λₙ = 2L/n e p = h/λ e introduzir o conceito de tunelamento qualitativamente.",
 			"scope": "Dentro: de Broglie, incerteza, função de onda como amplitude de probabilidade, poço infinito unidimensional pela condição de onda estacionária, barreira e tunelamento em visão. Fora: solução da equação de Schrödinger e operadores.",
 			"objectives": [
-				"Calcular os níveis de energia de um elétron em um poço infinito pela condição de onda estacionária",
-				"Explicar qualitativamente o tunelamento e onde ele aparece em dispositivos (Zener, Flash, contatos ôhmicos)"
+				"Calcular os níveis de energia de um elétron em um poço infinito usando λₙ = 2L/n e E = p²/(2m)",
+				"Explicar qualitativamente o tunelamento e reconhecer sua presença em dispositivos como Zener e Flash"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -4617,8 +4665,8 @@
 			"summary": "Temperatura como energia média, kT e a tensão térmica kT/q, fator de Boltzmann e populações de estados em equilíbrio térmico.",
 			"scope": "Dentro: kT, tensão térmica V_T, fator de Boltzmann exp(−ΔE/kT), equilíbrio térmico, distribuição de Maxwell-Boltzmann em visão. Fora: termodinâmica estatística formal e estatística quântica (ver semicondutores).",
 			"objectives": [
-				"Calcular kT e a tensão térmica V_T em diferentes temperaturas",
-				"Estimar a razão de populações entre dois níveis com o fator de Boltzmann"
+				"Calcular kT e V_T = kT/q para temperaturas absolutas expressas em kelvin",
+				"Estimar a razão de populações entre níveis de mesma degenerescência usando e^(−ΔE/kT)"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -4634,8 +4682,8 @@
 			},
 			"clauses": [
 				[
-					"ee.math.algebra.exponentials-logs",
-					"ee.physics.electrostatics.potential"
+					"ee.math.algebra.exponentials-logs.exp-equations",
+					"ee.physics.electrostatics.potential.electron-volt"
 				]
 			],
 			"hours": {

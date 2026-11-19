@@ -580,8 +580,8 @@ export function KeysSection({
 				<ClaudeCodeInstallationStatus />
 			</SettingsGroup>
 
-			{(["Dictation", "Search"] as const).map((label) => <SettingsGroup key={label} label={label} testid={label === "Dictation" ? "group-dictation" : "group-search"}>
-				{toolRows.filter((status) => label === "Dictation" ? status.id === "DEEPGRAM_API_KEY" : status.id !== "DEEPGRAM_API_KEY").map((status) => (
+			{(["Dictation", "Search", "Materiais de estudo"] as const).map((label) => <SettingsGroup key={label} label={label} testid={label === "Dictation" ? "group-dictation" : label === "Search" ? "group-search" : "group-study-materials"}>
+				{toolRows.filter(({ id }) => (id === "DEEPGRAM_API_KEY" ? "Dictation" : id === "YOUTUBE_API_KEY" ? "Materiais de estudo" : "Search") === label).map((status) => (
 					<KeyTableRow
 						key={status.id}
 						label={status.info?.label ?? status.id}

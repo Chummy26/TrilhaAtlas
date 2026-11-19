@@ -529,7 +529,8 @@
 			},
 			"clauses": [
 				[
-					"ee.ic.amplifiers.cascode-ota"
+					"ee.ic.amplifiers.cascode-ota",
+					"ee.analog.feedback.compensation"
 				]
 			],
 			"hours": {
@@ -897,7 +898,8 @@
 			"clauses": [
 				[
 					"ee.ic.amplifiers.single-stage-cmos",
-					"ee.signals.sampling.sampling-theorem"
+					"ee.signals.sampling.sampling-theorem",
+					"ee.analog.mos-dc.mos-switch"
 				]
 			],
 			"hours": {
@@ -1011,7 +1013,9 @@
 			"clauses": [
 				[
 					"ee.ic.amplifiers.diff-amps-cmos",
-					"ee.digital.seq.metastability-cdc"
+					"ee.digital.seq.metastability-cdc",
+					"ee.ic.amplifiers.ic-noise",
+					"ee.ic.models.mismatch-variation"
 				]
 			],
 			"hours": {
@@ -1232,9 +1236,9 @@
 			},
 			"clauses": [
 				[
-					"ee.ic.data-converters.converter-specs",
 					"ee.ic.switched.comparators-ic",
-					"ee.ic.switched.sample-hold"
+					"ee.ic.switched.sample-hold",
+					"ee.ic.data-converters.dac-architectures"
 				]
 			],
 			"hours": {
@@ -1290,8 +1294,9 @@
 			},
 			"clauses": [
 				[
-					"ee.ic.data-converters.sar-adc",
-					"ee.ic.switched.sc-circuits"
+					"ee.ic.data-converters.converter-specs",
+					"ee.ic.switched.sc-circuits",
+					"ee.ic.switched.comparators-ic"
 				]
 			],
 			"hours": {
@@ -1556,7 +1561,7 @@
 			"summary": "Jitter determinístico e aleatório, relação com ruído de fase e arquiteturas de CDR.",
 			"scope": "Dentro: tipos de jitter, conversão ruído de fase–jitter, CDR. Fora: SerDes completos.",
 			"objectives": [
-				"Converter ruído de fase em jitter RMS",
+				"Converter o ruído de fase em jitter RMS usando uma banda de integração e frequência de portadora especificadas",
 				"Explicar a arquitetura de um CDR bang-bang"
 			],
 			"bloom": "apply",
@@ -1719,10 +1724,10 @@
 				"en": "PVT and Monte Carlo verification"
 			},
 			"summary": "Cantos de processo, tensão e temperatura, Monte Carlo de descasamento e rendimento.",
-			"scope": "Dentro: cantos, Monte Carlo, rendimento, análise de sensibilidade. Fora: amostragem de alta sigma.",
+			"scope": "Dentro: cantos PVT, amostras de variação global de processo e de descasamento local, rendimento e sensibilidade. Fora: amostragem de alta sigma.",
 			"objectives": [
-				"Planejar a verificação PVT de um bloco",
-				"Estimar o rendimento por Monte Carlo"
+				"Planejar a verificação PVT de um bloco, distinguindo cantos de variação estatística",
+				"Estimar o rendimento por Monte Carlo e distinguir variação global de descasamento local"
 			],
 			"bloom": "create",
 			"assess": [
@@ -1775,11 +1780,11 @@
 				"pt": "Projeto com PDK aberto e tapeout",
 				"en": "Open PDK design and tapeout"
 			},
-			"summary": "SKY130 e GF180, ferramentas abertas, programas de tapeout compartilhado e preparação de GDS.",
-			"scope": "Dentro: PDKs abertos, ferramentas abertas, shuttles, preparação de tapeout. Fora: NDA de PDKs comerciais.",
+			"summary": "Preparação de entrega para tapeout com PDK aberto a partir de um bloco conhecido.",
+			"scope": "Dentro: documentação do processo, biblioteca e regras de envio, com checklist para um bloco de exemplo. Fora: submeter tapeout e instalar ou manter um fluxo completo.",
 			"objectives": [
-				"Preparar um bloco para tapeout em PDK aberto",
-				"Navegar pela documentação de um PDK aberto"
+				"Identificar a versão do PDK, dispositivos e regras usados por um bloco de exemplo",
+				"Preparar um checklist de entrega com GDS, verificações e dependências para um fluxo documentado"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -1934,11 +1939,11 @@
 				"pt": "Projeto de CI, fase 1: especificação e dimensionamento",
 				"en": "IC project, phase 1: specification and sizing"
 			},
-			"summary": "Escolher o bloco (op-amp ou ADC SAR), fixar especificações, dimensionar transistores por gm/ID e atingir o desempenho nominal em simulação.",
-			"scope": "Dentro: especificação, arquitetura, dimensionamento por gm/ID, simulação nominal. Fora: cantos de processo e layout (fases seguintes).",
+			"summary": "Projeto nominal de um op-amp ou ADC SAR em PDK aberto.",
+			"scope": "Dentro: escolher entre op-amp CMOS e ADC SAR, dimensionar transistores por gm/ID quando aplicável, dimensionar o DAC capacitivo na rota SAR e validar nominalmente. Fora: cantos e layout.",
 			"objectives": [
-				"Converter uma especificação em arquitetura e dimensões de transistores",
-				"Atingir as especificações nominais em simulação"
+				"Traduzir uma especificação em arquitetura e dimensões dos elementos críticos",
+				"Verificar por simulação nominal as métricas da opção escolhida"
 			],
 			"bloom": "create",
 			"assess": [
@@ -2109,7 +2114,8 @@
 			},
 			"clauses": [
 				[
-					"ee.ic.project.ic-layout"
+					"ee.ic.project.ic-layout",
+					"ee.research.method.technical-writing"
 				]
 			],
 			"hours": {

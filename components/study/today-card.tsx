@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
 import type { StudyNodeBrief, StudyToday } from "@/src/core";
@@ -36,7 +37,7 @@ const CHECK_GRADES = [
 	{ grade: 3, label: "Domino" },
 ] as const;
 
-function lessonStatement(brief: StudyNodeBrief, minutes: number): string {
+export function lessonStatement(brief: StudyNodeBrief, minutes: number): string {
 	const parts = [
 		brief.path.length > 0 ? `Trilha: ${brief.path.join(" › ")}.` : "",
 		brief.summary ? `Resumo: ${brief.summary}` : "",
@@ -81,6 +82,7 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 			<div className="mb-1.5 flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
 				<Icon name={pendingCheck ? "check" : "play"} size={14} />
 				<span className="cel-display">Hoje</span>
+				<Link href={`/mapa?dominio=${encodeURIComponent(today.domain.id)}`} className="cel-button cel-button-ghost px-2 normal-case tracking-normal">Árvore de habilidades</Link>
 				{next && !pendingCheck && (
 					<span>
 						· {KIND_LABEL[next.kind] ?? next.kind} · ~{Math.round(next.estMinutes)} min

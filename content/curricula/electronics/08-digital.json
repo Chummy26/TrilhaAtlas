@@ -341,11 +341,9 @@
 			"clauses": [
 				[
 					"ee.digital.numbers.codes",
-					"ee.digital.boolean.boolean-algebra"
+					"ee.digital.boolean.boolean-algebra",
+					"ee.math.discrete.modular-arithmetic"
 				]
-			],
-			"softPrereqs": [
-				"ee.math.discrete.modular-arithmetic"
 			],
 			"hours": {
 				"lo": 2,
@@ -439,11 +437,12 @@
 				"pt": "Portas lógicas, tabelas-verdade e teoremas booleanos",
 				"en": "Logic gates, truth tables and Boolean theorems"
 			},
-			"summary": "Portas AND, OR, NOT, NAND, NOR e XOR, tabelas-verdade, teoremas e De Morgan.",
-			"scope": "Dentro: portas, tabelas-verdade, teoremas, De Morgan, universalidade de NAND e NOR. Fora: minimização.",
+			"summary": "Bits representam dois estados, e portas transformam combinações de entradas em saídas. A partir de tabelas-verdade, escreva e verifique expressões equivalentes antes de usar as leis de De Morgan e implementar funções com NAND.",
+			"scope": "Dentro: significado de 0 e 1, entradas e saídas, NOT, AND e OR, leitura de esquemas simples, enumeração de 2ⁿ combinações, tabelas-verdade de portas e circuitos, equivalência de expressões, De Morgan e universalidade de NAND. Fora: formas canônicas, minimização por mapas e características elétricas das famílias lógicas.",
 			"objectives": [
-				"Simplificar expressões booleanas usando teoremas e De Morgan",
-				"Implementar uma função apenas com portas NAND"
+				"Identificar entradas e saídas binárias e calcular a saída de portas NOT, AND e OR",
+				"Preencher a tabela-verdade de um circuito simples e verificar a equivalência entre duas expressões",
+				"Simplificar uma expressão por De Morgan e construir um circuito equivalente apenas com portas NAND"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -456,7 +455,11 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"clauses": [],
+			"clauses": [
+				[
+					"ee.digital.numbers.number-systems"
+				]
+			],
 			"hours": {
 				"lo": 3,
 				"hi": 4
@@ -1721,8 +1724,8 @@
 			},
 			"clauses": [
 				[
-					"ee.digital.hdl.verilog-seq",
-					"ee.digital.seq.timing"
+					"ee.digital.seq.timing",
+					"ee.digital.hdl.testbenches"
 				]
 			],
 			"hours": {
@@ -1782,7 +1785,8 @@
 			},
 			"clauses": [
 				[
-					"ee.digital.hdl.verilog-comb"
+					"ee.digital.hdl.verilog-comb",
+					"ee.digital.seq.latches-flipflops"
 				]
 			],
 			"hours": {
@@ -2277,7 +2281,7 @@
 			"scope": "Dentro: instruções, controle de fluxo, chamadas, pilha, ABI. Fora: compiladores.",
 			"objectives": [
 				"Escrever funções em assembly respeitando a convenção de chamada",
-				"Traduzir trechos de C para assembly"
+				"Traduzir para assembly uma função curta com laço, parâmetros e retorno, a partir de pseudocódigo"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -2363,7 +2367,8 @@
 				[
 					"ee.digital.arch.isa-riscv",
 					"ee.digital.comb.comparators-alu",
-					"ee.digital.seq.registers-counters"
+					"ee.digital.seq.registers-counters",
+					"ee.digital.seq.fsm"
 				]
 			],
 			"hours": {
@@ -2936,7 +2941,7 @@
 			},
 			"clauses": [
 				[
-					"ee.digital.hdl.testbenches"
+					"ee.digital.vlsi.rtl-methodology"
 				]
 			],
 			"hours": {
@@ -3215,7 +3220,8 @@
 			},
 			"clauses": [
 				[
-					"ee.digital.vlsi.rtl-methodology"
+					"ee.digital.vlsi.rtl-methodology",
+					"ee.digital.vlsi.asic-flow"
 				]
 			],
 			"hours": {
@@ -3273,7 +3279,9 @@
 			"clauses": [
 				[
 					"ee.digital.vlsi.rtl-methodology",
-					"ee.digital.arch.memory-hierarchy"
+					"ee.digital.arch.memory-hierarchy",
+					"ee.math.linalg.matrices.matrix-ops",
+					"ee.digital.cmos.delay-power"
 				]
 			],
 			"hours": {
@@ -3330,7 +3338,8 @@
 			},
 			"clauses": [
 				[
-					"ee.digital.arch.memory-hierarchy"
+					"ee.digital.arch.memory-hierarchy",
+					"ee.digital.arch.pipelining"
 				]
 			],
 			"hours": {

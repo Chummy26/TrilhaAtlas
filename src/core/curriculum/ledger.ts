@@ -5,7 +5,8 @@
  *
  *   replayLedger(envelopes) — rebuilds a domain from its patch ledger: the
  *       first envelope must be the seed (it carries the domain root, see
- *       ./seed.ts); each envelope is applied with its own `createdAt` as the
+ *       ./seed.ts). Later entries may include shipped seed revisions.
+ *       Each entry is applied with its own `createdAt` as the
  *       apply time, so the result — certificate hash included — is a pure
  *       function of the ledger.
  *   applySeedFiles(files) — seed files → seed envelope → version-1 snapshot.
@@ -18,6 +19,7 @@
  */
 
 import { applyPatch, type ApplyPatchOptions } from "./patch.ts";
+import { applySeedRevision, isSeedRevision } from "./seed-revision.ts";
 import { PatchEnvelopeSchema, zodIssuesToErrors } from "./schema.ts";
 import { initialSnapshot, rootFromSeedEnvelope, seedFilesToPatch, type SeedPatchOptions } from "./seed.ts";
 import { findRedundantPrereqs, reduceStoredClauses, type RedundantPrereq } from "./transitive.ts";
@@ -37,7 +39,8 @@ export function replayLedger(envelopes: readonly unknown[], opts: Omit<ApplyPatc
 	let snapshot = initialSnapshot(rootRes.root, { now: first.data.createdAt });
 	const receipts: PatchReceipt[] = [];
 	for (let i = 0; i < envelopes.length; i++) {
-		const res = applyPatch(snapshot, envelopes[i], opts);
+		const entry = envelopes[i];
+		const res = isSeedRevision(entry) ? applySeedRevision(snapshot, entry, opts) : applyPatch(snapshot, entry, opts);
 		if (!res.ok) return { ok: false, errors: res.errors, failedAt: i };
 		snapshot = res.next;
 		receipts.push(res.receipt);

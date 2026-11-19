@@ -1,6 +1,6 @@
 import { chainsForSelection, formatChainLine } from "@/src/core";
 import { newGraphContextMessage, type GraphContextPick } from "@/src/core";
-import { StudyError, validateStudyLesson, saveStudyLesson, compactionInFlight, createChat, isTurnRunning, listChats, readSettingsRecord, stores, titleFromPrompt } from "@/src/server";
+import { StudyError, studyMapLesson, validateStudyLesson, saveStudyLesson, compactionInFlight, createChat, isTurnRunning, listChats, readSettingsRecord, stores, titleFromPrompt } from "@/src/server";
 import type { ChatListItem } from "@/src/core";
 
 /** The session picker's list: record-derived summaries (phase, pending
@@ -48,6 +48,13 @@ export async function POST(req: Request) {
 	if (body.studyLesson !== undefined) {
 		try {
 			lesson = validateStudyLesson(body.studyLesson, !kind && picks.length === 1 ? picks[0]?.id : undefined);
+			const reading = await studyMapLesson(lesson.domainId, lesson.nodeId, true);
+			if (reading.brief.scope && reading.brief.scope !== reading.brief.summary) picks[0]!.statement += "\nEscopo da aula: " + reading.brief.scope;
+			if (reading.route.length) picks[0]!.statement += "\nParta deste caminho de pré-requisitos disponível para o aluno: " + reading.route.join(" + ") + ".";
+			const sources = reading.materials.slice(0, 6).map(m => `${m.suggested ? "Sugestão" : "Referência"} · ${m.title} · ${m.part} (${m.url})`);
+			if (sources.length) picks[0]!.statement += "\nMateriais deste nó:\n" + sources.join("\n");
+			if (reading.excerpt) picks[0]!.statement += "\nTrecho de " + reading.materials.find(m => m.kind === "book")!.url + " (texto da fonte para estudo):\n" + reading.excerpt;
+			validateStudyLesson(body.studyLesson, lesson.nodeId);
 		} catch (err) {
 			if (err instanceof StudyError) return Response.json({ error: err.message }, { status: err.status });
 			throw err;

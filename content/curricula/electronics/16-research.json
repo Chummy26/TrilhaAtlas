@@ -234,11 +234,7 @@
 				"scheme": "ee",
 				"band": 2
 			},
-			"clauses": [
-				[
-					"ee.research.professional.engineering-economics"
-				]
-			],
+			"clauses": [],
 			"hours": {
 				"lo": 3,
 				"hi": 4
@@ -258,6 +254,9 @@
 			"status": "stub",
 			"tags": [
 				"core"
+			],
+			"softPrereqs": [
+				"ee.research.professional.engineering-economics"
 			]
 		},
 		{
@@ -314,11 +313,11 @@
 				"pt": "Leitura de artigos técnicos",
 				"en": "Reading technical papers"
 			},
-			"summary": "Leitura em várias passagens, estrutura de artigos IEEE e avaliação crítica de alegações.",
-			"scope": "Dentro: leitura em passagens, estrutura de artigos, crítica de resultados. Fora: redação.",
+			"summary": "Leitura crítica guiada de artigo sobre amplificação ou sistemas lineares.",
+			"scope": "Dentro: leitura guiada de um artigo de amplificação para a rota analógica ou de um artigo sobre sistemas LTI para a rota de sinais. Fora: revisão sistemática e auditoria de métodos especializados.",
 			"objectives": [
-				"Resumir as contribuições de um artigo em poucas linhas",
-				"Avaliar criticamente as alegações e a metodologia de um artigo"
+				"Resumir a pergunta, o método e a contribuição de um artigo da rota dominada",
+				"Relacionar uma alegação central dos autores às evidências e limitações apresentadas"
 			],
 			"bloom": "evaluate",
 			"assess": [
@@ -672,7 +671,8 @@
 			"clauses": [
 				[
 					"ee.instruments.sim.spice-numerics",
-					"ee.rf.em.maxwell-differential"
+					"ee.rf.em.maxwell-differential",
+					"ee.instruments.measurement.uncertainty"
 				]
 			],
 			"hours": {
@@ -718,7 +718,8 @@
 			"clauses": [
 				[
 					"ee.math.numerical.python-numpy",
-					"ee.instruments.bench.oscilloscope-advanced"
+					"ee.instruments.bench.oscilloscope-advanced",
+					"ee.instruments.measurement.uncertainty"
 				]
 			],
 			"hours": {
@@ -746,11 +747,11 @@
 				"pt": "Otimização aplicada ao projeto",
 				"en": "Optimization for design"
 			},
-			"summary": "Otimização convexa e não convexa, programação geométrica e busca global aplicadas ao dimensionamento de circuitos.",
-			"scope": "Dentro: formulação, convexa, programação geométrica, busca global, otimização bayesiana. Fora: teoria de otimização.",
+			"summary": "Formulação de problemas de otimização de engenharia com modelo computacional fornecido.",
+			"scope": "Dentro: função objetivo, variáveis, limites e restrições de um circuito com modelo fornecido, conceitos de otimização quadrática e comparação de dois métodos em caso pequeno. Fora: otimização global com garantia e síntese automática completa.",
 			"objectives": [
-				"Formular o dimensionamento de um circuito como problema de otimização",
-				"Comparar otimizadores em um problema de projeto"
+				"Formular o dimensionamento do circuito fornecido como problema de otimização com limites e restrições",
+				"Comparar duas soluções por viabilidade, custo e sensibilidade à inicialização"
 			],
 			"bloom": "create",
 			"assess": [
@@ -763,8 +764,7 @@
 			},
 			"clauses": [
 				[
-					"ee.math.numerical.numerical-methods",
-					"ee.math.linalg.eigen"
+					"ee.math.numerical.numerical-methods.scipy-solvers"
 				]
 			],
 			"hours": {
@@ -792,11 +792,11 @@
 				"pt": "Aprendizado de máquina para engenharia elétrica",
 				"en": "Machine learning for electrical engineering"
 			},
-			"summary": "Modelos substitutos, classificação de sinais, ML para projeto e testes e limites de validade.",
-			"scope": "Dentro: regressão, redes neurais, modelos substitutos, validação. Fora: teoria de aprendizado.",
+			"summary": "Modelos substitutos simples e limites de generalização em eletrônica.",
+			"scope": "Dentro: regressão simples sobre dados de simulação fornecidos, separação por faixa operativa e avaliação de erro fora dessa faixa. Fora: treinamento de redes profundas e MLOps.",
 			"objectives": [
-				"Treinar um modelo substituto para uma simulação cara",
-				"Avaliar a validade de um modelo de ML fora do domínio de treino"
+				"Ajustar um regressor substituto sobre dados de simulação fornecidos",
+				"Comparar resíduos de teste dentro e fora da faixa de treinamento"
 			],
 			"bloom": "evaluate",
 			"assess": [
@@ -810,7 +810,8 @@
 			"clauses": [
 				[
 					"ee.math.prob.stats-measurement",
-					"ee.math.numerical.python-numpy"
+					"ee.math.numerical.python-numpy",
+					"ee.math.linalg.vector-spaces.least-squares"
 				]
 			],
 			"hours": {
@@ -942,7 +943,8 @@
 			},
 			"clauses": [
 				[
-					"ee.rf.rfic.transceiver-integration"
+					"ee.rf.rfic.transceiver-integration",
+					"ee.rf.antennas.arrays-patch"
 				]
 			],
 			"hours": {
@@ -1058,11 +1060,11 @@
 				"pt": "Frente: embarcados e computação na borda",
 				"en": "Front: embedded and edge computing"
 			},
-			"summary": "IA na borda, ultra-baixo consumo, coleta de energia e segurança de dispositivos.",
-			"scope": "Dentro: TinyML, energy harvesting, intermitência, segurança de hardware. Fora: computação em nuvem.",
+			"summary": "Pesquisa em TinyML, eficiência da inferência e autonomia de sistemas embarcados.",
+			"scope": "Dentro: TinyML, custo de execução, memória, técnicas de redução de consumo e autonomia no dispositivo. Fora: projeto de colheita de energia e treinamento de modelos em nuvem.",
 			"objectives": [
-				"Mapear as tendências em IA na borda",
-				"Identificar desafios de dispositivos alimentados por coleta de energia"
+				"Comparar estudos de IA na borda por memória, latência e consumo",
+				"Estimar a autonomia de um dispositivo a partir de um perfil de operação fornecido"
 			],
 			"bloom": "analyze",
 			"assess": [
@@ -1074,7 +1076,8 @@
 			},
 			"clauses": [
 				[
-					"ee.embedded.advanced.tinyml"
+					"ee.embedded.advanced.tinyml",
+					"ee.research.tools.ml-for-ee"
 				]
 			],
 			"hours": {
@@ -1118,7 +1121,8 @@
 			},
 			"clauses": [
 				[
-					"ee.signals.adv-dsp.optimal-estimation"
+					"ee.signals.adv-dsp.optimal-estimation",
+					"ee.research.tools.ml-for-ee"
 				]
 			],
 			"hours": {
@@ -1162,7 +1166,7 @@
 			},
 			"clauses": [
 				[
-					"ee.control.advanced.mpc"
+					"ee.control.advanced-2.learning-control"
 				]
 			],
 			"hours": {
@@ -1190,11 +1194,11 @@
 				"pt": "Frente: eletrônica biomédica",
 				"en": "Front: biomedical electronics"
 			},
-			"summary": "Front-ends para biopotenciais, implantes, sensores vestíveis e segurança elétrica de pacientes.",
-			"scope": "Dentro: biopotenciais, implantes, vestíveis, segurança do paciente. Fora: regulamentação de dispositivos médicos em detalhe.",
+			"summary": "Levantamento de técnicas de front-end para biopotenciais e requisitos de segurança do paciente.",
+			"scope": "Dentro: front-ends de biopotenciais, ruído, eletrodos e análise documental de segurança do paciente em estudo de caso. Fora: ensaio com pessoas e certificação de dispositivos médicos.",
 			"objectives": [
-				"Mapear os desafios de front-ends para biopotenciais",
-				"Identificar requisitos de segurança de dispositivos médicos"
+				"Mapear desafios de ruído, impedância e rejeição de modo comum em front-ends para biopotenciais",
+				"Localizar em referências oficiais os requisitos de segurança relevantes ao exemplo fornecido"
 			],
 			"bloom": "analyze",
 			"assess": [
@@ -1392,11 +1396,11 @@
 				"pt": "Escrita e submissão do primeiro artigo",
 				"en": "Writing and submitting the first paper"
 			},
-			"summary": "Organizar resultados em um artigo, escolher o veículo, submeter e responder a revisores; as horas cobrem a escrita, não a execução da pesquisa.",
-			"scope": "Dentro: estrutura do artigo, figuras, escolha do veículo, submissão, carta de resposta, versão final. Fora: execução da pesquisa e carreira acadêmica.",
+			"summary": "Preparação de manuscrito e simulação do ciclo de revisão por pares.",
+			"scope": "Dentro: manuscrito curto sobre dados fornecidos com autorização de uso ou resultados já disponíveis de uma replicação documentada, checklist de submissão e resposta simulada. Fora: coleta original, submissão efetiva e espera pela avaliação.",
 			"objectives": [
-				"Redigir e submeter um artigo revisado por pares",
-				"Responder às revisões e preparar a versão final"
+				"Preparar um manuscrito curto e um pacote de submissão com evidências fornecidas",
+				"Responder por escrito a um parecer simulado e incorporar revisões pertinentes"
 			],
 			"bloom": "create",
 			"assess": [

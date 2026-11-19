@@ -48,6 +48,8 @@ export { fileAccessConfigurationError } from "./file-access.ts";
 export * from "./turn-liveness.ts";
 export { StudyError, validateStudyLesson, saveStudyLesson, recordStudyActivity, studyProfile, listStudyDomains, switchStudyDomain, studyToday, recordStudyEvent, parseStudyEvent } from "./study.ts";
 export { activeDomainId } from "../../config.ts";
+export { studyMap } from "./study.ts";
+export { readRegionMaterials, studyMapLesson, downloadRegionalBook, lessonNodeOfChat } from "./study-materials.ts";
 export * from "./turn-runs.ts";
 export * from "./dismissal-park.ts";
 export * from "./compaction.ts";

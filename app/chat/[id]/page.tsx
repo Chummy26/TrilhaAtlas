@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Chat } from "@/components/chat";
 import { slotsConfigured } from "@/src/core";
 import { StudyHeartbeat } from "@/components/study/study-heartbeat";
-import { activeDomainId, compactionInFlight, getChat, isTurnRunning, readSettingsRecord, turnFailure } from "@/src/server";
+import { activeDomainId, compactionInFlight, getChat, isTurnRunning, lessonNodeOfChat, readSettingsRecord, turnFailure } from "@/src/server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,12 @@ export default async function ChatPage({
 	// over the settings record, server-read — the same gate home/new read. The
 	// server's 503 stays the truth; this only decides whether the pill rides.
 	const record = readSettingsRecord();
+	const domain = activeDomainId();
+	const node = lessonNodeOfChat(domain, chat.id);
 	return (
 		<>
 			<StudyHeartbeat key={chat.id + "-activity"} domain={activeDomainId()} kind={chat.kind === "practice" ? "practice" : "lesson"} />
+			{domain && node && <Link className="lh-no-drag absolute right-4 top-14 z-20 cel-button px-3 py-1 text-xs" href={`/mapa?dominio=${encodeURIComponent(domain)}&no=${encodeURIComponent(node)}`}>Materiais da aula</Link>}
 			<Chat
 				key={chat.id}
 				chatId={chat.id}

@@ -62,6 +62,7 @@ export const openBookSeedSchema = z.object({
 	url: httpsUrl,
 	/** True when the exact landing URL was not confirmed (the host is official). */
 	urlUnverified: z.boolean().default(false),
+	downloadUrl: httpsUrl.optional(),
 	provider: z.enum(["openstax", "libretexts", "otl", "kuphaldt", "wikibooks", "mitocw", "internet-archive", "voa", "other"]),
 	/** Provider-specific id (OpenStax slug, Kuphaldt volume key, Wikibooks title…). */
 	providerRef: z.string().optional(),
