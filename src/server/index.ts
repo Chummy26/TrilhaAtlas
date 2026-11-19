@@ -46,7 +46,7 @@ export { authStore } from "../store/auth.ts";
 export * from "./settings-body.ts";
 export { fileAccessConfigurationError } from "./file-access.ts";
 export * from "./turn-liveness.ts";
-export { StudyError, studyProfile, listStudyDomains, switchStudyDomain, studyToday, recordStudyEvent, parseStudyEvent } from "./study.ts";
+export { StudyError, validateStudyLesson, saveStudyLesson, studyProfile, listStudyDomains, switchStudyDomain, studyToday, recordStudyEvent, parseStudyEvent } from "./study.ts";
 export { activeDomainId } from "../../config.ts";
 export * from "./turn-runs.ts";
 export * from "./dismissal-park.ts";

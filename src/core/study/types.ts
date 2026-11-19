@@ -19,7 +19,7 @@ export interface StudyToday {
 	ready: boolean;
 	next: (PlanItem & { brief: StudyNodeBrief }) | null;
 	/** A lesson was started and not yet self-checked (≤ 3 days). */
-	pendingCheck: { nodeId: string; title: string; at: string } | null;
+	pendingCheck: { sessionId: string; exposureId: string; nodeId: string; title: string; at: string } | null;
 	plan: { budgetMin: number; reviewMinutes: number; newMinutes: number; items: number };
 	progress: { leaves: number; attained: number; mastered: number; totalHours: number; attainedHours: number };
 }

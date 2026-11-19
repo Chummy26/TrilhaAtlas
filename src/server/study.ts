@@ -28,7 +28,7 @@ import { activeDomainId, PATHS, setActiveDomainId } from "../../config.ts";
 import { applySeedFiles } from "../core/curriculum/ledger.ts";
 import { hoursMid } from "../core/curriculum/hours.ts";
 import type { CurriculumSnapshot } from "../core/curriculum/types.ts";
-import { activeDomainFile, curriculumDir, learnerDir } from "../core/domains/paths.ts";
+import { activeDomainFile, curriculumDir } from "../core/domains/paths.ts";
 import type { DomainId, DomainManifest, DomainProfile } from "../core/domains/types.ts";
 import { emit } from "../core/events.ts";
 import type { LearnerGraphView } from "../core/learner/graph-view.ts";
@@ -43,6 +43,9 @@ import { levelProgress } from "../core/progress/levels.ts";
 import { tierStanding } from "../core/progress/tiers.ts";
 import { retrievability } from "../core/learner/fsrs.ts";
 import { chatsDir } from "../core/domains/paths.ts";
+import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents } from "./study-log.ts";
+import { gradeStudyQuiz } from "../core/study/quiz.ts";
+import { questionCallsOf, type LhMessage } from "../core/native-messages.ts";
 import type { TurnUsage } from "../core/contracts/chat.ts";
 import { writeFileAtomicSync } from "../store/atomic-write.ts";
 import { createDomainsStore, type DomainsStore } from "../store/domains-store.ts";
@@ -185,27 +188,78 @@ export function loadCurriculum(id: DomainId, manifest: DomainManifest, goals: re
 
 // ─── learner log ─────────────────────────────────────────────────────────────
 
-function eventsFile(id: DomainId): string {
-	return path.join(learnerDir(PATHS.data, id), "events.jsonl");
+type Exposure = Extract<LearnerEvent, { kind: "exposure" }>;
+type StudyLesson = { domainId: string; nodeId: string; minutes: number };
+
+export function validateStudyLesson(raw: unknown, nodeId: string | undefined): StudyLesson {
+	const { id, manifest } = requireActive();
+	const lesson = raw as { domainId?: unknown; minutes?: unknown } | null;
+	if (lesson?.domainId !== id) throw new StudyError(409, "O domínio da aula mudou.");
+	if (!nodeId || !loadCurriculum(id, manifest)?.view.nodes.get(nodeId)?.isLeaf) throw new StudyError(400, "Nó de aula inválido.");
+	const minutes = lesson.minutes;
+	if (typeof minutes !== "number" || !Number.isInteger(minutes) || minutes < 1) throw new StudyError(400, "Duração da aula inválida.");
+	return { domainId: id, nodeId, minutes: Math.min(240, minutes) };
 }
 
-function readEvents(id: DomainId): LearnerEvent[] {
-	let text: string;
-	try {
-		text = fs.readFileSync(eventsFile(id), "utf8");
-	} catch {
-		return [];
-	}
-	const out: LearnerEvent[] = [];
-	for (const line of text.split("\n")) {
-		if (!line.trim()) continue;
-		try {
-			out.push(JSON.parse(line) as LearnerEvent);
-		} catch {
-			/* a torn tail line (crash mid-append) is skipped */
+export function saveStudyLesson(lesson: StudyLesson, chatId: string, marker: LhMessage, save: () => void) {
+	const { domainId, nodeId, minutes } = lesson;
+	const seq = nextStudySeq(readStudyEvents(domainId));
+	const event: Exposure = { kind: "exposure", id: "lesson-" + chatId, seq, at: new Date(marker.timestamp).toISOString(),
+		domainId, sessionId: chatId, nodeId, source: "ai_lesson", minutes };
+	persistChatEvent(domainId, { chatId, messageId: marker.id, event }, save);
+}
+
+/** The quiz's nodeId belongs to the conversation plan. The graph-context
+ * pick and the lesson exposure identify the actual curriculum leaf. */
+export function saveStudyAnswer(chatId: string, previous: LhMessage[], result: LhMessage | undefined, save: () => void) {
+	const domainId = activeDomainId();
+	const marker = previous[0];
+	if (!domainId || marker?.role !== "custom" || marker.customType !== "graph-context" || result?.role !== "toolResult" || result.toolName !== "quiz" || result.isError) return save();
+	const picks = (marker.details as { propositions?: { id: string; statement?: string }[] } | null)?.propositions;
+	const nodeId = picks?.length === 1 ? picks[0]?.id : undefined;
+	if (!nodeId) return save();
+	const call = questionCallsOf(previous).find(c => c.status === "answerable" && c.tool === "quiz" && c.toolCallId === result.toolCallId);
+	if (!call) return save();
+	const graded = gradeStudyQuiz(call.input, call.toolCallId, result.details);
+	if (!graded) return save();
+	const events = readStudyEvents(domainId);
+	const exposures = events.filter((e): e is Exposure => e.kind === "exposure" && e.nodeId === nodeId);
+	const bound = exposures.find(e => e.sessionId === chatId);
+	// Before chat-bound exposures, Today wrote "hoje" immediately before chat creation.
+	// Keep old lessons readable; never borrow an exposure from another bound chat.
+	const exposure = bound ?? exposures.findLast(e => e.sessionId === "hoje" && Date.parse(e.at) <= marker.timestamp &&
+		picks?.[0]?.statement?.endsWith(`Aula de ~${e.minutes} min do curr\u00edculo do dom\u00ednio; ensine em pt-BR.`));
+	if (!exposure) return save();
+	const itemId = JSON.stringify([chatId, call.messageId, call.contentIndex]);
+	const id = "quiz-" + itemId;
+	if (events.some(e => e.kind === "evidence" && e.evidence.id === id)) return save();
+	const evidence: Evidence = {
+		id, seq: nextStudySeq(events), at: new Date(result.timestamp).toISOString(), domainId, sessionId: chatId,
+		lessonExposureId: exposure.id, itemId, itemFamily: nodeId + "#mcq", nodes: [{ nodeId, q: 1, primary: true }],
+		format: "mcq", level: 2, graderConfidence: 1, hints: 0, ...graded,
+		minutesSinceExposure: Math.max(0, (result.timestamp - Date.parse(exposure.at)) / 60_000),
+	};
+	persistChatEvent(domainId, { chatId, messageId: result.id, event: { kind: "evidence", evidence } }, save);
+}
+
+/** Pair every lesson with its first objective check, or its fallback self-rating.
+ * Older events share sessionId "hoje", so resolve them in append order. */
+function ratedLessons(events: readonly LearnerEvent[]) {
+	const lessons = new Map<string, { exposure: Exposure; rating?: Evidence }>();
+	const bySessionNode = new Map<string, string>();
+	for (const event of events) {
+		if (event.kind === "exposure") {
+			lessons.set(event.id, { exposure: event });
+			bySessionNode.set(JSON.stringify([event.sessionId, event.nodeId]), event.id);
+		} else if (event.kind === "evidence") {
+			const e = event.evidence;
+			const node = e.nodes.find(n => n.primary) ?? e.nodes[0];
+			const id = e.lessonExposureId ?? bySessionNode.get(JSON.stringify([e.sessionId, node?.nodeId]));
+			const lesson = id && lessons.get(id);
+			if (lesson && (!lesson.rating || (lesson.rating.format === "explain" && e.format === "mcq"))) lesson.rating = e;
 		}
 	}
-	return out;
+	return lessons;
 }
 
 function eventNodes(ev: LearnerEvent): string[] {
@@ -235,7 +289,7 @@ function learnerSnapshotOf(id: DomainId, view: LearnerGraphView, events: readonl
 
 type NewEvent =
 	| { kind: "exposure"; nodeId: string; minutes: number }
-	| { kind: "self-check"; nodeId: string; grade: Grade }
+	| { kind: "self-check"; nodeId: string; grade: Grade; exposureId?: string; sessionId?: string }
 	| { kind: "known"; nodeId: string };
 
 export function parseStudyEvent(body: unknown): NewEvent | null {
@@ -246,7 +300,7 @@ export function parseStudyEvent(body: unknown): NewEvent | null {
 		const minutes = typeof b.minutes === "number" && Number.isFinite(b.minutes) ? Math.min(240, Math.max(1, Math.round(b.minutes))) : 20;
 		return { kind: "exposure", nodeId: b.nodeId, minutes };
 	}
-	if (b.kind === "self-check" && (b.grade === 0 || b.grade === 1 || b.grade === 2 || b.grade === 3)) return { kind: "self-check", nodeId: b.nodeId, grade: b.grade };
+	if (b.kind === "self-check" && (b.grade === 0 || b.grade === 1 || b.grade === 2 || b.grade === 3)) return { kind: "self-check", nodeId: b.nodeId, grade: b.grade, ...(typeof b.exposureId === "string" ? { exposureId: b.exposureId } : {}), ...(typeof b.sessionId === "string" ? { sessionId: b.sessionId } : {}) };
 	if (b.kind === "known") return { kind: "known", nodeId: b.nodeId };
 	return null;
 }
@@ -258,8 +312,8 @@ export function recordStudyEvent(input: NewEvent): StudyToday {
 	if (!cur) throw new StudyError(409, "Este domínio ainda não tem currículo.");
 	const node = cur.view.nodes.get(input.nodeId);
 	if (!node || !node.isLeaf) throw new StudyError(400, `Nó de estudo desconhecido: ${input.nodeId}`);
-	const events = readEvents(id);
-	const seq = events.reduce((m, ev) => Math.max(m, ev.kind === "evidence" ? ev.evidence.seq : ev.seq), 0) + 1;
+	const events = readStudyEvents(id);
+	const seq = nextStudySeq(events);
 	const at = new Date().toISOString();
 	const uid = `${input.kind}-${seq}-${Math.random().toString(36).slice(2, 8)}`;
 	let event: LearnerEvent;
@@ -270,14 +324,17 @@ export function recordStudyEvent(input: NewEvent): StudyToday {
 	} else {
 		const lastExposure = [...events]
 			.reverse()
-			.find((ev): ev is Extract<LearnerEvent, { kind: "exposure" }> => ev.kind === "exposure" && ev.nodeId === input.nodeId);
+			.find((ev): ev is Extract<LearnerEvent, { kind: "exposure" }> => ev.kind === "exposure" && ev.nodeId === input.nodeId && (!input.exposureId || ev.id === input.exposureId) && (!input.sessionId || ev.sessionId === input.sessionId));
+		if ((input.exposureId || input.sessionId) && !lastExposure) throw new StudyError(409, "Esta aula não está pendente.");
+		if (lastExposure && ratedLessons(events).get(lastExposure.id)?.rating) return studyToday();
 		const minutesSinceExposure = lastExposure ? Math.max(0, (Date.parse(at) - Date.parse(lastExposure.at)) / 60_000) : 100_000;
 		const evidence: Evidence = {
 			id: uid,
 			seq,
 			at,
 			domainId: id,
-			sessionId: "hoje",
+			sessionId: lastExposure?.sessionId ?? "hoje",
+			lessonExposureId: lastExposure?.id,
 			itemId: `${input.nodeId}#self-${seq}`,
 			itemFamily: `${input.nodeId}#self`,
 			nodes: [{ nodeId: input.nodeId, q: 1, primary: true }],
@@ -291,9 +348,7 @@ export function recordStudyEvent(input: NewEvent): StudyToday {
 		};
 		event = { kind: "evidence", evidence };
 	}
-	const file = eventsFile(id);
-	fs.mkdirSync(path.dirname(file), { recursive: true });
-	fs.appendFileSync(file, JSON.stringify(event) + "\n");
+	appendStudyEvent(id, event);
 	return studyToday();
 }
 
@@ -315,7 +370,7 @@ export function studyToday(): StudyToday {
 		};
 	}
 	const at = new Date().toISOString();
-	const events = readEvents(id);
+	const events = readStudyEvents(id);
 	const snap = learnerSnapshotOf(id, cur.view, events, at);
 	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin });
 	// Spacing rule: a node TAUGHT in the last 20 h is not re-taught as "new" —
@@ -327,15 +382,12 @@ export function studyToday(): StudyToday {
 	const next = pick ? { ...pick, brief: nodeBrief(cur.snapshot, pick.nodeId) as StudyNodeBrief } : null;
 
 	let pendingCheck: StudyToday["pendingCheck"] = null;
-	for (let i = events.length - 1; i >= 0; i--) {
-		const ev = events[i] as LearnerEvent;
-		if (ev.kind === "evidence" || ev.kind === "diagnostic") break;
-		if (ev.kind === "exposure") {
-			if (Date.parse(at) - Date.parse(ev.at) <= 3 * 86_400_000 && cur.view.nodes.has(ev.nodeId)) {
-				pendingCheck = { nodeId: ev.nodeId, title: cur.view.nodes.get(ev.nodeId)?.title ?? ev.nodeId, at: ev.at };
-			}
-			break;
-		}
+	const lessons = [...ratedLessons(events).values()];
+	const pending = lessons.reverse().find(({ exposure, rating }) => !rating &&
+		Date.parse(at) - Date.parse(exposure.at) <= 3 * 86_400_000 && cur.view.nodes.has(exposure.nodeId));
+	if (pending) {
+		const { id: exposureId, nodeId, sessionId, at } = pending.exposure;
+		pendingCheck = { exposureId, nodeId, sessionId, title: cur.view.nodes.get(nodeId)?.title ?? nodeId, at };
 	}
 
 	let leaves = 0;
@@ -376,7 +428,7 @@ function localDay(at: string | number): string {
 
 /**
  * XP = credited lesson minutes (progress/xp.ts lessonCredit): a lesson earns
- * XP only once rated by its self-check — passed (grade >= 2) = full credit,
+ * XP from the first quiz check or, in its absence, the self-check — passed (grade >= 2) = full credit,
  * otherwise effort credit. Minutes are the lesson's planned minutes until the
  * focus heartbeat lands (next step).
  */
@@ -384,21 +436,14 @@ function domainXp(events: readonly LearnerEvent[]): { xp: number; lessons: numbe
 	let xp = 0;
 	let lessons = 0;
 	const minutesByDay = new Map<string, number>();
-	const open = new Map<string, number>();
-	for (const ev of events) {
-		if (ev.kind === "exposure") open.set(ev.nodeId, ev.minutes);
-		else if (ev.kind === "evidence") {
-			const nodeId = ev.evidence.nodes.find((n) => n.primary)?.nodeId ?? ev.evidence.nodes[0]?.nodeId;
-			const planned = nodeId ? open.get(nodeId) : undefined;
-			if (!nodeId || planned === undefined) continue;
-			open.delete(nodeId);
-			const minutes = Math.min(planned, 1440);
-			const credit = lessonCredit(minutes, minutes, ev.evidence.grade >= 2);
-			xp += credit.minutes * credit.multiplier;
-			lessons++;
-			const day = localDay(ev.evidence.at);
-			minutesByDay.set(day, (minutesByDay.get(day) ?? 0) + minutes);
-		}
+	for (const { exposure, rating } of ratedLessons(events).values()) {
+		if (!rating) continue;
+		const minutes = Math.min(exposure.minutes, 1440);
+		const credit = lessonCredit(minutes, minutes, rating.grade >= 2);
+		xp += credit.minutes * credit.multiplier;
+		lessons++;
+		const day = localDay(rating.at);
+		minutesByDay.set(day, (minutesByDay.get(day) ?? 0) + minutes);
 	}
 	return { xp: Math.round(xp), lessons, minutesByDay };
 }
@@ -451,7 +496,7 @@ export function studyProfile(): StudyProfile {
 		const manifest = store.readManifest(summary.id);
 		if (!manifest) continue;
 		const cur = loadCurriculum(summary.id, manifest);
-		const events = readEvents(summary.id);
+		const events = readStudyEvents(summary.id);
 		const xp = domainXp(events);
 		totalXp += xp.xp;
 		for (const [day, m] of xp.minutesByDay) lessonMinutes.set(day, (lessonMinutes.get(day) ?? 0) + m);

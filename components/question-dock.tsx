@@ -394,6 +394,10 @@ function QuestionDockForm({
 
 	const toggle = (idx: number) => setSel(toggleOption(selectMode, sel, idx));
 
+	const firstShown = useRef<{ callId: string; at: number } | null>(null);
+	useLayoutEffect(() => {
+		if (active && firstShown.current?.callId !== toolCallId) firstShown.current = { callId: toolCallId, at: performance.now() };
+	}, [active, toolCallId]);
 	const nativeCanSubmit =
 		qd.mode === "text"
 			? text.trim().length > 0
@@ -439,6 +443,7 @@ function QuestionDockForm({
 	const captureRequest = (): AnswerRequest => {
 		const { sel, other, confIdx } = formValues.current;
 		const req: AnswerRequest = {
+			...(kind === "quiz" && firstShown.current?.callId === toolCallId ? { latencyMs: Math.round(performance.now() - firstShown.current.at) } : {}),
 			dontKnow: sel.dontKnow,
 			values: [...sel.selected].map((i) => qd.options[i]!.value),
 			other: sel.otherSelected ? other : undefined,

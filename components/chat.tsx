@@ -719,8 +719,11 @@ export function Chat({
 	const prepareBuiltin: PrepareBuiltinSubmission = ({ question, capture, isCurrent }: BuiltinSubmissionCapture) => {
 		const target = builtinTarget(question), original = pending;
 		if (!target || !original || busyRef.current || compacting) return;
+		// Display timing belongs to this native submission, across asynchronous plugin edits.
+		let latencyMs: number | undefined;
 		void runSubmission(target, () => {
 			const raw = capture();
+			latencyMs = raw.latencyMs;
 			saveQuestionDraft(original.key, { readingThinking: readingThinkingRef.current });
 			return { type: "answer", answer: {
 				...(raw.dontKnow !== undefined ? { dontKnow: raw.dontKnow } : {}), ...(raw.values !== undefined ? { values: raw.values } : {}),
@@ -733,7 +736,7 @@ export function Chat({
 		}, async (prepared, attempt) => {
 			if (prepared.type !== "answer") return false;
 			const raw = validatePluginBuiltinSubmissionAnswer(question, prepared.answer);
-			const answer = buildAnswer(question, { ...raw, ...(prepared.thinking.text ? { thinking: prepared.thinking.text } : {}), ...(requiresReveal && prepared.readingThinking.text ? { readingThinking: prepared.readingThinking.text } : {}) }, original.tool);
+			const answer = buildAnswer(question, { ...raw, latencyMs, ...(prepared.thinking.text ? { thinking: prepared.thinking.text } : {}), ...(requiresReveal && prepared.readingThinking.text ? { readingThinking: prepared.readingThinking.text } : {}) }, original.tool);
 			const images = submissionImages(prepared, target.channels);
 			// Save newer native edits without changing the prepared payload.
 			capture(); saveQuestionDraft(original.key, { readingThinking: readingThinkingRef.current });

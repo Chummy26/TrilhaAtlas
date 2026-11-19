@@ -69,8 +69,10 @@ test("builtin pending input enables an initially empty selection and crosses pre
 	assert.equal(preparations, 1);
 	assert.ok(rendered); assert.ok(raw); assert.deepEqual(raw.values, []); assert.equal("correct" in raw, false);
 	assert.equal(raw.thinking, "retained native thinking");
+	assert.ok(typeof raw.latencyMs === "number" && raw.latencyMs >= 0);
 	const transformed = validatePluginBuiltinSubmissionAnswer(rendered, { values: ["right"], confidence: 67.8, images: [] });
-	const graded = buildAnswer(rendered, transformed, "quiz"); assert.equal(graded.correct, true); assert.equal(graded.confidence, 68);
+	const graded = buildAnswer(rendered, { ...transformed, latencyMs: raw.latencyMs }, "quiz");
+	assert.equal(graded.latencyMs, raw.latencyMs); assert.equal(graded.correct, true); assert.equal(graded.confidence, 68);
 	assert.equal(graded.answers[0]!.index, rendered.options.findIndex(option => option.value === "right") + 1);
 	assert.throws(() => validatePluginBuiltinSubmissionAnswer(rendered!, { values: ["unknown"], images: [] }), /unknown/);
 });

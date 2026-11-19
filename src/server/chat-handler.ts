@@ -54,6 +54,7 @@ import { sideConversationEntries } from "../core/side-chat.ts";
 import { sideChats, type SideChatService } from "./side-chat.ts";
 import { SIDE_CONTEXT_BUDGET_ERROR, sideBudgetRetryDrops, sideContextWindow } from "./side-context-budget.ts";
 import { registerTurn, rememberTurnFailure, unregisterTurn } from "./turn-runs.ts";
+import { saveStudyAnswer } from "./study.ts";
 import { persistTurn, triggerExtraction, TurnPersistenceError } from "./turn-service.ts";
 import { hasProbeDone, hasUnresolvedQuestion, pendingPluginQuestionOf, pluginQuestionCallsOf, questionCallsOf } from "../core/native-messages.ts";
 import { samePluginQuestionOccurrence } from "../core/plugin-questions.ts";
@@ -535,6 +536,12 @@ export async function handleChatInput(
 		throw err;
 	}
 
+	const persistInput = (messages: LhMessage[]) => {
+		const save = () => stores.chatStore.saveMessages(chatId, messages);
+		if (input.type === "answer" && record.kind !== "practice") saveStudyAnswer(chatId, record.messages, messages[record.messages.length], save);
+		else save();
+	};
+
 	// THE PARALLEL-QUESTION GATE (owner, 2026-10-03 — the deepseek parallel
 	// batch incident): an answer that leaves a SIBLING question dangling
 	// defers its wake. The dock advances to the next question (the client's
@@ -547,7 +554,7 @@ export async function handleChatInput(
 	// the composer gates), so adjacency holds by construction.
 	if ((input.type === "answer" || input.type === "plugin-question-answer") && hasUnresolvedQuestion([...record.messages, ...appends])) {
 		const merged = [...record.messages, ...appends];
-		try { stores.chatStore.saveMessages(chatId, merged); inputSaved = true; }
+		try { persistInput(merged); inputSaved = true; }
 		catch (err) {
 			console.error(`[chat ${chatId}] write-ahead persist failed:`, err);
 			return new Response("Your input could not be saved. Please try again.", { status: 500 });
@@ -602,7 +609,7 @@ export async function handleChatInput(
 	let persistBaseCount = stagedAutomatic ? record.messages.length : agentMessages.length;
 	try {
 		if (!stagedAutomatic) {
-			stores.chatStore.saveMessages(chatId, merged);
+			persistInput(merged);
 			inputSaved = true;
 		}
 	} catch (err) {

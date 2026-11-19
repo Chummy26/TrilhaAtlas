@@ -436,6 +436,7 @@ export interface QuestionData {
  *  NO questionId (owner, tool-result diet 2026-10-02): it was the
  *  toolCallId restated — the toolResult message already carries it. */
 export interface QuestionAnswerData {
+	latencyMs?: number;
 	kind: QuestionKind;
 	/** The persisted call's tool NAME (owner, 2026-10-09): probe-phase
 	 *  calls are `probe`/`recall`, teach calls `quiz`/`explain` — the
@@ -487,6 +488,7 @@ export interface ClientQuestion {
 
 /** What the server passes to the bridge when the learner answers. */
 export interface AnswerRequest {
+	latencyMs?: number;
 	dontKnow?: boolean;
 	values?: string[]; // option values
 	other?: string; // ask "Other"
@@ -736,6 +738,7 @@ export function buildAnswer(qd: QuestionData, req: AnswerRequest, tool?: string)
 	if (req.text?.trim()) base.text = req.text.trim();
 
 	if (qd.kind === "quiz") {
+		if (req.latencyMs !== undefined) base.latencyMs = req.latencyMs;
 		base.correctIndices = qd.correctIndices ?? [];
 		base.explanation = qd.explanation;
 		base.correct = base.dontKnow ? false : isCorrect(base.answers.map((a) => a.index), qd.correctIndices ?? []);

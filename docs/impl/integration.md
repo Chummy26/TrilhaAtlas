@@ -15,7 +15,8 @@ This document records how the pure modules (curriculum, learner, lesson, progres
 | Projection | `src/core/study/projection.ts` | `learnerViewOf(snapshot)` builds the LearnerGraphView from the effective clauses. Node order follows teaching order; depth uses the cheapest alternative. `nodeBrief` returns the node summary used by the card and the lesson. |
 | Learner | `learner/events.jsonl` | Append-only log. The snapshot is a pure fold recomputed on each read. Orphaned events (left by a curriculum change) are filtered out, never fatal. |
 | "Hoje" | `GET /api/study/today`, `components/study/today-card.tsx` | Shows one suggestion from `planDay`, the pending post-lesson self-check, and a light progress line. |
-| Lesson | Home → `begin(lesson)` | "Começar aula" records the exposure and creates a session with the node as `graphContext`: trail, summary, objectives, common confusions and minutes. |
+| Lesson | Home → `begin(lesson)` → `POST /api/chats` | "Começar aula" binds the exposure to the created chat and saves the curriculum node as its graph context. |
+| Quiz checks | `src/server/chat-handler.ts`, `src/server/study.ts`, `src/server/study-log.ts` | The server grades the exact selection against the saved check. Each answered occurrence emits one MCQ evidence event for the curriculum node. Predict and dismissed cards do not count. A pending event is recovered from the durable chat on the next learner read or write. |
 | Didactics | `src/agent/prompts/teacher/22-cadence.md` | Checks happen per arc (2–4 steps), at most one question per message and three per node, with no filler. It replaces "one check per step". |
 | Profile | `/profile`, `studyProfile()` | Account level and XP, tier per domain by FSRS retention, tokens per model, and minutes per day over 14 days. |
 
@@ -24,13 +25,12 @@ This document records how the pure modules (curriculum, learner, lesson, progres
 1. **Self-check is weak evidence.** It is recorded with `format: "explain"`, `graderConfidence: 0.5`, `weight: 0.5` and its own item family (`#self`). It can attain a node but never master it alone, because mastery needs at least 2 distinct families and a delayed success.
 2. **"Já domino" is a diagnostic placement with p = 0.9.** The node unlocks its dependents but stays `inferred`, and the planner probes it later.
 3. **Spacing.** A node taught in the last 20 h is not suggested again as "new". Its consolidation comes from the delayed check the next day.
-4. **XP** is credited by `lessonCredit` only after the self-check: full credit when the grade is ≥ 2, effort credit otherwise. The credited minutes are the planned minutes, until the focus heartbeat exists.
+4. **XP** uses the first graded quiz check per lesson. An exact answer earns grade 3 and full lesson credit. A wrong answer or “não sei” earns grade 0 and effort credit. Later checks update the learner. A lesson without a graded check can earn credit through its self-check. Minutes are the planned minutes until the focus heartbeat exists.
 5. **Tier core** is the leaves in teaching order, split into 7 stages by cumulative hours (`coreVersion = hours-7@<hash>`). Placements without an FSRS card count with R = 0.9.
 6. **Minutes per day** are estimated from turn timestamps: the gap between turns ≤ 10 min apart, plus 2 min per turn. Days with no chat fall back to the minutes of rated lessons.
 
 ## Next steps (not connected yet)
 
-- **Practice outcomes → Evidence.** Make in-chat `quiz` answers emit graded `Evidence` (q-vector to the session node, grade 0–3, hints, latency). They are not linked yet, which is why the Hoje card asks for a self-check.
 - **Focus heartbeat.** Send `ActivityEvent` from the renderer to `stats-store` every 60 s while the window is focused, and replace the minutes estimate with it. The UsageEvent hook in the provider (`src/server/pi/*`) is also missing.
 - **Context memory in turns.** `src/server/memory` (SQLite + FTS5 + e5) exists and is tested, but it is not yet injected into the tutor's context or fed by the extractor at the end of the turn.
 - **Resources per node.** YouTube (Data API BYOK) and open books exist in `src/server/resources`. A UI panel on the node and keys in Settings are still needed.

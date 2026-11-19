@@ -167,7 +167,7 @@ export function Home({
 				title: t,
 				...(mode === "practice" && !lesson ? { kind: "practice" } : {}),
 				...(lesson
-					? { graphContext: { propositions: [lesson.context] } }
+					? { graphContext: { propositions: [lesson.context] }, studyLesson: { domainId: lesson.domainId, minutes: lesson.minutes } }
 					: practiceProps.length > 0
 						? { graphContext: { propositions: practiceProps } }
 						: {}),

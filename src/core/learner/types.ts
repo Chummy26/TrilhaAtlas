@@ -131,6 +131,8 @@ export interface EvidenceNodeRef {
 }
 
 export interface Evidence {
+	/** The lesson earning credit for this check (legacy logs omit it). */
+	lessonExposureId?: string;
 	id: string;
 	/** Monotonic sequence inside the domain log. */
 	seq: number;

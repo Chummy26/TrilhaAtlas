@@ -14,6 +14,8 @@ import { useServerEvent } from "@/components/server-events";
 import type { StudyNodeBrief, StudyToday } from "@/src/core";
 
 export interface LessonStart {
+	domainId: string;
+	minutes: number;
 	title: string;
 	/** Rides the chat creation as graphContext (the curriculum node as session context). */
 	context: { id: string; name: string; statement: string };
@@ -98,7 +100,7 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 								key={g.grade}
 								type="button"
 								disabled={pending}
-								onClick={() => void post({ kind: "self-check", nodeId: pendingCheck.nodeId, grade: g.grade })}
+								onClick={() => void post({ kind: "self-check", nodeId: pendingCheck.nodeId, sessionId: pendingCheck.sessionId, exposureId: pendingCheck.exposureId, grade: g.grade })}
 								className={`cel-button ${g.grade === 3 ? "cel-button-success" : ""} min-h-8 px-3 text-sm`}
 							>
 								{g.label}
@@ -116,14 +118,12 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 							type="button"
 							disabled={pending || disabled}
 							data-testid="today-start"
-							onClick={async () => {
+							onClick={() => {
 								const minutes = Math.round(next.estMinutes);
-								if (await post({ kind: "exposure", nodeId: next.nodeId, minutes })) {
-									onStart({
-										title: next.brief.title,
-										context: { id: next.nodeId, name: next.brief.title, statement: lessonStatement(next.brief, minutes) },
-									});
-								}
+								onStart({
+									domainId: today.domain.id, minutes, title: next.brief.title,
+									context: { id: next.nodeId, name: next.brief.title, statement: lessonStatement(next.brief, minutes) },
+								});
 							}}
 							className="cel-button cel-button-primary min-h-8 px-3.5 text-sm"
 						>
