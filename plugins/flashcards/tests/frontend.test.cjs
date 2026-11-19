@@ -982,6 +982,49 @@ test('settings parse minutes/hours, retain failed drafts and use acknowledged va
   } finally { h.dispose(); }
 });
 
+test('export/sync settings save through their own operation and report export results in pt-BR', async () => {
+  const h = await setup();
+  try {
+    h.mountSettings(); await flush();
+    assert.equal(settingsRow(h, 'reviewClient').type, 'dropdown');
+    assert.deepEqual(settingsRow(h, 'reviewClient').options.map(option => option.value), ['app', 'anki']);
+    await settingsRow(h, 'obsidianVaultPath').onChange('/vault');
+    assert.deepEqual(h.calls.findLast(([op]) => op === 'save-sync-settings')[1], { obsidianVaultPath: '/vault' });
+    assert.equal(settingsRow(h, 'obsidianVaultPath').value, '/vault');
+    assert.equal(savedSettings(h).length, 0, 'sync settings never touch review settings');
+    click(h, 'Exportar para o Obsidian', h.settings); await flush();
+    assert.match(h.settings.querySelector('.fc-sync-status').textContent, /1 cartão; 1 nota gravada/);
+    click(h, 'Enviar ao Anki', h.settings); await flush();
+    assert.match(h.settings.querySelector('.fc-sync-status').textContent, /Anki fechado: pacote \.apkg gerado/);
+    h.overrides['anki-import-reviews'] = async () => { throw new Error('O Anki não está aberto'); };
+    click(h, 'Importar revisões do Anki', h.settings); await flush();
+    assert.ok(h.settings.textContent.includes('O Anki não está aberto'));
+    assert.equal(h.settings.querySelector('.fc-sync-status').textContent, '');
+  } finally { h.dispose(); }
+});
+
+test('another open Anki profile asks before switching and only then sends with switchProfile', async () => {
+  const h = await setup();
+  try {
+    h.mountSettings(); await flush();
+    h.overrides['export-anki'] = async input => input.switchProfile
+      ? { mode: 'ankiconnect', flavor: 'v1', profile: 'Outro', created: 3, updated: 0, unchanged: 0, moved: 0, failed: [], orphans: 0, duplicates: 0 }
+      : { mode: 'profile-mismatch', active: 'Outro', expected: 'Usuário 1', message: 'O Anki está com o perfil “Outro” aberto, mas este domínio sincroniza com “Usuário 1”.' };
+    click(h, 'Enviar ao Anki', h.settings); await flush();
+    assert.match(h.settings.querySelector('.fc-sync-status').textContent, /perfil “Outro” aberto/);
+    let confirmation = document.querySelector('[role=dialog]');
+    assert.equal(confirmation.getAttribute('aria-label'), 'Trocar o perfil do Anki?');
+    click(h, 'Cancelar', confirmation); await flush();
+    assert.equal(document.querySelector('[role=dialog]'), null);
+    assert.deepEqual(operationCalls(h, 'export-anki').map(([, input]) => input), [{}], 'cancelling sends nothing');
+    click(h, 'Enviar ao Anki', h.settings); await flush();
+    confirmation = document.querySelector('[role=dialog]');
+    click(h, 'Usar “Outro” e enviar', confirmation); await flush();
+    assert.deepEqual(operationCalls(h, 'export-anki').map(([, input]) => input), [{}, {}, { switchProfile: true }]);
+    assert.match(h.settings.querySelector('.fc-sync-status').textContent, /Anki \(API v1\): 3 criadas/);
+  } finally { h.dispose(); }
+});
+
 test('Follow cheap slot has its own toggle row; OFF pins current slot atomically and ON clears both overrides', async () => {
   const h = await setup();
   try {

@@ -1,0 +1,2144 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.writing",
+	"items": [
+		{
+			"id": "en.writing.a1",
+			"kind": "unit",
+			"parentId": "en.writing",
+			"order": 0,
+			"title": {
+				"pt": "Escrita A1",
+				"en": "Writing A1"
+			},
+			"summary": "Frases simples isoladas, formulários e mensagens muito curtas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 7,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.writing.a1.forms",
+			"kind": "topic",
+			"parentId": "en.writing.a1",
+			"order": 0,
+			"title": {
+				"pt": "Preencher formulários",
+				"en": "Filling in forms"
+			},
+			"summary": "Dados pessoais em cadastros, hotéis e inscrições.",
+			"objectives": [
+				"Preencher um formulário com dados pessoais sem erros."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Notes, messages and forms · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a1.short-notes",
+			"kind": "topic",
+			"parentId": "en.writing.a1",
+			"order": 1,
+			"title": {
+				"pt": "Bilhetes e mensagens curtas",
+				"en": "Short notes and messages"
+			},
+			"summary": "Mensagens de 1–3 frases para avisar, pedir ou agradecer.",
+			"objectives": [
+				"Escrever uma mensagem curta para combinar um encontro."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Notes, messages and forms · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a1.self-description",
+			"kind": "topic",
+			"parentId": "en.writing.a1",
+			"order": 2,
+			"title": {
+				"pt": "Escrever sobre mim",
+				"en": "Writing about myself"
+			},
+			"summary": "Frases simples sobre identidade, rotina e gostos.",
+			"objectives": [
+				"Escrever 60 palavras sobre si mesmo."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"softPrereqs": [
+				"en.grammar.a1.present-simple"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a1.present-simple",
+					"w": 0.2
+				}
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a1.mechanics",
+			"kind": "topic",
+			"parentId": "en.writing.a1",
+			"order": 3,
+			"title": {
+				"pt": "Pontuação e maiúsculas",
+				"en": "Punctuation and capitalisation"
+			},
+			"summary": "Maiúsculas em I, dias, meses, nacionalidades; ponto, vírgula e apóstrofo.",
+			"objectives": [
+				"Aplicar regras de maiúsculas e pontuação básicas do inglês."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"misconceptions": [
+				"Escrever dias e nacionalidades em minúsculas."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a1.postcards",
+			"kind": "topic",
+			"parentId": "en.writing.a1",
+			"order": 4,
+			"title": {
+				"pt": "Cartões e postagens simples",
+				"en": "Postcards and simple posts"
+			},
+			"summary": "Mensagens curtas de viagem ou datas comemorativas.",
+			"objectives": [
+				"Escrever um cartão de viagem de 40–50 palavras."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Correspondence · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a2",
+			"kind": "unit",
+			"parentId": "en.writing",
+			"order": 1,
+			"title": {
+				"pt": "Escrita A2",
+				"en": "Writing A2"
+			},
+			"summary": "Frases ligadas por conectivos simples sobre necessidades imediatas e experiências.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"softPrereqs": [
+				"en.writing.a1"
+			],
+			"hours": {
+				"lo": 12,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.writing.a2.informal-emails",
+			"kind": "topic",
+			"parentId": "en.writing.a2",
+			"order": 0,
+			"title": {
+				"pt": "E-mails informais",
+				"en": "Informal emails"
+			},
+			"summary": "Convidar, agradecer, pedir desculpas e dar notícias.",
+			"objectives": [
+				"Escrever um e-mail informal de 80–100 palavras com abertura e fecho."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Correspondence · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a2.simple-narrative",
+			"kind": "topic",
+			"parentId": "en.writing.a2",
+			"order": 1,
+			"title": {
+				"pt": "Narrativas simples",
+				"en": "Simple narratives"
+			},
+			"summary": "Relatar um acontecimento em ordem cronológica.",
+			"objectives": [
+				"Escrever um relato de 100 palavras no passado."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"softPrereqs": [
+				"en.grammar.a2.past-simple-irregular"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a2.past-simple-irregular",
+					"w": 0.2
+				}
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Creative writing · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a2.connecting-sentences",
+			"kind": "topic",
+			"parentId": "en.writing.a2",
+			"order": 2,
+			"title": {
+				"pt": "Ligar frases",
+				"en": "Connecting sentences"
+			},
+			"summary": "and, but, because, so, then, when para frases compostas.",
+			"objectives": [
+				"Reescrever frases soltas como texto conectado."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a2.simple-description",
+			"kind": "topic",
+			"parentId": "en.writing.a2",
+			"order": 3,
+			"title": {
+				"pt": "Descrição simples",
+				"en": "Simple description"
+			},
+			"summary": "Descrever pessoas, lugares e objetos com adjetivos.",
+			"objectives": [
+				"Descrever um lugar em 80–100 palavras."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Creative writing · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a2.online-posts",
+			"kind": "topic",
+			"parentId": "en.writing.a2",
+			"order": 4,
+			"title": {
+				"pt": "Posts e comentários",
+				"en": "Online posts and comments"
+			},
+			"summary": "Comentários curtos em redes, fóruns e grupos.",
+			"objectives": [
+				"Escrever um post e responder a comentários simples."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Online conversation and discussion · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.a2.messages-requests",
+			"kind": "topic",
+			"parentId": "en.writing.a2",
+			"order": 5,
+			"title": {
+				"pt": "Pedidos por mensagem",
+				"en": "Requests by message"
+			},
+			"summary": "Pedir informações e fazer reservas por escrito.",
+			"objectives": [
+				"Fazer uma reserva ou pedido por escrito com dados completos."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Goal-oriented online transactions and collaboration · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1",
+			"kind": "unit",
+			"parentId": "en.writing",
+			"order": 2,
+			"title": {
+				"pt": "Escrita B1",
+				"en": "Writing B1"
+			},
+			"summary": "Textos simples e coesos sobre temas familiares; cartas, histórias, opiniões e relatórios curtos.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"softPrereqs": [
+				"en.writing.a2"
+			],
+			"hours": {
+				"lo": 21.5,
+				"hi": 30.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.writing.b1.paragraph",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 0,
+			"title": {
+				"pt": "O parágrafo",
+				"en": "The paragraph"
+			},
+			"summary": "Frase-tópico, desenvolvimento e fecho; unidade e coerência.",
+			"objectives": [
+				"Escrever parágrafos com frase-tópico e 3 frases de apoio."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"softPrereqs": [
+				"en.reading.b1.paragraph-structure"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.sentence-boundaries",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 1,
+			"title": {
+				"pt": "Limites da frase: run-ons e fragmentos",
+				"en": "Sentence boundaries: run-ons and fragments"
+			},
+			"summary": "Separar orações com ponto, ponto e vírgula ou conjunção; evitar comma splices, run-ons e fragmentos ao transpor frases longas do português.",
+			"objectives": [
+				"Corrigir comma splices, run-ons e fragmentos num texto de 150 palavras.",
+				"Dividir uma frase longa pensada em português em frases claras."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"misconceptions": [
+				"Ligar orações independentes só com vírgula ('The test failed, we changed the code').",
+				"Começar com 'Because…' e não escrever a oração principal (fragmento)."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 44
+			},
+			"softPrereqs": [
+				"en.writing.a2.connecting-sentences"
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Orthographic control · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.detailed-letters",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 2,
+			"title": {
+				"pt": "Cartas pessoais detalhadas",
+				"en": "Detailed personal letters"
+			},
+			"summary": "Experiências, sentimentos e reações por escrito.",
+			"objectives": [
+				"Escrever uma carta pessoal com experiências e sentimentos."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 45
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Correspondence · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.formal-emails-1",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 3,
+			"title": {
+				"pt": "E-mails formais básicos",
+				"en": "Basic formal emails"
+			},
+			"summary": "Pedir informação, candidatar-se, reclamar com fórmulas fixas.",
+			"objectives": [
+				"Escrever um e-mail formal de pedido de informação."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 47
+			},
+			"softPrereqs": [
+				"en.pragmatics.b1.register-basics"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Correspondence · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.stories",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 4,
+			"title": {
+				"pt": "Histórias",
+				"en": "Stories"
+			},
+			"summary": "Narrativa com cenário, conflito e desfecho; tempos narrativos.",
+			"objectives": [
+				"Escrever uma história de 200 palavras com tempos narrativos variados."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 49
+			},
+			"softPrereqs": [
+				"en.grammar.b1.past-perfect"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.b1.past-perfect",
+					"w": 0.2
+				}
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Creative writing · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.opinion-paragraph",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 5,
+			"title": {
+				"pt": "Parágrafo de opinião",
+				"en": "Opinion paragraph"
+			},
+			"summary": "Opinião, razões, exemplo e conclusão.",
+			"objectives": [
+				"Defender uma opinião em 150 palavras."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.reviews",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 6,
+			"title": {
+				"pt": "Resenhas",
+				"en": "Reviews"
+			},
+			"summary": "Resenhar filmes, livros, produtos e lugares.",
+			"objectives": [
+				"Escrever uma resenha com descrição, avaliação e recomendação."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.short-reports",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 7,
+			"title": {
+				"pt": "Relatórios curtos",
+				"en": "Short reports"
+			},
+			"summary": "Relatar fatos e recomendar ações com títulos e listas.",
+			"objectives": [
+				"Escrever um relatório curto com seções e recomendação."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b1.forum-discussion",
+			"kind": "topic",
+			"parentId": "en.writing.b1",
+			"order": 8,
+			"title": {
+				"pt": "Discussões em fóruns",
+				"en": "Forum discussions"
+			},
+			"summary": "Contribuir com opiniões e respostas em discussões online.",
+			"objectives": [
+				"Responder a uma discussão online concordando e acrescentando argumentos."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Online conversation and discussion · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2",
+			"kind": "unit",
+			"parentId": "en.writing",
+			"order": 3,
+			"title": {
+				"pt": "Escrita B2",
+				"en": "Writing B2"
+			},
+			"summary": "Textos claros e detalhados; ensaios argumentativos, relatórios e e-mails profissionais.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.writing.b1"
+			],
+			"hours": {
+				"lo": 25.5,
+				"hi": 34.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.writing.b2.essay-structure",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 0,
+			"title": {
+				"pt": "Estrutura do ensaio",
+				"en": "Essay structure"
+			},
+			"summary": "Introdução com tese, parágrafos de desenvolvimento e conclusão.",
+			"objectives": [
+				"Planejar e escrever um ensaio de 5 parágrafos."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.argumentative-essay",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 1,
+			"title": {
+				"pt": "Ensaio argumentativo",
+				"en": "Argumentative essay"
+			},
+			"summary": "Argumentos, contra-argumentos, refutação e evidência.",
+			"objectives": [
+				"Escrever um ensaio argumentativo de 300 palavras com refutação."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 61
+			},
+			"softPrereqs": [
+				"en.grammar.b2.contrast-linkers"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.b2.contrast-linkers",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.work-emails",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 2,
+			"title": {
+				"pt": "E-mails profissionais",
+				"en": "Professional emails"
+			},
+			"summary": "Atualizações de status, pedidos, follow-ups e más notícias.",
+			"objectives": [
+				"Escrever e-mails profissionais claros, concisos e cordiais."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Correspondence · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.reports",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 3,
+			"title": {
+				"pt": "Relatórios",
+				"en": "Reports"
+			},
+			"summary": "Relatório com objetivo, achados, análise e recomendações.",
+			"objectives": [
+				"Escrever um relatório de 400 palavras com recomendações justificadas."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.cohesion",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 4,
+			"title": {
+				"pt": "Coesão e referência",
+				"en": "Cohesion and reference"
+			},
+			"summary": "Pronomes, substituição, conectivos e progressão de ideias.",
+			"objectives": [
+				"Revisar um texto melhorando referência e transições."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.summaries",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 5,
+			"title": {
+				"pt": "Resumos",
+				"en": "Summaries"
+			},
+			"summary": "Resumir textos e reuniões com paráfrase fiel.",
+			"objectives": [
+				"Resumir um artigo em 120 palavras sem copiar frases."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"softPrereqs": [
+				"en.reading.b2.annotate-summarize"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.cv-cover-letter",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 6,
+			"title": {
+				"pt": "Currículo e carta de apresentação",
+				"en": "CV and cover letter"
+			},
+			"summary": "Formatos anglo-saxões, verbos de ação e adequação à vaga.",
+			"objectives": [
+				"Escrever um currículo e uma carta de apresentação para vaga internacional."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Correspondence · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.technical-docs",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 7,
+			"title": {
+				"pt": "Documentação técnica",
+				"en": "Technical documentation"
+			},
+			"summary": "READMEs, issues, changelogs e instruções passo a passo.",
+			"objectives": [
+				"Escrever um README e um relato de bug reproduzível."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 73
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Goal-oriented online transactions and collaboration · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.b2.revision",
+			"kind": "topic",
+			"parentId": "en.writing.b2",
+			"order": 8,
+			"title": {
+				"pt": "Revisão do próprio texto",
+				"en": "Self-revision"
+			},
+			"summary": "Checklist de revisão: estrutura, coesão, gramática e estilo.",
+			"objectives": [
+				"Revisar um texto próprio com checklist e reduzir erros recorrentes."
+			],
+			"assess": [
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c1",
+			"kind": "unit",
+			"parentId": "en.writing",
+			"order": 4,
+			"title": {
+				"pt": "Escrita C1",
+				"en": "Writing C1"
+			},
+			"summary": "Textos bem estruturados sobre temas complexos, com estilo adequado ao leitor.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.writing.b2"
+			],
+			"hours": {
+				"lo": 18.5,
+				"hi": 25.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.writing.c1.complex-essays",
+			"kind": "topic",
+			"parentId": "en.writing.c1",
+			"order": 0,
+			"title": {
+				"pt": "Ensaios sobre temas complexos",
+				"en": "Essays on complex topics"
+			},
+			"summary": "Argumentação sofisticada com síntese de fontes.",
+			"objectives": [
+				"Escrever um ensaio de 500 palavras integrando fontes."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c1.proposals",
+			"kind": "topic",
+			"parentId": "en.writing.c1",
+			"order": 1,
+			"title": {
+				"pt": "Propostas",
+				"en": "Proposals"
+			},
+			"summary": "Propor projetos e soluções com justificativa, custos e riscos.",
+			"objectives": [
+				"Escrever uma proposta de projeto convincente."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 77
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c1.persuasive",
+			"kind": "topic",
+			"parentId": "en.writing.c1",
+			"order": 2,
+			"title": {
+				"pt": "Escrita persuasiva",
+				"en": "Persuasive writing"
+			},
+			"summary": "Apelos, evidência e estrutura problema-solução.",
+			"objectives": [
+				"Escrever um texto persuasivo para um público específico."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c1.concision",
+			"kind": "topic",
+			"parentId": "en.writing.c1",
+			"order": 3,
+			"title": {
+				"pt": "Concisão e clareza",
+				"en": "Concision and clarity"
+			},
+			"summary": "Cortar redundâncias, preferir voz ativa e frases diretas.",
+			"objectives": [
+				"Reduzir um texto em 30% sem perda de conteúdo."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c1.creative",
+			"kind": "topic",
+			"parentId": "en.writing.c1",
+			"order": 4,
+			"title": {
+				"pt": "Escrita criativa",
+				"en": "Creative writing"
+			},
+			"summary": "Contos, crônicas e descrições com voz própria.",
+			"objectives": [
+				"Escrever um conto curto com voz e ritmo próprios."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Creative writing · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c1.review-comments",
+			"kind": "topic",
+			"parentId": "en.writing.c1",
+			"order": 5,
+			"title": {
+				"pt": "Comentários de revisão",
+				"en": "Review comments"
+			},
+			"summary": "Dar feedback escrito em code review, documentos e textos de colegas.",
+			"objectives": [
+				"Escrever comentários de revisão específicos, educados e acionáveis."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Goal-oriented online transactions and collaboration · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c1.advanced-editing",
+			"kind": "topic",
+			"parentId": "en.writing.c1",
+			"order": 6,
+			"title": {
+				"pt": "Edição avançada",
+				"en": "Advanced editing"
+			},
+			"summary": "Ajustar registro, ritmo, ênfase e precisão lexical.",
+			"objectives": [
+				"Editar um texto para um registro e público diferentes."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c2",
+			"kind": "unit",
+			"parentId": "en.writing",
+			"order": 5,
+			"title": {
+				"pt": "Escrita C2",
+				"en": "Writing C2"
+			},
+			"summary": "Textos complexos, fluentes e estilisticamente apropriados, com estrutura lógica eficaz.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"softPrereqs": [
+				"en.writing.c1"
+			],
+			"hours": {
+				"lo": 13.5,
+				"hi": 18.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.writing.c2.style-control",
+			"kind": "topic",
+			"parentId": "en.writing.c2",
+			"order": 0,
+			"title": {
+				"pt": "Controle de estilo",
+				"en": "Stylistic control"
+			},
+			"summary": "Variar estilo conforme gênero, propósito e leitor com naturalidade.",
+			"objectives": [
+				"Reescrever o mesmo conteúdo em três estilos distintos."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 85
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c2.long-documents",
+			"kind": "topic",
+			"parentId": "en.writing.c2",
+			"order": 1,
+			"title": {
+				"pt": "Documentos longos",
+				"en": "Long documents"
+			},
+			"summary": "Relatórios extensos, manuais e textos com muitas seções.",
+			"objectives": [
+				"Estruturar um documento de 3.000+ palavras com navegação clara."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 86
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c2.critical-reviews",
+			"kind": "topic",
+			"parentId": "en.writing.c2",
+			"order": 2,
+			"title": {
+				"pt": "Resenhas críticas",
+				"en": "Critical reviews"
+			},
+			"summary": "Avaliar obras, produtos ou propostas com argumentação fina.",
+			"objectives": [
+				"Escrever uma resenha crítica equilibrada e bem fundamentada."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reports and essays · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c2.creative-advanced",
+			"kind": "topic",
+			"parentId": "en.writing.c2",
+			"order": 3,
+			"title": {
+				"pt": "Escrita criativa avançada",
+				"en": "Advanced creative writing"
+			},
+			"summary": "Recursos literários, subtexto e voz narrativa.",
+			"objectives": [
+				"Escrever ficção curta com subtexto e recursos literários."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 89
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Creative writing · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing.c2.editing-others",
+			"kind": "topic",
+			"parentId": "en.writing.c2",
+			"order": 4,
+			"title": {
+				"pt": "Editar textos de outros",
+				"en": "Editing others' texts"
+			},
+			"summary": "Revisão de conteúdo e linguagem de textos alheios.",
+			"objectives": [
+				"Editar o texto de outra pessoa preservando sua voz."
+			],
+			"assess": [
+				"writing_rubric",
+				"error_correction",
+				"rewrite"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 90
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Writing · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "en.writing.b2.technical-docs",
+			"to": "en.academic.tech-communication",
+			"kind": "related"
+		},
+		{
+			"from": "en.writing.b1.sentence-boundaries",
+			"to": "en.writing.a1.mechanics",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "gse-lo-adult",
+			"title": "Global Scale of English Learning Objectives — Adult (Pearson, 2022)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE aproximadas como referência de nível",
+			"usage": "reference"
+		},
+		{
+			"id": "nation-four-strands",
+			"title": "Nation (2007), The four strands; Nation & Newton — ensino de L2",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		}
+	]
+}

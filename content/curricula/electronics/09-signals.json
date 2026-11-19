@@ -1,0 +1,3232 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.signals",
+	"items": [
+		{
+			"id": "ee.signals.basics",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 0,
+			"title": {
+				"pt": "Sinais e propriedades de sistemas",
+				"en": "Signals and system properties"
+			},
+			"summary": "Classificação de sinais, operações básicas, impulso e degrau e propriedades de sistemas.",
+			"scope": "Dentro: sinais contínuos e discretos, energia e potência, transformações de tempo, impulso, propriedades de sistemas. Fora: transformadas.",
+			"objectives": [
+				"Classificar sinais e sistemas",
+				"Manipular sinais com transformações de tempo e funções singulares"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 8,
+				"hi": 11
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:signals-and-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.basics.signal-classification",
+			"kind": "topic",
+			"parentId": "ee.signals.basics",
+			"order": 0,
+			"title": {
+				"pt": "Classificação de sinais, energia e potência",
+				"en": "Signal classification, energy and power"
+			},
+			"summary": "Sinais contínuos e discretos, periódicos, pares e ímpares, de energia e de potência.",
+			"scope": "Dentro: classificação de sinais, energia, potência, periodicidade em tempo discreto. Fora: sinais aleatórios.",
+			"objectives": [
+				"Classificar sinais como de energia ou de potência e calcular cada uma",
+				"Determinar o período de sinais discretos senoidais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que toda senoide discreta é periódica"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.math.calc.integral-apps"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:signals-and-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.basics.signal-operations",
+			"kind": "topic",
+			"parentId": "ee.signals.basics",
+			"order": 1,
+			"title": {
+				"pt": "Transformações de tempo, impulso e degrau",
+				"en": "Time transformations, impulse and step"
+			},
+			"summary": "Deslocamento, escalonamento e reflexão no tempo, função degrau, impulso de Dirac e suas propriedades.",
+			"scope": "Dentro: transformações de tempo, degrau, impulso contínuo e discreto, amostragem pelo impulso. Fora: distribuições formais.",
+			"objectives": [
+				"Esboçar x(at + b) a partir de x(t)",
+				"Aplicar a propriedade de amostragem do impulso"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"misconceptions": [
+				"Aplicar deslocamento e escalonamento na ordem errada"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.basics.signal-classification"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:signals-and-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.basics.system-properties",
+			"kind": "topic",
+			"parentId": "ee.signals.basics",
+			"order": 2,
+			"title": {
+				"pt": "Propriedades de sistemas",
+				"en": "System properties"
+			},
+			"summary": "Linearidade, invariância no tempo, causalidade, memória, estabilidade BIBO e invertibilidade.",
+			"scope": "Dentro: propriedades de sistemas e testes de cada uma. Fora: caracterização por resposta ao impulso.",
+			"objectives": [
+				"Verificar se um sistema é linear, invariante no tempo, causal e estável",
+				"Construir contraexemplos para propriedades que falham"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.basics.signal-operations"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:signals-and-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.lti",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 1,
+			"title": {
+				"pt": "Sistemas LTI e convolução",
+				"en": "LTI systems and convolution"
+			},
+			"summary": "Resposta ao impulso, convolução discreta e contínua e sistemas descritos por equações diferenciais e de diferenças.",
+			"scope": "Dentro: convolução, propriedades de sistemas LTI, equações de diferenças e diferenciais. Fora: transformadas.",
+			"objectives": [
+				"Calcular a saída de sistemas LTI por convolução",
+				"Relacionar equações de diferenças a respostas ao impulso"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:linear-time-invariant-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.lti.convolution-dt",
+			"kind": "topic",
+			"parentId": "ee.signals.lti",
+			"order": 0,
+			"title": {
+				"pt": "Convolução discreta",
+				"en": "Discrete-time convolution"
+			},
+			"summary": "Soma de convolução, interpretação gráfica e propriedades.",
+			"scope": "Dentro: soma de convolução, método gráfico, propriedades, causalidade e estabilidade pela h[n]. Fora: convolução circular.",
+			"objectives": [
+				"Calcular a convolução de sequências finitas",
+				"Determinar causalidade e estabilidade a partir de h[n]"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.basics.system-properties"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:linear-time-invariant-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.lti.convolution-ct",
+			"kind": "topic",
+			"parentId": "ee.signals.lti",
+			"order": 1,
+			"title": {
+				"pt": "Convolução contínua e resposta ao impulso",
+				"en": "Continuous-time convolution and impulse response"
+			},
+			"summary": "Integral de convolução, método gráfico e caracterização completa de sistemas LTI pela resposta ao impulso.",
+			"scope": "Dentro: integral de convolução, método gráfico, propriedades. Fora: convolução com distribuições.",
+			"objectives": [
+				"Calcular a convolução de sinais contínuos simples",
+				"Obter a resposta de um circuito RC por convolução"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.lti.convolution-dt"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:linear-time-invariant-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.lti.difference-diff-eq",
+			"kind": "topic",
+			"parentId": "ee.signals.lti",
+			"order": 2,
+			"title": {
+				"pt": "Equações de diferenças e diferenciais como sistemas",
+				"en": "Difference and differential equations as systems"
+			},
+			"summary": "Sistemas recursivos e não recursivos, diagramas de blocos e condições de repouso inicial.",
+			"scope": "Dentro: equações de diferenças, FIR e IIR, diagramas de blocos, repouso inicial. Fora: solução por transformadas.",
+			"objectives": [
+				"Resolver recursivamente uma equação de diferenças",
+				"Desenhar o diagrama de blocos de um sistema descrito por equação"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.lti.convolution-ct",
+					"ee.math.ode.forced-response"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:linear-time-invariant-systems",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.fourier",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 2,
+			"title": {
+				"pt": "Análise de Fourier",
+				"en": "Fourier analysis"
+			},
+			"summary": "Séries e transformadas de Fourier em tempo contínuo e discreto, propriedades e filtragem.",
+			"scope": "Dentro: série de Fourier em sistemas, CTFT, DTFT, propriedades, resposta em frequência, filtros ideais. Fora: DFT e FFT.",
+			"objectives": [
+				"Analisar sinais e sistemas no domínio da frequência",
+				"Usar propriedades de Fourier para simplificar cálculos"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:fourier-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.fourier.ctfs",
+			"kind": "topic",
+			"parentId": "ee.signals.fourier",
+			"order": 0,
+			"title": {
+				"pt": "Série de Fourier e espectros de linhas",
+				"en": "Fourier series and line spectra"
+			},
+			"summary": "Exponenciais complexas como autofunções de sistemas LTI e espectros de sinais periódicos.",
+			"scope": "Dentro: autofunções, espectro de linhas, resposta de LTI a sinais periódicos. Fora: transformada contínua.",
+			"objectives": [
+				"Calcular a saída de um sistema LTI para uma entrada periódica via série de Fourier",
+				"Esboçar o espectro de linhas de sinais periódicos"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.math.transforms.fourier-series-math",
+					"ee.signals.lti.convolution-ct"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:fourier-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.fourier.ctft",
+			"kind": "topic",
+			"parentId": "ee.signals.fourier",
+			"order": 1,
+			"title": {
+				"pt": "Transformada de Fourier contínua",
+				"en": "Continuous-time Fourier transform"
+			},
+			"summary": "Da série à transformada, pares básicos, espectros de pulsos e a dualidade tempo-frequência.",
+			"scope": "Dentro: definição, pares básicos, dualidade, sinc e pulso retangular. Fora: transformadas generalizadas rigorosas.",
+			"objectives": [
+				"Calcular a transformada de pulsos e exponenciais",
+				"Relacionar duração temporal e largura espectral"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.ctfs"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:fourier-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.fourier.ft-properties",
+			"kind": "topic",
+			"parentId": "ee.signals.fourier",
+			"order": 2,
+			"title": {
+				"pt": "Propriedades: convolução, modulação e Parseval",
+				"en": "Properties: convolution, modulation and Parseval"
+			},
+			"summary": "Convolução vira produto, modulação desloca espectros e Parseval conserva energia.",
+			"scope": "Dentro: linearidade, deslocamento, escalonamento, convolução, modulação, Parseval. Fora: transformada de Hilbert.",
+			"objectives": [
+				"Aplicar a propriedade de convolução para obter a saída de sistemas",
+				"Calcular a energia de um sinal no domínio da frequência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.ctft"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:fourier-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.fourier.dtft",
+			"kind": "topic",
+			"parentId": "ee.signals.fourier",
+			"order": 3,
+			"title": {
+				"pt": "Transformada de Fourier em tempo discreto",
+				"en": "Discrete-time Fourier transform"
+			},
+			"summary": "Espectro periódico de sequências, pares básicos e resposta em frequência de sistemas discretos.",
+			"scope": "Dentro: DTFT, periodicidade 2π, pares, resposta em frequência discreta. Fora: DFT.",
+			"objectives": [
+				"Calcular a DTFT de sequências simples",
+				"Obter a resposta em frequência de um filtro de média móvel"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.ft-properties"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:fourier-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.fourier.frequency-response-lti",
+			"kind": "topic",
+			"parentId": "ee.signals.fourier",
+			"order": 4,
+			"title": {
+				"pt": "Resposta em frequência e filtragem ideal",
+				"en": "Frequency response and ideal filtering"
+			},
+			"summary": "H(jω) de sistemas LTI, filtros ideais, atraso de grupo e distorção de fase.",
+			"scope": "Dentro: H(jω), filtros ideais e sua não causalidade, atraso de grupo, distorção. Fora: projeto de filtros.",
+			"objectives": [
+				"Determinar a saída de um sistema a partir de H(jω)",
+				"Explicar por que filtros ideais não são realizáveis"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.ft-properties",
+					"ee.ac.frequency.bode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:fourier-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.laplace-z",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 3,
+			"title": {
+				"pt": "Laplace e Z para sistemas",
+				"en": "Laplace and z-transforms for systems"
+			},
+			"summary": "Transformadas de Laplace bilateral e Z com regiões de convergência, funções de sistema e diagramas de blocos.",
+			"scope": "Dentro: Laplace bilateral, RDC, transformada Z, funções de sistema, polos e zeros, realizações. Fora: controle.",
+			"objectives": [
+				"Analisar estabilidade e causalidade pela região de convergência",
+				"Obter funções de sistema de sistemas discretos"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:z-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.laplace-z.laplace-systems",
+			"kind": "topic",
+			"parentId": "ee.signals.laplace-z",
+			"order": 0,
+			"title": {
+				"pt": "Laplace bilateral e estabilidade de sistemas",
+				"en": "Bilateral Laplace and system stability"
+			},
+			"summary": "Transformada bilateral, região de convergência, causalidade e estabilidade a partir de H(s).",
+			"scope": "Dentro: Laplace bilateral, RDC, causalidade e estabilidade. Fora: Laplace unilateral em circuitos.",
+			"objectives": [
+				"Determinar a RDC de um sinal a partir de sua forma",
+				"Decidir estabilidade e causalidade a partir de H(s) e RDC"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.math.transforms.inverse-laplace",
+					"ee.signals.lti.convolution-ct"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:z-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.laplace-z.z-transform",
+			"kind": "topic",
+			"parentId": "ee.signals.laplace-z",
+			"order": 1,
+			"title": {
+				"pt": "Transformada Z",
+				"en": "z-transform"
+			},
+			"summary": "Definição, RDC, pares e propriedades, transformada inversa e relação com a DTFT.",
+			"scope": "Dentro: definição, RDC, pares, propriedades, inversa por frações parciais. Fora: Z unilateral avançada.",
+			"objectives": [
+				"Calcular transformadas Z e suas RDCs",
+				"Calcular a transformada inversa por frações parciais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.dtft",
+					"ee.signals.laplace-z.laplace-systems"
+				]
+			],
+			"softPrereqs": [
+				"ee.math.transforms.complex-analysis"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:z-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.laplace-z.system-functions",
+			"kind": "topic",
+			"parentId": "ee.signals.laplace-z",
+			"order": 2,
+			"title": {
+				"pt": "Funções de sistema e diagramas de blocos",
+				"en": "System functions and block diagrams"
+			},
+			"summary": "H(z) e H(s), polos e zeros, resposta em frequência geométrica e realizações em forma direta.",
+			"scope": "Dentro: H(z), polos e zeros, avaliação geométrica, formas diretas. Fora: estruturas em treliça.",
+			"objectives": [
+				"Obter H(z) de uma equação de diferenças e esboçar sua resposta em frequência",
+				"Realizar H(z) em forma direta II"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.laplace-z.z-transform"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:z-transform",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.sampling",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 4,
+			"title": {
+				"pt": "Amostragem e quantização",
+				"en": "Sampling and quantization"
+			},
+			"summary": "Teorema da amostragem, aliasing, reconstrução, quantização e sistemas multitaxa.",
+			"scope": "Dentro: amostragem ideal, aliasing, antialiasing, reconstrução, ZOH, quantização, decimação e interpolação. Fora: arquiteturas de conversores (ver CI).",
+			"objectives": [
+				"Escolher taxa de amostragem e filtros antialiasing",
+				"Estimar o SNR de quantização"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:sampling-of-continuous-time-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.sampling.sampling-theorem",
+			"kind": "topic",
+			"parentId": "ee.signals.sampling",
+			"order": 0,
+			"title": {
+				"pt": "Teorema da amostragem e aliasing",
+				"en": "Sampling theorem and aliasing"
+			},
+			"summary": "Amostragem por trem de impulsos, espectros replicados, taxa de Nyquist e aliasing.",
+			"scope": "Dentro: amostragem ideal, réplicas espectrais, Nyquist, aliasing, subamostragem. Fora: amostragem não uniforme.",
+			"objectives": [
+				"Determinar a taxa mínima de amostragem de um sinal",
+				"Prever a frequência aparente de um sinal com aliasing"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que amostrar exatamente em 2f_max sempre basta"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.ft-properties"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:sampling-of-continuous-time-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.sampling.reconstruction",
+			"kind": "topic",
+			"parentId": "ee.signals.sampling",
+			"order": 1,
+			"title": {
+				"pt": "Reconstrução e filtros antialiasing",
+				"en": "Reconstruction and anti-aliasing filters"
+			},
+			"summary": "Interpolação ideal, retentor de ordem zero, compensação de sinc e especificação de filtros antialiasing.",
+			"scope": "Dentro: interpolação sinc, ZOH, distorção de sinc, antialiasing. Fora: arquiteturas de DAC.",
+			"objectives": [
+				"Especificar um filtro antialiasing para um sistema de aquisição",
+				"Calcular a atenuação de sinc do ZOH em uma frequência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.sampling.sampling-theorem"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:sampling-of-continuous-time-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.sampling.quantization",
+			"kind": "topic",
+			"parentId": "ee.signals.sampling",
+			"order": 2,
+			"title": {
+				"pt": "Quantização e SNR",
+				"en": "Quantization and SNR"
+			},
+			"summary": "Quantização uniforme, erro de quantização como ruído, SNR de 6,02N + 1,76 dB e dither.",
+			"scope": "Dentro: quantização uniforme, modelo de ruído, SNR ideal, dither. Fora: sigma-delta.",
+			"objectives": [
+				"Calcular o SNR ideal de quantização de N bits",
+				"Explicar o efeito do dither em sinais pequenos"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.sampling.sampling-theorem",
+					"ee.math.prob.random-variables"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:sampling-of-continuous-time-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.sampling.multirate",
+			"kind": "topic",
+			"parentId": "ee.signals.sampling",
+			"order": 3,
+			"title": {
+				"pt": "Decimação, interpolação e multitaxa",
+				"en": "Decimation, interpolation and multirate"
+			},
+			"summary": "Subamostragem e sobreamostragem, filtros de decimação e de interpolação, mudança de taxa racional.",
+			"scope": "Dentro: decimação, interpolação, mudança racional de taxa, polifásica em visão. Fora: bancos de filtros.",
+			"objectives": [
+				"Projetar a cadeia de decimação por um fator inteiro",
+				"Explicar por que filtrar antes de decimar"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.signals.sampling.reconstruction",
+					"ee.signals.fourier.dtft"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:sampling-of-continuous-time-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.dsp",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 5,
+			"title": {
+				"pt": "Processamento digital de sinais",
+				"en": "Digital signal processing"
+			},
+			"summary": "DFT e FFT, análise espectral, projeto de filtros FIR e IIR e efeitos de precisão finita.",
+			"scope": "Dentro: DFT, FFT, janelamento, FIR por janelas e equiripple, IIR por bilinear, estruturas, quantização de coeficientes. Fora: DSP adaptativo.",
+			"objectives": [
+				"Analisar espectros de sinais com a FFT",
+				"Projetar e implementar filtros digitais"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SGP",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.dsp.dft-fft",
+			"kind": "topic",
+			"parentId": "ee.signals.dsp",
+			"order": 0,
+			"title": {
+				"pt": "DFT e FFT",
+				"en": "DFT and FFT"
+			},
+			"summary": "DFT como amostragem da DTFT, convolução circular, algoritmo FFT radix-2 e custo computacional.",
+			"scope": "Dentro: DFT, convolução circular, zero padding, FFT radix-2. Fora: FFTs de base mista.",
+			"objectives": [
+				"Calcular a DFT de sequências curtas e relacionar bins a frequências",
+				"Usar a FFT para calcular convolução linear"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que zero padding aumenta a resolução espectral real"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.dtft",
+					"ee.math.numerical.python-numpy"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SGP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.dsp.windowing-spectral",
+			"kind": "topic",
+			"parentId": "ee.signals.dsp",
+			"order": 1,
+			"title": {
+				"pt": "Janelamento e análise espectral",
+				"en": "Windowing and spectral analysis"
+			},
+			"summary": "Vazamento espectral, janelas de Hann, Hamming e Blackman e o compromisso resolução-vazamento.",
+			"scope": "Dentro: vazamento, janelas, resolução, escalonamento de amplitude. Fora: estimação espectral paramétrica.",
+			"objectives": [
+				"Escolher uma janela para medir um tom fraco perto de um forte",
+				"Interpretar o espectro de uma FFT com janela"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.dsp.dft-fft"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SGP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.dsp.fir-design",
+			"kind": "topic",
+			"parentId": "ee.signals.dsp",
+			"order": 2,
+			"title": {
+				"pt": "Projeto de filtros FIR",
+				"en": "FIR filter design"
+			},
+			"summary": "Fase linear, projeto por janelas e por equiripple (Parks-McClellan) e especificação de ordem.",
+			"scope": "Dentro: fase linear, janelas, Parks-McClellan, estimativa de ordem. Fora: filtros adaptativos.",
+			"objectives": [
+				"Projetar um FIR passa-baixas por janelas",
+				"Estimar a ordem necessária para uma especificação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.laplace-z.system-functions",
+					"ee.signals.dsp.windowing-spectral"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SGP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.dsp.iir-design",
+			"kind": "topic",
+			"parentId": "ee.signals.dsp",
+			"order": 3,
+			"title": {
+				"pt": "Projeto de filtros IIR",
+				"en": "IIR filter design"
+			},
+			"summary": "Transformação bilinear e pré-distorção a partir de protótipos analógicos clássicos.",
+			"scope": "Dentro: bilinear, pré-distorção, invariância ao impulso, estabilidade. Fora: otimização direta de IIR.",
+			"objectives": [
+				"Projetar um IIR Butterworth pela transformação bilinear",
+				"Comparar FIR e IIR para uma especificação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.laplace-z.system-functions",
+					"ee.analog.filters.filter-specs"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SGP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.dsp.filter-implementation",
+			"kind": "topic",
+			"parentId": "ee.signals.dsp",
+			"order": 4,
+			"title": {
+				"pt": "Estruturas e precisão finita",
+				"en": "Filter structures and finite precision"
+			},
+			"summary": "Formas diretas e em cascata de biquads, quantização de coeficientes, overflow e ciclos limite.",
+			"scope": "Dentro: estruturas, quantização de coeficientes, escalonamento, overflow, ciclos limite. Fora: arquiteturas em hardware.",
+			"objectives": [
+				"Implementar um IIR em cascata de biquads em ponto fixo",
+				"Explicar por que formas diretas de alta ordem são sensíveis à quantização"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.dsp.fir-design",
+					"ee.signals.dsp.iir-design",
+					"ee.digital.numbers.fixed-float"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SGP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.random",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 6,
+			"title": {
+				"pt": "Sinais aleatórios",
+				"en": "Random signals"
+			},
+			"summary": "Processos aleatórios, autocorrelação, densidade espectral de potência e sistemas LTI com entradas aleatórias.",
+			"scope": "Dentro: estacionariedade, ergodicidade, autocorrelação, PSD, ruído branco, banda de ruído. Fora: estimação ótima.",
+			"objectives": [
+				"Caracterizar ruído por autocorrelação e PSD",
+				"Calcular a potência de ruído na saída de sistemas LTI"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 8,
+				"hi": 11
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:random-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§2",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.random.random-processes",
+			"kind": "topic",
+			"parentId": "ee.signals.random",
+			"order": 0,
+			"title": {
+				"pt": "Processos aleatórios e estacionariedade",
+				"en": "Random processes and stationarity"
+			},
+			"summary": "Processos aleatórios, médias de conjunto, estacionariedade no sentido amplo e ergodicidade.",
+			"scope": "Dentro: definições, médias, WSS, ergodicidade. Fora: cadeias de Markov.",
+			"objectives": [
+				"Verificar se um processo é estacionário no sentido amplo",
+				"Explicar a hipótese de ergodicidade em medições"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.math.prob.gaussian",
+					"ee.signals.basics.signal-classification"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:random-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§2",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.random.psd",
+			"kind": "topic",
+			"parentId": "ee.signals.random",
+			"order": 1,
+			"title": {
+				"pt": "Autocorrelação e densidade espectral de potência",
+				"en": "Autocorrelation and power spectral density"
+			},
+			"summary": "Função de autocorrelação, teorema de Wiener-Khinchin, ruído branco e PSDs unilateral e bilateral.",
+			"scope": "Dentro: autocorrelação, Wiener-Khinchin, ruído branco, PSD uni e bilateral. Fora: estimação espectral.",
+			"objectives": [
+				"Calcular a PSD a partir da autocorrelação",
+				"Converter entre PSD unilateral e bilateral"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.random.random-processes",
+					"ee.signals.fourier.ft-properties"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:random-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§2",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.random.lti-random",
+			"kind": "topic",
+			"parentId": "ee.signals.random",
+			"order": 2,
+			"title": {
+				"pt": "Sistemas LTI com entradas aleatórias",
+				"en": "LTI systems with random inputs"
+			},
+			"summary": "PSD de saída |H|²S_x, banda equivalente de ruído e potência de ruído integrada.",
+			"scope": "Dentro: S_y(f) = |H(f)|²·S_x(f), autocorrelação da saída, banda equivalente de ruído, potência de ruído integrada. Fora: estimação ótima (ver filtro de Wiener).",
+			"objectives": [
+				"Calcular a PSD e a potência de ruído na saída de um filtro",
+				"Calcular a banda equivalente de ruído de um filtro RC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.random.psd",
+					"ee.signals.fourier.frequency-response-lti"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc:random-signals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§2",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.comms",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 7,
+			"title": {
+				"pt": "Fundamentos de comunicações",
+				"en": "Communication fundamentals"
+			},
+			"summary": "Modulação analógica, transmissão digital em banda base e por portadora, multiplexação, desempenho em ruído e limites de Shannon.",
+			"scope": "Dentro: AM, FM, PM, PCM, códigos de linha, ISI, ASK, FSK, PSK, QAM, FDM, TDM, AWGN, BER, filtro casado, capacidade. Fora: protocolos de rede.",
+			"objectives": [
+				"Analisar sistemas de modulação no domínio da frequência",
+				"Estimar o desempenho de enlaces digitais em ruído"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 16,
+				"hi": 22
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "12",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:modulation",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.comms.am-fm",
+			"kind": "topic",
+			"parentId": "ee.signals.comms",
+			"order": 0,
+			"title": {
+				"pt": "Modulação analógica: AM, FM e PM",
+				"en": "Analog modulation: AM, FM and PM"
+			},
+			"summary": "AM DSB e SSB, índice de modulação, FM e PM, regra de Carson e demodulação.",
+			"scope": "Dentro: AM, DSB-SC, SSB, FM, PM, Carson, demoduladores. Fora: rádio definido por software.",
+			"objectives": [
+				"Calcular banda e potência de sinais AM e FM",
+				"Esboçar o espectro de um sinal AM"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.fourier.ft-properties"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "12",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:modulation",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.comms.baseband-pulses",
+			"kind": "topic",
+			"parentId": "ee.signals.comms",
+			"order": 1,
+			"title": {
+				"pt": "Transmissão digital em banda base: PCM, códigos de linha e ISI",
+				"en": "Baseband digital transmission: PCM, line codes and ISI"
+			},
+			"summary": "PCM, códigos de linha (NRZ, RZ, Manchester) e seus espectros, interferência intersimbólica, critério de Nyquist, cosseno levantado e diagrama de olho.",
+			"scope": "Dentro: PCM, códigos de linha, ISI, critério de Nyquist para ISI zero, cosseno levantado, diagrama de olho. Fora: equalização adaptativa (ver DSP avançado).",
+			"objectives": [
+				"Calcular a banda mínima para transmitir uma taxa de símbolos com cosseno levantado",
+				"Interpretar um diagrama de olho quanto a ISI, ruído e jitter"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"misconceptions": [
+				"Confundir o critério de Nyquist para ISI zero com o teorema da amostragem de Nyquist"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.sampling.quantization"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "12",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:modulation",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.comms.digital-modulation",
+			"kind": "topic",
+			"parentId": "ee.signals.comms",
+			"order": 2,
+			"title": {
+				"pt": "Modulação digital: ASK, FSK, PSK e QAM",
+				"en": "Digital modulation: ASK, FSK, PSK and QAM"
+			},
+			"summary": "Modulação de portadora por sinais digitais: ASK, FSK, PSK e QAM, constelações, taxa de símbolos e de bits e banda ocupada.",
+			"scope": "Dentro: ASK, FSK, PSK, QAM, constelações, eficiência espectral, demodulação coerente em visão. Fora: formatação de pulso (ver transmissão em banda base) e OFDM em detalhe.",
+			"objectives": [
+				"Calcular a taxa de bits a partir da taxa de símbolos e da constelação",
+				"Comparar ASK, FSK, PSK e QAM em banda ocupada e em robustez ao ruído"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.comms.am-fm",
+					"ee.signals.comms.baseband-pulses"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "12",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:modulation",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.comms.multiplexing",
+			"kind": "topic",
+			"parentId": "ee.signals.comms",
+			"order": 3,
+			"title": {
+				"pt": "Multiplexação e acesso múltiplo: FDM, TDM e CDM",
+				"en": "Multiplexing and multiple access: FDM, TDM and CDM"
+			},
+			"summary": "Compartilhamento do canal por frequência, tempo e código, quadros TDM, bandas de guarda e as versões de acesso múltiplo FDMA, TDMA e CDMA.",
+			"scope": "Dentro: FDM, TDM síncrono e estatístico, espalhamento espectral e CDM em visão, FDMA, TDMA, CDMA. Fora: OFDMA em detalhe e protocolos de enlace.",
+			"objectives": [
+				"Calcular a banda total de um sistema FDM com bandas de guarda",
+				"Montar o quadro de um sistema TDM a partir das taxas dos canais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que o TDM dispensa banda, quando a taxa agregada exige banda proporcional"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.comms.am-fm",
+					"ee.signals.comms.baseband-pulses"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "12",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:modulation",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.comms.ber-awgn",
+			"kind": "topic",
+			"parentId": "ee.signals.comms",
+			"order": 4,
+			"title": {
+				"pt": "Canal AWGN, BER e filtro casado",
+				"en": "AWGN channel, BER and matched filter"
+			},
+			"summary": "Filtro casado, Eb/N0, probabilidade de erro de bit para BPSK e QAM.",
+			"scope": "Dentro: AWGN, filtro casado, Eb/N0, BER. Fora: canais com desvanecimento.",
+			"objectives": [
+				"Calcular a BER de BPSK em função de Eb/N0",
+				"Explicar por que o filtro casado maximiza o SNR"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.comms.digital-modulation",
+					"ee.signals.random.lti-random"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "12",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:modulation",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.comms.info-theory",
+			"kind": "topic",
+			"parentId": "ee.signals.comms",
+			"order": 5,
+			"title": {
+				"pt": "Entropia e capacidade de Shannon",
+				"en": "Entropy and Shannon capacity"
+			},
+			"summary": "Entropia, informação mútua em visão e a capacidade C = B log₂(1 + SNR).",
+			"scope": "Dentro: entropia, capacidade de Shannon, limites práticos. Fora: códigos corretores de erro.",
+			"objectives": [
+				"Calcular a capacidade de um canal AWGN",
+				"Comparar a eficiência espectral de esquemas reais com o limite de Shannon"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.signals.comms.ber-awgn"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "12",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:modulation",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals.adv-dsp",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 8,
+			"title": {
+				"pt": "Processamento de sinais avançado",
+				"en": "Advanced signal processing"
+			},
+			"summary": "Especialização em DSP: filtragem adaptativa e ótima, análise tempo-frequência, DSP em hardware e rádio definido por software.",
+			"scope": "Dentro: LMS, RLS, Wiener, STFT, wavelets, ponto fixo em hardware, SDR e I/Q. Fora: aprendizado profundo para sinais.",
+			"objectives": [
+				"Projetar sistemas adaptativos e ótimos",
+				"Implementar DSP em hardware dedicado"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.adv-dsp.adaptive-filters",
+			"kind": "topic",
+			"parentId": "ee.signals.adv-dsp",
+			"order": 0,
+			"title": {
+				"pt": "Filtros adaptativos: LMS e RLS",
+				"en": "Adaptive filters: LMS and RLS"
+			},
+			"summary": "Algoritmos LMS e RLS, convergência, desajuste e aplicações em cancelamento de eco e equalização.",
+			"scope": "Dentro: LMS, NLMS, RLS, convergência, aplicações. Fora: filtragem adaptativa não linear.",
+			"objectives": [
+				"Implementar um cancelador de ruído com LMS",
+				"Analisar o compromisso entre passo, convergência e desajuste"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.signals.dsp.fir-design",
+					"ee.signals.random.psd",
+					"ee.math.linalg.eigen"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.adv-dsp.optimal-estimation",
+			"kind": "topic",
+			"parentId": "ee.signals.adv-dsp",
+			"order": 1,
+			"title": {
+				"pt": "Filtro de Wiener e estimação linear ótima",
+				"en": "Wiener filter and optimal linear estimation"
+			},
+			"summary": "Princípio da ortogonalidade, equações de Wiener-Hopf e estimação linear de mínimo erro quadrático.",
+			"scope": "Dentro: ortogonalidade, Wiener-Hopf, MMSE linear. Fora: filtro de Kalman (ver controle).",
+			"objectives": [
+				"Derivar o filtro de Wiener FIR pelas equações normais",
+				"Aplicar o filtro de Wiener a um problema de remoção de ruído"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.random.lti-random",
+					"ee.math.linalg.vector-spaces"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.adv-dsp.time-frequency",
+			"kind": "topic",
+			"parentId": "ee.signals.adv-dsp",
+			"order": 2,
+			"title": {
+				"pt": "Análise tempo-frequência: STFT e wavelets",
+				"en": "Time-frequency analysis: STFT and wavelets"
+			},
+			"summary": "Espectrograma, compromisso de resolução, transformada wavelet e bancos de filtros.",
+			"scope": "Dentro: STFT, espectrograma, wavelets contínuas e discretas, bancos de filtros. Fora: distribuições de Wigner.",
+			"objectives": [
+				"Escolher parâmetros de STFT para um sinal não estacionário",
+				"Explicar a análise multirresolução por wavelets"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.signals.dsp.windowing-spectral",
+					"ee.signals.sampling.multirate"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.adv-dsp.dsp-hardware",
+			"kind": "topic",
+			"parentId": "ee.signals.adv-dsp",
+			"order": 3,
+			"title": {
+				"pt": "DSP em hardware",
+				"en": "DSP in hardware"
+			},
+			"summary": "Arquiteturas MAC, pipelines, filtros em FPGA, CIC e escolha de larguras de palavra.",
+			"scope": "Dentro: MAC, pipeline, FIR em FPGA, CIC, larguras de palavra. Fora: ASICs de DSP.",
+			"objectives": [
+				"Implementar um FIR em ponto fixo em FPGA",
+				"Dimensionar larguras de palavra para evitar overflow"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.signals.dsp.filter-implementation",
+					"ee.digital.hdl.fpga-flow"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.adv-dsp.sdr",
+			"kind": "topic",
+			"parentId": "ee.signals.adv-dsp",
+			"order": 4,
+			"title": {
+				"pt": "Rádio definido por software e processamento I/Q",
+				"en": "Software-defined radio and I/Q processing"
+			},
+			"summary": "Sinais em banda base complexa, mistura digital, sincronização de portadora e de símbolo.",
+			"scope": "Dentro: I/Q, conversão digital, sincronização, recepção de QPSK em SDR. Fora: front-ends de RF.",
+			"objectives": [
+				"Converter um sinal passa-faixa para banda base complexa",
+				"Implementar a recepção de um sinal QPSK em SDR"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.signals.comms.digital-modulation",
+					"ee.signals.sampling.multirate"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.stat-sp",
+			"kind": "unit",
+			"parentId": "ee.signals",
+			"order": 9,
+			"title": {
+				"pt": "Processamento estatístico e comunicações avançadas",
+				"en": "Statistical signal processing and advanced communications"
+			},
+			"summary": "Detecção e estimação, arranjos, esparsidade, OFDM e MIMO, codificação de canal e radar.",
+			"scope": "Dentro: teoria da detecção e estimação, beamforming, compressed sensing, OFDM, MIMO, códigos, radar. Fora: teoria da informação avançada.",
+			"objectives": [
+				"Projetar detectores e estimadores ótimos",
+				"Analisar sistemas de comunicação e radar modernos"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 18,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing / ICASSP",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.stat-sp.detection-estimation",
+			"kind": "topic",
+			"parentId": "ee.signals.stat-sp",
+			"order": 0,
+			"title": {
+				"pt": "Teoria da detecção e estimação",
+				"en": "Detection and estimation theory"
+			},
+			"summary": "Testes de hipóteses, Neyman-Pearson, curvas ROC, estimadores ML e MAP e o limite de Cramér-Rao.",
+			"scope": "Dentro: hipóteses, Neyman-Pearson, ROC, ML, MAP, CRLB. Fora: estimação não paramétrica.",
+			"objectives": [
+				"Derivar o detector ótimo para um sinal conhecido em ruído gaussiano",
+				"Calcular o limite de Cramér-Rao de um estimador"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.random.lti-random",
+					"ee.math.linalg.eigen"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing / ICASSP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.stat-sp.array-processing",
+			"kind": "topic",
+			"parentId": "ee.signals.stat-sp",
+			"order": 1,
+			"title": {
+				"pt": "Processamento de arranjos",
+				"en": "Array processing"
+			},
+			"summary": "Beamforming convencional e adaptativo, estimação de direção de chegada com MUSIC e ESPRIT.",
+			"scope": "Dentro: modelo de arranjo, beamforming, MVDR, MUSIC, ESPRIT. Fora: arranjos de antenas em hardware.",
+			"objectives": [
+				"Implementar um beamformer MVDR",
+				"Estimar direções de chegada com MUSIC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.stat-sp.detection-estimation",
+					"ee.signals.adv-dsp.adaptive-filters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing / ICASSP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.stat-sp.sparse-sp",
+			"kind": "topic",
+			"parentId": "ee.signals.stat-sp",
+			"order": 2,
+			"title": {
+				"pt": "Esparsidade e amostragem compressiva",
+				"en": "Sparsity and compressed sensing"
+			},
+			"summary": "Representações esparsas, condição RIP, recuperação por minimização L1 e algoritmos gulosos.",
+			"scope": "Dentro: esparsidade, RIP, L1, OMP, aplicações. Fora: teoria de matrizes aleatórias.",
+			"objectives": [
+				"Recuperar um sinal esparso por minimização L1",
+				"Explicar a condição de isometria restrita"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.stat-sp.detection-estimation",
+					"ee.signals.dsp.dft-fft"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing / ICASSP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.stat-sp.ofdm-mimo",
+			"kind": "topic",
+			"parentId": "ee.signals.stat-sp",
+			"order": 3,
+			"title": {
+				"pt": "OFDM e MIMO",
+				"en": "OFDM and MIMO"
+			},
+			"summary": "Multiportadora com FFT, prefixo cíclico, equalização, canais MIMO, diversidade e multiplexação espacial.",
+			"scope": "Dentro: OFDM, prefixo cíclico, estimação de canal, MIMO, Alamouti, capacidade. Fora: padrões completos.",
+			"objectives": [
+				"Simular um enlace OFDM com prefixo cíclico em canal seletivo",
+				"Calcular o ganho de diversidade de um esquema MIMO"
+			],
+			"bloom": "apply",
+			"assess": [
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.comms.ber-awgn",
+					"ee.signals.dsp.dft-fft"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing / ICASSP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.stat-sp.channel-coding",
+			"kind": "topic",
+			"parentId": "ee.signals.stat-sp",
+			"order": 4,
+			"title": {
+				"pt": "Codificação de canal",
+				"en": "Channel coding"
+			},
+			"summary": "Códigos de bloco, códigos convolucionais e Viterbi, e visão de LDPC e códigos polares.",
+			"scope": "Dentro: códigos de bloco lineares, matrizes geradora e de verificação, códigos convolucionais, Viterbi, LDPC e polares em visão, ganho de codificação. Fora: decodificação iterativa em detalhe.",
+			"objectives": [
+				"Decodificar um código convolucional com o algoritmo de Viterbi",
+				"Comparar o ganho de codificação de códigos diferentes"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.comms.info-theory",
+					"ee.digital.numbers.error-codes"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing / ICASSP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		},
+		{
+			"id": "ee.signals.stat-sp.radar-sp",
+			"kind": "topic",
+			"parentId": "ee.signals.stat-sp",
+			"order": 5,
+			"title": {
+				"pt": "Processamento de sinais de radar",
+				"en": "Radar signal processing"
+			},
+			"summary": "Compressão de pulso, ambiguidade, radar FMCW, Doppler e detecção CFAR.",
+			"scope": "Dentro: compressão de pulso, função de ambiguidade, FMCW, Doppler, CFAR. Fora: hardware de RF do radar.",
+			"objectives": [
+				"Processar um sinal FMCW para obter distância e velocidade",
+				"Projetar um detector CFAR"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.stat-sp.detection-estimation",
+					"ee.signals.adv-dsp.time-frequency"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "oppenheim-schafer-dtsp",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.341-f05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Signal Processing / ICASSP",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:dsp"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.signals.fourier.ctft",
+			"to": "ee.math.transforms.fourier-series-math",
+			"kind": "related"
+		},
+		{
+			"from": "ee.signals.laplace-z.laplace-systems",
+			"to": "ee.ac.sdomain.poles-zeros",
+			"kind": "related"
+		},
+		{
+			"from": "ee.signals.dsp.fir-design",
+			"to": "ee.signals.dsp.iir-design",
+			"kind": "confusable_with"
+		}
+	],
+	"sources": [
+		{
+			"id": "ieee-acm-ce2016",
+			"title": "IEEE/ACM — Computer Engineering Curricula 2016 (CE2016)",
+			"license": "© ACM/IEEE; só referência (DOI 10.1145/3025098)",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.003-f11",
+			"title": "MIT OCW 6.003 — Signals and Systems (F2011)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.341-f05",
+			"title": "MIT OCW 6.341 — Discrete-Time Signal Processing (F2005)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "oppenheim-schafer-dtsp",
+			"title": "Oppenheim & Schafer — Discrete-Time Signal Processing",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "oppenheim-willsky-ss",
+			"title": "Oppenheim & Willsky — Signals and Systems, 2ª ed.",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		}
+	]
+}

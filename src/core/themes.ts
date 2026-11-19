@@ -10,12 +10,33 @@
  * active theme by id and carries per-color OVERRIDES that survive every
  * theme switch (owner ruling: losing user config is worse than an odd
  * combination).
+ *
+ * CEL FAMILY (estudos-sota M8 — SÍNTESE §2.12, r9 §4 and §10.4): a theme
+ * may declare `family: "cel"`. Its 12 colors flow through themeVars like
+ * any theme; the family adds `data-theme-family="cel"` on <html>
+ * (themeRootAttributes), which switches on the cel token block of
+ * app/globals.css (ink outlines, hard offset shadows, flat tone ramps).
+ * The two cel presets are "Cel Papel" (light) and "Cel Noite" (dark). The
+ * ramps and neutrals below are the single source of truth: the icon
+ * compiler bakes them as fallbacks and tests/cel-contrast.test.ts pins the
+ * CSS block equal to celTokens() and every pairing to WCAG 2.2 AA.
+ * Deviation from r9 §10.4, measured: Cel Noite's `border` is the field
+ * edge #8c88a6 (5.29:1), not the panel keyline #07070b (1.12:1) — every
+ * existing input and divider reads `--border`, and the keyline would make
+ * them vanish (fails WCAG 1.4.11); the keyline lives on as --cel-line.
+ * Its `text` is the chalk #e9e4d6 (SÍNTESE palette), so icon ink
+ * (currentColor) and object outlines share one chalk, as Papel shares one
+ * ink.
  */
 
 import type { AppearanceSettings } from "./settings.ts";
 
 /** The variant on screen: the `dark`/`light` class on <html>. */
 export type ThemeMode = "dark" | "light";
+
+/** How a theme draws beyond color: "classic" = the original flat skin;
+ *  "cel" = the cel-shading skin (`data-theme-family="cel"` on <html>). */
+export type ThemeFamily = "classic" | "cel";
 /** Kept for the mode-aware renderers (graph canvas, mermaid). */
 export type RenderedMode = ThemeMode;
 
@@ -65,6 +86,8 @@ export interface ThemeFile {
 	name: string;
 	mode: ThemeMode;
 	colors: ThemeColors;
+	/** Optional skin family; absent = "classic" (every pre-cel file). */
+	family?: ThemeFamily;
 }
 
 /** A theme in the catalog: a preset (`builtin`) or an imported file,
@@ -100,7 +123,13 @@ export function parseThemeFile(raw: unknown): { ok: true; theme: ThemeFile } | {
 		if (!isHex(c[key])) return { ok: false, error: `colors.${key} must be a #hex color` };
 		colors[key] = c[key];
 	}
-	return { ok: true, theme: { name: r.name.trim(), mode: r.mode, colors } };
+	if (r.family !== undefined && r.family !== "classic" && r.family !== "cel") {
+		return { ok: false, error: 'family must be "classic" or "cel"' };
+	}
+	// "classic" is the default, so it normalizes to absent: a classic file
+	// round-trips byte-identical to the pre-family shape.
+	const family = r.family === "cel" ? { family: "cel" as const } : {};
+	return { ok: true, theme: { name: r.name.trim(), mode: r.mode, colors, ...family } };
 }
 
 /** The sanitizer form: the theme, or null when anything is off. */
@@ -125,8 +154,8 @@ export function isThemeId(value: unknown): value is string {
 	return typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) && value.length <= 64;
 }
 
-function builtin(name: string, mode: ThemeMode, c: ThemeColors): Theme {
-	return { id: themeIdFromName(name), name, mode, colors: c, builtin: true };
+function builtin(name: string, mode: ThemeMode, c: ThemeColors, family?: ThemeFamily): Theme {
+	return { id: themeIdFromName(name), name, mode, colors: c, builtin: true, ...(family === "cel" ? { family } : {}) };
 }
 
 /** The presets, in grid order. Default = the app's original dark palette
@@ -203,6 +232,19 @@ export const BUILTIN_THEMES: readonly Theme[] = [
 		accent: "#61afef", bold: "#c882e7", italic: "#a3b8ef", code: "#e7c787",
 		error: "#e06c75", success: "#98c379", warning: "#e7c787",
 	}),
+	// Cel (r9 §4.2, §10.4): paper + ink, and night + chalk. The 12-color
+	// accent is the FOCUS/LINK color (≥3:1 for rings and toggles); the
+	// domain accents (volt, coral) and XP (grape) are cel tokens, not here.
+	builtin("Cel Papel", "light", {
+		background: "#fbf7ee", surface: "#ffffff", border: "#1e1b2e", text: "#1e1b2e", textMuted: "#5e5870",
+		accent: "#0b6db3", bold: "#7759bf", italic: "#c22f5b", code: "#bc4335",
+		error: "#c22f5b", success: "#027957", warning: "#995d04",
+	}, "cel"),
+	builtin("Cel Noite", "dark", {
+		background: "#16161f", surface: "#22222f", border: "#8c88a6", text: "#e9e4d6", textMuted: "#a9a5ba",
+		accent: "#ffd23f", bold: "#a98bff", italic: "#fd667f", code: "#ffb020",
+		error: "#fd667f", success: "#3dd68c", warning: "#ffb020",
+	}, "cel"),
 ];
 
 /** The app's original dark palette, and the fallback for a missing id. */
@@ -284,7 +326,225 @@ export function themeVars(c: ThemeColors, mode: ThemeMode): Record<string, strin
 }
 
 /** Export: the active theme with every override applied — importing the
- *  file back reproduces exactly what is on screen. */
+ *  file back reproduces exactly what is on screen (the cel family too). */
 export function exportThemeFile(theme: ThemeFile, appearance: AppearanceSettings | undefined): ThemeFile {
-	return { name: theme.name, mode: theme.mode, colors: effectiveColors(theme, appearance) };
+	const file: ThemeFile = { name: theme.name, mode: theme.mode, colors: effectiveColors(theme, appearance) };
+	if (theme.family === "cel") file.family = "cel";
+	return file;
+}
+
+/* ------------------------------------------------------------------------
+ * CEL FAMILY — tokens and helpers (SÍNTESE §2.12; r9 §4.2–§4.4, §10.1).
+ * ---------------------------------------------------------------------- */
+
+/** The family a theme renders with ("classic" when absent). */
+export function themeFamily(theme: Pick<ThemeFile, "family">): ThemeFamily {
+	return theme.family === "cel" ? "cel" : "classic";
+}
+
+/** The attributes the theme puts on <html> next to the mode class and the
+ *  color variables: `data-theme-family` gates the cel block of
+ *  app/globals.css. Always present, so a live switch can just overwrite. */
+export function themeRootAttributes(theme: Pick<ThemeFile, "family">): { "data-theme-family": ThemeFamily } {
+	return { "data-theme-family": themeFamily(theme) };
+}
+
+/** One accent ramp (r9 §4.1, OKLCH, shade hue-shifted toward violet à la
+ *  Gooch 1998): `hl` lit tone, `base` fill, `shade` self-shadow / lip,
+ *  `deep` colored TEXT on paper, `lite` colored TEXT on night. */
+export interface CelRamp {
+	hl: string;
+	base: string;
+	shade: string;
+	deep: string;
+	lite: string;
+}
+
+/** The eight accent ramps, measured in r9 §4.3 (ink on base ≥5.6:1,
+ *  deep on paper ≥4.9:1, lite on night surfaces ≥4.8:1). */
+export const CEL_RAMPS = {
+	volt: { hl: "#fff5d8", base: "#ffd23f", shade: "#e49e09", deep: "#8a6400", lite: "#ffd23f" },
+	coral: { hl: "#fcb398", base: "#ff7a59", shade: "#d34a4b", deep: "#bc4335", lite: "#ff7a59" },
+	sky: { hl: "#97d4f7", base: "#4fb3ff", shade: "#3386d8", deep: "#0b6db3", lite: "#4fb3ff" },
+	mint: { hl: "#abe9b9", base: "#3dd68c", shade: "#0fa785", deep: "#027957", lite: "#3dd68c" },
+	grape: { hl: "#ceb4f3", base: "#a98bff", shade: "#8461d4", deep: "#7759bf", lite: "#a98bff" },
+	rose: { hl: "#fba09e", base: "#ff5c7a", shade: "#ce2a68", deep: "#c22f5b", lite: "#fd667f" },
+	amber: { hl: "#feddac", base: "#ffb020", shade: "#dd7e01", deep: "#995d04", lite: "#ffb020" },
+	teal: { hl: "#9ddaca", base: "#2ec4b6", shade: "#07969b", deep: "#037674", lite: "#2ec4b6" },
+} as const satisfies Record<string, CelRamp>;
+
+/** A ramp name ("volt", "coral", …). */
+export type CelRampName = keyof typeof CEL_RAMPS;
+
+/** Rank-insignia metals (r9 §4.3, §9.4): base, self-shadow and lit tone.
+ *  Ink on every base ≥5.6:1. */
+export const CEL_METALS = {
+	bronze: { base: "#d9894a", shade: "#b25e26", hl: "#e5bb9d" },
+	silver: { base: "#c3ccd8", shade: "#99a3ae", hl: "#eef3f9" },
+	gold: { base: "#ffc93c", shade: "#d89c11", hl: "#fff4dd" },
+	jade: { base: "#46d6a8", shade: "#11ac76", hl: "#b4f0d7" },
+	sapphire: { base: "#5aa9ff", shade: "#0883d2", hl: "#a9cffb" },
+	amethyst: { base: "#a98bff", shade: "#7965d8", hl: "#cabffa" },
+	ruby: { base: "#ff5c7a", shade: "#cf2962", hl: "#fca9b1" },
+} as const satisfies Record<string, { base: string; shade: string; hl: string }>;
+
+/** A metal name, in tier order (T1 bronze … T7 ruby). */
+export type CelMetalName = keyof typeof CEL_METALS;
+
+/** Accent per domain (r9 §4.4; `data-domain` swaps it). Status colors
+ *  and XP never follow the domain. */
+export const CEL_DOMAIN_RAMPS = {
+	electronics: "volt",
+	english: "coral",
+} as const satisfies Record<string, CelRampName>;
+
+/** Fixed semantic ramps (never domain-dependent). */
+export const CEL_STATUS_RAMPS = {
+	success: "mint",
+	warning: "amber",
+	danger: "rose",
+	info: "sky",
+	xp: "grape",
+} as const satisfies Record<string, CelRampName>;
+
+/** The neutral half of the cel tokens, per mode (r9 §4.2). */
+export interface CelNeutrals {
+	bg: string;
+	bgShade: string;
+	surface1: string;
+	surface1Shade: string;
+	surface1Rim: string;
+	surface2: string;
+	surface2Shade: string;
+	surface3: string;
+	surface3Rim: string;
+	text: string;
+	textMuted: string;
+	/** Decorative / ≥24px only (≥3:1). */
+	textFaint: string;
+	/** Panel keyline (dark: decorative, paired with the rim light). */
+	line: string;
+	/** Outline of objects: icons, nodes, insignias, state chips (chalk on night). */
+	lineObject: string;
+	lineSoft: string;
+	/** Field / toggle / checkbox boundary (WCAG 1.4.11, ≥3:1). */
+	edge: string;
+	shadowColor: string;
+	/** Text on ANY colored fill — always ink. */
+	onFill: string;
+	focus: string;
+	link: string;
+	/** Specular highlight. */
+	hl: string;
+	rim: string;
+	/** Self-shadow band (inset bottom). */
+	shade: string;
+	scrim: string;
+}
+
+/** Papel (light) and Noite (dark). Cross-checked against Cel Papel / Cel
+ *  Noite: bg, surface1, text, textMuted and edge equal the preset colors. */
+export const CEL_NEUTRALS: Readonly<Record<ThemeMode, CelNeutrals>> = {
+	light: {
+		bg: "#fbf7ee", bgShade: "#ece8df",
+		surface1: "#ffffff", surface1Shade: "#f0f0f0", surface1Rim: "#ffffff",
+		surface2: "#f3ede0", surface2Shade: "#e4ded1",
+		surface3: "#ffffff", surface3Rim: "#ffffff",
+		text: "#1e1b2e", textMuted: "#5e5870", textFaint: "#8c8698",
+		line: "#1e1b2e", lineObject: "#1e1b2e", lineSoft: "rgb(30 27 46 / 0.22)", edge: "#1e1b2e",
+		shadowColor: "#1e1b2e", onFill: "#1e1b2e",
+		focus: "#0b6db3", link: "#0b6db3",
+		hl: "#ffffff", rim: "rgb(255 255 255 / 0.55)", shade: "rgb(30 27 46 / 0.1)", scrim: "rgb(30 27 46 / 0.45)",
+	},
+	dark: {
+		bg: "#16161f", bgShade: "#0c0c15",
+		surface1: "#22222f", surface1Shade: "#181724", surface1Rim: "#3b3b49",
+		surface2: "#1b1b26", surface2Shade: "#11111b",
+		surface3: "#2c2c3c", surface3Rim: "#464657",
+		text: "#e9e4d6", textMuted: "#a9a5ba", textFaint: "#77738a",
+		line: "#07070b", lineObject: "#e9e4d6", lineSoft: "rgb(233 228 214 / 0.2)", edge: "#8c88a6",
+		shadowColor: "#000000", onFill: "#07070b",
+		focus: "#ffd23f", link: "#7cc4ff",
+		hl: "rgb(255 255 255 / 0.85)", rim: "rgb(255 255 255 / 0.14)", shade: "rgb(0 0 0 / 0.3)", scrim: "rgb(0 0 0 / 0.55)",
+	},
+};
+
+const CEL_NEUTRAL_VARS: Readonly<Record<keyof CelNeutrals, string>> = {
+	bg: "--cel-bg", bgShade: "--cel-bg-shade",
+	surface1: "--cel-surface-1", surface1Shade: "--cel-surface-1-shade", surface1Rim: "--cel-surface-1-rim",
+	surface2: "--cel-surface-2", surface2Shade: "--cel-surface-2-shade",
+	surface3: "--cel-surface-3", surface3Rim: "--cel-surface-3-rim",
+	text: "--cel-text", textMuted: "--cel-text-muted", textFaint: "--cel-text-faint",
+	line: "--cel-line", lineObject: "--cel-line-object", lineSoft: "--cel-line-soft", edge: "--cel-edge",
+	shadowColor: "--cel-shadow-color", onFill: "--cel-on-fill",
+	focus: "--cel-focus", link: "--cel-link",
+	hl: "--cel-hl", rim: "--cel-rim", shade: "--cel-shade", scrim: "--cel-scrim",
+};
+
+/** Every cel COLOR token as app/globals.css resolves it at the root of a
+ *  cel theme in `mode` (default domain: electronics). Hex for the canvas
+ *  (no OKLCH parsing) and for the contrast tests; rgb() for alpha tones. */
+export function celTokens(mode: ThemeMode, domain: keyof typeof CEL_DOMAIN_RAMPS = "electronics"): Record<string, string> {
+	const n = CEL_NEUTRALS[mode];
+	const out: Record<string, string> = {};
+	for (const key of Object.keys(CEL_NEUTRAL_VARS) as (keyof CelNeutrals)[]) out[CEL_NEUTRAL_VARS[key]] = n[key];
+	const textTone = (r: CelRamp) => (mode === "light" ? r.deep : r.lite);
+	const accent = CEL_RAMPS[CEL_DOMAIN_RAMPS[domain]];
+	out["--cel-accent"] = accent.base;
+	out["--cel-accent-shade"] = accent.shade;
+	out["--cel-accent-hl"] = accent.hl;
+	out["--cel-accent-text"] = textTone(accent);
+	for (const [role, ramp] of Object.entries(CEL_STATUS_RAMPS)) {
+		const r = CEL_RAMPS[ramp];
+		out[`--cel-${role}`] = r.base;
+		out[`--cel-${role}-shade`] = r.shade;
+		out[`--cel-${role}-hl`] = r.hl;
+		out[`--cel-${role}-text`] = textTone(r);
+	}
+	return out;
+}
+
+/** The mode-independent cel primitives (r9 §10.1 part 1): every accent
+ *  ramp as `--c-<name>`, `-shade`, `-hl`, `-deep`, `-lite`, and every metal
+ *  as `--c-<metal>`, `-shade`, `-hl`. Hex, so the canvas reads them as-is;
+ *  icon tones (components/icons/tones.ts) and the semantic tokens point
+ *  at them. */
+export function celPrimitiveTokens(): Record<string, string> {
+	const out: Record<string, string> = {};
+	for (const [name, r] of Object.entries(CEL_RAMPS)) {
+		out[`--c-${name}`] = r.base;
+		out[`--c-${name}-shade`] = r.shade;
+		out[`--c-${name}-hl`] = r.hl;
+		out[`--c-${name}-deep`] = r.deep;
+		out[`--c-${name}-lite`] = r.lite;
+	}
+	for (const [name, m] of Object.entries(CEL_METALS)) {
+		out[`--c-${name}`] = m.base;
+		out[`--c-${name}-shade`] = m.shade;
+		out[`--c-${name}-hl`] = m.hl;
+	}
+	return out;
+}
+
+/** #rgb / #rrggbb → [r, g, b] in 0–255. Throws on anything else. */
+export function hexChannels(hex: string): [number, number, number] {
+	if (!isHex(hex)) throw new Error(`not a #hex color: ${String(hex)}`);
+	const h = hex.length === 4 ? hex.slice(1).split("").map((c) => c + c).join("") : hex.slice(1);
+	return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+/** WCAG 2.x relative luminance of a #hex color (0 = black, 1 = white). */
+export function wcagLuminance(hex: string): number {
+	const [r, g, b] = hexChannels(hex).map((v) => {
+		const c = v / 255;
+		return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+	}) as [number, number, number];
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** WCAG 2.x contrast ratio between two #hex colors (1–21, symmetric). */
+export function wcagContrast(a: string, b: string): number {
+	const la = wcagLuminance(a);
+	const lb = wcagLuminance(b);
+	return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }

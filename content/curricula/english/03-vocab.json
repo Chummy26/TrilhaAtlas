@@ -1,0 +1,6540 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.vocab",
+	"items": [
+		{
+			"id": "en.vocab.strategies",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 0,
+			"title": {
+				"pt": "Estratégias de vocabulário",
+				"en": "Vocabulary learning strategies"
+			},
+			"summary": "Como medir, aprender e reter vocabulário de forma eficiente: teste de tamanho, SRS, chunks e inferência pelo contexto.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 8,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "lexical-coverage",
+					"ref": "98% extensivo / 95% intensivo",
+					"embeddable": false
+				},
+				{
+					"source": "nation-four-strands",
+					"ref": "language-focused learning",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"strategy"
+			]
+		},
+		{
+			"id": "en.vocab.strategies.size-test",
+			"kind": "topic",
+			"parentId": "en.vocab.strategies",
+			"order": 0,
+			"title": {
+				"pt": "Teste de tamanho de vocabulário",
+				"en": "Vocabulary size test"
+			},
+			"summary": "Diagnóstico por bandas de frequência para saber de onde partir.",
+			"objectives": [
+				"Estimar o próprio tamanho de vocabulário por banda de 1.000 palavras."
+			],
+			"assess": [
+				"placement_test"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"status": "stub",
+			"tags": [
+				"vocabulary"
+			]
+		},
+		{
+			"id": "en.vocab.strategies.srs-habits",
+			"kind": "topic",
+			"parentId": "en.vocab.strategies",
+			"order": 1,
+			"title": {
+				"pt": "Repetição espaçada na prática",
+				"en": "Spaced repetition in practice"
+			},
+			"summary": "Cartões em contexto, com áudio, e revisão diária curta; por que não estudar listas soltas.",
+			"objectives": [
+				"Criar cartões com frase-exemplo, áudio e colocação.",
+				"Manter uma rotina diária de revisão de 10–20 min."
+			],
+			"assess": [
+				"task_report"
+			],
+			"misconceptions": [
+				"Decorar só a tradução isolada."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"vocabulary"
+			]
+		},
+		{
+			"id": "en.vocab.strategies.dictionary-skills",
+			"kind": "topic",
+			"parentId": "en.vocab.strategies",
+			"order": 2,
+			"title": {
+				"pt": "Uso de dicionários monolíngues",
+				"en": "Using learner's dictionaries"
+			},
+			"summary": "Definição, exemplos, colocações, rótulos de registro e pronúncia no dicionário.",
+			"objectives": [
+				"Extrair de um verbete: sentido certo, colocações e registro."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 33
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"vocabulary"
+			]
+		},
+		{
+			"id": "en.vocab.strategies.guessing-from-context",
+			"kind": "topic",
+			"parentId": "en.vocab.strategies",
+			"order": 3,
+			"title": {
+				"pt": "Inferência pelo contexto",
+				"en": "Guessing meaning from context"
+			},
+			"summary": "Pistas de morfologia, sintaxe e discurso para deduzir palavras novas.",
+			"objectives": [
+				"Inferir o sentido de 3 de 5 palavras desconhecidas num texto no próprio nível."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"softPrereqs": [
+				"en.vocab.strategies.dictionary-skills"
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"vocabulary"
+			]
+		},
+		{
+			"id": "en.vocab.strategies.chunks",
+			"kind": "topic",
+			"parentId": "en.vocab.strategies",
+			"order": 4,
+			"title": {
+				"pt": "Aprender em blocos (chunks)",
+				"en": "Learning in chunks"
+			},
+			"summary": "Colocações e expressões prontas como unidade de memória e de fluência.",
+			"objectives": [
+				"Registrar palavras novas junto com suas colocações típicas."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"vocabulary"
+			]
+		},
+		{
+			"id": "en.vocab.strategies.word-families",
+			"kind": "topic",
+			"parentId": "en.vocab.strategies",
+			"order": 5,
+			"title": {
+				"pt": "Famílias de palavras",
+				"en": "Word families"
+			},
+			"summary": "Uma raiz, várias classes: decide, decision, decisive, decisively.",
+			"objectives": [
+				"Derivar formas de uma família de palavras frequente."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"status": "stub",
+			"tags": [
+				"vocabulary"
+			]
+		},
+		{
+			"id": "en.vocab.a1",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 1,
+			"title": {
+				"pt": "Vocabulário A1 (NGSL ~1–500)",
+				"en": "Vocabulary A1 (NGSL ~1–500)"
+			},
+			"summary": "As palavras mais frequentes do inglês em campos do cotidiano imediato.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 30,
+				"hi": 42.5
+			},
+			"anchors": [
+				{
+					"source": "ngsl-1.2",
+					"ref": "ranks 1–500",
+					"embeddable": true
+				},
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1",
+					"embeddable": true
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.vocab.a1.core-verbs",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 0,
+			"title": {
+				"pt": "Verbos essenciais",
+				"en": "Core verbs"
+			},
+			"summary": "Os verbos de altíssima frequência e seus usos básicos.",
+			"objectives": [
+				"Usar os 30 verbos mais frequentes em frases do dia a dia."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Core verbs",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "be",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "have",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "do",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "go",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "get",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "make",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "say",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "know",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "want",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "come",
+					"pos": "verb",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.numbers-time",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 1,
+			"title": {
+				"pt": "Números, horas e datas",
+				"en": "Numbers, time and dates"
+			},
+			"summary": "Números, horas, dias, meses e expressões de tempo.",
+			"objectives": [
+				"Dizer e entender horas, datas e preços."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Numbers, time and dates",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "hour",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "minute",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "week",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "month",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "today",
+					"pos": "adverb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "morning",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "thirteen",
+					"pos": "number",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "thirty",
+					"pos": "number",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.people-family",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 2,
+			"title": {
+				"pt": "Pessoas e família",
+				"en": "People and family"
+			},
+			"summary": "Membros da família, relações e descrição básica de pessoas.",
+			"objectives": [
+				"Falar da própria família e de pessoas próximas."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · People and family",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "mother",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "brother",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "friend",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "child",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "husband",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "old",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "young",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "name",
+					"pos": "noun",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.countries-nationalities",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 3,
+			"title": {
+				"pt": "Países, nacionalidades e idiomas",
+				"en": "Countries, nationalities and languages"
+			},
+			"summary": "Países, adjetivos de nacionalidade e idiomas, sempre com maiúscula: Brazil, Brazilian, Portuguese.",
+			"objectives": [
+				"Dizer de onde é e que línguas fala, com a forma de nacionalidade correta."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"misconceptions": [
+				"Escrever nacionalidades e idiomas com minúscula ('brazilian', 'english').",
+				"Usar o nome do país como adjetivo: 'a Brazil company'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Countries and nationalities",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "Brazil",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "Brazilian",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "Portuguese",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "English",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "American",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "country",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "nationality",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "language",
+					"pos": "noun",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.home",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 4,
+			"title": {
+				"pt": "Casa e objetos",
+				"en": "Home and objects"
+			},
+			"summary": "Cômodos, móveis e objetos domésticos.",
+			"objectives": [
+				"Descrever a própria casa e onde estão as coisas."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Home and objects",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "room",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "kitchen",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "door",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "table",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "bed",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "window",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "key",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "floor",
+					"pos": "noun",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.food-drink",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 5,
+			"title": {
+				"pt": "Comida e bebida",
+				"en": "Food and drink"
+			},
+			"summary": "Alimentos, refeições e pedidos simples.",
+			"objectives": [
+				"Pedir comida e falar de preferências alimentares."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Food and drink",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "breakfast",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "bread",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "water",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "meat",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "fruit",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "eat",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "drink",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "hungry",
+					"pos": "adj",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.daily-routine",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 6,
+			"title": {
+				"pt": "Rotina diária",
+				"en": "Daily routine"
+			},
+			"summary": "Verbos e expressões da rotina.",
+			"objectives": [
+				"Descrever um dia típico com 10+ ações diferentes."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Daily routine",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "wake up",
+					"pos": "phrasal verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "work",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "start",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "finish",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "sleep",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "wash",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "usually",
+					"pos": "adverb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "late",
+					"pos": "adj",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.city-places",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 7,
+			"title": {
+				"pt": "Lugares da cidade",
+				"en": "Places in town"
+			},
+			"summary": "Lugares, direções e transporte básico.",
+			"objectives": [
+				"Pedir e dar direções simples."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Places in town",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "street",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "shop",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "bank",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "station",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "left",
+					"pos": "adverb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "near",
+					"pos": "preposition",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "bus",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "city",
+					"pos": "noun",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.body-health-basic",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 8,
+			"title": {
+				"pt": "Corpo e saúde básica",
+				"en": "Body and basic health"
+			},
+			"summary": "Partes do corpo e sintomas simples.",
+			"objectives": [
+				"Dizer onde dói e como se sente."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Body and basic health",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "head",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "hand",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "eye",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "back",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "sick",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "tired",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "doctor",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "hurt",
+					"pos": "verb",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.clothes-shopping",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 9,
+			"title": {
+				"pt": "Roupas e compras",
+				"en": "Clothes and shopping"
+			},
+			"summary": "Roupas, cores, tamanhos e preços.",
+			"objectives": [
+				"Comprar uma peça de roupa perguntando tamanho e preço."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Clothes and shopping",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "shirt",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "shoes",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "buy",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "pay",
+					"pos": "verb",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "cheap",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "expensive",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "size",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "color",
+					"pos": "noun",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.jobs-work",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 10,
+			"title": {
+				"pt": "Profissões e trabalho",
+				"en": "Jobs and work"
+			},
+			"summary": "Profissões comuns e locais de trabalho.",
+			"objectives": [
+				"Dizer o que faz e onde trabalha."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Jobs and work",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "job",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "teacher",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "office",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "company",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "engineer",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "student",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "boss",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "busy",
+					"pos": "adj",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.weather-nature",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 11,
+			"title": {
+				"pt": "Clima e estações",
+				"en": "Weather and seasons"
+			},
+			"summary": "Tempo, estações e natureza próxima.",
+			"objectives": [
+				"Comentar o clima e as estações do ano."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Weather and seasons",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "weather",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "rain",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "sun",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "hot",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "cold",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "summer",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "winter",
+					"pos": "noun",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "tree",
+					"pos": "noun",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a1.basic-adjectives",
+			"kind": "topic",
+			"parentId": "en.vocab.a1",
+			"order": 12,
+			"title": {
+				"pt": "Adjetivos essenciais",
+				"en": "Essential adjectives"
+			},
+			"summary": "Pares opostos frequentes para descrever coisas e pessoas.",
+			"objectives": [
+				"Descrever objetos e pessoas com pares de adjetivos opostos."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1 · Essential adjectives",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "big",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "small",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "good",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "bad",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "new",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "easy",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "difficult",
+					"pos": "adj",
+					"cefr": "A1"
+				},
+				{
+					"lemma": "happy",
+					"pos": "adj",
+					"cefr": "A1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 2,
+			"title": {
+				"pt": "Vocabulário A2 (NGSL ~500–1.000)",
+				"en": "Vocabulary A2 (NGSL ~500–1,000)"
+			},
+			"summary": "Vocabulário para viagens, lazer, sentimentos, estudo e tecnologia do cotidiano.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"softPrereqs": [
+				"en.vocab.a1"
+			],
+			"hours": {
+				"lo": 27,
+				"hi": 39
+			},
+			"anchors": [
+				{
+					"source": "ngsl-1.2",
+					"ref": "ranks 501–1000",
+					"embeddable": true
+				},
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2",
+					"embeddable": true
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.vocab.a2.travel-transport",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 0,
+			"title": {
+				"pt": "Viagens e transporte",
+				"en": "Travel and transport"
+			},
+			"summary": "Aeroporto, hotel, reservas e meios de transporte.",
+			"objectives": [
+				"Resolver situações de viagem: check-in, reserva, bilhete."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Travel and transport",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "trip",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "flight",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "ticket",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "hotel",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "book",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "arrive",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "luggage",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "passport",
+					"pos": "noun",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.feelings",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 1,
+			"title": {
+				"pt": "Sentimentos e estados",
+				"en": "Feelings and states"
+			},
+			"summary": "Emoções básicas e intensidade.",
+			"objectives": [
+				"Descrever como se sente e por quê."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 31
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Feelings and states",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "angry",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "worried",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "excited",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "afraid",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "surprised",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "proud",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "feel",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "nervous",
+					"pos": "adj",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.free-time",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 2,
+			"title": {
+				"pt": "Lazer e hobbies",
+				"en": "Free time and hobbies"
+			},
+			"summary": "Esportes, música, filmes, jogos e atividades de fim de semana.",
+			"objectives": [
+				"Falar de hobbies e convidar alguém para uma atividade."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Free time and hobbies",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "hobby",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "game",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "music",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "play",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "watch",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "team",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "enjoy",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "weekend",
+					"pos": "noun",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.study-school",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 3,
+			"title": {
+				"pt": "Estudo e escola",
+				"en": "Study and school"
+			},
+			"summary": "Disciplinas, provas e vida acadêmica básica.",
+			"objectives": [
+				"Falar da própria formação e de como estuda."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 33
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Study and school",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "exam",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "course",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "learn",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "subject",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "grade",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "university",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "pass",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "homework",
+					"pos": "noun",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.tech-everyday",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 4,
+			"title": {
+				"pt": "Tecnologia do dia a dia",
+				"en": "Everyday technology"
+			},
+			"summary": "Celular, computador, internet e aplicativos.",
+			"objectives": [
+				"Descrever um problema simples com um aparelho."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Everyday technology",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "phone",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "screen",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "download",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "app",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "password",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "online",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "charge",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "send",
+					"pos": "verb",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.describing-people",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 5,
+			"title": {
+				"pt": "Aparência e personalidade",
+				"en": "Appearance and personality"
+			},
+			"summary": "Traços físicos e de personalidade.",
+			"objectives": [
+				"Descrever a aparência e o jeito de uma pessoa."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Appearance and personality",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "tall",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "friendly",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "shy",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "funny",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "hair",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "kind",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "clever",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "lazy",
+					"pos": "adj",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.money",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 6,
+			"title": {
+				"pt": "Dinheiro e compras",
+				"en": "Money and shopping"
+			},
+			"summary": "Pagamentos, troco, descontos e banco.",
+			"objectives": [
+				"Resolver uma compra com pagamento, troco e devolução."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Money and shopping",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "money",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "cost",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "price",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "change",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "cash",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "card",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "save",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "spend",
+					"pos": "verb",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.health",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 7,
+			"title": {
+				"pt": "Saúde e doença",
+				"en": "Health and illness"
+			},
+			"summary": "Sintomas, consultas e remédios.",
+			"objectives": [
+				"Explicar sintomas numa consulta simples."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Health and illness",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "headache",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "fever",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "medicine",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "pain",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "appointment",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "cough",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "healthy",
+					"pos": "adj",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "rest",
+					"pos": "verb",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.nature-animals",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 8,
+			"title": {
+				"pt": "Natureza e animais",
+				"en": "Nature and animals"
+			},
+			"summary": "Paisagens, animais e meio ambiente básico.",
+			"objectives": [
+				"Descrever uma paisagem ou um passeio na natureza."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Nature and animals",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "river",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "mountain",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "beach",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "animal",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "bird",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "forest",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "sea",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "island",
+					"pos": "noun",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.make-do-get",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 9,
+			"title": {
+				"pt": "Make, do, get e take",
+				"en": "Make, do, get and take"
+			},
+			"summary": "Colocações de verbos-coringa que o PT-BR traduz por 'fazer'.",
+			"objectives": [
+				"Escolher make ou do em 20 colocações frequentes.",
+				"Usar get com seus sentidos básicos (receber, ficar, chegar)."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"misconceptions": [
+				"'Do a mistake', 'make the homework'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Make, do, get and take",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "make a mistake",
+					"pos": "collocation",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "do homework",
+					"pos": "collocation",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "make a decision",
+					"pos": "collocation",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "do business",
+					"pos": "collocation",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "get home",
+					"pos": "collocation",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "take a photo",
+					"pos": "collocation",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.false-friends-1",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 10,
+			"title": {
+				"pt": "Falsos cognatos I",
+				"en": "False friends I"
+			},
+			"summary": "Palavras parecidas com o português e sentido diferente.",
+			"objectives": [
+				"Evitar os 15 falsos cognatos mais frequentes."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"misconceptions": [
+				"'Actually' como 'atualmente'.",
+				"'Notice' como 'notícia' (é aviso; notícia é news)."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 41
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · False friends I",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "actually",
+					"pos": "adverb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "pretend",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "push",
+					"pos": "verb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "library",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "parents",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "college",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "lunch",
+					"pos": "noun",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "notice",
+					"pos": "noun",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.a2.time-sequence",
+			"kind": "topic",
+			"parentId": "en.vocab.a2",
+			"order": 11,
+			"title": {
+				"pt": "Expressões de tempo e sequência",
+				"en": "Time and sequence expressions"
+			},
+			"summary": "first, then, after that, finally, ago, later, soon.",
+			"objectives": [
+				"Ordenar uma narrativa com marcadores de tempo."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A2 · Time and sequence expressions",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "ago",
+					"pos": "adverb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "later",
+					"pos": "adverb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "soon",
+					"pos": "adverb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "then",
+					"pos": "adverb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "finally",
+					"pos": "adverb",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "during",
+					"pos": "preposition",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "until",
+					"pos": "preposition",
+					"cefr": "A2"
+				},
+				{
+					"lemma": "while",
+					"pos": "conjunction",
+					"cefr": "A2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 3,
+			"title": {
+				"pt": "Vocabulário B1 (NGSL ~1.000–1.800)",
+				"en": "Vocabulary B1 (NGSL ~1,000–1,800)"
+			},
+			"summary": "Vocabulário de trabalho, notícias, sociedade e opinião, com primeiras colocações e phrasal verbs.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"softPrereqs": [
+				"en.vocab.a2"
+			],
+			"hours": {
+				"lo": 32,
+				"hi": 44
+			},
+			"anchors": [
+				{
+					"source": "ngsl-1.2",
+					"ref": "ranks 1001–1800",
+					"embeddable": true
+				},
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1",
+					"embeddable": true
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.vocab.b1.work-office",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 0,
+			"title": {
+				"pt": "Trabalho e escritório",
+				"en": "Work and the office"
+			},
+			"summary": "Reuniões, prazos, tarefas e carreira.",
+			"objectives": [
+				"Descrever responsabilidades e falar de prazos no trabalho."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Work and the office",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "meeting",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "deadline",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "manager",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "task",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "salary",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "apply",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "hire",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "career",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.news-media",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 1,
+			"title": {
+				"pt": "Notícias e mídia",
+				"en": "News and media"
+			},
+			"summary": "Vocabulário de jornais, redes sociais e entrevistas.",
+			"objectives": [
+				"Resumir uma notícia simples com vocabulário próprio do gênero."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 44
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · News and media",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "article",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "report",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "headline",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "journalist",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "source",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "event",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "announce",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "audience",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.environment",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 2,
+			"title": {
+				"pt": "Meio ambiente",
+				"en": "The environment"
+			},
+			"summary": "Clima, poluição, energia e reciclagem.",
+			"objectives": [
+				"Opinar sobre um problema ambiental com vocabulário específico."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 46
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · The environment",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "pollution",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "climate",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "energy",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "waste",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "recycle",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "protect",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "resource",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "damage",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.relationships",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 3,
+			"title": {
+				"pt": "Relacionamentos",
+				"en": "Relationships"
+			},
+			"summary": "Amizade, namoro, conflitos e convivência.",
+			"objectives": [
+				"Falar de relacionamentos e conflitos de forma adequada."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 47
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Relationships",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "relationship",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "trust",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "argue",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "support",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "marry",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "partner",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "respect",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "get along",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.society-crime",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 4,
+			"title": {
+				"pt": "Sociedade, lei e crime",
+				"en": "Society, law and crime"
+			},
+			"summary": "Leis, crimes comuns, governo local e direitos.",
+			"objectives": [
+				"Narrar uma notícia policial simples."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 48
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Society, law and crime",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "law",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "crime",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "police",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "government",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "steal",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "arrest",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "right",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "vote",
+					"pos": "verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.science-tech",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 5,
+			"title": {
+				"pt": "Ciência e tecnologia",
+				"en": "Science and technology"
+			},
+			"summary": "Pesquisa, invenções, máquinas e dados.",
+			"objectives": [
+				"Explicar em termos simples como uma tecnologia funciona."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 49
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Science and technology",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "research",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "invent",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "machine",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "data",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "experiment",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "device",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "develop",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "system",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.opinion-language",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 6,
+			"title": {
+				"pt": "Linguagem de opinião",
+				"en": "Language of opinion"
+			},
+			"summary": "Expressar, justificar e contrastar opiniões.",
+			"objectives": [
+				"Dar e justificar opinião com 6+ expressões variadas."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"misconceptions": [
+				"'I am agree'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Language of opinion",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "believe",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "agree",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "point",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "reason",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "argue",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "obviously",
+					"pos": "adverb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "however",
+					"pos": "adverb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "support",
+					"pos": "verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.phrasal-verbs-1",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 7,
+			"title": {
+				"pt": "Phrasal verbs essenciais I",
+				"en": "Essential phrasal verbs I"
+			},
+			"summary": "Os 30 phrasal verbs mais frequentes com sentido literal e figurado.",
+			"objectives": [
+				"Usar 30 phrasal verbs frequentes em contexto."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Essential phrasal verbs I",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "find out",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "give up",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "look for",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "set up",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "turn out",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "come back",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "pick up",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "carry on",
+					"pos": "phrasal verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.collocations-1",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 8,
+			"title": {
+				"pt": "Colocações básicas",
+				"en": "Basic collocations"
+			},
+			"summary": "Verbo + substantivo e adjetivo + substantivo de alta frequência.",
+			"objectives": [
+				"Combinar verbos e adjetivos com os substantivos certos (heavy rain, take a break)."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 53
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Basic collocations",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "heavy rain",
+					"pos": "collocation",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "take a break",
+					"pos": "collocation",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "pay attention",
+					"pos": "collocation",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "strong coffee",
+					"pos": "collocation",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "save time",
+					"pos": "collocation",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "keep a promise",
+					"pos": "collocation",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.prefixes",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 9,
+			"title": {
+				"pt": "Prefixos",
+				"en": "Prefixes"
+			},
+			"summary": "un-, dis-, re-, mis-, over-, under-, pre-, inter-.",
+			"objectives": [
+				"Deduzir o sentido de palavras com os 10 prefixos mais produtivos."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Prefixes",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "unable",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "disagree",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "rewrite",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "misunderstand",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "overcome",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "underestimate",
+					"pos": "verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.suffixes",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 10,
+			"title": {
+				"pt": "Sufixos",
+				"en": "Suffixes"
+			},
+			"summary": "-tion, -ment, -ness, -ity, -able, -ful, -less, -ize.",
+			"objectives": [
+				"Transformar verbos e adjetivos em substantivos com sufixos produtivos."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Suffixes",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "improvement",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "awareness",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "reliable",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "useful",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "careless",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "organize",
+					"pos": "verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.false-friends-2",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 11,
+			"title": {
+				"pt": "Falsos cognatos II",
+				"en": "False friends II"
+			},
+			"summary": "Falsos cognatos de nível intermediário em trabalho e estudo.",
+			"objectives": [
+				"Usar corretamente 15 falsos cognatos de contexto profissional."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 57
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · False friends II",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "eventually",
+					"pos": "adverb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "attend",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "assist",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "realize",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "sensible",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "resume",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "record",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "intend",
+					"pos": "verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b1.emotions-reactions",
+			"kind": "topic",
+			"parentId": "en.vocab.b1",
+			"order": 12,
+			"title": {
+				"pt": "Reações e atitudes",
+				"en": "Reactions and attitudes"
+			},
+			"summary": "Reagir a notícias, elogios e problemas com o tom certo.",
+			"objectives": [
+				"Reagir de forma natural a boas e más notícias."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B1 · Reactions and attitudes",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "amazing",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "disappointed",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "awful",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "relieved",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "annoyed",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "impressed",
+					"pos": "adj",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 4,
+			"title": {
+				"pt": "Vocabulário B2 (NGSL ~1.800–2.809)",
+				"en": "Vocabulary B2 (NGSL ~1,800–2,809)"
+			},
+			"summary": "Fecha a lista geral de alta frequência e amplia colocações, phrasal verbs e expressões idiomáticas comuns.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.vocab.b1"
+			],
+			"hours": {
+				"lo": 30,
+				"hi": 41
+			},
+			"anchors": [
+				{
+					"source": "ngsl-1.2",
+					"ref": "ranks 1801–2809",
+					"embeddable": true
+				},
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2",
+					"embeddable": true
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.vocab.b2.business-economy",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 0,
+			"title": {
+				"pt": "Negócios e economia",
+				"en": "Business and the economy"
+			},
+			"summary": "Mercado, finanças, vendas e indicadores econômicos.",
+			"objectives": [
+				"Discutir resultados de uma empresa ou tendência econômica."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Business and the economy",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "profit",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "market",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "growth",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "invest",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "budget",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "customer",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "decline",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "supply",
+					"pos": "noun",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.politics-society",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 1,
+			"title": {
+				"pt": "Política e sociedade",
+				"en": "Politics and society"
+			},
+			"summary": "Instituições, eleições, políticas públicas e desigualdade.",
+			"objectives": [
+				"Explicar uma questão social e posições a favor e contra."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 60
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Politics and society",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "policy",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "election",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "campaign",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "inequality",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "reform",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "citizen",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "debate",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "issue",
+					"pos": "noun",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.health-medicine",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 2,
+			"title": {
+				"pt": "Saúde e medicina",
+				"en": "Health and medicine"
+			},
+			"summary": "Tratamentos, prevenção, sistema de saúde e pesquisa médica.",
+			"objectives": [
+				"Descrever um tratamento e seus riscos com precisão."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 62
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Health and medicine",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "treatment",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "symptom",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "prevent",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "surgery",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "recover",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "disease",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "patient",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "diagnose",
+					"pos": "verb",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.mind-behaviour",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 3,
+			"title": {
+				"pt": "Mente e comportamento",
+				"en": "Mind and behaviour"
+			},
+			"summary": "Hábitos, motivação, estresse e tomada de decisão.",
+			"objectives": [
+				"Discutir comportamento humano com vocabulário de psicologia popular."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Mind and behaviour",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "habit",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "motivation",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "stress",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "behaviour",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "cope",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "attitude",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "anxiety",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "confidence",
+					"pos": "noun",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.computing",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 4,
+			"title": {
+				"pt": "Computação e internet",
+				"en": "Computing and the internet"
+			},
+			"summary": "Software, dados, segurança e plataformas digitais.",
+			"objectives": [
+				"Explicar um problema técnico de software a um colega."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Computing and the internet",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "software",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "update",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "network",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "security",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "user",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "store",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "access",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "feature",
+					"pos": "noun",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.culture-arts",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 5,
+			"title": {
+				"pt": "Cultura e artes",
+				"en": "Culture and the arts"
+			},
+			"summary": "Cinema, séries, literatura, música e crítica.",
+			"objectives": [
+				"Fazer uma resenha oral de um filme ou série."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 66
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Culture and the arts",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "plot",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "character",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "review",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "perform",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "exhibition",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "audience",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "scene",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "release",
+					"pos": "verb",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.phrasal-verbs-2",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 6,
+			"title": {
+				"pt": "Phrasal verbs II",
+				"en": "Phrasal verbs II"
+			},
+			"summary": "Phrasal verbs de trabalho, relacionamentos e problemas.",
+			"objectives": [
+				"Usar 30 phrasal verbs de nível B2 com o sentido certo."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 68
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Phrasal verbs II",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "come up with",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "put off",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "run out of",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "deal with",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "figure out",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "bring up",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "break down",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "point out",
+					"pos": "phrasal verb",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.collocations-2",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 7,
+			"title": {
+				"pt": "Colocações intermediárias",
+				"en": "Intermediate collocations"
+			},
+			"summary": "Colocações com advérbios intensificadores e verbos delexicais.",
+			"objectives": [
+				"Usar intensificadores naturais (highly likely, deeply concerned)."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Intermediate collocations",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "highly likely",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "deeply concerned",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "reach an agreement",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "raise awareness",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "meet a deadline",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "draw a conclusion",
+					"pos": "collocation",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.compounds",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 8,
+			"title": {
+				"pt": "Palavras compostas",
+				"en": "Compound words"
+			},
+			"summary": "Substantivos e adjetivos compostos (well-known, breakthrough, time-consuming).",
+			"objectives": [
+				"Formar e entender compostos frequentes."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Compound words",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "well-known",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "breakthrough",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "time-consuming",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "outcome",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "feedback",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "long-term",
+					"pos": "adj",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.near-synonyms",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 9,
+			"title": {
+				"pt": "Sinônimos próximos",
+				"en": "Near-synonyms"
+			},
+			"summary": "Diferenças de uso: big/large/great, say/tell/speak/talk, rise/raise.",
+			"objectives": [
+				"Escolher entre sinônimos próximos pelo contexto e colocação."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Near-synonyms",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "large",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "great",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "rise",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "raise",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "speak",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "talk",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "borrow",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "lend",
+					"pos": "verb",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.idioms-common",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 10,
+			"title": {
+				"pt": "Expressões idiomáticas comuns",
+				"en": "Common idioms"
+			},
+			"summary": "Idioms frequentes na conversa e na mídia.",
+			"objectives": [
+				"Entender e usar 20 idioms de alta frequência."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 74
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Common idioms",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "piece of cake",
+					"pos": "idiom",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "on the same page",
+					"pos": "idiom",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "hit the road",
+					"pos": "idiom",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "break the ice",
+					"pos": "idiom",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "the bottom line",
+					"pos": "idiom",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "a long shot",
+					"pos": "idiom",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.b2.linking-words",
+			"kind": "topic",
+			"parentId": "en.vocab.b2",
+			"order": 11,
+			"title": {
+				"pt": "Conectivos e marcadores",
+				"en": "Linking words"
+			},
+			"summary": "Adição, causa, consequência, contraste e exemplificação.",
+			"objectives": [
+				"Usar 15 conectivos variados num texto argumentativo."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "B2 · Linking words",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "moreover",
+					"pos": "adverb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "therefore",
+					"pos": "adverb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "whereas",
+					"pos": "conjunction",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "consequently",
+					"pos": "adverb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "despite",
+					"pos": "preposition",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "nevertheless",
+					"pos": "adverb",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 5,
+			"title": {
+				"pt": "Vocabulário C1 (Octanove C1)",
+				"en": "Vocabulary C1 (Octanove C1)"
+			},
+			"summary": "Vocabulário abstrato, avaliativo e de registro formal, com colocações fortes e conotação.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.vocab.b2"
+			],
+			"hours": {
+				"lo": 23.5,
+				"hi": 33
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1",
+					"embeddable": true
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.vocab.c1.abstract-nouns",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 0,
+			"title": {
+				"pt": "Substantivos abstratos",
+				"en": "Abstract nouns"
+			},
+			"summary": "Conceitos para discutir ideias, causas e consequências.",
+			"objectives": [
+				"Discutir ideias abstratas com substantivos precisos."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Abstract nouns",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "implication",
+					"pos": "noun",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "assumption",
+					"pos": "noun",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "perspective",
+					"pos": "noun",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "tendency",
+					"pos": "noun",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "constraint",
+					"pos": "noun",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "dilemma",
+					"pos": "noun",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "framework",
+					"pos": "noun",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.evaluative-adjectives",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 1,
+			"title": {
+				"pt": "Adjetivos avaliativos",
+				"en": "Evaluative adjectives"
+			},
+			"summary": "Julgar argumentos, propostas e resultados com nuance.",
+			"objectives": [
+				"Avaliar uma proposta com adjetivos de nuance positiva e negativa."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 77
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Evaluative adjectives",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "compelling",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "flawed",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "robust",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "questionable",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "feasible",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "misleading",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "thorough",
+					"pos": "adj",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.cause-change-verbs",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 2,
+			"title": {
+				"pt": "Verbos de causa e mudança",
+				"en": "Verbs of cause and change"
+			},
+			"summary": "trigger, foster, undermine, boost, hinder, shift.",
+			"objectives": [
+				"Descrever causas e efeitos com verbos variados."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Verbs of cause and change",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "trigger",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "foster",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "undermine",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "boost",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "hinder",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "shift",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "enhance",
+					"pos": "verb",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.formal-latinate",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 3,
+			"title": {
+				"pt": "Vocabulário formal latino",
+				"en": "Formal Latinate vocabulary"
+			},
+			"summary": "Pares informal/formal: get/obtain, help/assist, need/require — vantagem do falante de PT-BR.",
+			"objectives": [
+				"Alternar entre equivalentes informais e formais conforme o registro."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Formal Latinate vocabulary",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "obtain",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "require",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "commence",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "sufficient",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "subsequent",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "prior",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "inquire",
+					"pos": "verb",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.phrasal-verbs-3",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 4,
+			"title": {
+				"pt": "Phrasal verbs III",
+				"en": "Phrasal verbs III"
+			},
+			"summary": "Phrasal verbs idiomáticos de baixa transparência.",
+			"objectives": [
+				"Usar phrasal verbs idiomáticos de nível C1 em conversa."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Phrasal verbs III",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "come across",
+					"pos": "phrasal verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "play down",
+					"pos": "phrasal verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "rule out",
+					"pos": "phrasal verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "live up to",
+					"pos": "phrasal verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "brush up on",
+					"pos": "phrasal verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "iron out",
+					"pos": "phrasal verb",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.strong-collocations",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 5,
+			"title": {
+				"pt": "Colocações fortes",
+				"en": "Strong collocations"
+			},
+			"summary": "Combinações fixas que soam naturais: bitterly disappointed, sheer luck.",
+			"objectives": [
+				"Usar 25 colocações fortes em fala e escrita."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Strong collocations",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "bitterly disappointed",
+					"pos": "collocation",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "sheer luck",
+					"pos": "collocation",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "utterly ridiculous",
+					"pos": "collocation",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "vested interest",
+					"pos": "collocation",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "widely acknowledged",
+					"pos": "collocation",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.connotation",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 6,
+			"title": {
+				"pt": "Conotação e registro",
+				"en": "Connotation and register"
+			},
+			"summary": "slim/skinny, stubborn/determined: carga emocional e adequação.",
+			"objectives": [
+				"Escolher palavras com a conotação pretendida."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Connotation and register",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "slim",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "skinny",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "stubborn",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "determined",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "cheap",
+					"pos": "adj",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "affordable",
+					"pos": "adj",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.idioms-c1",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 7,
+			"title": {
+				"pt": "Idioms e expressões C1",
+				"en": "C1 idioms"
+			},
+			"summary": "Idioms de trabalho, opinião e julgamento.",
+			"objectives": [
+				"Compreender idioms em reuniões e na mídia."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · C1 idioms",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "cut corners",
+					"pos": "idiom",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "the elephant in the room",
+					"pos": "idiom",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "a grey area",
+					"pos": "idiom",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "back to square one",
+					"pos": "idiom",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "call the shots",
+					"pos": "idiom",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.binomials",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 8,
+			"title": {
+				"pt": "Binômios e expressões fixas",
+				"en": "Binomials and fixed phrases"
+			},
+			"summary": "pros and cons, by and large, trial and error, sooner or later.",
+			"objectives": [
+				"Usar binômios frequentes na ordem fixa."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Binomials and fixed phrases",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "pros and cons",
+					"pos": "binomial",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "by and large",
+					"pos": "binomial",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "trial and error",
+					"pos": "binomial",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "sooner or later",
+					"pos": "binomial",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "ups and downs",
+					"pos": "binomial",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c1.metaphor",
+			"kind": "topic",
+			"parentId": "en.vocab.c1",
+			"order": 9,
+			"title": {
+				"pt": "Metáforas do cotidiano",
+				"en": "Everyday metaphors"
+			},
+			"summary": "Metáforas conceituais: argument is war, time is money, ideas are food.",
+			"objectives": [
+				"Reconhecer metáforas conceituais em textos de opinião."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1 · Everyday metaphors",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "attack",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "defend",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "waste",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "digest",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "grasp",
+					"pos": "verb",
+					"cefr": "C1"
+				},
+				{
+					"lemma": "shed light on",
+					"pos": "idiom",
+					"cefr": "C1"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c2",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 6,
+			"title": {
+				"pt": "Vocabulário C2 (Octanove C2)",
+				"en": "Vocabulary C2 (Octanove C2)"
+			},
+			"summary": "Vocabulário de baixa frequência, literário e idiomático para compreensão quase nativa.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"softPrereqs": [
+				"en.vocab.c1"
+			],
+			"hours": {
+				"lo": 11,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C2",
+					"embeddable": true
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.vocab.c2.literary-lexis",
+			"kind": "topic",
+			"parentId": "en.vocab.c2",
+			"order": 0,
+			"title": {
+				"pt": "Léxico literário",
+				"en": "Literary lexis"
+			},
+			"summary": "Palavras descritivas e literárias de romances e ensaios.",
+			"objectives": [
+				"Interpretar vocabulário literário em ficção contemporânea."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 85
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C2 · Literary lexis",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "ominous",
+					"pos": "adj",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "linger",
+					"pos": "verb",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "wistful",
+					"pos": "adj",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "meander",
+					"pos": "verb",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "solace",
+					"pos": "noun",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "elusive",
+					"pos": "adj",
+					"cefr": "C2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c2.nuance-synonyms",
+			"kind": "topic",
+			"parentId": "en.vocab.c2",
+			"order": 1,
+			"title": {
+				"pt": "Sinônimos de alta nuance",
+				"en": "High-nuance synonyms"
+			},
+			"summary": "Diferenças finas entre quase-sinônimos de nível C2.",
+			"objectives": [
+				"Explicar a diferença entre quase-sinônimos raros."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 86
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C2 · High-nuance synonyms",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "candid",
+					"pos": "adj",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "frank",
+					"pos": "adj",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "ponder",
+					"pos": "verb",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "contemplate",
+					"pos": "verb",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "meticulous",
+					"pos": "adj",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "scrupulous",
+					"pos": "adj",
+					"cefr": "C2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c2.idioms-proverbs",
+			"kind": "topic",
+			"parentId": "en.vocab.c2",
+			"order": 2,
+			"title": {
+				"pt": "Idioms raros e provérbios",
+				"en": "Rare idioms and proverbs"
+			},
+			"summary": "Expressões culturais, provérbios e alusões.",
+			"objectives": [
+				"Reconhecer alusões e provérbios em mídia e literatura."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C2 · Rare idioms and proverbs",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "a Pyrrhic victory",
+					"pos": "idiom",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "the writing on the wall",
+					"pos": "idiom",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "a red herring",
+					"pos": "idiom",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "Catch-22",
+					"pos": "idiom",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "the proof of the pudding",
+					"pos": "proverb",
+					"cefr": "C2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c2.wordplay-humour",
+			"kind": "topic",
+			"parentId": "en.vocab.c2",
+			"order": 3,
+			"title": {
+				"pt": "Trocadilhos e humor",
+				"en": "Wordplay and humour"
+			},
+			"summary": "Duplo sentido, trocadilhos e humor britânico e americano.",
+			"objectives": [
+				"Explicar o duplo sentido de trocadilhos em manchetes e piadas."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 89
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C2 · Wordplay and humour",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "pun",
+					"pos": "noun",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "deadpan",
+					"pos": "adj",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "tongue-in-cheek",
+					"pos": "adj",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "understatement",
+					"pos": "noun",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "irony",
+					"pos": "noun",
+					"cefr": "C2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.c2.specialist-registers",
+			"kind": "topic",
+			"parentId": "en.vocab.c2",
+			"order": 4,
+			"title": {
+				"pt": "Registros especializados",
+				"en": "Specialist registers"
+			},
+			"summary": "Jargão jurídico, financeiro e científico na mídia geral.",
+			"objectives": [
+				"Entender jargão especializado citado em notícias."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 90
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C2 · Specialist registers",
+					"embeddable": true
+				},
+				{
+					"source": "evp",
+					"ref": "C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "liability",
+					"pos": "noun",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "leverage",
+					"pos": "noun",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "hypothesis",
+					"pos": "noun",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "jurisdiction",
+					"pos": "noun",
+					"cefr": "C2"
+				},
+				{
+					"lemma": "benchmark",
+					"pos": "noun",
+					"cefr": "C2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.academic",
+			"kind": "unit",
+			"parentId": "en.vocab",
+			"order": 7,
+			"title": {
+				"pt": "Vocabulário acadêmico (NAWL/AWL)",
+				"en": "Academic vocabulary (NAWL/AWL)"
+			},
+			"summary": "A lista acadêmica geral (NAWL 957 / AWL 570 famílias) em blocos, base para ler e escrever artigos.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"softPrereqs": [
+				"en.vocab.b1"
+			],
+			"hours": {
+				"lo": 23.5,
+				"hi": 27.5
+			},
+			"anchors": [
+				{
+					"source": "nawl-1.2",
+					"ref": "1–957",
+					"embeddable": true
+				},
+				{
+					"source": "awl-coxhead-2000",
+					"ref": "sublists 1–10",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.vocab.academic.nawl-1",
+			"kind": "topic",
+			"parentId": "en.vocab.academic",
+			"order": 0,
+			"title": {
+				"pt": "Vocabulário acadêmico I",
+				"en": "Academic vocabulary I"
+			},
+			"summary": "Primeiro bloco das palavras acadêmicas mais frequentes.",
+			"objectives": [
+				"Reconhecer e usar as ~160 palavras acadêmicas do primeiro bloco."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 62
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "nawl-1.2",
+					"ref": "bloco 1 de 6",
+					"embeddable": true
+				},
+				{
+					"source": "awl-coxhead-2000",
+					"ref": "sublist 1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "analysis",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "approach",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "data",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "method",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "significant",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "variable",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "factor",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "indicate",
+					"pos": "verb",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.academic.nawl-2",
+			"kind": "topic",
+			"parentId": "en.vocab.academic",
+			"order": 1,
+			"title": {
+				"pt": "Vocabulário acadêmico II",
+				"en": "Academic vocabulary II"
+			},
+			"summary": "Segundo bloco de palavras acadêmicas frequentes.",
+			"objectives": [
+				"Reconhecer e usar as ~160 palavras acadêmicas do segundo bloco."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "nawl-1.2",
+					"ref": "bloco 2 de 6",
+					"embeddable": true
+				},
+				{
+					"source": "awl-coxhead-2000",
+					"ref": "sublists 2–3",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "assess",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "consistent",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "derive",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "evaluate",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "parameter",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "sample",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "estimate",
+					"pos": "verb",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.academic.nawl-3",
+			"kind": "topic",
+			"parentId": "en.vocab.academic",
+			"order": 2,
+			"title": {
+				"pt": "Vocabulário acadêmico III",
+				"en": "Academic vocabulary III"
+			},
+			"summary": "Terceiro bloco: verbos de relato e processos de pesquisa.",
+			"objectives": [
+				"Usar verbos e substantivos de processo de pesquisa."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "nawl-1.2",
+					"ref": "bloco 3 de 6",
+					"embeddable": true
+				},
+				{
+					"source": "awl-coxhead-2000",
+					"ref": "sublists 4–5",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "hypothesis",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "validate",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "correlate",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "infer",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "criterion",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "empirical",
+					"pos": "adj",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.academic.nawl-4",
+			"kind": "topic",
+			"parentId": "en.vocab.academic",
+			"order": 3,
+			"title": {
+				"pt": "Vocabulário acadêmico IV",
+				"en": "Academic vocabulary IV"
+			},
+			"summary": "Quarto bloco: quantificação, tendência e comparação.",
+			"objectives": [
+				"Descrever tendências e comparações com vocabulário acadêmico."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "nawl-1.2",
+					"ref": "bloco 4 de 6",
+					"embeddable": true
+				},
+				{
+					"source": "awl-coxhead-2000",
+					"ref": "sublists 6–7",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "proportion",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "magnitude",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "fluctuate",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "decline",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "ratio",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "approximate",
+					"pos": "adj",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.academic.nawl-5",
+			"kind": "topic",
+			"parentId": "en.vocab.academic",
+			"order": 4,
+			"title": {
+				"pt": "Vocabulário acadêmico V",
+				"en": "Academic vocabulary V"
+			},
+			"summary": "Quinto bloco: argumentação e avaliação.",
+			"objectives": [
+				"Avaliar evidências com vocabulário acadêmico de nível C1."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "nawl-1.2",
+					"ref": "bloco 5 de 6",
+					"embeddable": true
+				},
+				{
+					"source": "awl-coxhead-2000",
+					"ref": "sublists 8–9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "plausible",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "inherent",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "underlying",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "notion",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "implicit",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "coherent",
+					"pos": "adj",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.academic.nawl-6",
+			"kind": "topic",
+			"parentId": "en.vocab.academic",
+			"order": 5,
+			"title": {
+				"pt": "Vocabulário acadêmico VI",
+				"en": "Academic vocabulary VI"
+			},
+			"summary": "Último bloco: palavras acadêmicas de menor frequência.",
+			"objectives": [
+				"Reconhecer as palavras acadêmicas menos frequentes em papers."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 74
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "nawl-1.2",
+					"ref": "bloco 6 de 6",
+					"embeddable": true
+				},
+				{
+					"source": "awl-coxhead-2000",
+					"ref": "sublist 10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "ubiquitous",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "paradigm",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "mitigate",
+					"pos": "verb",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "trajectory",
+					"pos": "noun",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "heterogeneous",
+					"pos": "adj",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "intrinsic",
+					"pos": "adj",
+					"cefr": "B2"
+				}
+			]
+		},
+		{
+			"id": "en.vocab.academic.academic-collocations",
+			"kind": "topic",
+			"parentId": "en.vocab.academic",
+			"order": 6,
+			"title": {
+				"pt": "Colocações acadêmicas",
+				"en": "Academic collocations"
+			},
+			"summary": "conduct research, play a key role, a growing body of evidence.",
+			"objectives": [
+				"Usar 30 colocações acadêmicas em resumos e discussões."
+			],
+			"assess": [
+				"recall",
+				"cloze",
+				"collocation_match"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"vocabulary",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "conduct research",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "play a key role",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "body of evidence",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "draw on",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "shed light on",
+					"pos": "collocation",
+					"cefr": "B2"
+				},
+				{
+					"lemma": "raise the question",
+					"pos": "collocation",
+					"cefr": "B2"
+				}
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "en.vocab.a2.false-friends-1",
+			"to": "en.vocab.b1.false-friends-2",
+			"kind": "related"
+		},
+		{
+			"from": "en.vocab.b2.near-synonyms",
+			"to": "en.vocab.c2.nuance-synonyms",
+			"kind": "related"
+		},
+		{
+			"from": "en.vocab.b1.phrasal-verbs-1",
+			"to": "en.grammar.b1.phrasal-verb-syntax",
+			"kind": "related"
+		},
+		{
+			"from": "en.vocab.b2.linking-words",
+			"to": "en.grammar.b2.contrast-linkers",
+			"kind": "related"
+		},
+		{
+			"from": "en.vocab.a2.make-do-get",
+			"to": "en.vocab.b1.collocations-1",
+			"kind": "related"
+		},
+		{
+			"from": "en.vocab.a1.countries-nationalities",
+			"to": "en.writing.a1.mechanics",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "ngsl-1.2",
+			"title": "New General Service List 1.2 (Browne, Culligan & Phillips; 2.809 palavras)",
+			"url": "https://www.newgeneralservicelist.com/new-general-service-list",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "cefr-j-vp-1.5",
+			"title": "CEFR-J Vocabulary Profile 1.5 (7.799 entradas)",
+			"url": "https://github.com/openlanguageprofiles/olp-en-cefrj",
+			"license": "Uso comercial e de pesquisa gratuito com citação (© Tono Lab, TUFS)",
+			"usage": "reference"
+		},
+		{
+			"id": "octanove-vp-c1c2",
+			"title": "Octanove Vocabulary Profile C1/C2 1.0 (2.136 entradas)",
+			"url": "https://github.com/openlanguageprofiles/olp-en-cefrj",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "nawl-1.2",
+			"title": "New Academic Word List 1.2 (957 palavras)",
+			"url": "https://www.newgeneralservicelist.com/",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "awl-coxhead-2000",
+			"title": "Academic Word List (Coxhead, 2000; 570 famílias)",
+			"url": "https://www.wgtn.ac.nz/lals/resources/academicwordlist",
+			"license": "Licença a verificar; apenas referência por sublista",
+			"usage": "reference"
+		},
+		{
+			"id": "evp",
+			"title": "English Vocabulary Profile (Cambridge/English Profile)",
+			"url": "https://www.englishprofile.org/wordlists",
+			"license": "© Cambridge University Press & Assessment; apenas nível como referência",
+			"usage": "reference"
+		},
+		{
+			"id": "lexical-coverage",
+			"title": "Cobertura lexical para compreensão (Nation 2006; van Zeeland & Schmitt 2012)",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "nation-four-strands",
+			"title": "Nation (2007), The four strands; Nation & Newton — ensino de L2",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		}
+	]
+}

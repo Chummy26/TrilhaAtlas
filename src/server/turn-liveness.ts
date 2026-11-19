@@ -100,6 +100,11 @@ export function handoffTurn(chatId: string, owner: object): boolean {
  * turn whose onFinish never fired (itself pathological), it runs lazily
  * from a read, and emitting from a read is a side-effect smell. Silence
  * here is a choice, not an oversight. */
+export function anyTurnRunning(): boolean {
+	for (const chatId of [...inFlight.keys()]) if (isTurnRunning(chatId)) return true;
+	return false;
+}
+
 export function isTurnRunning(chatId: string): boolean {
 	const since = inFlight.get(chatId);
 	if (since === undefined) return false;

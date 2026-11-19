@@ -1,0 +1,2212 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.ic",
+	"items": [
+		{
+			"id": "ee.ic.models",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 0,
+			"title": {
+				"pt": "Modelagem para projeto analógico",
+				"en": "Modeling for analog design"
+			},
+			"summary": "Metodologia gm/ID, descasamento e variação de processo e layout analógico.",
+			"scope": "Dentro: gm/ID, inversão fraca a forte, Pelgrom, cantos, layout com centroide comum e guard rings. Fora: modelos compactos em profundidade.",
+			"objectives": [
+				"Dimensionar transistores pela metodologia gm/ID",
+				"Projetar layouts robustos a descasamento"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Device details",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.models.gm-id",
+			"kind": "topic",
+			"parentId": "ee.ic.models",
+			"order": 0,
+			"title": {
+				"pt": "Metodologia gm/ID",
+				"en": "gm/ID methodology"
+			},
+			"summary": "Dimensionamento por gm/ID com tabelas de simulação, cobrindo inversão fraca, moderada e forte.",
+			"scope": "Dentro: curvas gm/ID, ganho intrínseco, f_T versus gm/ID, tabelas de projeto. Fora: modelos analíticos completos.",
+			"objectives": [
+				"Dimensionar um transistor para gm e corrente usando tabelas gm/ID",
+				"Escolher a região de inversão pelo compromisso entre eficiência e velocidade"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.mosfet-second-order",
+					"ee.analog.small-signal.common-source"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Device details",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.models.mismatch-variation",
+			"kind": "topic",
+			"parentId": "ee.ic.models",
+			"order": 1,
+			"title": {
+				"pt": "Descasamento e variação de processo",
+				"en": "Mismatch and process variation"
+			},
+			"summary": "Lei de Pelgrom, descasamento de V_T e de β, cantos de processo e variação de temperatura.",
+			"scope": "Dentro: Pelgrom, cantos, PVT, dimensionamento por precisão. Fora: variabilidade atomística.",
+			"objectives": [
+				"Calcular a área necessária para um offset desejado pela lei de Pelgrom",
+				"Explicar os cantos de processo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.fab.cmos-process",
+					"ee.analog.ic-building.cmrr-offset"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Device details",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.models.analog-ic-layout",
+			"kind": "topic",
+			"parentId": "ee.ic.models",
+			"order": 2,
+			"title": {
+				"pt": "Layout analógico",
+				"en": "Analog layout"
+			},
+			"summary": "Centroide comum, interdigitação, dummies, guard rings, efeitos de poço e parasitas de interconexão.",
+			"scope": "Dentro: técnicas de casamento, guard rings, parasitas, LDE. Fora: layout automatizado.",
+			"objectives": [
+				"Desenhar um par diferencial em centroide comum",
+				"Identificar parasitas críticos de um layout"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.ic.models.mismatch-variation"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Device details",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.amplifiers",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 1,
+			"title": {
+				"pt": "Amplificadores CMOS",
+				"en": "CMOS amplifiers"
+			},
+			"summary": "Estágios CMOS, amplificadores diferenciais com CMFB, op-amps de dois estágios, OTAs cascode, circuitos totalmente diferenciais e ruído.",
+			"scope": "Dentro: projeto de amplificadores em nível de transistor e sua compensação. Fora: amplificadores de RF.",
+			"objectives": [
+				"Projetar op-amps e OTAs CMOS para especificações",
+				"Analisar ruído e estabilidade de amplificadores integrados"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 18,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.amplifiers.single-stage-cmos",
+			"kind": "topic",
+			"parentId": "ee.ic.amplifiers",
+			"order": 0,
+			"title": {
+				"pt": "Estágios simples CMOS e cascodes",
+				"en": "Single-stage CMOS and cascodes"
+			},
+			"summary": "Ganho intrínseco, cascodes telescópicos e regulados e excursão de saída.",
+			"scope": "Dentro: FC com carga ativa, cascode, cascode regulado, headroom. Fora: estágios de RF.",
+			"objectives": [
+				"Projetar um estágio cascode para ganho e excursão especificados",
+				"Calcular a resistência de saída de um cascode regulado"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.models.gm-id",
+					"ee.analog.small-signal.multistage"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.amplifiers.diff-amps-cmos",
+			"kind": "topic",
+			"parentId": "ee.ic.amplifiers",
+			"order": 1,
+			"title": {
+				"pt": "Amplificadores diferenciais CMOS e CMFB",
+				"en": "CMOS differential amplifiers and CMFB"
+			},
+			"summary": "Par diferencial com carga ativa, saídas diferenciais e realimentação de modo comum.",
+			"scope": "Dentro: amplificador diferencial, CMFB contínua e chaveada, faixa de modo comum. Fora: amplificadores de instrumentação integrados.",
+			"objectives": [
+				"Projetar um CMFB para um amplificador totalmente diferencial",
+				"Calcular a faixa de modo comum de entrada"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.single-stage-cmos",
+					"ee.analog.ic-building.diff-pair"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.amplifiers.two-stage-opamp",
+			"kind": "topic",
+			"parentId": "ee.ic.amplifiers",
+			"order": 2,
+			"title": {
+				"pt": "Op-amp de dois estágios",
+				"en": "Two-stage op-amp"
+			},
+			"summary": "Procedimento de projeto, compensação Miller com resistor de anulação e slew rate.",
+			"scope": "Dentro: projeto sistemático, compensação, slew, PSRR. Fora: op-amps de três estágios.",
+			"objectives": [
+				"Projetar um op-amp de dois estágios para GBW e margem de fase",
+				"Verificar slew rate e PSRR em simulação"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.diff-amps-cmos",
+					"ee.analog.feedback.compensation"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.amplifiers.cascode-ota",
+			"kind": "topic",
+			"parentId": "ee.ic.amplifiers",
+			"order": 3,
+			"title": {
+				"pt": "OTAs folded-cascode e telescópico",
+				"en": "Folded-cascode and telescopic OTAs"
+			},
+			"summary": "Topologias de um estágio de alto ganho, excursão e compromissos de consumo.",
+			"scope": "Dentro: telescópico, folded-cascode, ganho, excursão, consumo. Fora: OTAs de baixa tensão.",
+			"objectives": [
+				"Comparar OTAs telescópico e folded-cascode",
+				"Projetar um folded-cascode para uma carga capacitiva"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.diff-amps-cmos"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.amplifiers.fully-differential",
+			"kind": "topic",
+			"parentId": "ee.ic.amplifiers",
+			"order": 4,
+			"title": {
+				"pt": "Circuitos totalmente diferenciais e gain boosting",
+				"en": "Fully differential circuits and gain boosting"
+			},
+			"summary": "Vantagens de circuitos totalmente diferenciais, gain boosting e estabilidade do CMFB.",
+			"scope": "Dentro: totalmente diferencial, gain boosting, estabilidade do CMFB. Fora: amplificadores com chopper.",
+			"objectives": [
+				"Explicar as vantagens de circuitos totalmente diferenciais",
+				"Analisar a estabilidade de um amplificador com gain boosting"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.cascode-ota"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.amplifiers.ic-noise",
+			"kind": "topic",
+			"parentId": "ee.ic.amplifiers",
+			"order": 5,
+			"title": {
+				"pt": "Ruído em circuitos CMOS",
+				"en": "Noise in CMOS circuits"
+			},
+			"summary": "Ruído térmico e flicker de MOSFETs, ruído kT/C, chopper e auto-zero.",
+			"scope": "Dentro: ruído de MOSFET, kT/C, referência à entrada, chopper, auto-zero. Fora: ruído de fase.",
+			"objectives": [
+				"Calcular o ruído referido à entrada de um amplificador CMOS",
+				"Explicar como o chopper reduz o ruído 1/f"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.single-stage-cmos",
+					"ee.analog.noise.noise-analysis"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.references",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 2,
+			"title": {
+				"pt": "Referências e reguladores integrados",
+				"en": "Integrated references and regulators"
+			},
+			"summary": "Polarização independente da alimentação, referências bandgap e LDOs integrados.",
+			"scope": "Dentro: polarização, bandgap, curvatura, partida, LDO integrado. Fora: conversores chaveados integrados.",
+			"objectives": [
+				"Projetar referências e polarizações robustas",
+				"Projetar um LDO integrado estável"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:bandgap-references",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.references.bias-circuits",
+			"kind": "topic",
+			"parentId": "ee.ic.references",
+			"order": 0,
+			"title": {
+				"pt": "Polarização independente da alimentação",
+				"en": "Supply-independent biasing"
+			},
+			"summary": "Referências de corrente auto-polarizadas, circuitos de partida e PTAT.",
+			"scope": "Dentro: beta multiplier, partida, PTAT e CTAT. Fora: referências de picopotência.",
+			"objectives": [
+				"Projetar uma fonte de corrente auto-polarizada com partida",
+				"Explicar a geração de correntes PTAT"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.single-stage-cmos",
+					"ee.analog.ic-building.current-mirrors"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:bandgap-references",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.references.bandgap-ic",
+			"kind": "topic",
+			"parentId": "ee.ic.references",
+			"order": 1,
+			"title": {
+				"pt": "Referências bandgap integradas",
+				"en": "Integrated bandgap references"
+			},
+			"summary": "Combinação PTAT e CTAT, bandgap com op-amp, correção de curvatura e trimming.",
+			"scope": "Dentro: bandgap clássico, sub-1 V, curvatura, trimming. Fora: referências de altíssima precisão.",
+			"objectives": [
+				"Projetar uma referência bandgap com op-amp",
+				"Avaliar o coeficiente de temperatura em simulação"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.references.bias-circuits",
+					"ee.ic.amplifiers.two-stage-opamp",
+					"ee.analog.regulators.references"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:bandgap-references",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.references.ldo-ic",
+			"kind": "topic",
+			"parentId": "ee.ic.references",
+			"order": 2,
+			"title": {
+				"pt": "LDO integrado",
+				"en": "Integrated LDO"
+			},
+			"summary": "LDO com e sem capacitor externo, estabilidade, PSRR e resposta a transitórios de carga.",
+			"scope": "Dentro: topologias de LDO, compensação, PSRR, transitórios. Fora: LDOs digitais.",
+			"objectives": [
+				"Projetar um LDO estável para uma faixa de carga",
+				"Analisar a PSRR em função da frequência"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.references.bandgap-ic",
+					"ee.analog.regulators.linear-regulators"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:bandgap-references",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.switched",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 3,
+			"title": {
+				"pt": "Capacitores chaveados e amostragem",
+				"en": "Switched capacitors and sampling"
+			},
+			"summary": "Chaves MOS, amostra-e-retém, circuitos a capacitores chaveados e comparadores integrados.",
+			"scope": "Dentro: chaves, injeção de carga, bootstrapping, S/H, integradores SC, comparadores e latches. Fora: conversores completos.",
+			"objectives": [
+				"Projetar circuitos a capacitores chaveados",
+				"Projetar comparadores rápidos e precisos"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:switched-capacitor-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.331-s02",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.switched.sample-hold",
+			"kind": "topic",
+			"parentId": "ee.ic.switched",
+			"order": 0,
+			"title": {
+				"pt": "Chaves MOS e amostra-e-retém",
+				"en": "MOS switches and sample-and-hold"
+			},
+			"summary": "Resistência de chave, injeção de carga, clock feedthrough, bootstrapping e ruído kT/C.",
+			"scope": "Dentro: chaves, injeção de carga, bootstrap, S/H em malha aberta e fechada. Fora: amostradores de RF.",
+			"objectives": [
+				"Dimensionar a chave e o capacitor de um S/H para precisão e banda",
+				"Projetar uma chave com bootstrapping"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.single-stage-cmos",
+					"ee.signals.sampling.sampling-theorem"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:switched-capacitor-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.331-s02",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.switched.sc-circuits",
+			"kind": "topic",
+			"parentId": "ee.ic.switched",
+			"order": 1,
+			"title": {
+				"pt": "Amplificadores e integradores a capacitores chaveados",
+				"en": "Switched-capacitor amplifiers and integrators"
+			},
+			"summary": "Amplificador SC, integradores insensíveis a parasitas e filtros SC.",
+			"scope": "Dentro: amplificador SC, integradores, filtros SC, erros por ganho finito. Fora: sigma-delta.",
+			"objectives": [
+				"Analisar um amplificador SC em duas fases",
+				"Projetar um integrador insensível a parasitas"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.switched.sample-hold",
+					"ee.ic.amplifiers.two-stage-opamp"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:switched-capacitor-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.331-s02",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.switched.comparators-ic",
+			"kind": "topic",
+			"parentId": "ee.ic.switched",
+			"order": 2,
+			"title": {
+				"pt": "Comparadores integrados e latches",
+				"en": "Integrated comparators and latches"
+			},
+			"summary": "Pré-amplificadores, latches regenerativos, comparadores StrongARM, offset e metaestabilidade.",
+			"scope": "Dentro: pré-amplificador, latch, StrongARM, offset, kickback, metaestabilidade. Fora: comparadores de tempo.",
+			"objectives": [
+				"Analisar a regeneração de um latch",
+				"Estimar o offset e o ruído de um comparador StrongARM"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.amplifiers.diff-amps-cmos",
+					"ee.digital.seq.metastability-cdc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:switched-capacitor-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.331-s02",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.data-converters",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 4,
+			"title": {
+				"pt": "Conversores de dados",
+				"en": "Data converters"
+			},
+			"summary": "Especificações, DACs, ADCs SAR, flash, pipeline e sigma-delta.",
+			"scope": "Dentro: métricas estáticas e dinâmicas, arquiteturas de DAC e ADC, calibração. Fora: conversores de tempo.",
+			"objectives": [
+				"Escolher arquiteturas de conversor para uma especificação",
+				"Projetar um ADC SAR"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.data-converters.converter-specs",
+			"kind": "topic",
+			"parentId": "ee.ic.data-converters",
+			"order": 0,
+			"title": {
+				"pt": "Teste e figuras de mérito de conversores",
+				"en": "Converter testing and figures of merit"
+			},
+			"summary": "Medição de conversores por histograma e por FFT coerente, SNDR e SFDR, figuras de mérito de Walden e de Schreier e o espaço de projeto dos conversores publicados.",
+			"scope": "Dentro: teste por histograma, FFT coerente, SNDR, SFDR, figuras de mérito de Walden e de Schreier, levantamentos da literatura. Fora: definições básicas de DNL, INL e ENOB (ver conversores de dados em analógica).",
+			"objectives": [
+				"Extrair SNDR, SFDR e ENOB de uma FFT coerente simulada",
+				"Comparar conversores publicados pelas figuras de mérito"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.analog.converters.converter-errors",
+					"ee.signals.dsp.windowing-spectral"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.data-converters.dac-architectures",
+			"kind": "topic",
+			"parentId": "ee.ic.data-converters",
+			"order": 1,
+			"title": {
+				"pt": "Arquiteturas de DAC",
+				"en": "DAC architectures"
+			},
+			"summary": "DACs resistivos, capacitivos e de corrente, segmentação e casamento.",
+			"scope": "Dentro: string, R-2R, capacitivo, current-steering, segmentação. Fora: DACs de RF.",
+			"objectives": [
+				"Comparar arquiteturas de DAC por resolução e velocidade",
+				"Calcular o casamento necessário para uma INL"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.data-converters.converter-specs",
+					"ee.ic.models.mismatch-variation"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.data-converters.sar-adc",
+			"kind": "topic",
+			"parentId": "ee.ic.data-converters",
+			"order": 2,
+			"title": {
+				"pt": "ADC SAR",
+				"en": "SAR ADC"
+			},
+			"summary": "Busca binária, DAC capacitivo, lógica SAR, chaveamento eficiente e redundância.",
+			"scope": "Dentro: DAC capacitivo, algoritmo SAR, chaveamento, redundância, calibração. Fora: SAR com ruído moldado.",
+			"objectives": [
+				"Projetar o DAC capacitivo de um SAR",
+				"Explicar a redundância para tolerar erros de decisão"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.data-converters.converter-specs",
+					"ee.ic.switched.comparators-ic",
+					"ee.ic.switched.sample-hold"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.data-converters.pipeline-flash",
+			"kind": "topic",
+			"parentId": "ee.ic.data-converters",
+			"order": 3,
+			"title": {
+				"pt": "ADCs flash e pipeline",
+				"en": "Flash and pipeline ADCs"
+			},
+			"summary": "Flash, MDAC, correção digital e calibração em pipelines.",
+			"scope": "Dentro: flash, pipeline, MDAC, correção digital, calibração. Fora: ADCs entrelaçados no tempo.",
+			"objectives": [
+				"Explicar a correção digital de 1,5 bit por estágio",
+				"Calcular os requisitos de ganho do amplificador residual"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.data-converters.sar-adc",
+					"ee.ic.switched.sc-circuits"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.data-converters.sigma-delta",
+			"kind": "topic",
+			"parentId": "ee.ic.data-converters",
+			"order": 4,
+			"title": {
+				"pt": "Conversores sigma-delta",
+				"en": "Sigma-delta converters"
+			},
+			"summary": "Sobreamostragem, modelagem do ruído, ordem do modulador, estabilidade e filtros de decimação.",
+			"scope": "Dentro: sobreamostragem, noise shaping, ordem, estabilidade, decimação, tempo contínuo em visão. Fora: multibit avançado.",
+			"objectives": [
+				"Calcular o SQNR de um modulador de ordem L",
+				"Explicar o compromisso entre ordem e estabilidade"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.data-converters.converter-specs",
+					"ee.ic.switched.sc-circuits",
+					"ee.signals.sampling.multirate"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.timing",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 5,
+			"title": {
+				"pt": "Circuitos de temporização",
+				"en": "Timing circuits"
+			},
+			"summary": "Osciladores em anel, DLLs, PLLs com charge pump, jitter e recuperação de clock e dados.",
+			"scope": "Dentro: anel, DLL, PFD, charge pump, dinâmica de PLL, jitter, CDR. Fora: PLLs de RF (ver RF CMOS).",
+			"objectives": [
+				"Projetar PLLs para geração de clock",
+				"Analisar jitter em sistemas de temporização"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:phase-locked-loops",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.timing.ring-dll",
+			"kind": "topic",
+			"parentId": "ee.ic.timing",
+			"order": 0,
+			"title": {
+				"pt": "Osciladores em anel e DLLs",
+				"en": "Ring oscillators and DLLs"
+			},
+			"summary": "Osciladores em anel controlados por corrente, linhas de atraso e DLLs.",
+			"scope": "Dentro: anel, controle de atraso, DLL. Fora: osciladores a cristal integrados.",
+			"objectives": [
+				"Calcular a frequência de um oscilador em anel",
+				"Comparar PLL e DLL para geração de fases"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.cmos.delay-power",
+					"ee.analog.oscillators.barkhausen"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:phase-locked-loops",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.timing.cp-pll",
+			"kind": "topic",
+			"parentId": "ee.ic.timing",
+			"order": 1,
+			"title": {
+				"pt": "PLL com charge pump",
+				"en": "Charge-pump PLL"
+			},
+			"summary": "Detector de fase e frequência, charge pump, filtro de malha, estabilidade e não idealidades.",
+			"scope": "Dentro: PFD, charge pump, filtro de malha, dinâmica, espúrios de referência. Fora: PLLs totalmente digitais.",
+			"objectives": [
+				"Projetar o filtro de malha de um PLL com charge pump",
+				"Explicar a origem de espúrios de referência"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.timing.ring-dll",
+					"ee.control.freq-design.bode-control",
+					"ee.analog.oscillators.pll-basics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:phase-locked-loops",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.timing.jitter-cdr",
+			"kind": "topic",
+			"parentId": "ee.ic.timing",
+			"order": 2,
+			"title": {
+				"pt": "Jitter e recuperação de clock e dados",
+				"en": "Jitter and clock and data recovery"
+			},
+			"summary": "Jitter determinístico e aleatório, relação com ruído de fase e arquiteturas de CDR.",
+			"scope": "Dentro: tipos de jitter, conversão ruído de fase–jitter, CDR. Fora: SerDes completos.",
+			"objectives": [
+				"Converter ruído de fase em jitter RMS",
+				"Explicar a arquitetura de um CDR bang-bang"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.timing.cp-pll",
+					"ee.signals.random.psd"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:phase-locked-loops",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.flow",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 6,
+			"title": {
+				"pt": "Fluxo de projeto e verificação",
+				"en": "Design flow and verification"
+			},
+			"summary": "Fluxo analógico completo, verificação PVT e Monte Carlo, projeto com PDK aberto e verificação de sinal misto.",
+			"scope": "Dentro: esquemático, simulação, layout, DRC, LVS, extração, PVT, Monte Carlo, tapeout em PDK aberto, Verilog-A. Fora: fluxo digital completo.",
+			"objectives": [
+				"Executar o fluxo completo de um bloco analógico",
+				"Verificar robustez antes do tapeout"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.flow.analog-flow",
+			"kind": "topic",
+			"parentId": "ee.ic.flow",
+			"order": 0,
+			"title": {
+				"pt": "Fluxo de projeto analógico",
+				"en": "Analog design flow"
+			},
+			"summary": "Esquemático, simulação, layout, DRC, LVS e extração de parasitas com ferramentas abertas ou comerciais.",
+			"scope": "Dentro: etapas do fluxo, ferramentas, DRC, LVS, PEX, simulação pós-layout. Fora: automação de layout.",
+			"objectives": [
+				"Executar DRC e LVS de um bloco",
+				"Comparar simulações pré e pós-layout"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.models.analog-ic-layout",
+					"ee.instruments.sim.spice-numerics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.flow.pvt-montecarlo",
+			"kind": "topic",
+			"parentId": "ee.ic.flow",
+			"order": 1,
+			"title": {
+				"pt": "Verificação PVT e Monte Carlo",
+				"en": "PVT and Monte Carlo verification"
+			},
+			"summary": "Cantos de processo, tensão e temperatura, Monte Carlo de descasamento e rendimento.",
+			"scope": "Dentro: cantos, Monte Carlo, rendimento, análise de sensibilidade. Fora: amostragem de alta sigma.",
+			"objectives": [
+				"Planejar a verificação PVT de um bloco",
+				"Estimar o rendimento por Monte Carlo"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.flow.analog-flow",
+					"ee.math.prob.gaussian"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.flow.open-pdk",
+			"kind": "topic",
+			"parentId": "ee.ic.flow",
+			"order": 2,
+			"title": {
+				"pt": "Projeto com PDK aberto e tapeout",
+				"en": "Open PDK design and tapeout"
+			},
+			"summary": "SKY130 e GF180, ferramentas abertas, programas de tapeout compartilhado e preparação de GDS.",
+			"scope": "Dentro: PDKs abertos, ferramentas abertas, shuttles, preparação de tapeout. Fora: NDA de PDKs comerciais.",
+			"objectives": [
+				"Preparar um bloco para tapeout em PDK aberto",
+				"Navegar pela documentação de um PDK aberto"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.flow.pvt-montecarlo"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.flow.mixed-signal-verification",
+			"kind": "topic",
+			"parentId": "ee.ic.flow",
+			"order": 3,
+			"title": {
+				"pt": "Verificação de sinal misto",
+				"en": "Mixed-signal verification"
+			},
+			"summary": "Modelagem comportamental em Verilog-A e Verilog-AMS, co-simulação e verificação de interfaces.",
+			"scope": "Dentro: Verilog-A, AMS, modelos de número real, co-simulação. Fora: UVM-AMS em detalhe.",
+			"objectives": [
+				"Escrever um modelo comportamental em Verilog-A",
+				"Verificar a interface entre blocos analógico e digital"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.flow.analog-flow",
+					"ee.digital.vlsi.verification"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.ic.project",
+			"kind": "unit",
+			"parentId": "ee.ic",
+			"order": 7,
+			"title": {
+				"pt": "Projeto de CI",
+				"en": "IC project"
+			},
+			"summary": "Projeto integrador de um bloco analógico ou misto em PDK aberto até o layout verificado.",
+			"scope": "Dentro: especificação, dimensionamento, verificação, layout, pós-layout e relatório, em quatro fases. Fora: fabricação e medição em silício.",
+			"objectives": [
+				"Levar um bloco da especificação ao layout verificado",
+				"Documentar o projeto como um relatório técnico"
+			],
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 13,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.ic.project.ic-spec-design",
+			"kind": "topic",
+			"parentId": "ee.ic.project",
+			"order": 0,
+			"title": {
+				"pt": "Projeto de CI, fase 1: especificação e dimensionamento",
+				"en": "IC project, phase 1: specification and sizing"
+			},
+			"summary": "Escolher o bloco (op-amp ou ADC SAR), fixar especificações, dimensionar transistores por gm/ID e atingir o desempenho nominal em simulação.",
+			"scope": "Dentro: especificação, arquitetura, dimensionamento por gm/ID, simulação nominal. Fora: cantos de processo e layout (fases seguintes).",
+			"objectives": [
+				"Converter uma especificação em arquitetura e dimensões de transistores",
+				"Atingir as especificações nominais em simulação"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.flow.open-pdk",
+					"ee.ic.amplifiers.two-stage-opamp"
+				],
+				[
+					"ee.ic.flow.open-pdk",
+					"ee.ic.data-converters.sar-adc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.ic.project.ic-schematic-verification",
+			"kind": "topic",
+			"parentId": "ee.ic.project",
+			"order": 1,
+			"title": {
+				"pt": "Projeto de CI, fase 2: verificação em cantos e Monte Carlo",
+				"en": "IC project, phase 2: corner and Monte Carlo verification"
+			},
+			"summary": "Verificar o esquemático em cantos de processo, tensão e temperatura e em Monte Carlo, ajustando o projeto até cumprir as especificações com margem.",
+			"scope": "Dentro: simulações PVT e Monte Carlo, estimativa de rendimento, ajustes de projeto. Fora: layout (fase 3).",
+			"objectives": [
+				"Verificar o bloco em todos os cantos PVT e em Monte Carlo",
+				"Ajustar o projeto para cumprir as especificações com margem"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.project.ic-spec-design"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.ic.project.ic-layout",
+			"kind": "topic",
+			"parentId": "ee.ic.project",
+			"order": 2,
+			"title": {
+				"pt": "Projeto de CI, fase 3: layout, DRC e LVS",
+				"en": "IC project, phase 3: layout, DRC and LVS"
+			},
+			"summary": "Layout com técnicas de casamento, verificação de regras de projeto (DRC), verificação contra o esquemático (LVS) e extração de parasitas.",
+			"scope": "Dentro: planta do bloco, centroide comum e dispositivos dummy, DRC, LVS, extração de parasitas. Fora: simulação pós-layout (fase 4).",
+			"objectives": [
+				"Desenhar o layout do bloco com técnicas de casamento",
+				"Obter DRC e LVS limpos e extrair os parasitas"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.project.ic-schematic-verification"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.ic.project.ic-project",
+			"kind": "topic",
+			"parentId": "ee.ic.project",
+			"order": 3,
+			"title": {
+				"pt": "Projeto de CI, fase 4: pós-layout, tapeout e relatório",
+				"en": "IC project, phase 4: post-layout, tapeout and report"
+			},
+			"summary": "Simulação pós-layout em cantos, preparação do tapeout em um programa de PDK aberto e relatório técnico no formato de artigo.",
+			"scope": "Dentro: simulação pós-layout, comparação com o esquemático, pacote de tapeout, relatório técnico. Fora: medição em silício.",
+			"objectives": [
+				"Verificar o desempenho pós-layout em cantos",
+				"Redigir o relatório técnico do projeto"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.project.ic-layout"
+				]
+			],
+			"hours": {
+				"lo": 4,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "skywater-sky130-pdk",
+					"ref": "Design flow",
+					"embeddable": true
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:analog-ic",
+				"design-project"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.ic.timing.cp-pll",
+			"to": "ee.rf.rfic.pll-synth",
+			"kind": "related"
+		},
+		{
+			"from": "ee.ic.data-converters.sar-adc",
+			"to": "ee.embedded.periph.adc",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "baker-cmos",
+			"title": "R. J. Baker — CMOS Circuit Design, Layout, and Simulation",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "gray-hurst-lewis-meyer",
+			"title": "Gray, Hurst, Lewis, Meyer — Analysis and Design of Analog Integrated Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.301-f10",
+			"title": "MIT OCW 6.301 — Solid-State Circuits (F2010)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.331-s02",
+			"title": "MIT OCW 6.331 — Advanced Circuit Techniques (S2002)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.374-f03",
+			"title": "MIT OCW 6.374 — Analysis and Design of Digital Integrated Circuits (F2003)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.776-s05",
+			"title": "MIT OCW 6.776 — High Speed Communication Circuits (S2005)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "razavi-analog-cmos-2e",
+			"title": "B. Razavi — Design of Analog CMOS Integrated Circuits, 2ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "skywater-sky130-pdk",
+			"title": "SkyWater SKY130 open PDK — documentação",
+			"url": "https://skywater-pdk.readthedocs.io/",
+			"license": "Apache-2.0",
+			"usage": "reference"
+		}
+	]
+}

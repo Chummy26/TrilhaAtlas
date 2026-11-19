@@ -1,0 +1,1777 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.instruments",
+	"items": [
+		{
+			"id": "ee.instruments.safety",
+			"kind": "unit",
+			"parentId": "ee.instruments",
+			"order": 0,
+			"title": {
+				"pt": "Segurança elétrica",
+				"en": "Electrical safety"
+			},
+			"summary": "Efeitos da corrente no corpo, normas brasileiras de segurança, ESD e trabalho seguro com rede elétrica.",
+			"scope": "Dentro: choque elétrico, NR-10, ESD, isolamento, pontas de prova e aterramento de osciloscópio. Fora: habilitação formal NR-10 (curso presencial).",
+			"objectives": [
+				"Identificar riscos elétricos antes de energizar um circuito",
+				"Adotar procedimentos de proteção contra choque e ESD"
+			],
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 6,
+				"hi": 9
+			},
+			"anchors": [
+				{
+					"source": "nr-10",
+					"ref": "itens gerais e medidas de controle",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "19",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"safety"
+			]
+		},
+		{
+			"id": "ee.instruments.safety.electrical-safety",
+			"kind": "topic",
+			"parentId": "ee.instruments.safety",
+			"order": 0,
+			"title": {
+				"pt": "Choque elétrico e NR-10",
+				"en": "Electric shock and NR-10"
+			},
+			"summary": "Efeitos fisiológicos da corrente, caminhos de corrente pelo corpo, primeiros socorros e princípios da NR-10.",
+			"scope": "Dentro: limiares de corrente, resistência do corpo, caminhos perigosos, desenergização, NR-10 em visão geral. Fora: treinamento obrigatório presencial.",
+			"objectives": [
+				"Explicar por que a corrente, e não a tensão, determina a gravidade do choque",
+				"Listar os passos de desenergização segura previstos na NR-10"
+			],
+			"bloom": "understand",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Achar que baixa tensão é sempre segura",
+				"Achar que só a tensão importa e não o caminho da corrente"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.ohms-law"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nr-10",
+					"ref": "itens gerais e medidas de controle",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "19",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"safety"
+			]
+		},
+		{
+			"id": "ee.instruments.safety.esd",
+			"kind": "topic",
+			"parentId": "ee.instruments.safety",
+			"order": 1,
+			"title": {
+				"pt": "Descarga eletrostática (ESD)",
+				"en": "Electrostatic discharge (ESD)"
+			},
+			"summary": "Como a ESD danifica componentes, pulseira e manta antiestáticas e embalagens dissipativas.",
+			"scope": "Dentro: geração de carga, danos latentes, EPA, pulseira e manta. Fora: ensaios de imunidade (ver EMC).",
+			"objectives": [
+				"Explicar como a ESD causa danos latentes em CIs",
+				"Montar uma área de trabalho protegida contra ESD"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.physics.electrostatics.charge-coulomb"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nr-10",
+					"ref": "itens gerais e medidas de controle",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "19",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"safety"
+			]
+		},
+		{
+			"id": "ee.instruments.safety.mains-work-safety",
+			"kind": "topic",
+			"parentId": "ee.instruments.safety",
+			"order": 2,
+			"title": {
+				"pt": "Trabalho seguro com rede elétrica",
+				"en": "Safe work with mains"
+			},
+			"summary": "Transformador isolador, isolação dupla, risco de aterrar a ponta do osciloscópio na rede, sondas diferenciais e categorias CAT.",
+			"scope": "Dentro: isolador, categorias CAT de instrumentos, sondas diferenciais, uma mão no bolso. Fora: manutenção em média tensão.",
+			"objectives": [
+				"Explicar o risco de conectar o terra do osciloscópio a um ponto da rede",
+				"Selecionar instrumentos com categoria CAT adequada"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.safety.electrical-safety",
+					"ee.ac.threephase.mains-br"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nr-10",
+					"ref": "itens gerais e medidas de controle",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "19",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"safety"
+			]
+		},
+		{
+			"id": "ee.instruments.bench",
+			"kind": "unit",
+			"parentId": "ee.instruments",
+			"order": 1,
+			"title": {
+				"pt": "Bancada e instrumentos básicos",
+				"en": "Bench and basic instruments"
+			},
+			"summary": "Montagem em protoboard, soldagem e uso correto de multímetro, fonte, gerador de funções, osciloscópio e pontas de prova.",
+			"scope": "Dentro: protoboard, soldagem, multímetro, fonte de bancada, gerador de funções, osciloscópio, pontas de prova. Fora: analisadores de espectro e de redes (ver RF).",
+			"objectives": [
+				"Montar e medir circuitos com os instrumentos de bancada",
+				"Evitar os erros de medição mais comuns"
+			],
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 18,
+				"hi": 26
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.breadboard",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 0,
+			"title": {
+				"pt": "Protoboard e montagem de protótipos",
+				"en": "Breadboards and prototyping"
+			},
+			"summary": "Organização da protoboard, trilhas internas, fiação limpa e limites de capacitância e corrente.",
+			"scope": "Dentro: protoboard, fiação, organização, limitações em alta frequência. Fora: soldagem.",
+			"objectives": [
+				"Montar um circuito a partir do esquemático em protoboard",
+				"Identificar erros comuns de montagem"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.schematics",
+					"ee.dc.basics.resistors-practical"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.soldering",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 1,
+			"title": {
+				"pt": "Soldagem PTH e SMD",
+				"en": "Through-hole and SMD soldering"
+			},
+			"summary": "Ferro e estação de solda, liga, fluxo, juntas boas e ruins, retrabalho e componentes SMD.",
+			"scope": "Dentro: soldagem PTH, SMD 0805 e SOIC, dessoldagem, inspeção. Fora: BGA e refusão industrial.",
+			"objectives": [
+				"Soldar componentes PTH e SMD com juntas confiáveis",
+				"Inspecionar juntas e identificar solda fria"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.bench.breadboard",
+					"ee.instruments.safety.esd"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.multimeter",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 2,
+			"title": {
+				"pt": "Multímetro",
+				"en": "Multimeter"
+			},
+			"summary": "Medição de tensão, corrente, resistência e continuidade; ligação em paralelo e em série; fusíveis do instrumento.",
+			"scope": "Dentro: medidas CC e CA, continuidade, diodo, ligação correta, True RMS. Fora: medidas de alta precisão.",
+			"objectives": [
+				"Medir tensão, corrente e resistência com a ligação correta",
+				"Explicar por que medir corrente em paralelo queima o fusível"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Medir resistência com o circuito energizado"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.series-parallel",
+					"ee.instruments.safety.electrical-safety"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.bench-supply",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 3,
+			"title": {
+				"pt": "Fonte de bancada",
+				"en": "Bench power supply"
+			},
+			"summary": "Modos de tensão constante e corrente constante, limite de corrente e ligação série e paralelo de canais.",
+			"scope": "Dentro: CV, CC, limite de corrente, sense remoto, canais em série. Fora: projeto de fontes.",
+			"objectives": [
+				"Ajustar o limite de corrente para proteger um protótipo",
+				"Interpretar a mudança de modo CV para CC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.bench.multimeter",
+					"ee.dc.basics.sources"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.function-generator",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 4,
+			"title": {
+				"pt": "Gerador de funções",
+				"en": "Function generator"
+			},
+			"summary": "Formas de onda, offset, ciclo de trabalho, saída de 50 Ω e diferença entre carga de alta impedância e de 50 Ω.",
+			"scope": "Dentro: formas de onda, offset, duty cycle, impedância de saída, modo High-Z. Fora: geradores arbitrários avançados.",
+			"objectives": [
+				"Configurar amplitude, offset e frequência de um sinal",
+				"Explicar por que a amplitude dobra ao trocar a carga de 50 Ω por alta impedância"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Ignorar a configuração de carga do gerador ao ler a amplitude"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.ac-waveforms",
+					"ee.dc.theorems.thevenin"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.oscilloscope-basics",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 5,
+			"title": {
+				"pt": "Osciloscópio: base de tempo, trigger e acoplamento",
+				"en": "Oscilloscope: timebase, trigger and coupling"
+			},
+			"summary": "Escalas vertical e horizontal, trigger por borda, acoplamento CC/CA e medições automáticas.",
+			"scope": "Dentro: escala, trigger, acoplamento, cursores, medições automáticas. Fora: decodificação serial e FFT.",
+			"objectives": [
+				"Configurar o osciloscópio para estabilizar e medir um sinal periódico",
+				"Usar cursores para medir período, amplitude e defasagem"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Achar que acoplamento CA remove apenas ruído"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.ac-waveforms",
+					"ee.instruments.bench.multimeter"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.probes",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 6,
+			"title": {
+				"pt": "Pontas de prova",
+				"en": "Oscilloscope probes"
+			},
+			"summary": "Pontas 1× e 10×, compensação, efeito de carga, laço de terra curto e largura de banda do conjunto.",
+			"scope": "Dentro: atenuação, compensação, carga capacitiva, aterramento curto, banda. Fora: sondas ativas e de corrente em detalhe.",
+			"objectives": [
+				"Compensar uma ponta 10× usando o sinal de calibração",
+				"Explicar como um fio de terra longo produz ringing falso"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.bench.oscilloscope-basics",
+					"ee.ac.frequency.passive-filters"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.bench.oscilloscope-advanced",
+			"kind": "topic",
+			"parentId": "ee.instruments.bench",
+			"order": 7,
+			"title": {
+				"pt": "Osciloscópio: aquisição, FFT e decodificação",
+				"en": "Oscilloscope: acquisition, FFT and decoding"
+			},
+			"summary": "Taxa de amostragem, profundidade de memória, modos de aquisição, triggers avançados, FFT e decodificação de barramentos.",
+			"scope": "Dentro: amostragem e memória, modos de aquisição, triggers avançados, FFT, decodificação serial. Fora: análise de jitter.",
+			"objectives": [
+				"Escolher taxa de amostragem e memória para capturar um evento",
+				"Usar a FFT do osciloscópio para inspecionar harmônicos"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.instruments.bench.probes"
+				]
+			],
+			"softPrereqs": [
+				"ee.signals.dsp.dft-fft"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:measurement",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.instruments.measurement",
+			"kind": "unit",
+			"parentId": "ee.instruments",
+			"order": 2,
+			"title": {
+				"pt": "Metrologia e técnicas de medição",
+				"en": "Metrology and measurement techniques"
+			},
+			"summary": "Unidades e rastreabilidade, incerteza de medição, efeito de carga de instrumentos e medições de resistência e impedância.",
+			"scope": "Dentro: SI, Inmetro, incerteza (GUM), carga de instrumentos, 4 fios, pontes, LCR. Fora: calibração acreditada.",
+			"objectives": [
+				"Expressar resultados de medição com incerteza",
+				"Escolher técnicas que minimizam erros sistemáticos"
+			],
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "jcgm-100-gum",
+					"ref": "avaliação Tipo A e Tipo B",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.measurement.si-traceability",
+			"kind": "topic",
+			"parentId": "ee.instruments.measurement",
+			"order": 0,
+			"title": {
+				"pt": "SI, rastreabilidade e calibração",
+				"en": "SI, traceability and calibration"
+			},
+			"summary": "Unidades do SI, padrões, cadeia de rastreabilidade, Inmetro e certificados de calibração.",
+			"scope": "Dentro: SI, padrões, rastreabilidade, papel do Inmetro, certificados. Fora: metrologia legal detalhada.",
+			"objectives": [
+				"Explicar a cadeia de rastreabilidade até o SI",
+				"Interpretar um certificado de calibração"
+			],
+			"bloom": "understand",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.math.algebra.sci-notation"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "jcgm-100-gum",
+					"ref": "avaliação Tipo A e Tipo B",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.measurement.uncertainty",
+			"kind": "topic",
+			"parentId": "ee.instruments.measurement",
+			"order": 1,
+			"title": {
+				"pt": "Erro e incerteza de medição",
+				"en": "Measurement error and uncertainty"
+			},
+			"summary": "Erros sistemáticos e aleatórios, incertezas Tipo A e Tipo B, propagação e incerteza expandida.",
+			"scope": "Dentro: tipos de erro, Tipo A e B, propagação, k = 2. Fora: Monte Carlo da GUM S1.",
+			"objectives": [
+				"Calcular a incerteza combinada de uma medição indireta",
+				"Estimar a incerteza Tipo B a partir da especificação do instrumento"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Confundir resolução do instrumento com exatidão"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.instruments.measurement.si-traceability",
+					"ee.math.prob.stats-measurement",
+					"ee.math.calc.multivariable"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "jcgm-100-gum",
+					"ref": "avaliação Tipo A e Tipo B",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.measurement.loading-instruments",
+			"kind": "topic",
+			"parentId": "ee.instruments.measurement",
+			"order": 2,
+			"title": {
+				"pt": "Efeito de carga de instrumentos",
+				"en": "Instrument loading"
+			},
+			"summary": "Resistência interna de voltímetros e amperímetros e erros de inserção.",
+			"scope": "Dentro: impedância de entrada, queda de carga do amperímetro, correções. Fora: carga em alta frequência.",
+			"objectives": [
+				"Calcular o erro introduzido por um voltímetro em um divisor de alta impedância",
+				"Escolher a ligação de voltímetro e amperímetro que minimiza o erro"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.bench.multimeter",
+					"ee.dc.laws.loading"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "jcgm-100-gum",
+					"ref": "avaliação Tipo A e Tipo B",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.measurement.four-wire",
+			"kind": "topic",
+			"parentId": "ee.instruments.measurement",
+			"order": 3,
+			"title": {
+				"pt": "Medição de baixa resistência a 4 fios",
+				"en": "Four-wire low-resistance measurement"
+			},
+			"summary": "Método Kelvin, resistência de cabos e contatos e pontes de medição.",
+			"scope": "Dentro: Kelvin, 4 fios, pontes de medição. Fora: microhmímetros de potência.",
+			"objectives": [
+				"Explicar por que a medição a 4 fios elimina a resistência dos cabos",
+				"Medir um resistor shunt a 4 fios"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.measurement.loading-instruments",
+					"ee.dc.laws.wye-delta"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "jcgm-100-gum",
+					"ref": "avaliação Tipo A e Tipo B",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.measurement.impedance-measurement",
+			"kind": "topic",
+			"parentId": "ee.instruments.measurement",
+			"order": 4,
+			"title": {
+				"pt": "Medição de impedância",
+				"en": "Impedance measurement"
+			},
+			"summary": "Medidor LCR, frequência de teste, modelos série e paralelo e medição de ESR.",
+			"scope": "Dentro: LCR, modelos série e paralelo, ESR, frequência de teste. Fora: analisador vetorial (ver RF).",
+			"objectives": [
+				"Medir capacitância e ESR com um medidor LCR",
+				"Escolher entre modelo série e paralelo para a leitura"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.measurement.loading-instruments",
+					"ee.ac.phasors.impedance"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "jcgm-100-gum",
+					"ref": "avaliação Tipo A e Tipo B",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.sim",
+			"kind": "unit",
+			"parentId": "ee.instruments",
+			"order": 3,
+			"title": {
+				"pt": "Simulação de circuitos (SPICE)",
+				"en": "Circuit simulation (SPICE)"
+			},
+			"summary": "Uso de SPICE para análises de ponto de operação, varredura, transiente e CA, e como o simulador resolve circuitos.",
+			"scope": "Dentro: netlists, .op, .dc, .tran, .ac, modelos e subcircuitos, convergência. Fora: simulação eletromagnética.",
+			"objectives": [
+				"Simular circuitos e confrontar com cálculos à mão",
+				"Diagnosticar problemas de convergência"
+			],
+			"assess": [
+				"simulate",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:simulation",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:circuit-analysis",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.instruments.sim.spice-basics",
+			"kind": "topic",
+			"parentId": "ee.instruments.sim",
+			"order": 0,
+			"title": {
+				"pt": "SPICE: netlist, .op, .dc e .tran",
+				"en": "SPICE: netlist, .op, .dc and .tran"
+			},
+			"summary": "Descrição de circuitos em netlist ou esquemático, ponto de operação, varreduras e simulação transitória.",
+			"scope": "Dentro: netlist, nó 0, análises .op, .dc e .tran. Fora: modelos de dispositivos.",
+			"objectives": [
+				"Simular o ponto de operação e o transiente de um circuito",
+				"Comparar resultados simulados com cálculos à mão"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"simulate",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.transients1.step-response"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:simulation",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:circuit-analysis",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.instruments.sim.spice-ac-models",
+			"kind": "topic",
+			"parentId": "ee.instruments.sim",
+			"order": 1,
+			"title": {
+				"pt": "SPICE: análise .ac, modelos e subcircuitos",
+				"en": "SPICE: .ac analysis, models and subcircuits"
+			},
+			"summary": "Resposta em frequência, modelos de diodos e transistores, subcircuitos de fabricantes e parâmetros.",
+			"scope": "Dentro: análise .ac, modelos, .subckt, varredura paramétrica. Fora: extração de modelos.",
+			"objectives": [
+				"Obter o diagrama de Bode de um circuito por simulação .ac",
+				"Importar e usar o modelo SPICE de um fabricante"
+			],
+			"bloom": "apply",
+			"assess": [
+				"simulate",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.sim.spice-basics",
+					"ee.ac.frequency.bode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:simulation",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:circuit-analysis",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.instruments.sim.spice-numerics",
+			"kind": "topic",
+			"parentId": "ee.instruments.sim",
+			"order": 2,
+			"title": {
+				"pt": "Como o SPICE resolve circuitos",
+				"en": "How SPICE solves circuits"
+			},
+			"summary": "MNA, Newton-Raphson para não lineares, integração implícita, passo adaptativo e problemas de convergência.",
+			"scope": "Dentro: MNA, Newton-Raphson, trapézio e Gear, passo adaptativo, convergência. Fora: algoritmos de matrizes esparsas.",
+			"objectives": [
+				"Explicar por que um circuito não converge e como corrigir",
+				"Relacionar o passo de integração à precisão do transiente"
+			],
+			"bloom": "understand",
+			"assess": [
+				"simulate",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.instruments.sim.spice-ac-models",
+					"ee.dc.methods.matrix-formulation",
+					"ee.math.numerical.numerical-methods"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:simulation",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:circuit-analysis",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.instruments.sensors",
+			"kind": "unit",
+			"parentId": "ee.instruments",
+			"order": 4,
+			"title": {
+				"pt": "Sensores e transdutores",
+				"en": "Sensors and transducers"
+			},
+			"summary": "Características de sensores e os princípios dos sensores mais usados em eletrônica.",
+			"scope": "Dentro: características estáticas, sensores de temperatura, deformação, ópticos e de corrente. Fora: condicionamento ativo (ver analógica).",
+			"objectives": [
+				"Selecionar sensores a partir de especificações",
+				"Converter a grandeza física em sinal elétrico mensurável"
+			],
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:sensors",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.sensors.sensor-principles",
+			"kind": "topic",
+			"parentId": "ee.instruments.sensors",
+			"order": 0,
+			"title": {
+				"pt": "Características de sensores",
+				"en": "Sensor characteristics"
+			},
+			"summary": "Sensibilidade, faixa, linearidade, histerese, resolução, tempo de resposta e calibração.",
+			"scope": "Dentro: especificações estáticas e dinâmicas, calibração. Fora: condicionamento de sinal.",
+			"objectives": [
+				"Interpretar a folha de dados de um sensor",
+				"Calcular a sensibilidade e o erro de linearidade de um sensor"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.measurement.si-traceability"
+				]
+			],
+			"softPrereqs": [
+				"ee.instruments.measurement.uncertainty"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:sensors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.sensors.temperature-sensors",
+			"kind": "topic",
+			"parentId": "ee.instruments.sensors",
+			"order": 1,
+			"title": {
+				"pt": "Sensores de temperatura",
+				"en": "Temperature sensors"
+			},
+			"summary": "Termistores NTC, RTDs (Pt100), termopares com junção fria e sensores integrados.",
+			"scope": "Dentro: NTC, Pt100, termopares, sensores integrados, autoaquecimento. Fora: pirometria.",
+			"objectives": [
+				"Escolher o sensor de temperatura adequado para faixa e precisão",
+				"Calcular a temperatura a partir da resistência de um NTC ou Pt100"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.sensors.sensor-principles",
+					"ee.dc.laws.dividers"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:sensors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.sensors.strain-pressure",
+			"kind": "topic",
+			"parentId": "ee.instruments.sensors",
+			"order": 2,
+			"title": {
+				"pt": "Extensômetros, pressão e força",
+				"en": "Strain gauges, pressure and force"
+			},
+			"summary": "Fator de gauge, pontes de Wheatstone completas e meias pontes, células de carga e sensores de pressão.",
+			"scope": "Dentro: extensômetros, ponte em 1/4, 1/2 e completa, células de carga. Fora: MEMS em detalhe.",
+			"objectives": [
+				"Calcular a saída de uma ponte com extensômetros",
+				"Explicar a compensação de temperatura em meia ponte"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.sensors.sensor-principles",
+					"ee.dc.laws.wye-delta"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:sensors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.sensors.optical-sensors",
+			"kind": "topic",
+			"parentId": "ee.instruments.sensors",
+			"order": 3,
+			"title": {
+				"pt": "Sensores ópticos e de proximidade",
+				"en": "Optical and proximity sensors"
+			},
+			"summary": "Fototransistores, LDRs, barreiras ópticas, encoders e sensores indutivos e capacitivos de proximidade.",
+			"scope": "Dentro: LDR, fototransistor, encoders, proximidade indutiva e capacitiva. Fora: sensores de imagem.",
+			"objectives": [
+				"Escolher um sensor de presença para uma aplicação",
+				"Explicar o funcionamento de um encoder óptico incremental"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.sensors.sensor-principles",
+					"ee.semi.intro.pn-qualitative"
+				]
+			],
+			"softPrereqs": [
+				"ee.semi.opto.photodiodes"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:sensors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments.sensors.current-sensing",
+			"kind": "topic",
+			"parentId": "ee.instruments.sensors",
+			"order": 4,
+			"title": {
+				"pt": "Medição de corrente: shunt, Hall e TC",
+				"en": "Current sensing: shunt, Hall and CT"
+			},
+			"summary": "Resistores shunt, sensores de efeito Hall e transformadores de corrente, com prós e contras.",
+			"scope": "Dentro: shunt, Hall em malha aberta e fechada, TC, isolamento. Fora: sensores Rogowski.",
+			"objectives": [
+				"Dimensionar um resistor shunt para uma faixa de corrente",
+				"Comparar shunt, Hall e TC quanto a isolamento e banda"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.instruments.sensors.sensor-principles",
+					"ee.ac.magnetic.ideal-transformer"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:sensors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.instruments.bench.probes",
+			"to": "ee.pcb.si.high-speed-measurement",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "agarwal-lang",
+			"title": "Agarwal & Lang — Foundations of Analog and Digital Electronic Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "jcgm-100-gum",
+			"title": "JCGM 100:2008 — Guia para a Expressão da Incerteza de Medição (GUM)",
+			"url": "https://www.bipm.org/en/committees/jc/jcgm/publications",
+			"license": "© JCGM/BIPM; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.002-s07",
+			"title": "MIT OCW 6.002 — Circuits and Electronics (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.101",
+			"title": "MIT OCW 6.101 — Introductory Analog Electronics Laboratory",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "nr-10",
+			"title": "NR-10 — Segurança em Instalações e Serviços em Eletricidade (MTE)",
+			"license": "Norma regulamentadora pública; só referência",
+			"usage": "reference"
+		}
+	]
+}

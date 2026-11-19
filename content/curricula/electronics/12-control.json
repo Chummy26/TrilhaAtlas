@@ -1,0 +1,2581 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.control",
+	"items": [
+		{
+			"id": "ee.control.modeling",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 0,
+			"title": {
+				"pt": "Modelagem de sistemas dinâmicos",
+				"en": "Dynamic system modeling"
+			},
+			"summary": "Malha aberta e fechada, modelos de sistemas físicos, diagramas de blocos e linearização.",
+			"scope": "Dentro: funções de transferência de sistemas elétricos, mecânicos e eletromecânicos, diagramas de blocos, Mason, linearização. Fora: identificação de sistemas.",
+			"objectives": [
+				"Modelar sistemas físicos por funções de transferência",
+				"Reduzir diagramas de blocos"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 13
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-models",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.modeling.control-intro",
+			"kind": "topic",
+			"parentId": "ee.control.modeling",
+			"order": 0,
+			"title": {
+				"pt": "Malha aberta, malha fechada e diagramas de blocos",
+				"en": "Open loop, closed loop and block diagrams"
+			},
+			"summary": "Elementos de uma malha de controle, vantagens da realimentação e representação por blocos.",
+			"scope": "Dentro: elementos da malha, malha aberta versus fechada, blocos básicos. Fora: análise de estabilidade.",
+			"objectives": [
+				"Identificar planta, sensor, controlador e atuador em um sistema real",
+				"Explicar as vantagens da realimentação sobre a malha aberta"
+			],
+			"bloom": "understand",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.sdomain.poles-zeros"
+				],
+				[
+					"ee.signals.laplace-z.laplace-systems"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-models",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.modeling.physical-modeling",
+			"kind": "topic",
+			"parentId": "ee.control.modeling",
+			"order": 1,
+			"title": {
+				"pt": "Modelagem de sistemas físicos",
+				"en": "Physical system modeling"
+			},
+			"summary": "Modelos elétricos, mecânicos translacionais e rotacionais, térmicos e de motor CC.",
+			"scope": "Dentro: analogias eletromecânicas, motor CC, sistemas térmicos, funções de transferência. Fora: modelagem multifísica.",
+			"objectives": [
+				"Obter a função de transferência de um motor CC",
+				"Aplicar analogias entre sistemas mecânicos e elétricos"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.modeling.control-intro",
+					"ee.math.ode.second-order",
+					"ee.physics.magnetism.magnetic-field-force"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-models",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.modeling.block-reduction",
+			"kind": "topic",
+			"parentId": "ee.control.modeling",
+			"order": 2,
+			"title": {
+				"pt": "Álgebra de blocos e fórmula de Mason",
+				"en": "Block algebra and Mason's formula"
+			},
+			"summary": "Redução de diagramas de blocos e grafos de fluxo de sinal.",
+			"scope": "Dentro: regras de redução, grafos de fluxo de sinal, Mason. Fora: sistemas MIMO.",
+			"objectives": [
+				"Reduzir um diagrama de blocos à função de malha fechada",
+				"Aplicar a fórmula de Mason a um grafo de fluxo de sinal"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.modeling.control-intro"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-models",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.modeling.linearization",
+			"kind": "topic",
+			"parentId": "ee.control.modeling",
+			"order": 3,
+			"title": {
+				"pt": "Linearização em torno do ponto de operação",
+				"en": "Linearization about an operating point"
+			},
+			"summary": "Pontos de equilíbrio, jacobiano e validade do modelo linear.",
+			"scope": "Dentro: equilíbrio, jacobiano, validade. Fora: controle não linear.",
+			"objectives": [
+				"Linearizar um modelo não linear em torno do equilíbrio",
+				"Avaliar a faixa de validade do modelo linearizado"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.modeling.physical-modeling",
+					"ee.math.calc.multivariable"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-models",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.response",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 1,
+			"title": {
+				"pt": "Resposta e desempenho",
+				"en": "Response and performance"
+			},
+			"summary": "Especificações temporais, erro em regime, critério de Routh e sensibilidade.",
+			"scope": "Dentro: 1ª e 2ª ordem, polos dominantes, tipo de sistema, constantes de erro, Routh-Hurwitz, sensibilidade e perturbações. Fora: robustez formal.",
+			"objectives": [
+				"Relacionar especificações temporais a polos",
+				"Avaliar estabilidade e erro em regime"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 13
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-response",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.response.time-specs",
+			"kind": "topic",
+			"parentId": "ee.control.response",
+			"order": 0,
+			"title": {
+				"pt": "Especificações no tempo de 1ª e 2ª ordem",
+				"en": "Time-domain specifications of first and second order"
+			},
+			"summary": "Tempo de subida, overshoot, tempo de acomodação, polos dominantes e efeito de zeros.",
+			"scope": "Dentro: especificações, região permitida no plano s, polos dominantes, zeros. Fora: sistemas de ordem alta exatos.",
+			"objectives": [
+				"Traduzir especificações de overshoot e acomodação em região do plano s",
+				"Avaliar o efeito de um zero na resposta"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.modeling.block-reduction",
+					"ee.ac.transients2.rlc-step"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-response",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.response.steady-state-error",
+			"kind": "topic",
+			"parentId": "ee.control.response",
+			"order": 1,
+			"title": {
+				"pt": "Erro em regime e tipo do sistema",
+				"en": "Steady-state error and system type"
+			},
+			"summary": "Constantes de erro de posição, velocidade e aceleração e o teorema do valor final.",
+			"scope": "Dentro: tipo do sistema, K_p, K_v, K_a, valor final. Fora: erros com perturbações.",
+			"objectives": [
+				"Calcular o erro em regime para degrau e rampa",
+				"Escolher o tipo de sistema para zerar um erro"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.response.time-specs",
+					"ee.math.transforms.laplace-def"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-response",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.response.routh",
+			"kind": "topic",
+			"parentId": "ee.control.response",
+			"order": 2,
+			"title": {
+				"pt": "Critério de Routh-Hurwitz",
+				"en": "Routh-Hurwitz criterion"
+			},
+			"summary": "Tabela de Routh, casos especiais e faixa de ganho para estabilidade.",
+			"scope": "Dentro: tabela de Routh, linha nula, faixa de ganho. Fora: estabilidade robusta.",
+			"objectives": [
+				"Determinar a estabilidade de um polinômio pela tabela de Routh",
+				"Calcular a faixa de ganho que mantém o sistema estável"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.modeling.block-reduction"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-response",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.response.sensitivity-disturbance",
+			"kind": "topic",
+			"parentId": "ee.control.response",
+			"order": 3,
+			"title": {
+				"pt": "Sensibilidade e rejeição de perturbações",
+				"en": "Sensitivity and disturbance rejection"
+			},
+			"summary": "Funções de sensibilidade e de sensibilidade complementar, perturbações e ruído de medição.",
+			"scope": "Dentro: S e T, rejeição de perturbações, ruído de sensor, compromissos. Fora: limites de Bode.",
+			"objectives": [
+				"Calcular o efeito de uma perturbação na saída em malha fechada",
+				"Explicar o compromisso entre rejeição de perturbação e de ruído"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.modeling.block-reduction"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:dynamic-response",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.root-locus",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 2,
+			"title": {
+				"pt": "Lugar das raízes",
+				"en": "Root locus"
+			},
+			"summary": "Construção do lugar das raízes e projeto de compensadores por ele.",
+			"scope": "Dentro: regras de construção, ganho, projeto com compensadores. Fora: lugar de contorno de vários parâmetros.",
+			"objectives": [
+				"Esboçar o lugar das raízes",
+				"Projetar compensadores pelo lugar das raízes"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 6,
+				"hi": 8
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:root-locus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.root-locus.root-locus",
+			"kind": "topic",
+			"parentId": "ee.control.root-locus",
+			"order": 0,
+			"title": {
+				"pt": "Construção do lugar das raízes",
+				"en": "Root locus construction"
+			},
+			"summary": "Condições de módulo e ângulo, regras de esboço e cálculo do ganho em um ponto.",
+			"scope": "Dentro: regras de construção, assíntotas, pontos de saída, ganho. Fora: lugar complementar.",
+			"objectives": [
+				"Esboçar o lugar das raízes de uma função de malha aberta",
+				"Calcular o ganho para um polo desejado"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.response.routh",
+					"ee.control.response.time-specs"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:root-locus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.root-locus.rl-design",
+			"kind": "topic",
+			"parentId": "ee.control.root-locus",
+			"order": 1,
+			"title": {
+				"pt": "Projeto pelo lugar das raízes",
+				"en": "Root-locus design"
+			},
+			"summary": "Compensadores de avanço, atraso e PID posicionados pelo lugar das raízes.",
+			"scope": "Dentro: posicionamento de polos e zeros do compensador, avanço e atraso. Fora: otimização numérica.",
+			"objectives": [
+				"Projetar um compensador de avanço pelo lugar das raízes",
+				"Verificar o projeto por simulação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.root-locus.root-locus"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:root-locus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.freq-design",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 3,
+			"title": {
+				"pt": "Análise e projeto na frequência",
+				"en": "Frequency-domain analysis and design"
+			},
+			"summary": "Bode em malha aberta, margens, critério de Nyquist, compensadores de avanço e atraso e robustez.",
+			"scope": "Dentro: margens, Nyquist, avanço e atraso, atrasos de transporte, incertezas. Fora: H∞.",
+			"objectives": [
+				"Avaliar estabilidade e robustez pela resposta em frequência",
+				"Projetar compensadores na frequência"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:frequency-response-design",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.freq-design.bode-control",
+			"kind": "topic",
+			"parentId": "ee.control.freq-design",
+			"order": 0,
+			"title": {
+				"pt": "Bode, margens e desempenho em malha fechada",
+				"en": "Bode, margins and closed-loop performance"
+			},
+			"summary": "Ganho de malha em Bode, margens de ganho e fase, banda e relação com o transitório.",
+			"scope": "Dentro: Bode de malha, margens, banda, relação margem-overshoot. Fora: Nichols.",
+			"objectives": [
+				"Determinar margens a partir do Bode de malha aberta",
+				"Relacionar a frequência de cruzamento à velocidade de resposta"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.frequency.bode",
+					"ee.control.response.steady-state-error"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:frequency-response-design",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.freq-design.nyquist",
+			"kind": "topic",
+			"parentId": "ee.control.freq-design",
+			"order": 1,
+			"title": {
+				"pt": "Critério de Nyquist",
+				"en": "Nyquist criterion"
+			},
+			"summary": "Princípio do argumento, diagrama de Nyquist e estabilidade com polos instáveis em malha aberta.",
+			"scope": "Dentro: princípio do argumento, contorno de Nyquist, contagem de envolvimentos. Fora: Nyquist MIMO.",
+			"objectives": [
+				"Aplicar o critério de Nyquist a um sistema com polo instável em malha aberta",
+				"Ler margens no diagrama de Nyquist"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.freq-design.bode-control"
+				]
+			],
+			"softPrereqs": [
+				"ee.math.transforms.complex-analysis"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:frequency-response-design",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.freq-design.lead-lag",
+			"kind": "topic",
+			"parentId": "ee.control.freq-design",
+			"order": 2,
+			"title": {
+				"pt": "Compensadores de avanço e atraso",
+				"en": "Lead and lag compensators"
+			},
+			"summary": "Projeto de avanço para margem de fase e de atraso para erro em regime na frequência.",
+			"scope": "Dentro: avanço, atraso, avanço-atraso, procedimento de projeto. Fora: loop shaping avançado.",
+			"objectives": [
+				"Projetar um compensador de avanço para uma margem de fase",
+				"Projetar um compensador de atraso para reduzir o erro em regime"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.freq-design.bode-control"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:frequency-response-design",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.freq-design.robustness-intro",
+			"kind": "topic",
+			"parentId": "ee.control.freq-design",
+			"order": 3,
+			"title": {
+				"pt": "Robustez: atrasos e incertezas",
+				"en": "Robustness: delays and uncertainty"
+			},
+			"summary": "Efeito de atrasos de transporte na fase, incertezas de modelo e margens como medida de robustez.",
+			"scope": "Dentro: atraso puro, aproximação de Padé, incerteza multiplicativa, margem de atraso. Fora: síntese robusta.",
+			"objectives": [
+				"Calcular a margem de atraso de um sistema",
+				"Explicar por que atrasos limitam a banda de controle"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.freq-design.nyquist"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:frequency-response-design",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.pid",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 4,
+			"title": {
+				"pt": "Controlador PID",
+				"en": "PID controller"
+			},
+			"summary": "Ações proporcional, integral e derivativa, sintonia, anti-windup, implementação analógica, pré-alimentação e cascata.",
+			"scope": "Dentro: PID ideal e prático, sintonia, filtro derivativo, anti-windup, PID com op-amps, feedforward, cascata, 2DOF. Fora: autotuning avançado.",
+			"objectives": [
+				"Sintonizar controladores PID",
+				"Implementar PID com cuidados práticos"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc:pid-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.pid.pid",
+			"kind": "topic",
+			"parentId": "ee.control.pid",
+			"order": 0,
+			"title": {
+				"pt": "Ações P, I e D",
+				"en": "P, I and D actions"
+			},
+			"summary": "Efeito de cada ação sobre erro, estabilidade e resposta, e o PID em forma paralela e padrão.",
+			"scope": "Dentro: P, PI, PD, PID, formas paralela e padrão, filtro derivativo. Fora: sintonia.",
+			"objectives": [
+				"Prever o efeito de cada ganho na resposta",
+				"Explicar por que a ação integral zera o erro a degrau"
+			],
+			"bloom": "understand",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.response.steady-state-error"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc:pid-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.pid.pid-tuning",
+			"kind": "topic",
+			"parentId": "ee.control.pid",
+			"order": 1,
+			"title": {
+				"pt": "Sintonia de PID e anti-windup",
+				"en": "PID tuning and anti-windup"
+			},
+			"summary": "Ziegler-Nichols, sintonia por modelo (IMC e lambda), saturação do atuador e anti-windup.",
+			"scope": "Dentro: Ziegler-Nichols, IMC, saturação, anti-windup, setpoint weighting. Fora: autotuning por relé.",
+			"objectives": [
+				"Sintonizar um PID por um método baseado em modelo",
+				"Implementar anti-windup em um PI saturado"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.pid.pid",
+					"ee.control.freq-design.bode-control"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc:pid-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.pid.opamp-pid",
+			"kind": "topic",
+			"parentId": "ee.control.pid",
+			"order": 2,
+			"title": {
+				"pt": "Controladores com op-amps",
+				"en": "Op-amp controllers"
+			},
+			"summary": "Implementação analógica de PI, PD, PID e compensadores com op-amps.",
+			"scope": "Dentro: redes com op-amp para PI, PID, avanço e atraso. Fora: controle digital.",
+			"objectives": [
+				"Projetar um PI analógico com op-amp",
+				"Mapear ganhos de controlador em valores de componentes"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.pid.pid",
+					"ee.analog.opamp.integrator-differentiator"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc:pid-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.pid.feedforward-cascade",
+			"kind": "topic",
+			"parentId": "ee.control.pid",
+			"order": 3,
+			"title": {
+				"pt": "Pré-alimentação, cascata e dois graus de liberdade",
+				"en": "Feedforward, cascade and two-degree-of-freedom control"
+			},
+			"summary": "Pré-alimentação de referência e de perturbação medida, controle em cascata com malhas interna e externa, controle de razão e estruturas com dois graus de liberdade.",
+			"scope": "Dentro: feedforward de referência e de perturbação, cascata e separação de bandas, controle de razão em visão, 2DOF. Fora: controle multivariável (ver espaço de estados).",
+			"objectives": [
+				"Projetar uma malha em cascata escolhendo as bandas das malhas interna e externa",
+				"Projetar um feedforward estático para uma perturbação mensurável"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"simulate"
+			],
+			"misconceptions": [
+				"Achar que o feedforward sozinho garante erro nulo e dispensa a realimentação"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.pid.pid-tuning",
+					"ee.control.response.sensitivity-disturbance"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc:pid-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.state-space",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 5,
+			"title": {
+				"pt": "Espaço de estados",
+				"en": "State space"
+			},
+			"summary": "Modelos em espaço de estados, solução, controlabilidade e observabilidade, alocação de polos e observadores.",
+			"scope": "Dentro: representação de estados, matriz de transição, controlabilidade, observabilidade, realimentação de estados, observadores. Fora: controle ótimo.",
+			"objectives": [
+				"Modelar e analisar sistemas em espaço de estados",
+				"Projetar realimentação de estados com observador"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:state-space-design",
+					"embeddable": false
+				},
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-18.06",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.state-space.state-models",
+			"kind": "topic",
+			"parentId": "ee.control.state-space",
+			"order": 0,
+			"title": {
+				"pt": "Modelos em espaço de estados",
+				"en": "State-space models"
+			},
+			"summary": "Escolha de estados, formas canônicas e conversão entre função de transferência e espaço de estados.",
+			"scope": "Dentro: x' = Ax + Bu, y = Cx + Du, formas canônicas, conversões. Fora: sistemas variantes no tempo.",
+			"objectives": [
+				"Escrever o modelo de estados de um sistema físico",
+				"Converter entre função de transferência e espaço de estados"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.modeling.physical-modeling",
+					"ee.math.ode.systems-ode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:state-space-design",
+					"embeddable": false
+				},
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-18.06",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.state-space.state-solution",
+			"kind": "topic",
+			"parentId": "ee.control.state-space",
+			"order": 1,
+			"title": {
+				"pt": "Solução e estabilidade",
+				"en": "Solution and stability"
+			},
+			"summary": "Matriz de transição e^{At}, autovalores e estabilidade interna.",
+			"scope": "Dentro: e^{At}, solução forçada, autovalores, estabilidade interna e BIBO. Fora: Lyapunov.",
+			"objectives": [
+				"Calcular a matriz de transição de um sistema 2×2",
+				"Relacionar autovalores de A a estabilidade e modos"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.state-space.state-models"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:state-space-design",
+					"embeddable": false
+				},
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-18.06",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.state-space.controllability-observability",
+			"kind": "topic",
+			"parentId": "ee.control.state-space",
+			"order": 2,
+			"title": {
+				"pt": "Controlabilidade e observabilidade",
+				"en": "Controllability and observability"
+			},
+			"summary": "Matrizes de controlabilidade e observabilidade, testes de posto e realizações mínimas.",
+			"scope": "Dentro: testes de posto, decomposição, realização mínima. Fora: Gramianos.",
+			"objectives": [
+				"Testar controlabilidade e observabilidade de um sistema",
+				"Explicar o cancelamento de polos e zeros em termos de estados"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.state-space.state-solution"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:state-space-design",
+					"embeddable": false
+				},
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-18.06",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.state-space.pole-placement",
+			"kind": "topic",
+			"parentId": "ee.control.state-space",
+			"order": 3,
+			"title": {
+				"pt": "Realimentação de estados e alocação de polos",
+				"en": "State feedback and pole placement"
+			},
+			"summary": "Lei u = −Kx, fórmula de Ackermann e ação integral por estado aumentado.",
+			"scope": "Dentro: realimentação de estados, Ackermann, estado aumentado com integrador. Fora: LQR.",
+			"objectives": [
+				"Calcular K para posicionar polos em locais desejados",
+				"Adicionar ação integral por estado aumentado"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.state-space.controllability-observability"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:state-space-design",
+					"embeddable": false
+				},
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-18.06",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.state-space.observers",
+			"kind": "topic",
+			"parentId": "ee.control.state-space",
+			"order": 4,
+			"title": {
+				"pt": "Observadores de estado",
+				"en": "State observers"
+			},
+			"summary": "Observador de Luenberger, princípio da separação e controlador baseado em observador.",
+			"scope": "Dentro: observador de ordem completa, separação, escolha de polos do observador. Fora: Kalman.",
+			"objectives": [
+				"Projetar um observador de Luenberger",
+				"Explicar o princípio da separação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.state-space.pole-placement"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:state-space-design",
+					"embeddable": false
+				},
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-18.06",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.digital",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 6,
+			"title": {
+				"pt": "Controle digital",
+				"en": "Digital control"
+			},
+			"summary": "Discretização de controladores, projeto no domínio Z e implementação em microcontroladores.",
+			"scope": "Dentro: ZOH, Tustin, efeitos de amostragem, projeto discreto, implementação em firmware. Fora: controle em rede.",
+			"objectives": [
+				"Discretizar e implementar controladores",
+				"Avaliar os efeitos da amostragem no desempenho"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:digital-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.digital.discretization",
+			"kind": "topic",
+			"parentId": "ee.control.digital",
+			"order": 0,
+			"title": {
+				"pt": "Discretização de controladores",
+				"en": "Controller discretization"
+			},
+			"summary": "Equivalentes ZOH, Tustin e casamento de polos e zeros e escolha do período de amostragem.",
+			"scope": "Dentro: ZOH, Tustin, pré-distorção, escolha de T. Fora: projeto direto discreto.",
+			"objectives": [
+				"Discretizar um PID por Tustin",
+				"Escolher o período de amostragem a partir da banda de malha fechada"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.pid.pid",
+					"ee.signals.laplace-z.z-transform"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:digital-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.digital.digital-design",
+			"kind": "topic",
+			"parentId": "ee.control.digital",
+			"order": 1,
+			"title": {
+				"pt": "Projeto de controle digital",
+				"en": "Digital control design"
+			},
+			"summary": "Planta discretizada, lugar das raízes em z, atraso computacional e efeitos de quantização.",
+			"scope": "Dentro: planta com ZOH, projeto em z, atraso de cálculo, quantização. Fora: controle deadbeat.",
+			"objectives": [
+				"Projetar um controlador diretamente no domínio z",
+				"Avaliar o efeito do atraso de um período de amostragem"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.digital.discretization",
+					"ee.signals.sampling.sampling-theorem"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:digital-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.digital.embedded-control",
+			"kind": "topic",
+			"parentId": "ee.control.digital",
+			"order": 2,
+			"title": {
+				"pt": "Controle em microcontrolador",
+				"en": "Control on a microcontroller"
+			},
+			"summary": "Laço de controle com timer, ADC e PWM, ponto fixo, saturação e registro de dados para ajuste.",
+			"scope": "Dentro: laço temporizado, ADC e PWM, ponto fixo, saturação, logging. Fora: sistemas operacionais de tempo real.",
+			"objectives": [
+				"Implementar um laço PI em microcontrolador com período fixo",
+				"Registrar dados do laço para ajuste fino"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.control.digital.digital-design",
+					"ee.embedded.periph.timers-pwm",
+					"ee.embedded.periph.adc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc:digital-control",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control.advanced",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 7,
+			"title": {
+				"pt": "Controle avançado I: LQG, robusto, MPC, não linear e identificação",
+				"en": "Advanced control I: LQG, robust, MPC, nonlinear and identification"
+			},
+			"summary": "Especialização em controle: LQR e Kalman, controle robusto, MPC, não linear e identificação de sistemas.",
+			"scope": "Dentro: LQG, H∞, MPC, Lyapunov, linearização por realimentação, identificação. Fora: controle estocástico avançado.",
+			"objectives": [
+				"Projetar controladores ótimos e preditivos",
+				"Identificar modelos a partir de dados"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced.lqr-kalman",
+			"kind": "topic",
+			"parentId": "ee.control.advanced",
+			"order": 0,
+			"title": {
+				"pt": "LQR e filtro de Kalman",
+				"en": "LQR and Kalman filter"
+			},
+			"summary": "Regulador linear quadrático, equação de Riccati, filtro de Kalman e LQG.",
+			"scope": "Dentro: LQR, Riccati, Kalman discreto, LQG. Fora: Kalman estendido e unscented em detalhe.",
+			"objectives": [
+				"Projetar um LQR escolhendo pesos Q e R",
+				"Implementar um filtro de Kalman discreto"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.state-space.observers",
+					"ee.signals.random.lti-random"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced.robust-hinf",
+			"kind": "topic",
+			"parentId": "ee.control.advanced",
+			"order": 1,
+			"title": {
+				"pt": "Controle robusto e H∞",
+				"en": "Robust control and H∞"
+			},
+			"summary": "Normas H₂ e H∞, incerteza estruturada e não estruturada, loop shaping e síntese H∞.",
+			"scope": "Dentro: normas, incerteza, teorema do pequeno ganho, síntese H∞. Fora: análise µ completa.",
+			"objectives": [
+				"Formular um problema de sensibilidade mista",
+				"Avaliar robustez com o teorema do pequeno ganho"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.freq-design.robustness-intro",
+					"ee.control.advanced.lqr-kalman"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced.mpc",
+			"kind": "topic",
+			"parentId": "ee.control.advanced",
+			"order": 2,
+			"title": {
+				"pt": "Controle preditivo baseado em modelo",
+				"en": "Model predictive control"
+			},
+			"summary": "Horizonte de predição, otimização com restrições, horizonte deslizante e implementação.",
+			"scope": "Dentro: formulação QP, restrições, horizonte deslizante, estabilidade em visão. Fora: MPC não linear.",
+			"objectives": [
+				"Formular um MPC linear com restrições",
+				"Comparar MPC e LQR em presença de restrições"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.advanced.lqr-kalman",
+					"ee.control.digital.digital-design"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced.nonlinear-control",
+			"kind": "topic",
+			"parentId": "ee.control.advanced",
+			"order": 3,
+			"title": {
+				"pt": "Controle não linear",
+				"en": "Nonlinear control"
+			},
+			"summary": "Estabilidade de Lyapunov, plano de fase, linearização por realimentação e controle por modos deslizantes.",
+			"scope": "Dentro: Lyapunov, plano de fase, feedback linearization, sliding mode. Fora: controle geométrico.",
+			"objectives": [
+				"Aplicar o método direto de Lyapunov a um sistema simples",
+				"Projetar uma lei de linearização por realimentação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.state-space.state-solution",
+					"ee.control.modeling.linearization"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced.system-identification",
+			"kind": "topic",
+			"parentId": "ee.control.advanced",
+			"order": 4,
+			"title": {
+				"pt": "Identificação de sistemas",
+				"en": "System identification"
+			},
+			"summary": "Sinais de excitação, modelos ARX e ARMAX, mínimos quadrados e validação.",
+			"scope": "Dentro: excitação, ARX, ARMAX, mínimos quadrados, validação cruzada. Fora: identificação não linear.",
+			"objectives": [
+				"Identificar um modelo ARX a partir de dados de entrada e saída",
+				"Validar o modelo identificado com dados novos"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.digital.digital-design",
+					"ee.math.prob.stats-measurement",
+					"ee.math.linalg.vector-spaces"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced-2",
+			"kind": "unit",
+			"parentId": "ee.control",
+			"order": 8,
+			"title": {
+				"pt": "Controle avançado II: ótimo, adaptativo, distribuído, em rede e por aprendizado",
+				"en": "Advanced control II: optimal, adaptive, distributed, networked and learning-based"
+			},
+			"summary": "Controle ótimo, adaptativo, distribuído, em rede e baseado em aprendizado.",
+			"scope": "Dentro: princípio do máximo, programação dinâmica, MRAC, consenso, controle por eventos, aprendizado por reforço. Fora: teoria de jogos.",
+			"objectives": [
+				"Formular e resolver problemas de controle ótimo",
+				"Avaliar controladores adaptativos e aprendidos quanto a garantias"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced-2.optimal-control",
+			"kind": "topic",
+			"parentId": "ee.control.advanced-2",
+			"order": 0,
+			"title": {
+				"pt": "Controle ótimo",
+				"en": "Optimal control"
+			},
+			"summary": "Cálculo variacional, princípio do máximo de Pontryagin e programação dinâmica.",
+			"scope": "Dentro: funcional de custo, Pontryagin, Hamilton-Jacobi-Bellman, programação dinâmica. Fora: métodos numéricos de trajetórias em detalhe.",
+			"objectives": [
+				"Derivar a solução de controle ótimo de um sistema simples pelo princípio do máximo",
+				"Resolver um problema discreto por programação dinâmica"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.advanced.lqr-kalman",
+					"ee.math.calc.multivariable"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced-2.adaptive-control",
+			"kind": "topic",
+			"parentId": "ee.control.advanced-2",
+			"order": 1,
+			"title": {
+				"pt": "Controle adaptativo",
+				"en": "Adaptive control"
+			},
+			"summary": "Controle adaptativo por modelo de referência, controladores autoajustáveis e robustez da adaptação.",
+			"scope": "Dentro: MRAC, regra MIT, Lyapunov, STR, robustez. Fora: adaptação para sistemas não lineares gerais.",
+			"objectives": [
+				"Projetar um MRAC por Lyapunov",
+				"Analisar a perda de robustez da adaptação sem excitação persistente"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.advanced.system-identification",
+					"ee.control.advanced.nonlinear-control"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced-2.distributed-control",
+			"kind": "topic",
+			"parentId": "ee.control.advanced-2",
+			"order": 2,
+			"title": {
+				"pt": "Controle distribuído e multiagentes",
+				"en": "Distributed and multi-agent control"
+			},
+			"summary": "Grafos de comunicação, consenso, formação e controle distribuído de redes de sistemas.",
+			"scope": "Dentro: laplaciano de grafos, consenso, formação, sincronização. Fora: otimização distribuída em detalhe.",
+			"objectives": [
+				"Analisar a convergência do consenso pelo laplaciano do grafo",
+				"Projetar uma lei de formação para agentes integradores"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.state-space.pole-placement",
+					"ee.math.discrete.graphs"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced-2.networked-control",
+			"kind": "topic",
+			"parentId": "ee.control.advanced-2",
+			"order": 3,
+			"title": {
+				"pt": "Controle em rede e por eventos",
+				"en": "Networked and event-triggered control"
+			},
+			"summary": "Atrasos e perdas de pacotes, amostragem por eventos e coprojeto de controle e comunicação.",
+			"scope": "Dentro: atrasos, perdas, amostragem por eventos, coprojeto. Fora: protocolos de rede industrial.",
+			"objectives": [
+				"Avaliar o efeito de atrasos de rede na estabilidade",
+				"Projetar uma regra de disparo por eventos"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.digital.embedded-control",
+					"ee.control.advanced.robust-hinf"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		},
+		{
+			"id": "ee.control.advanced-2.learning-control",
+			"kind": "topic",
+			"parentId": "ee.control.advanced-2",
+			"order": 4,
+			"title": {
+				"pt": "Controle baseado em dados e aprendizado",
+				"en": "Data-driven and learning-based control"
+			},
+			"summary": "Aprendizado por reforço, controle por dados com garantias e controle preditivo aprendido.",
+			"scope": "Dentro: RL, controle por dados, MPC aprendido, certificação de segurança. Fora: teoria de aprendizado.",
+			"objectives": [
+				"Implementar um controlador por aprendizado por reforço num sistema simples",
+				"Avaliar garantias de segurança de um controlador aprendido"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.advanced.mpc",
+					"ee.control.advanced.system-identification"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Automatic Control / CDC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:control"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.control.state-space.observers",
+			"to": "ee.control.advanced.lqr-kalman",
+			"kind": "related"
+		},
+		{
+			"from": "ee.control.root-locus.rl-design",
+			"to": "ee.control.freq-design.lead-lag",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "astrom-murray-fbs",
+			"title": "Åström & Murray — Feedback Systems, 2ª ed.",
+			"license": "Copyright (leitura online gratuita); só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "franklin-powell-feedback",
+			"title": "Franklin, Powell, Emami-Naeini — Feedback Control of Dynamic Systems",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-18.06",
+			"title": "MIT OCW 18.06 — Linear Algebra",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.302-s07",
+			"title": "MIT OCW 6.302 — Feedback Systems (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		}
+	]
+}

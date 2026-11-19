@@ -1,0 +1,3707 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.fluency",
+	"items": [
+		{
+			"id": "en.fluency.a1",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 0,
+			"title": {
+				"pt": "Prática A1",
+				"en": "Practice A1"
+			},
+			"summary": "Primeiros volumes de input muito simples e conversas guiadas curtas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 7.5,
+				"hi": 12.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 20–29",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.a1.starter-books",
+			"kind": "topic",
+			"parentId": "en.fluency.a1",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: livros ilustrados e leitores iniciais",
+				"en": "Extensive reading: picture books and starter readers"
+			},
+			"summary": "Ler grande volume de livros ilustrados e graded readers iniciais com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler livros ilustrados e graded readers iniciais com fluidez a ≥60 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Ler ~7 mil palavras de livros ilustrados e graded readers iniciais a ≥60 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.a1.slow-audio",
+			"kind": "topic",
+			"parentId": "en.fluency.a1",
+			"order": 1,
+			"title": {
+				"pt": "Escuta extensiva: áudios lentos para iniciantes",
+				"en": "Extensive listening: slow audio for beginners"
+			},
+			"summary": "Ouvir muito áudios lentos para iniciantes com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar áudios lentos para iniciantes sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Completar 2.5 h de áudios lentos para iniciantes com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.a1.phrases",
+			"kind": "topic",
+			"parentId": "en.fluency.a1",
+			"order": 2,
+			"title": {
+				"pt": "Shadowing: frases do dia a dia",
+				"en": "Shadowing: everyday phrases"
+			},
+			"summary": "Repetir em sombra trechos curtos de frases e diálogos curtos do dia a dia: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de frases e diálogos curtos do dia a dia mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 1.5,
+				"exitCriterion": "Gravar 6 trechos de 1–2 min de frases e diálogos curtos do dia a dia em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.a1.guided-a1",
+			"kind": "topic",
+			"parentId": "en.fluency.a1",
+			"order": 3,
+			"title": {
+				"pt": "Conversação: conversa guiada A1",
+				"en": "Conversation: guided conversation A1"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre apresentação pessoal e rotina, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 3 min sobre apresentação pessoal e rotina."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · A1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2,
+				"exitCriterion": "Completar 20 conversas de 3 min sobre apresentação pessoal e rotina, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.a1.repeated-reading-a1",
+			"kind": "topic",
+			"parentId": "en.fluency.a1",
+			"order": 4,
+			"title": {
+				"pt": "Leitura repetida A1",
+				"en": "Repeated reading A1"
+			},
+			"summary": "Ler o mesmo texto curto várias vezes em voz alta para ganhar velocidade.",
+			"objectives": [
+				"Ler em voz alta um texto de 80 palavras sem hesitar."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 1.5,
+				"exitCriterion": "Ler 6 textos curtos três vezes cada, reduzindo o tempo em ≥20% da 1ª para a 3ª leitura."
+			}
+		},
+		{
+			"id": "en.fluency.a2",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 1,
+			"title": {
+				"pt": "Prática A2",
+				"en": "Practice A2"
+			},
+			"summary": "Graded readers elementares, áudio para aprendizes e conversas guiadas sobre o cotidiano.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"softPrereqs": [
+				"en.fluency.a1"
+			],
+			"hours": {
+				"lo": 17,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.a2.graded-starter",
+			"kind": "topic",
+			"parentId": "en.fluency.a2",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: graded readers iniciais",
+				"en": "Extensive reading: starter graded readers"
+			},
+			"summary": "Ler grande volume de graded readers de nível inicial com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler graded readers de nível inicial com fluidez a ≥80 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"softPrereqs": [
+				"en.vocab.a1.daily-routine"
+			],
+			"encompasses": [
+				{
+					"id": "en.vocab.a1.daily-routine",
+					"w": 0.1
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Ler ~13 mil palavras de graded readers de nível inicial a ≥80 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.a2.graded-elementary",
+			"kind": "topic",
+			"parentId": "en.fluency.a2",
+			"order": 1,
+			"title": {
+				"pt": "Leitura extensiva: graded readers elementares",
+				"en": "Extensive reading: elementary graded readers"
+			},
+			"summary": "Ler grande volume de graded readers de nível elementar com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler graded readers de nível elementar com fluidez a ≥90 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"softPrereqs": [
+				"en.fluency.a2.graded-starter"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Ler ~15 mil palavras de graded readers de nível elementar a ≥90 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.a2.learner-podcasts-slow",
+			"kind": "topic",
+			"parentId": "en.fluency.a2",
+			"order": 2,
+			"title": {
+				"pt": "Escuta extensiva: podcasts lentos para aprendizes",
+				"en": "Extensive listening: slow learner podcasts"
+			},
+			"summary": "Ouvir muito podcasts lentos para aprendizes com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar podcasts lentos para aprendizes sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de podcasts lentos para aprendizes com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.a2.learner-videos",
+			"kind": "topic",
+			"parentId": "en.fluency.a2",
+			"order": 3,
+			"title": {
+				"pt": "Escuta extensiva: vídeos e animações para aprendizes",
+				"en": "Extensive listening: learner videos and cartoons"
+			},
+			"summary": "Ouvir muito vídeos e animações simples com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar vídeos e animações simples sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Completar 3 h de vídeos e animações simples com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.a2.dialogues-a2",
+			"kind": "topic",
+			"parentId": "en.fluency.a2",
+			"order": 4,
+			"title": {
+				"pt": "Shadowing: diálogos curtos",
+				"en": "Shadowing: short dialogues"
+			},
+			"summary": "Repetir em sombra trechos curtos de diálogos curtos de situações cotidianas: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de diálogos curtos de situações cotidianas mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2,
+				"exitCriterion": "Gravar 8 trechos de 1–2 min de diálogos curtos de situações cotidianas em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.a2.guided-a2",
+			"kind": "topic",
+			"parentId": "en.fluency.a2",
+			"order": 5,
+			"title": {
+				"pt": "Conversação: conversa guiada A2",
+				"en": "Conversation: guided conversation A2"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre rotina, passado recente e planos, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 5 min sobre rotina, passado recente e planos."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Completar 18 conversas de 5 min sobre rotina, passado recente e planos, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.a2.repeated-reading-a2",
+			"kind": "topic",
+			"parentId": "en.fluency.a2",
+			"order": 6,
+			"title": {
+				"pt": "Leitura repetida A2",
+				"en": "Repeated reading A2"
+			},
+			"summary": "Leitura repetida e cronometrada de textos já conhecidos.",
+			"objectives": [
+				"Ler textos conhecidos de 150 palavras a ≥100 palavras/min."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2,
+				"exitCriterion": "Atingir ≥100 palavras/min em leitura oral de 5 textos conhecidos de 150 palavras."
+			}
+		},
+		{
+			"id": "en.fluency.b1",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 2,
+			"title": {
+				"pt": "Prática B1",
+				"en": "Practice B1"
+			},
+			"summary": "Volume grande de graded readers, notícias simplificadas, séries com legenda em inglês e conversas com tarefa.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 47
+			},
+			"softPrereqs": [
+				"en.fluency.a2"
+			],
+			"hours": {
+				"lo": 29.5,
+				"hi": 37.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 43–50",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.b1.graded-fiction-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: ficção graduada intermediária",
+				"en": "Extensive reading: intermediate graded fiction"
+			},
+			"summary": "Ler grande volume de ficção graduada de nível intermediário com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler ficção graduada de nível intermediário com fluidez a ≥100 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"softPrereqs": [
+				"en.vocab.b1.relationships"
+			],
+			"encompasses": [
+				{
+					"id": "en.vocab.b1.relationships",
+					"w": 0.1
+				}
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~19 mil palavras de ficção graduada de nível intermediário a ≥100 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b1.graded-nonfiction-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 1,
+			"title": {
+				"pt": "Leitura extensiva: não ficção graduada",
+				"en": "Extensive reading: graded non-fiction"
+			},
+			"summary": "Ler grande volume de não ficção graduada (biografias, ciência, história) com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler não ficção graduada (biografias, ciência, história) com fluidez a ≥100 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 44
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Ler ~17 mil palavras de não ficção graduada (biografias, ciência, história) a ≥100 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b1.simplified-news",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 2,
+			"title": {
+				"pt": "Leitura extensiva: notícias em inglês controlado",
+				"en": "Extensive reading: news in controlled English"
+			},
+			"summary": "Ler grande volume de notícias em inglês de vocabulário controlado com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler notícias em inglês de vocabulário controlado com fluidez a ≥100 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 45
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B1",
+					"embeddable": false
+				},
+				{
+					"source": "voa-learning-english",
+					"ref": "notícias e reportagens em nível controlado",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Ler ~17 mil palavras de notícias em inglês de vocabulário controlado a ≥100 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b1.learner-podcasts-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 3,
+			"title": {
+				"pt": "Escuta extensiva: podcasts para aprendizes B1",
+				"en": "Extensive listening: B1 learner podcasts"
+			},
+			"summary": "Ouvir muito podcasts para aprendizes de nível intermediário com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar podcasts para aprendizes de nível intermediário sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 45
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de podcasts para aprendizes de nível intermediário com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b1.sitcoms-subtitled",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 4,
+			"title": {
+				"pt": "Escuta extensiva: sitcoms com legenda em inglês",
+				"en": "Extensive listening: sitcoms with English subtitles"
+			},
+			"summary": "Ouvir muito sitcoms com legenda em inglês com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar sitcoms com legenda em inglês sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 46
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de sitcoms com legenda em inglês com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b1.podcast-clips-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 5,
+			"title": {
+				"pt": "Shadowing: trechos de podcasts",
+				"en": "Shadowing: podcast clips"
+			},
+			"summary": "Repetir em sombra trechos curtos de trechos de podcasts para aprendizes: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de trechos de podcasts para aprendizes mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 47
+			},
+			"softPrereqs": [
+				"en.pron.prosody.weak-forms"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Gravar 12 trechos de 1–2 min de trechos de podcasts para aprendizes em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.b1.everyday-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 6,
+			"title": {
+				"pt": "Conversação: temas do cotidiano",
+				"en": "Conversation: everyday topics"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre experiências, planos e problemas do cotidiano, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 10 min sobre experiências, planos e problemas do cotidiano."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 48
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 12 conversas de 10 min sobre experiências, planos e problemas do cotidiano, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b1.role-plays-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 7,
+			"title": {
+				"pt": "Conversação: role-plays com tarefa",
+				"en": "Conversation: task role-plays"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre situações de viagem, serviços e trabalho, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 8 min sobre situações de viagem, serviços e trabalho."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 48
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 13 conversas de 8 min sobre situações de viagem, serviços e trabalho, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b1.four-three-two-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 8,
+			"title": {
+				"pt": "Técnica 4/3/2",
+				"en": "4/3/2 technique"
+			},
+			"summary": "Contar a mesma história em 4, 3 e 2 minutos para ganhar velocidade sem perder conteúdo.",
+			"objectives": [
+				"Recontar uma história em 2 min mantendo o conteúdo da versão de 4 min."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 49
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Completar 6 ciclos 4/3/2 com aumento de ≥15% de palavras por minuto na rodada de 2 min."
+			}
+		},
+		{
+			"id": "en.fluency.b1.timed-writing-b1",
+			"kind": "topic",
+			"parentId": "en.fluency.b1",
+			"order": 9,
+			"title": {
+				"pt": "Escrita cronometrada B1",
+				"en": "Timed writing B1"
+			},
+			"summary": "Escrever sem parar por 10 min sobre temas conhecidos, sem dicionário.",
+			"objectives": [
+				"Escrever 150+ palavras em 10 min sobre tema familiar."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 50
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Completar 8 sessões de 10 min chegando a ≥15 palavras/min com texto compreensível."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 3,
+			"title": {
+				"pt": "Prática B1+",
+				"en": "Practice B1+"
+			},
+			"summary": "Transição para material autêntico: vlogs, palestras curtas, contos e intercâmbio de idiomas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 55
+			},
+			"softPrereqs": [
+				"en.fluency.b1"
+			],
+			"hours": {
+				"lo": 28.5,
+				"hi": 37.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 51–58",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.b1-plus.graded-upper",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: graded readers intermediário-superior",
+				"en": "Extensive reading: upper-intermediate graded readers"
+			},
+			"summary": "Ler grande volume de graded readers de nível intermediário-superior com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler graded readers de nível intermediário-superior com fluidez a ≥120 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~23 mil palavras de graded readers de nível intermediário-superior a ≥120 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.authentic-short-stories",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 1,
+			"title": {
+				"pt": "Leitura extensiva: contos autênticos curtos",
+				"en": "Extensive reading: short authentic stories"
+			},
+			"summary": "Ler grande volume de contos autênticos curtos com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler contos autênticos curtos com fluidez a ≥110 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Ler ~18 mil palavras de contos autênticos curtos a ≥110 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.vlogs",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 2,
+			"title": {
+				"pt": "Escuta extensiva: vlogs no YouTube",
+				"en": "Extensive listening: YouTube vlogs"
+			},
+			"summary": "Ouvir muito vlogs de criadores nativos sobre temas do cotidiano com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar vlogs de criadores nativos sobre temas do cotidiano sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 53
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de vlogs de criadores nativos sobre temas do cotidiano com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.short-talks",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 3,
+			"title": {
+				"pt": "Escuta extensiva: palestras curtas e animações educativas",
+				"en": "Extensive listening: short talks and educational animations"
+			},
+			"summary": "Ouvir muito palestras curtas e vídeos educativos com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar palestras curtas e vídeos educativos sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 53
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de palestras curtas e vídeos educativos com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.graded-audiobooks",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 4,
+			"title": {
+				"pt": "Escuta extensiva: audiolivros graduados",
+				"en": "Extensive listening: graded audiobooks"
+			},
+			"summary": "Ouvir muito audiolivros graduados com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar audiolivros graduados sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de audiolivros graduados com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.educational-videos",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 5,
+			"title": {
+				"pt": "Shadowing: vídeos educativos",
+				"en": "Shadowing: educational videos"
+			},
+			"summary": "Repetir em sombra trechos curtos de vídeos educativos curtos com narração clara: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de vídeos educativos curtos com narração clara mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 55
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Gravar 12 trechos de 1–2 min de vídeos educativos curtos com narração clara em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.opinions-b1p",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 6,
+			"title": {
+				"pt": "Conversação: opinião e atualidades",
+				"en": "Conversation: opinions and current affairs"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre notícias e temas de opinião, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 12 min sobre notícias e temas de opinião."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 10 conversas de 12 min sobre notícias e temas de opinião, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.language-exchange",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 7,
+			"title": {
+				"pt": "Conversação: intercâmbio de idiomas",
+				"en": "Conversation: language exchange"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre intercâmbio com falantes de inglês interessados em português, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 15 min sobre intercâmbio com falantes de inglês interessados em português."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 7 conversas de 15 min sobre intercâmbio com falantes de inglês interessados em português, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.four-three-two-b1p",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 8,
+			"title": {
+				"pt": "Técnica 4/3/2 com opinião",
+				"en": "4/3/2 with opinions"
+			},
+			"summary": "4/3/2 aplicado a argumentos curtos de opinião.",
+			"objectives": [
+				"Defender uma opinião em 2 min com o conteúdo da versão de 4 min."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 57
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Completar 6 ciclos 4/3/2 de opinião com ≥110 palavras/min na rodada final."
+			}
+		},
+		{
+			"id": "en.fluency.b1-plus.writing-sprints",
+			"kind": "topic",
+			"parentId": "en.fluency.b1-plus",
+			"order": 9,
+			"title": {
+				"pt": "Sprints de escrita",
+				"en": "Writing sprints"
+			},
+			"summary": "Diário em inglês com limite de tempo e foco em fluidez.",
+			"objectives": [
+				"Escrever 200 palavras em 12 min sobre o dia."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Manter 10 entradas de diário de 12 min com ≥17 palavras/min."
+			}
+		},
+		{
+			"id": "en.fluency.b2",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 4,
+			"title": {
+				"pt": "Prática B2",
+				"en": "Practice B2"
+			},
+			"summary": "Leitura autêntica (YA, notícias, divulgação científica), podcasts e séries nativas, discussões e debate.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"softPrereqs": [
+				"en.fluency.b1-plus"
+			],
+			"hours": {
+				"lo": 34,
+				"hi": 41.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 59–66",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.b2.young-adult",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: romances young adult",
+				"en": "Extensive reading: young adult novels"
+			},
+			"summary": "Ler grande volume de romances young adult autênticos com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler romances young adult autênticos com fluidez a ≥150 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~29 mil palavras de romances young adult autênticos a ≥150 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b2.news-features",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 1,
+			"title": {
+				"pt": "Leitura extensiva: reportagens autênticas",
+				"en": "Extensive reading: authentic news features"
+			},
+			"summary": "Ler grande volume de reportagens e notícias autênticas com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler reportagens e notícias autênticas com fluidez a ≥150 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 60
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~29 mil palavras de reportagens e notícias autênticas a ≥150 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b2.popular-science",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 2,
+			"title": {
+				"pt": "Leitura extensiva: divulgação científica",
+				"en": "Extensive reading: popular science"
+			},
+			"summary": "Ler grande volume de livros e artigos de divulgação científica com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler livros e artigos de divulgação científica com fluidez a ≥140 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 60
+			},
+			"softPrereqs": [
+				"en.vocab.academic.nawl-1"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~27 mil palavras de livros e artigos de divulgação científica a ≥140 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b2.native-podcasts",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 3,
+			"title": {
+				"pt": "Escuta extensiva: podcasts nativos",
+				"en": "Extensive listening: native podcasts"
+			},
+			"summary": "Ouvir muito podcasts nativos sobre temas de interesse com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar podcasts nativos sobre temas de interesse sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 61
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de podcasts nativos sobre temas de interesse com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b2.series-no-subs",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 4,
+			"title": {
+				"pt": "Escuta extensiva: séries sem legenda",
+				"en": "Extensive listening: series without subtitles"
+			},
+			"summary": "Ouvir muito séries em inglês padrão sem legenda com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar séries em inglês padrão sem legenda sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 62
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de séries em inglês padrão sem legenda com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b2.documentaries",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 5,
+			"title": {
+				"pt": "Escuta extensiva: documentários",
+				"en": "Extensive listening: documentaries"
+			},
+			"summary": "Ouvir muito documentários de divulgação com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar documentários de divulgação sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de documentários de divulgação com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b2.news-clips",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 6,
+			"title": {
+				"pt": "Shadowing: trechos de notícias",
+				"en": "Shadowing: news clips"
+			},
+			"summary": "Repetir em sombra trechos curtos de trechos de notícias e reportagens: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de trechos de notícias e reportagens mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Gravar 12 trechos de 1–2 min de trechos de notícias e reportagens em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.b2.discussions-b2",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 7,
+			"title": {
+				"pt": "Conversação: discussões temáticas",
+				"en": "Conversation: topic discussions"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre temas sociais, tecnológicos e de trabalho, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 15 min sobre temas sociais, tecnológicos e de trabalho."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 64
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 8 conversas de 15 min sobre temas sociais, tecnológicos e de trabalho, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b2.debate-b2",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 8,
+			"title": {
+				"pt": "Conversação: prática de debate",
+				"en": "Conversation: debate practice"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre moções polêmicas com tempo de fala controlado, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 15 min sobre moções polêmicas com tempo de fala controlado."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 7 conversas de 15 min sobre moções polêmicas com tempo de fala controlado, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b2.timed-speaking-b2",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 9,
+			"title": {
+				"pt": "Fala cronometrada B2",
+				"en": "Timed speaking B2"
+			},
+			"summary": "Respostas de 1–2 min sem preparo a perguntas abertas.",
+			"objectives": [
+				"Responder a perguntas abertas por 2 min com fluidez."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Responder 20 perguntas abertas de 2 min com ≥120 palavras/min e ≤5 pausas longas por resposta."
+			}
+		},
+		{
+			"id": "en.fluency.b2.journaling-b2",
+			"kind": "topic",
+			"parentId": "en.fluency.b2",
+			"order": 10,
+			"title": {
+				"pt": "Diário reflexivo",
+				"en": "Reflective journaling"
+			},
+			"summary": "Escrita livre diária sobre leituras e experiências.",
+			"objectives": [
+				"Escrever 250 palavras em 15 min com ideias encadeadas."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 66
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Manter 10 entradas de 15 min com ≥17 palavras/min e parágrafos coesos."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 5,
+			"title": {
+				"pt": "Prática B2+",
+				"en": "Practice B2+"
+			},
+			"summary": "Romances contemporâneos, blogs de engenharia, filmes e entrevistas sem legenda, conversas com nativos.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"softPrereqs": [
+				"en.fluency.b2"
+			],
+			"hours": {
+				"lo": 31,
+				"hi": 38.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 67–75",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.b2-plus.contemporary-novels",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: romances contemporâneos",
+				"en": "Extensive reading: contemporary novels"
+			},
+			"summary": "Ler grande volume de romances contemporâneos para adultos com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler romances contemporâneos para adultos com fluidez a ≥170 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~33 mil palavras de romances contemporâneos para adultos a ≥170 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.engineering-blogs",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 1,
+			"title": {
+				"pt": "Leitura extensiva: blogs de engenharia",
+				"en": "Extensive reading: engineering blogs"
+			},
+			"summary": "Ler grande volume de blogs técnicos de engenharia e eletrônica com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler blogs técnicos de engenharia e eletrônica com fluidez a ≥150 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 68
+			},
+			"softPrereqs": [
+				"en.academic.technical-vocab"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~29 mil palavras de blogs técnicos de engenharia e eletrônica a ≥150 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.long-form",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 2,
+			"title": {
+				"pt": "Leitura extensiva: jornalismo de fôlego",
+				"en": "Extensive reading: long-form journalism"
+			},
+			"summary": "Ler grande volume de matérias longas de revistas com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler matérias longas de revistas com fluidez a ≥160 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Ler ~27 mil palavras de matérias longas de revistas a ≥160 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.tech-podcasts",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 3,
+			"title": {
+				"pt": "Escuta extensiva: podcasts de tecnologia",
+				"en": "Extensive listening: tech podcasts"
+			},
+			"summary": "Ouvir muito podcasts de tecnologia e engenharia com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar podcasts de tecnologia e engenharia sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 70
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de podcasts de tecnologia e engenharia com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.films-no-subs",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 4,
+			"title": {
+				"pt": "Escuta extensiva: filmes sem legenda",
+				"en": "Extensive listening: films without subtitles"
+			},
+			"summary": "Ouvir muito filmes em inglês sem legenda com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar filmes em inglês sem legenda sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de filmes em inglês sem legenda com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.interviews",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 5,
+			"title": {
+				"pt": "Escuta extensiva: entrevistas e talk shows",
+				"en": "Extensive listening: interviews and talk shows"
+			},
+			"summary": "Ouvir muito entrevistas longas e talk shows com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar entrevistas longas e talk shows sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de entrevistas longas e talk shows com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.speeches",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 6,
+			"title": {
+				"pt": "Shadowing: discursos e palestras",
+				"en": "Shadowing: speeches and talks"
+			},
+			"summary": "Repetir em sombra trechos curtos de discursos e palestras inspiracionais: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de discursos e palestras inspiracionais mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"softPrereqs": [
+				"en.pron.intonation.thought-groups"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Gravar 12 trechos de 1–2 min de discursos e palestras inspiracionais em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.natives-b2p",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 7,
+			"title": {
+				"pt": "Conversação: conversa com nativos",
+				"en": "Conversation: conversation with native speakers"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre temas livres em velocidade natural, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 20 min sobre temas livres em velocidade natural."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 73
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 6 conversas de 20 min sobre temas livres em velocidade natural, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.meeting-sims",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 8,
+			"title": {
+				"pt": "Conversação: simulações de reunião",
+				"en": "Conversation: meeting simulations"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre reuniões de projeto com decisões e conflitos, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 20 min sobre reuniões de projeto com decisões e conflitos."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 74
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 5 conversas de 20 min sobre reuniões de projeto com decisões e conflitos, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.b2-plus.presentation-rehearsal",
+			"kind": "topic",
+			"parentId": "en.fluency.b2-plus",
+			"order": 9,
+			"title": {
+				"pt": "Ensaio de apresentações",
+				"en": "Presentation rehearsal"
+			},
+			"summary": "Ensaiar a mesma apresentação curta várias vezes, cortando hesitações.",
+			"objectives": [
+				"Fazer uma apresentação de 5 min sem consultar notas."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Ensaiar 4 apresentações de 5 min até a 3ª versão sem consultas e com ≤3 hesitações."
+			}
+		},
+		{
+			"id": "en.fluency.c1",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 6,
+			"title": {
+				"pt": "Prática C1",
+				"en": "Practice C1"
+			},
+			"summary": "Ficção literária, ensaios, livros técnicos em inglês, aulas universitárias, comédia e debates de alto nível.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.fluency.b2-plus"
+			],
+			"hours": {
+				"lo": 33,
+				"hi": 41.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.c1.literary-fiction",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: ficção literária",
+				"en": "Extensive reading: literary fiction"
+			},
+			"summary": "Ler grande volume de ficção literária contemporânea com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler ficção literária contemporânea com fluidez a ≥180 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~35 mil palavras de ficção literária contemporânea a ≥180 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.c1.essays",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 1,
+			"title": {
+				"pt": "Leitura extensiva: ensaios e revistas de ideias",
+				"en": "Extensive reading: essays and magazines of ideas"
+			},
+			"summary": "Ler grande volume de ensaios e revistas de opinião com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler ensaios e revistas de opinião com fluidez a ≥170 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 77
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~33 mil palavras de ensaios e revistas de opinião a ≥170 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.c1.technical-books",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 2,
+			"title": {
+				"pt": "Leitura extensiva: livros técnicos de engenharia",
+				"en": "Extensive reading: engineering textbooks"
+			},
+			"summary": "Ler grande volume de livros técnicos de eletrônica em inglês com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler livros técnicos de eletrônica em inglês com fluidez a ≥120 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"softPrereqs": [
+				"en.academic.technical-reading"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~23 mil palavras de livros técnicos de eletrônica em inglês a ≥120 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.c1.university-lectures",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 3,
+			"title": {
+				"pt": "Escuta extensiva: aulas universitárias abertas",
+				"en": "Extensive listening: open university lectures"
+			},
+			"summary": "Ouvir muito aulas universitárias abertas de engenharia com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar aulas universitárias abertas de engenharia sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening as a member of a live audience · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de aulas universitárias abertas de engenharia com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.c1.comedy-panels",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 4,
+			"title": {
+				"pt": "Escuta extensiva: comédia e programas de painel",
+				"en": "Extensive listening: comedy and panel shows"
+			},
+			"summary": "Ouvir muito programas de comédia e painéis de humor com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar programas de comédia e painéis de humor sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de programas de comédia e painéis de humor com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.c1.accents-podcasts",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 5,
+			"title": {
+				"pt": "Escuta extensiva: podcasts com sotaques variados",
+				"en": "Extensive listening: podcasts with varied accents"
+			},
+			"summary": "Ouvir muito podcasts com falantes de várias regiões com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar podcasts com falantes de várias regiões sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de podcasts com falantes de várias regiões com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.c1.keynotes",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 6,
+			"title": {
+				"pt": "Shadowing: keynotes técnicas",
+				"en": "Shadowing: technical keynotes"
+			},
+			"summary": "Repetir em sombra trechos curtos de keynotes e palestras técnicas: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de keynotes e palestras técnicas mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Gravar 12 trechos de 1–2 min de keynotes e palestras técnicas em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.c1.deep-c1",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 7,
+			"title": {
+				"pt": "Conversação: conversas aprofundadas",
+				"en": "Conversation: in-depth conversations"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre temas abstratos, éticos e técnicos, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 25 min sobre temas abstratos, éticos e técnicos."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 5 conversas de 25 min sobre temas abstratos, éticos e técnicos, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.c1.argument-c1",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 8,
+			"title": {
+				"pt": "Conversação: argumentação ao vivo",
+				"en": "Conversation: live argumentation"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre posições opostas defendidas com evidência, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 20 min sobre posições opostas defendidas com evidência."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 5 conversas de 20 min sobre posições opostas defendidas com evidência, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.c1.impromptu-c1",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 9,
+			"title": {
+				"pt": "Fala de improviso",
+				"en": "Impromptu speaking"
+			},
+			"summary": "Falar 3 min sobre tema sorteado sem preparo.",
+			"objectives": [
+				"Falar 3 min sobre tema inesperado com estrutura clara."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Completar 15 falas de improviso de 3 min com introdução, 2 pontos e conclusão."
+			}
+		},
+		{
+			"id": "en.fluency.c1.long-form-writing",
+			"kind": "topic",
+			"parentId": "en.fluency.c1",
+			"order": 10,
+			"title": {
+				"pt": "Escrita longa contínua",
+				"en": "Long-form writing"
+			},
+			"summary": "Textos de 600+ palavras em sessão única.",
+			"objectives": [
+				"Escrever 600 palavras coesas em 40 min."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 2.5,
+				"exitCriterion": "Produzir 4 textos de 600+ palavras em ≤40 min cada, com estrutura clara."
+			}
+		},
+		{
+			"id": "en.fluency.c2",
+			"kind": "unit",
+			"parentId": "en.fluency",
+			"order": 7,
+			"title": {
+				"pt": "Prática C2",
+				"en": "Practice C2"
+			},
+			"summary": "Clássicos, monografias, rádio e teatro nativos, dialetos e conversa de alto nível; ensinar em inglês.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"softPrereqs": [
+				"en.fluency.c1"
+			],
+			"hours": {
+				"lo": 28,
+				"hi": 35
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Overall · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.fluency.c2.classics",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 0,
+			"title": {
+				"pt": "Leitura extensiva: clássicos da literatura",
+				"en": "Extensive reading: literary classics"
+			},
+			"summary": "Ler grande volume de clássicos da literatura em inglês com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler clássicos da literatura em inglês com fluidez a ≥180 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 85
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~35 mil palavras de clássicos da literatura em inglês a ≥180 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.c2.monographs",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 1,
+			"title": {
+				"pt": "Leitura extensiva: monografias e livros acadêmicos",
+				"en": "Extensive reading: academic monographs"
+			},
+			"summary": "Ler grande volume de monografias e livros acadêmicos com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler monografias e livros acadêmicos com fluidez a ≥150 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 86
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Ler ~29 mil palavras de monografias e livros acadêmicos a ≥150 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.c2.satire-opinion",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 2,
+			"title": {
+				"pt": "Leitura extensiva: sátira e colunas de opinião",
+				"en": "Extensive reading: satire and opinion columns"
+			},
+			"summary": "Ler grande volume de sátira e colunas de opinião com ≥98% de palavras conhecidas, por prazer e sem dicionário.",
+			"objectives": [
+				"Ler sátira e colunas de opinião com fluidez a ≥180 palavras/min.",
+				"Manter registro de leitura com resumo de uma linha por sessão."
+			],
+			"assess": [
+				"reading_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 86
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "er-foundation",
+					"ref": "volume e nível de leitura extensiva",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_reading",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Ler ~30 mil palavras de sátira e colunas de opinião a ≥180 palavras/min, com ≥80% de acerto nas checagens de compreensão."
+			}
+		},
+		{
+			"id": "en.fluency.c2.radio-drama",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 3,
+			"title": {
+				"pt": "Escuta extensiva: rádio e dramaturgia",
+				"en": "Extensive listening: radio and drama"
+			},
+			"summary": "Ouvir muito rádio falado, dramaturgia e documentários sonoros com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar rádio falado, dramaturgia e documentários sonoros sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 87
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 h de rádio falado, dramaturgia e documentários sonoros com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.c2.dialects",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 4,
+			"title": {
+				"pt": "Escuta extensiva: dialetos e falas regionais",
+				"en": "Extensive listening: dialects and regional speech"
+			},
+			"summary": "Ouvir muito falas regionais e dialetos marcados com cobertura ≥95–98%, áudio original em inglês, focando no sentido.",
+			"objectives": [
+				"Acompanhar falas regionais e dialetos marcados sem pausar com frequência."
+			],
+			"assess": [
+				"listening_log",
+				"comprehension_check"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"extensive_listening",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 3.5 h de falas regionais e dialetos marcados com ≥80% de acerto em 3 perguntas de compreensão por sessão e ≤1 pausa por minuto."
+			}
+		},
+		{
+			"id": "en.fluency.c2.rhetoric",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 5,
+			"title": {
+				"pt": "Shadowing: discursos retóricos",
+				"en": "Shadowing: rhetorical speeches"
+			},
+			"summary": "Repetir em sombra trechos curtos de discursos históricos e retóricos: primeiro com transcrição, depois sem, gravando a própria voz.",
+			"objectives": [
+				"Fazer shadowing de trechos de discursos históricos e retóricos mantendo ritmo e entonação."
+			],
+			"assess": [
+				"shadowing",
+				"read_aloud_recording"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"shadowing",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Gravar 12 trechos de 1–2 min de discursos históricos e retóricos em shadowing sem transcrição, com ritmo e acento de frase próximos do modelo."
+			}
+		},
+		{
+			"id": "en.fluency.c2.high-level",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 6,
+			"title": {
+				"pt": "Conversação: conversa de alto nível",
+				"en": "Conversation: high-level conversation"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre temas especializados com nativos instruídos, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 30 min sobre temas especializados com nativos instruídos."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 89
+			},
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Completar 4 conversas de 30 min sobre temas especializados com nativos instruídos, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.c2.teaching",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 7,
+			"title": {
+				"pt": "Conversação: ensinar em inglês",
+				"en": "Conversation: teaching in English"
+			},
+			"summary": "Conversas com tarefa (tutor de IA ou parceiro) sobre explicações técnicas para colegas e alunos, com feedback corretivo priorizado e repetição da tarefa.",
+			"objectives": [
+				"Sustentar conversas de 20 min sobre explicações técnicas para colegas e alunos."
+			],
+			"assess": [
+				"role_play_rubric",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 89
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · C2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"conversation",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3.5,
+				"exitCriterion": "Completar 5 conversas de 20 min sobre explicações técnicas para colegas e alunos, repetindo cada tarefa uma vez e reduzindo hesitações na repetição."
+			}
+		},
+		{
+			"id": "en.fluency.c2.style-imitation",
+			"kind": "topic",
+			"parentId": "en.fluency.c2",
+			"order": 8,
+			"title": {
+				"pt": "Imitação de estilo",
+				"en": "Style imitation"
+			},
+			"summary": "Reescrever trechos imitando o estilo de autores e gêneros diferentes.",
+			"objectives": [
+				"Reescrever um texto no estilo de outro autor."
+			],
+			"assess": [
+				"timed_task"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 90
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"fluency",
+				"fluency_drill",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Produzir 6 pastiches de 300 palavras reconhecíveis por um leitor como do estilo-alvo."
+			}
+		}
+	],
+	"edges": [
+		{
+			"from": "en.fluency.b1.four-three-two-b1",
+			"to": "en.fluency.b1-plus.four-three-two-b1p",
+			"kind": "related"
+		},
+		{
+			"from": "en.fluency.b2.native-podcasts",
+			"to": "en.listening.b2.native-podcasts",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "nation-four-strands",
+			"title": "Nation (2007), The four strands; Nation & Newton — ensino de L2",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "lexical-coverage",
+			"title": "Cobertura lexical para compreensão (Nation 2006; van Zeeland & Schmitt 2012)",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "er-foundation",
+			"title": "Extensive Reading Foundation — Guide to Extensive Reading e escala de graded readers",
+			"url": "https://erfoundation.org/",
+			"license": "Material gratuito; apenas referência",
+			"usage": "reference"
+		},
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "gse-lo-adult",
+			"title": "Global Scale of English Learning Objectives — Adult (Pearson, 2022)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE aproximadas como referência de nível",
+			"usage": "reference"
+		},
+		{
+			"id": "voa-learning-english",
+			"title": "VOA Learning English (material em domínio público do governo dos EUA)",
+			"url": "https://learningenglish.voanews.com/",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		}
+	]
+}

@@ -867,7 +867,7 @@ test('normal due review retains weighted choice within the selected cue pool and
   const p = h.state().propositions[0], [easy, excluded, untried] = p.cues;
   await h.grade({ cueIds: [easy.id] }, 4);
   assert.equal((await h.call('next-review', { cueIds: [untried.id] })).ticket, null);
-  now += 30 * 86400000;
+  now += 90 * 86400000; // past a first-Easy FSRS-7 interval (~54 days)
   const before = h.state().propositions[0].schedule;
   const random = t.mock.method(Math, 'random', () => .2);
   const scope = { cueIds: [easy.id, untried.id] };
@@ -913,7 +913,7 @@ for (const mode of ['learning', 'relearning']) test(`${mode} cue filtering skips
   const [pinned, excluded, fallback] = initial.cues;
   if (mode === 'relearning') {
     await h.grade({ cueIds: [pinned.id] }, 4);
-    now += 30 * 86400000;
+    now += 90 * 86400000; // past a first-Easy FSRS-7 interval (~54 days)
   }
   await h.grade({ cueIds: [pinned.id] }, 1);
   const p = h.state().propositions[0], due = p.schedule.due;
@@ -951,7 +951,7 @@ test('filtered cues share one proposition schedule, history and introduction acr
   await h.grade({ deckIds: [source.id], cueIds: [p.cues[0].id] }, 4);
   assert.deepEqual(h.state().decks.map(d => d.newToday), [1, 1]);
   assert.equal((await h.call('next-review', { deckIds: [shared.id], cueIds: [p.cues[1].id] })).ticket, null);
-  now += 30 * 86400000;
+  now += 90 * 86400000; // past a first-Easy FSRS-7 interval (~54 days)
   await h.grade({ deckIds: [shared.id], cueIds: [p.cues[1].id] }, 4);
   assert.equal(h.state().propositions.length, 1);
   assert.equal(h.state().propositions[0].schedule.reps, 2);
@@ -1018,7 +1018,7 @@ test('remaining combines ready due and admissible new propositions, excluding fu
   const h = harness(t, graph('learning', 'review', 'future', 'new1', 'new2'));
   await h.generate(cards('learning', 'Pinned', 'Alternate'), cards('review', 'Due review'), cards('future', 'Future learning'), cards('new1', 'New one'), cards('new2', 'New two'));
   await h.grade({ propositionIds: ['review'] }, 4);
-  now += 30 * 86400000;
+  now += 90 * 86400000; // past a first-Easy FSRS-7 interval (~54 days)
   await h.grade({ propositionIds: ['learning'] }, 1);
   now += 60000;
   await h.grade({ propositionIds: ['future'] }, 1);

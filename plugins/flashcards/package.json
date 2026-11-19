@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Native flashcards and spaced review for LearnHarness. No Anki integration.",
+  "description": "Flashcards and FSRS-7 spaced review for LearnHarness, with Obsidian and Anki export.",
   "license": "AGPL-3.0-only",
   "scripts": {
     "build": "node scripts/build.mjs",
@@ -12,5 +12,9 @@
   },
   "devDependencies": {
     "esbuild": "0.28.2"
+  },
+  "dependencies": {
+    "anki-apkg-export": "5.0.0",
+    "ts-fsrs": "6.0.0"
   }
 }

@@ -1,0 +1,2128 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.listening",
+	"items": [
+		{
+			"id": "en.listening.a1",
+			"kind": "unit",
+			"parentId": "en.listening",
+			"order": 0,
+			"title": {
+				"pt": "Escuta A1",
+				"en": "Listening A1"
+			},
+			"summary": "Fala lenta e clara sobre informações pessoais e necessidades imediatas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 10,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.listening.a1.alphabet-spelling",
+			"kind": "topic",
+			"parentId": "en.listening.a1",
+			"order": 0,
+			"title": {
+				"pt": "Alfabeto e soletração",
+				"en": "Alphabet and spelling"
+			},
+			"summary": "Entender nomes, e-mails e endereços soletrados.",
+			"objectives": [
+				"Anotar corretamente nomes e e-mails soletrados em velocidade lenta."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to announcements and instructions · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a1.numbers-prices-times",
+			"kind": "topic",
+			"parentId": "en.listening.a1",
+			"order": 1,
+			"title": {
+				"pt": "Números, preços e horários",
+				"en": "Numbers, prices and times"
+			},
+			"summary": "Captar números, valores e horas em falas curtas.",
+			"objectives": [
+				"Anotar preços, horários e telefones ditos com clareza."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to announcements and instructions · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a1.personal-info",
+			"kind": "topic",
+			"parentId": "en.listening.a1",
+			"order": 2,
+			"title": {
+				"pt": "Informações pessoais",
+				"en": "Personal information"
+			},
+			"summary": "Perguntas e respostas sobre nome, origem, trabalho e família.",
+			"objectives": [
+				"Entender perguntas pessoais simples ditas devagar."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a1.simple-instructions",
+			"kind": "topic",
+			"parentId": "en.listening.a1",
+			"order": 3,
+			"title": {
+				"pt": "Instruções simples",
+				"en": "Simple instructions"
+			},
+			"summary": "Comandos curtos em sala, no trabalho e em aplicativos.",
+			"objectives": [
+				"Seguir instruções curtas e diretas."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to announcements and instructions · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a1.short-dialogues",
+			"kind": "topic",
+			"parentId": "en.listening.a1",
+			"order": 4,
+			"title": {
+				"pt": "Diálogos curtos do cotidiano",
+				"en": "Short everyday dialogues"
+			},
+			"summary": "Cumprimentos, compras e pedidos em ritmo lento.",
+			"objectives": [
+				"Identificar o assunto e a informação-chave em diálogos de 30 s."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a2",
+			"kind": "unit",
+			"parentId": "en.listening",
+			"order": 1,
+			"title": {
+				"pt": "Escuta A2",
+				"en": "Listening A2"
+			},
+			"summary": "Situações previsíveis do dia a dia e gravações curtas com apoio visual.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"softPrereqs": [
+				"en.listening.a1"
+			],
+			"hours": {
+				"lo": 14.5,
+				"hi": 21.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.listening.a2.predicting",
+			"kind": "topic",
+			"parentId": "en.listening.a2",
+			"order": 0,
+			"title": {
+				"pt": "Prever antes de ouvir",
+				"en": "Predicting before listening"
+			},
+			"summary": "Usar título, imagens e situação para antecipar palavras e conteúdo.",
+			"objectives": [
+				"Listar previsões antes de ouvir e conferi-las depois."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.listening.a2.transactions",
+			"kind": "topic",
+			"parentId": "en.listening.a2",
+			"order": 1,
+			"title": {
+				"pt": "Transações do dia a dia",
+				"en": "Everyday transactions"
+			},
+			"summary": "Lojas, restaurantes, transporte e serviços.",
+			"objectives": [
+				"Entender o essencial em atendimentos e compras."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a2.announcements",
+			"kind": "topic",
+			"parentId": "en.listening.a2",
+			"order": 2,
+			"title": {
+				"pt": "Avisos em estações e aeroportos",
+				"en": "Station and airport announcements"
+			},
+			"summary": "Captar portão, horário, atraso e mudança em avisos simples.",
+			"objectives": [
+				"Extrair horário, local e mudança de avisos gravados."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to announcements and instructions · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a2.directions",
+			"kind": "topic",
+			"parentId": "en.listening.a2",
+			"order": 3,
+			"title": {
+				"pt": "Direções e localização",
+				"en": "Directions"
+			},
+			"summary": "Entender instruções de caminho a pé ou de transporte.",
+			"objectives": [
+				"Seguir no mapa uma rota explicada oralmente."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to announcements and instructions · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a2.voice-messages",
+			"kind": "topic",
+			"parentId": "en.listening.a2",
+			"order": 4,
+			"title": {
+				"pt": "Mensagens de voz",
+				"en": "Voice messages"
+			},
+			"summary": "Recados curtos de áudio de amigos, serviços e trabalho.",
+			"objectives": [
+				"Anotar quem, o quê, quando e onde a partir de um recado."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a2.conversation-gist",
+			"kind": "topic",
+			"parentId": "en.listening.a2",
+			"order": 5,
+			"title": {
+				"pt": "Ideia geral de conversas",
+				"en": "Conversation gist"
+			},
+			"summary": "Entender o tema de conversas entre outras pessoas sobre assuntos familiares.",
+			"objectives": [
+				"Identificar o tema e a relação entre os falantes."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.a2.learner-videos",
+			"kind": "topic",
+			"parentId": "en.listening.a2",
+			"order": 6,
+			"title": {
+				"pt": "Vídeos com apoio visual",
+				"en": "Videos with visual support"
+			},
+			"summary": "Vídeos curtos para aprendizes com imagens que sustentam o sentido.",
+			"objectives": [
+				"Responder perguntas de compreensão sobre vídeos de 2–3 min."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b1",
+			"kind": "unit",
+			"parentId": "en.listening",
+			"order": 2,
+			"title": {
+				"pt": "Escuta B1",
+				"en": "Listening B1"
+			},
+			"summary": "Pontos principais de fala clara sobre temas familiares, programas e palestras curtas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"softPrereqs": [
+				"en.listening.a2"
+			],
+			"hours": {
+				"lo": 23,
+				"hi": 32
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.listening.b1.gist-detail",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 0,
+			"title": {
+				"pt": "Ideia geral × detalhe",
+				"en": "Gist vs detail"
+			},
+			"summary": "Ouvir duas vezes com objetivos diferentes e lidar com palavras desconhecidas.",
+			"objectives": [
+				"Separar ideia principal de detalhes num áudio de 3–5 min."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.listening.b1.micro-listening",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 1,
+			"title": {
+				"pt": "Escuta intensiva com transcrição",
+				"en": "Micro-listening with transcripts"
+			},
+			"summary": "Ditado parcial e comparação com a transcrição para treinar decodificação.",
+			"objectives": [
+				"Completar lacunas de transcrição de fala natural com ≥80% de acerto."
+			],
+			"assess": [
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 45
+			},
+			"softPrereqs": [
+				"en.pron.connected-speech.fast-speech-decoding"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b1.learner-podcasts",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 2,
+			"title": {
+				"pt": "Podcasts para aprendizes",
+				"en": "Podcasts for learners"
+			},
+			"summary": "Episódios graduados sobre cotidiano e cultura.",
+			"objectives": [
+				"Resumir os pontos principais de um episódio de 10 min."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 47
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b1.series-subtitled",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 3,
+			"title": {
+				"pt": "Séries com legenda em inglês",
+				"en": "Series with English subtitles"
+			},
+			"summary": "Sitcoms e séries com legenda no idioma original.",
+			"objectives": [
+				"Acompanhar o enredo de um episódio com legenda em inglês."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 49
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b1.short-talks",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 4,
+			"title": {
+				"pt": "Palestras curtas",
+				"en": "Short talks"
+			},
+			"summary": "Apresentações claras sobre temas familiares ou da área de interesse.",
+			"objectives": [
+				"Anotar os 3–5 pontos principais de uma palestra de 10 min."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening as a member of a live audience · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b1.detailed-instructions",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 5,
+			"title": {
+				"pt": "Instruções detalhadas",
+				"en": "Detailed instructions"
+			},
+			"summary": "Configurar um aparelho, seguir uma receita ou um procedimento.",
+			"objectives": [
+				"Executar um procedimento de 6–10 passos ouvido uma vez."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to announcements and instructions · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b1.native-conversations",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 6,
+			"title": {
+				"pt": "Conversas nativas sobre temas familiares",
+				"en": "Native conversations on familiar topics"
+			},
+			"summary": "Conversas reais em velocidade normal sobre assuntos conhecidos.",
+			"objectives": [
+				"Seguir os pontos principais de uma conversa entre nativos."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b1.note-taking",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 7,
+			"title": {
+				"pt": "Anotações durante a escuta",
+				"en": "Note-taking while listening"
+			},
+			"summary": "Abreviações, palavras-chave e estrutura em notas rápidas.",
+			"objectives": [
+				"Produzir notas que permitam reconstruir o conteúdo de um áudio."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.listening.b1.speaker-attitude",
+			"kind": "topic",
+			"parentId": "en.listening.b1",
+			"order": 8,
+			"title": {
+				"pt": "Atitude e opinião do falante",
+				"en": "Speaker attitude and opinion"
+			},
+			"summary": "Perceber concordância, dúvida e entusiasmo além das palavras.",
+			"objectives": [
+				"Identificar a opinião de cada falante numa discussão simples."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2",
+			"kind": "unit",
+			"parentId": "en.listening",
+			"order": 3,
+			"title": {
+				"pt": "Escuta B2",
+				"en": "Listening B2"
+			},
+			"summary": "Fala padrão ao vivo ou gravada sobre temas concretos e abstratos, inclusive discussões técnicas da área.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.listening.b1"
+			],
+			"hours": {
+				"lo": 26,
+				"hi": 35
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.listening.b2.news",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 0,
+			"title": {
+				"pt": "Telejornais e rádio",
+				"en": "News broadcasts"
+			},
+			"summary": "Notícias em velocidade natural com vocabulário de política, economia e ciência.",
+			"objectives": [
+				"Resumir uma reportagem de rádio ou TV de 3–5 min."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.documentaries",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 1,
+			"title": {
+				"pt": "Documentários",
+				"en": "Documentaries"
+			},
+			"summary": "Narração clara com termos técnicos introduzidos no contexto.",
+			"objectives": [
+				"Explicar as ideias centrais de um documentário de divulgação."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 61
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.native-podcasts",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 2,
+			"title": {
+				"pt": "Podcasts nativos",
+				"en": "Native podcasts"
+			},
+			"summary": "Conversas e entrevistas não roteirizadas para público nativo.",
+			"objectives": [
+				"Seguir argumentos e trocas de turno num podcast nativo."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.lectures",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 3,
+			"title": {
+				"pt": "Aulas e palestras acadêmicas",
+				"en": "Lectures"
+			},
+			"summary": "Estrutura de aulas, sinalizadores de discurso e notas.",
+			"objectives": [
+				"Tomar notas estruturadas de uma aula de 20–30 min."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"softPrereqs": [
+				"en.listening.b1.note-taking"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening as a member of a live audience · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.films-unsubtitled",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 4,
+			"title": {
+				"pt": "Filmes sem legenda",
+				"en": "Films without subtitles"
+			},
+			"summary": "Filmes em inglês padrão sem legenda, com retomada por cenas.",
+			"objectives": [
+				"Acompanhar a maior parte do enredo de um filme em inglês padrão."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.discussions",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 5,
+			"title": {
+				"pt": "Discussões e debates",
+				"en": "Discussions and debates"
+			},
+			"summary": "Seguir argumentos animados entre vários falantes.",
+			"objectives": [
+				"Identificar posições e argumentos em uma discussão em grupo."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.calls",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 6,
+			"title": {
+				"pt": "Chamadas de voz e vídeo",
+				"en": "Phone and video calls"
+			},
+			"summary": "Áudio comprimido, ruído e falta de pistas visuais.",
+			"objectives": [
+				"Resolver um assunto por telefone sem pedir repetição frequente."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.accent-variety",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 7,
+			"title": {
+				"pt": "Variedade de sotaques",
+				"en": "Accent variety"
+			},
+			"summary": "Compreender falantes de várias regiões e falantes não nativos.",
+			"objectives": [
+				"Entender falantes de 4+ sotaques sobre temas conhecidos."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 73
+			},
+			"softPrereqs": [
+				"en.pron.accents.ga-rp"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.b2.implicature",
+			"kind": "topic",
+			"parentId": "en.listening.b2",
+			"order": 8,
+			"title": {
+				"pt": "Inferência e implícitos",
+				"en": "Inference and implicature"
+			},
+			"summary": "O que é sugerido e não dito: recusas indiretas, ironia leve, insinuações.",
+			"objectives": [
+				"Inferir intenções não explícitas em diálogos."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c1",
+			"kind": "unit",
+			"parentId": "en.listening",
+			"order": 4,
+			"title": {
+				"pt": "Escuta C1",
+				"en": "Listening C1"
+			},
+			"summary": "Fala longa, pouco estruturada, idiomática e técnica, com esforço reduzido.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.listening.b2"
+			],
+			"hours": {
+				"lo": 20,
+				"hi": 27
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.listening.c1.extended-speech",
+			"kind": "topic",
+			"parentId": "en.listening.c1",
+			"order": 0,
+			"title": {
+				"pt": "Fala longa e pouco estruturada",
+				"en": "Extended unstructured speech"
+			},
+			"summary": "Relações implícitas entre ideias em falas longas.",
+			"objectives": [
+				"Reconstruir a estrutura argumentativa de uma fala de 30+ min."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c1.colloquial-films",
+			"kind": "topic",
+			"parentId": "en.listening.c1",
+			"order": 1,
+			"title": {
+				"pt": "Filmes e séries coloquiais",
+				"en": "Colloquial films and series"
+			},
+			"summary": "Gírias, idioms e fala sobreposta em produções contemporâneas.",
+			"objectives": [
+				"Entender gírias e idioms em séries sem legenda."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 77
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Watching TV, film and video · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c1.technical-talks",
+			"kind": "topic",
+			"parentId": "en.listening.c1",
+			"order": 2,
+			"title": {
+				"pt": "Palestras técnicas de engenharia",
+				"en": "Engineering talks"
+			},
+			"summary": "Conferências e webinars de eletrônica e computação.",
+			"objectives": [
+				"Resumir uma palestra técnica com termos e números corretos."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"softPrereqs": [
+				"en.academic.technical-reading"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening as a member of a live audience · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c1.panels-qa",
+			"kind": "topic",
+			"parentId": "en.listening.c1",
+			"order": 3,
+			"title": {
+				"pt": "Painéis e sessões de perguntas",
+				"en": "Panels and Q&A"
+			},
+			"summary": "Perguntas espontâneas, interrupções e respostas improvisadas.",
+			"objectives": [
+				"Seguir trocas rápidas em painéis e sessões de perguntas."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening as a member of a live audience · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c1.humour-irony",
+			"kind": "topic",
+			"parentId": "en.listening.c1",
+			"order": 4,
+			"title": {
+				"pt": "Humor e ironia",
+				"en": "Humour and irony"
+			},
+			"summary": "Ironia, sarcasmo e piadas culturais na fala.",
+			"objectives": [
+				"Reconhecer ironia e humor implícito em conversa."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c1.degraded-audio",
+			"kind": "topic",
+			"parentId": "en.listening.c1",
+			"order": 5,
+			"title": {
+				"pt": "Áudio degradado",
+				"en": "Degraded audio"
+			},
+			"summary": "Avisos distorcidos, ruído de fundo, chamadas ruins.",
+			"objectives": [
+				"Extrair informação específica de áudio com ruído."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to announcements and instructions · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c1.group-overlap",
+			"kind": "topic",
+			"parentId": "en.listening.c1",
+			"order": 6,
+			"title": {
+				"pt": "Conversa em grupo com sobreposição",
+				"en": "Overlapping group talk"
+			},
+			"summary": "Várias vozes simultâneas, mudanças rápidas de assunto.",
+			"objectives": [
+				"Acompanhar uma conversa informal de 4+ nativos."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Understanding conversation between other speakers · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c2",
+			"kind": "unit",
+			"parentId": "en.listening",
+			"order": 5,
+			"title": {
+				"pt": "Escuta C2",
+				"en": "Listening C2"
+			},
+			"summary": "Qualquer tipo de fala, ao vivo ou gravada, em velocidade nativa.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"softPrereqs": [
+				"en.listening.c1"
+			],
+			"hours": {
+				"lo": 13,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.listening.c2.any-speed",
+			"kind": "topic",
+			"parentId": "en.listening.c2",
+			"order": 0,
+			"title": {
+				"pt": "Qualquer fala em velocidade nativa",
+				"en": "Any speech at native speed"
+			},
+			"summary": "Fala rápida e especializada sem perda relevante de sentido.",
+			"objectives": [
+				"Entender fala nativa rápida sobre temas pouco familiares."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 85
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c2.dialects",
+			"kind": "topic",
+			"parentId": "en.listening.c2",
+			"order": 1,
+			"title": {
+				"pt": "Dialetos regionais",
+				"en": "Regional dialects"
+			},
+			"summary": "Variedades regionais marcadas e inglês não padrão.",
+			"objectives": [
+				"Compreender o essencial de falantes com dialeto regional forte."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 86
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c2.cultural-references",
+			"kind": "topic",
+			"parentId": "en.listening.c2",
+			"order": 2,
+			"title": {
+				"pt": "Referências culturais",
+				"en": "Cultural references"
+			},
+			"summary": "Alusões a mídia, história e cultura pop em conversa.",
+			"objectives": [
+				"Identificar e explicar alusões culturais ouvidas."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c2.stand-up",
+			"kind": "topic",
+			"parentId": "en.listening.c2",
+			"order": 3,
+			"title": {
+				"pt": "Stand-up comedy",
+				"en": "Stand-up comedy"
+			},
+			"summary": "Humor rápido, trocadilhos e timing cômico.",
+			"objectives": [
+				"Explicar por que uma piada de stand-up funciona."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 89
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening as a member of a live audience · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.listening.c2.specialist-podcasts",
+			"kind": "topic",
+			"parentId": "en.listening.c2",
+			"order": 4,
+			"title": {
+				"pt": "Podcasts especializados",
+				"en": "Specialist podcasts"
+			},
+			"summary": "Podcasts técnicos e acadêmicos para especialistas.",
+			"objectives": [
+				"Avaliar criticamente argumentos de um podcast especializado."
+			],
+			"assess": [
+				"comprehension_items",
+				"dictation",
+				"summary"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 90
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Listening to audio media and recordings · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Listening · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "en.listening.b1.micro-listening",
+			"to": "en.pron.connected-speech.fast-speech-decoding",
+			"kind": "related"
+		},
+		{
+			"from": "en.listening.b2.lectures",
+			"to": "en.academic.lectures-seminars",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "gse-lo-adult",
+			"title": "Global Scale of English Learning Objectives — Adult (Pearson, 2022)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE aproximadas como referência de nível",
+			"usage": "reference"
+		},
+		{
+			"id": "lexical-coverage",
+			"title": "Cobertura lexical para compreensão (Nation 2006; van Zeeland & Schmitt 2012)",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "nation-four-strands",
+			"title": "Nation (2007), The four strands; Nation & Newton — ensino de L2",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		}
+	]
+}

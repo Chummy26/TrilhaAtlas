@@ -1,0 +1,2783 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.ac",
+	"items": [
+		{
+			"id": "ee.ac.transients1",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 0,
+			"title": {
+				"pt": "Circuitos de 1ª ordem",
+				"en": "First-order circuits"
+			},
+			"summary": "Respostas natural e ao degrau de circuitos RC e RL, constante de tempo e efeito em sinais digitais.",
+			"scope": "Dentro: RC e RL com fontes constantes e chaveamento, constante de tempo, pulsos. Fora: segunda ordem.",
+			"objectives": [
+				"Calcular a resposta de circuitos RC e RL a degraus",
+				"Prever atrasos RC em sinais digitais"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:first-order-transients",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients1.rc-natural",
+			"kind": "topic",
+			"parentId": "ee.ac.transients1",
+			"order": 0,
+			"title": {
+				"pt": "Circuito RC: resposta natural",
+				"en": "RC circuit: natural response"
+			},
+			"summary": "Descarga de um capacitor por um resistor, constante de tempo τ = RC e decaimento exponencial.",
+			"scope": "Dentro: resposta natural RC, τ = RC, energia dissipada. Fora: entrada forçada.",
+			"objectives": [
+				"Derivar a resposta natural de um circuito RC a partir da EDO",
+				"Calcular a constante de tempo vista pelo capacitor via Thévenin"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Usar a resistência errada no cálculo de τ (não a de Thévenin vista pelo capacitor)"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.storage.capacitor-element",
+					"ee.dc.theorems.thevenin",
+					"ee.math.ode.first-order"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:first-order-transients",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients1.rl-natural",
+			"kind": "topic",
+			"parentId": "ee.ac.transients1",
+			"order": 1,
+			"title": {
+				"pt": "Circuito RL: resposta natural",
+				"en": "RL circuit: natural response"
+			},
+			"summary": "Decaimento da corrente em um indutor por um resistor e constante de tempo τ = L/R.",
+			"scope": "Dentro: resposta natural RL, τ = L/R. Fora: entrada forçada.",
+			"objectives": [
+				"Derivar a resposta natural de um circuito RL",
+				"Calcular a constante de tempo vista pelo indutor"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.storage.inductor-element",
+					"ee.dc.theorems.thevenin",
+					"ee.math.ode.first-order"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:first-order-transients",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients1.step-response",
+			"kind": "topic",
+			"parentId": "ee.ac.transients1",
+			"order": 2,
+			"title": {
+				"pt": "Resposta ao degrau e método da constante de tempo",
+				"en": "Step response and the time-constant method"
+			},
+			"summary": "Resposta completa x(t) = x(∞) + [x(0) − x(∞)]e^{−t/τ} para circuitos de 1ª ordem com fontes constantes.",
+			"scope": "Dentro: método inicial-final-τ, resposta completa, regime permanente CC. Fora: entradas senoidais.",
+			"objectives": [
+				"Aplicar o método da constante de tempo para obter a resposta ao degrau",
+				"Determinar valores inicial e final analisando o circuito em CC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.transients1.rc-natural",
+					"ee.ac.transients1.rl-natural"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:first-order-transients",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients1.switching-transients",
+			"kind": "topic",
+			"parentId": "ee.ac.transients1",
+			"order": 3,
+			"title": {
+				"pt": "Chaveamento e condições iniciais",
+				"en": "Switching and initial conditions"
+			},
+			"summary": "Continuidade de tensão em capacitores e de corrente em indutores em circuitos com chaves e sequências de chaveamento.",
+			"scope": "Dentro: condições iniciais, chaveamentos sucessivos, continuidade. Fora: impulsos e Dirac.",
+			"objectives": [
+				"Determinar condições iniciais após o acionamento de uma chave",
+				"Analisar circuitos com dois chaveamentos sucessivos"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.transients1.step-response"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:first-order-transients",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients1.rc-pulse",
+			"kind": "topic",
+			"parentId": "ee.ac.transients1",
+			"order": 4,
+			"title": {
+				"pt": "Pulsos, trens de pulsos e atraso RC em lógica",
+				"en": "Pulses, pulse trains and RC delay in logic"
+			},
+			"summary": "Resposta RC a pulsos e ondas quadradas, tempo de subida 10–90% e atraso de propagação em portas lógicas.",
+			"scope": "Dentro: resposta a pulsos, tempo de subida, atraso RC em interconexões e portas. Fora: modelos de atraso CMOS detalhados.",
+			"objectives": [
+				"Calcular o tempo de subida de um circuito RC",
+				"Estimar o atraso de propagação de uma porta modelada por RC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.transients1.step-response",
+					"ee.dc.nonlinear.switches-digital-abstraction"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:first-order-transients",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients2",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 1,
+			"title": {
+				"pt": "Circuitos de 2ª ordem",
+				"en": "Second-order circuits"
+			},
+			"summary": "Circuitos RLC: resposta natural e ao degrau, amortecimento e variáveis de estado.",
+			"scope": "Dentro: RLC série e paralelo, fator de amortecimento, resposta ao degrau, variáveis de estado. Fora: ordem superior arbitrária.",
+			"objectives": [
+				"Classificar o amortecimento de circuitos RLC",
+				"Calcular overshoot e tempo de acomodação"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 14,
+				"hi": 19
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:second-order-transients",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients2.rlc-series-natural",
+			"kind": "topic",
+			"parentId": "ee.ac.transients2",
+			"order": 0,
+			"title": {
+				"pt": "RLC série: resposta natural",
+				"en": "Series RLC: natural response"
+			},
+			"summary": "EDO de 2ª ordem do RLC série, frequência natural ω₀ e coeficiente de amortecimento α.",
+			"scope": "Dentro: EDO do RLC série, ω₀, α, raízes características. Fora: entrada forçada.",
+			"objectives": [
+				"Montar a EDO de um circuito RLC série",
+				"Calcular ω₀ e α a partir dos componentes"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.transients1.step-response",
+					"ee.math.ode.second-order"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:second-order-transients",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients2.damping",
+			"kind": "topic",
+			"parentId": "ee.ac.transients2",
+			"order": 1,
+			"title": {
+				"pt": "Amortecimento: sub, crítico e sobreamortecido",
+				"en": "Damping: under, critical and overdamped"
+			},
+			"summary": "Fator de amortecimento ζ, fator Q e a forma da resposta em cada regime.",
+			"scope": "Dentro: ζ, Q, três regimes, envoltória exponencial. Fora: resposta em frequência.",
+			"objectives": [
+				"Classificar o regime de amortecimento a partir de ζ",
+				"Esboçar a resposta natural em cada regime"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que amortecimento crítico é o mais lento"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.transients2.rlc-series-natural"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:second-order-transients",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients2.rlc-step",
+			"kind": "topic",
+			"parentId": "ee.ac.transients2",
+			"order": 2,
+			"title": {
+				"pt": "RLC: resposta ao degrau, overshoot e acomodação",
+				"en": "RLC step response, overshoot and settling"
+			},
+			"summary": "Resposta completa ao degrau, sobressinal, tempo de subida e tempo de acomodação.",
+			"scope": "Dentro: resposta ao degrau, overshoot, tempos de subida e acomodação. Fora: especificações de controle.",
+			"objectives": [
+				"Calcular o overshoot e o tempo de acomodação de um RLC",
+				"Escolher componentes para um amortecimento desejado"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.transients2.damping"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:second-order-transients",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients2.rlc-parallel",
+			"kind": "topic",
+			"parentId": "ee.ac.transients2",
+			"order": 3,
+			"title": {
+				"pt": "RLC paralelo e dualidade",
+				"en": "Parallel RLC and duality"
+			},
+			"summary": "RLC paralelo como dual do série e relações entre seus parâmetros.",
+			"scope": "Dentro: RLC paralelo, dualidade série-paralelo. Fora: redes de ordem superior.",
+			"objectives": [
+				"Analisar a resposta natural de um RLC paralelo",
+				"Aplicar dualidade para obter um circuito dual"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.transients2.rlc-series-natural"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:second-order-transients",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.transients2.state-variables-circuits",
+			"kind": "topic",
+			"parentId": "ee.ac.transients2",
+			"order": 4,
+			"title": {
+				"pt": "Variáveis de estado em circuitos",
+				"en": "State variables in circuits"
+			},
+			"summary": "Tensões de capacitores e correntes de indutores como estados; formulação x' = Ax + Bu de circuitos.",
+			"scope": "Dentro: escolha de estados, equações de estado de circuitos RLC. Fora: controle em espaço de estados.",
+			"objectives": [
+				"Escrever as equações de estado de um circuito RLC",
+				"Relacionar autovalores de A aos modos naturais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.transients2.rlc-step",
+					"ee.math.ode.systems-ode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:second-order-transients",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.phasors",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 2,
+			"title": {
+				"pt": "Regime senoidal permanente",
+				"en": "Sinusoidal steady state"
+			},
+			"summary": "Formas de onda CA, fasores, impedância e análise de circuitos em regime senoidal permanente.",
+			"scope": "Dentro: valores médio e eficaz, fasores, impedância e admitância, análise nodal e Thévenin em CA, diagramas fasoriais. Fora: resposta em frequência.",
+			"objectives": [
+				"Analisar circuitos em regime senoidal com fasores",
+				"Relacionar fasores às formas de onda medidas"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 13,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.phasors.ac-waveforms",
+			"kind": "topic",
+			"parentId": "ee.ac.phasors",
+			"order": 0,
+			"title": {
+				"pt": "Formas de onda CA: pico, médio e eficaz",
+				"en": "AC waveforms: peak, average and RMS"
+			},
+			"summary": "Valores de pico, pico a pico, médio e eficaz de senoides e de ondas não senoidais; multímetros True RMS.",
+			"scope": "Dentro: pico, pico a pico, médio, RMS, fator de crista. Fora: harmônicos.",
+			"objectives": [
+				"Calcular os valores médio e eficaz de formas de onda comuns",
+				"Explicar por que um multímetro não True RMS erra em ondas não senoidais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que 127 V na tomada é o valor de pico"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.math.calc.integral-apps"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.phasors.phasor-domain",
+			"kind": "topic",
+			"parentId": "ee.ac.phasors",
+			"order": 1,
+			"title": {
+				"pt": "Fasores em circuitos",
+				"en": "Phasors in circuits"
+			},
+			"summary": "Transformação fasorial de tensões e correntes e relações V–I fasoriais de R, L e C.",
+			"scope": "Dentro: relações fasoriais de R, L e C, LKC e LKT com fasores. Fora: transitórios.",
+			"objectives": [
+				"Transformar um circuito para o domínio fasorial",
+				"Calcular tensões e correntes fasoriais em elementos isolados"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.ac-waveforms",
+					"ee.math.complex.phasor-math",
+					"ee.dc.storage.capacitor-element",
+					"ee.dc.storage.inductor-element"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.phasors.impedance",
+			"kind": "topic",
+			"parentId": "ee.ac.phasors",
+			"order": 2,
+			"title": {
+				"pt": "Impedância e admitância",
+				"en": "Impedance and admittance"
+			},
+			"summary": "Impedância complexa, reatância, admitância e associações em série e paralelo no domínio fasorial.",
+			"scope": "Dentro: Z, X, Y, B, associações, comportamento com a frequência. Fora: linhas de transmissão.",
+			"objectives": [
+				"Calcular a impedância equivalente de redes RLC",
+				"Prever como a impedância de L e C varia com a frequência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Somar módulos de impedâncias em vez de complexos"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.phasor-domain"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.phasors.ac-analysis",
+			"kind": "topic",
+			"parentId": "ee.ac.phasors",
+			"order": 3,
+			"title": {
+				"pt": "Análise nodal, malhas e Thévenin em CA",
+				"en": "Nodal, mesh and Thévenin analysis in AC"
+			},
+			"summary": "Métodos sistemáticos e teoremas de rede aplicados com fasores e impedâncias.",
+			"scope": "Dentro: nodal, malhas, superposição com várias frequências, Thévenin e Norton em CA. Fora: redes de várias portas.",
+			"objectives": [
+				"Resolver circuitos CA por análise nodal com fasores",
+				"Aplicar superposição quando há fontes de frequências diferentes"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Somar fasores de fontes com frequências diferentes"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.impedance",
+					"ee.dc.theorems.thevenin"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "ee.dc.methods.nodal",
+					"w": 0.4
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.phasors.phasor-diagrams",
+			"kind": "topic",
+			"parentId": "ee.ac.phasors",
+			"order": 4,
+			"title": {
+				"pt": "Diagramas fasoriais",
+				"en": "Phasor diagrams"
+			},
+			"summary": "Representação gráfica de tensões e correntes para visualizar defasagens e somas.",
+			"scope": "Dentro: diagramas fasoriais de circuitos RLC série e paralelo. Fora: trifásico.",
+			"objectives": [
+				"Esboçar o diagrama fasorial de um circuito RLC",
+				"Ler defasagens entre grandezas no diagrama"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.impedance"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.power",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 3,
+			"title": {
+				"pt": "Potência em corrente alternada",
+				"en": "AC power"
+			},
+			"summary": "Potência instantânea e média, potência complexa, fator de potência e sua correção.",
+			"scope": "Dentro: potência ativa, reativa, aparente e complexa, fator de potência, correção, máxima transferência em CA. Fora: harmônicos.",
+			"objectives": [
+				"Calcular potências ativa, reativa e aparente",
+				"Dimensionar a correção do fator de potência"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.power.instantaneous-average",
+			"kind": "topic",
+			"parentId": "ee.ac.power",
+			"order": 0,
+			"title": {
+				"pt": "Potência instantânea e média",
+				"en": "Instantaneous and average power"
+			},
+			"summary": "Potência instantânea em regime senoidal, potência média e uso de valores eficazes.",
+			"scope": "Dentro: p(t), potência média, P = V_rms·I_rms·cos φ. Fora: potência complexa.",
+			"objectives": [
+				"Calcular a potência média absorvida por uma impedância",
+				"Explicar por que capacitores e indutores ideais não consomem potência média"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.impedance"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.power.complex-power",
+			"kind": "topic",
+			"parentId": "ee.ac.power",
+			"order": 1,
+			"title": {
+				"pt": "Potência complexa: ativa, reativa e aparente",
+				"en": "Complex power: active, reactive and apparent"
+			},
+			"summary": "S = VI*, triângulo de potências e unidades W, var e VA.",
+			"scope": "Dentro: S, P, Q, triângulo de potências, conservação de potência complexa. Fora: medição trifásica.",
+			"objectives": [
+				"Calcular S, P e Q de cargas e de circuitos",
+				"Aplicar a conservação da potência complexa em um circuito"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que potência reativa é potência 'perdida'"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.power.instantaneous-average",
+					"ee.ac.phasors.ac-analysis"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.power.power-factor",
+			"kind": "topic",
+			"parentId": "ee.ac.power",
+			"order": 2,
+			"title": {
+				"pt": "Fator de potência e correção",
+				"en": "Power factor and correction"
+			},
+			"summary": "Fator de potência, consequências para a rede e dimensionamento de capacitores de correção.",
+			"scope": "Dentro: FP de deslocamento, correção com capacitores. Fora: FP com harmônicos e PFC ativo.",
+			"objectives": [
+				"Calcular o capacitor necessário para corrigir o fator de potência",
+				"Explicar por que concessionárias cobram baixo fator de potência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.power.complex-power"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.power.max-power-ac",
+			"kind": "topic",
+			"parentId": "ee.ac.power",
+			"order": 3,
+			"title": {
+				"pt": "Máxima transferência de potência em CA",
+				"en": "Maximum power transfer in AC"
+			},
+			"summary": "Casamento conjugado Z_L = Z_th* e casos com carga restrita.",
+			"scope": "Dentro: casamento conjugado, carga puramente resistiva. Fora: casamento em RF com linhas.",
+			"objectives": [
+				"Calcular a impedância de carga para máxima transferência",
+				"Calcular a potência máxima com carga puramente resistiva"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.power.complex-power",
+					"ee.dc.theorems.max-power"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.frequency",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 4,
+			"title": {
+				"pt": "Resposta em frequência e filtros passivos",
+				"en": "Frequency response and passive filters"
+			},
+			"summary": "Função de transferência H(jω), diagramas de Bode, filtros RC/RL/RLC e ressonância.",
+			"scope": "Dentro: H(jω), Bode assintótico, passa-baixas, passa-altas, passa-faixa, rejeita-faixa, ressonância e Q. Fora: filtros ativos.",
+			"objectives": [
+				"Traçar diagramas de Bode assintóticos",
+				"Projetar filtros passivos de 1ª e 2ª ordem"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 14,
+				"hi": 19
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:foundations",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.frequency.transfer-function-jw",
+			"kind": "topic",
+			"parentId": "ee.ac.frequency",
+			"order": 0,
+			"title": {
+				"pt": "Função de transferência H(jω)",
+				"en": "Transfer function H(jω)"
+			},
+			"summary": "Razão entre fasores de saída e entrada em função da frequência; módulo e fase.",
+			"scope": "Dentro: H(jω), módulo, fase, frequência de corte. Fora: domínio s.",
+			"objectives": [
+				"Obter H(jω) de um circuito RC ou RL",
+				"Calcular módulo e fase de H em uma frequência dada"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.ac-analysis"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:foundations",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.frequency.bode",
+			"kind": "topic",
+			"parentId": "ee.ac.frequency",
+			"order": 1,
+			"title": {
+				"pt": "Diagramas de Bode",
+				"en": "Bode plots"
+			},
+			"summary": "Assíntotas de polos e zeros, inclinações de ±20 dB/década e aproximação da fase.",
+			"scope": "Dentro: Bode assintótico de módulo e fase, polos e zeros reais e complexos. Fora: estabilidade de malha.",
+			"objectives": [
+				"Traçar o Bode assintótico de uma função com polos e zeros reais",
+				"Ler ganho e fase em uma frequência a partir do Bode"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Esquecer o desvio de 3 dB na frequência de canto"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.frequency.transfer-function-jw",
+					"ee.math.algebra.decibels"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:foundations",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.frequency.passive-filters",
+			"kind": "topic",
+			"parentId": "ee.ac.frequency",
+			"order": 2,
+			"title": {
+				"pt": "Filtros passivos RC e RL",
+				"en": "RC and RL passive filters"
+			},
+			"summary": "Passa-baixas e passa-altas de 1ª ordem, frequência de corte e efeito de carga.",
+			"scope": "Dentro: passa-baixas e passa-altas de 1ª ordem, f_c, carga. Fora: filtros de ordem superior.",
+			"objectives": [
+				"Projetar um filtro RC para uma frequência de corte",
+				"Avaliar o efeito de uma carga sobre o filtro"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.frequency.bode",
+					"ee.dc.laws.loading"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:foundations",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.frequency.resonance",
+			"kind": "topic",
+			"parentId": "ee.ac.frequency",
+			"order": 3,
+			"title": {
+				"pt": "Ressonância, fator Q e largura de banda",
+				"en": "Resonance, Q factor and bandwidth"
+			},
+			"summary": "Ressonância série e paralela, fator de qualidade, largura de banda e ganho de tensão na ressonância.",
+			"scope": "Dentro: ressonância série e paralela, Q, banda de 3 dB, Q de componentes. Fora: osciladores.",
+			"objectives": [
+				"Calcular a frequência de ressonância, Q e a largura de banda",
+				"Explicar a amplificação de tensão em um RLC série ressonante"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.frequency.transfer-function-jw"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:foundations",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.frequency.bandpass-notch",
+			"kind": "topic",
+			"parentId": "ee.ac.frequency",
+			"order": 4,
+			"title": {
+				"pt": "Filtros passa-faixa e rejeita-faixa passivos",
+				"en": "Passive band-pass and band-stop filters"
+			},
+			"summary": "Filtros RLC de 2ª ordem para selecionar ou rejeitar faixas, incluindo o notch de 60 Hz.",
+			"scope": "Dentro: passa-faixa e rejeita-faixa RLC, notch. Fora: filtros ativos de 2ª ordem.",
+			"objectives": [
+				"Projetar um passa-faixa RLC para f₀ e Q dados",
+				"Projetar um notch para rejeitar 60 Hz"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.frequency.resonance",
+					"ee.ac.frequency.passive-filters"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:foundations",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.sdomain",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 5,
+			"title": {
+				"pt": "Análise no domínio s e quadripolos",
+				"en": "s-domain analysis and two-ports"
+			},
+			"summary": "Circuitos transformados por Laplace, polos e zeros, transientes com condições iniciais e quadripolos.",
+			"scope": "Dentro: impedâncias em s, polos e zeros, resposta completa via Laplace, parâmetros z, y, h e ABCD. Fora: parâmetros S (ver RF).",
+			"objectives": [
+				"Resolver circuitos no domínio s com condições iniciais",
+				"Caracterizar redes de duas portas"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.sdomain.s-domain-circuits",
+			"kind": "topic",
+			"parentId": "ee.ac.sdomain",
+			"order": 0,
+			"title": {
+				"pt": "Circuitos no domínio s",
+				"en": "Circuits in the s-domain"
+			},
+			"summary": "Impedâncias sL e 1/sC, fontes de condição inicial e análise nodal em s.",
+			"scope": "Dentro: modelos de elementos em s, condições iniciais como fontes, H(s). Fora: Laplace bilateral.",
+			"objectives": [
+				"Transformar um circuito para o domínio s incluindo condições iniciais",
+				"Obter H(s) de um circuito RLC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.math.transforms.inverse-laplace",
+					"ee.ac.phasors.impedance"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.sdomain.poles-zeros",
+			"kind": "topic",
+			"parentId": "ee.ac.sdomain",
+			"order": 1,
+			"title": {
+				"pt": "Polos, zeros e resposta natural",
+				"en": "Poles, zeros and natural response"
+			},
+			"summary": "Localização de polos e zeros no plano s e sua relação com estabilidade e forma da resposta.",
+			"scope": "Dentro: mapa de polos e zeros, estabilidade, relação com Bode. Fora: lugar das raízes.",
+			"objectives": [
+				"Relacionar a posição dos polos à resposta no tempo",
+				"Obter o diagrama de Bode a partir de polos e zeros"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.sdomain.s-domain-circuits"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.sdomain.transient-laplace",
+			"kind": "topic",
+			"parentId": "ee.ac.sdomain",
+			"order": 2,
+			"title": {
+				"pt": "Transientes completos via Laplace",
+				"en": "Complete transients via Laplace"
+			},
+			"summary": "Resposta completa de circuitos de qualquer ordem com condições iniciais e entradas arbitrárias.",
+			"scope": "Dentro: resposta completa, estado zero e entrada zero, entradas degrau, rampa e senoide. Fora: convolução.",
+			"objectives": [
+				"Calcular a resposta completa de um circuito de 2ª ordem via Laplace",
+				"Separar as respostas de entrada zero e de estado zero"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.sdomain.s-domain-circuits",
+					"ee.math.transforms.laplace-ode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.sdomain.two-ports",
+			"kind": "topic",
+			"parentId": "ee.ac.sdomain",
+			"order": 3,
+			"title": {
+				"pt": "Quadripolos: parâmetros z, y, h e ABCD",
+				"en": "Two-port networks: z, y, h and ABCD parameters"
+			},
+			"summary": "Caracterização de redes de duas portas, conversões entre parâmetros e associação em cascata.",
+			"scope": "Dentro: parâmetros z, y, h, ABCD, cascata, reciprocidade. Fora: parâmetros S.",
+			"objectives": [
+				"Calcular os parâmetros de um quadripolo simples",
+				"Usar parâmetros ABCD para associar redes em cascata"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.ac-analysis",
+					"ee.dc.theorems.thevenin-dependent"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc:laplace-transform",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.magnetic",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 6,
+			"title": {
+				"pt": "Acoplamento magnético e transformadores",
+				"en": "Magnetic coupling and transformers"
+			},
+			"summary": "Indutância mútua, transformador ideal, reflexão de impedância e transformadores reais.",
+			"scope": "Dentro: indutância mútua, pontos, transformador ideal e real, circuito equivalente. Fora: projeto de transformadores (ver potência).",
+			"objectives": [
+				"Analisar circuitos com acoplamento magnético",
+				"Modelar transformadores reais por circuito equivalente"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.magnetic.mutual-inductance",
+			"kind": "topic",
+			"parentId": "ee.ac.magnetic",
+			"order": 0,
+			"title": {
+				"pt": "Indutância mútua e convenção de pontos",
+				"en": "Mutual inductance and the dot convention"
+			},
+			"summary": "Tensões induzidas por acoplamento, coeficiente de acoplamento k e convenção de pontos.",
+			"scope": "Dentro: M, k, convenção de pontos, equações acopladas. Fora: transformador ideal.",
+			"objectives": [
+				"Escrever as equações de circuitos acoplados usando a convenção de pontos",
+				"Calcular a energia armazenada em indutores acoplados"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.ac-analysis"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.magnetic.ideal-transformer",
+			"kind": "topic",
+			"parentId": "ee.ac.magnetic",
+			"order": 1,
+			"title": {
+				"pt": "Transformador ideal e reflexão de impedância",
+				"en": "Ideal transformer and impedance reflection"
+			},
+			"summary": "Relações de tensão e corrente pela relação de espiras e impedância refletida n²Z.",
+			"scope": "Dentro: relação de espiras, reflexão de impedância, casamento com transformador. Fora: perdas.",
+			"objectives": [
+				"Calcular tensões e correntes em transformadores ideais",
+				"Usar um transformador para casar impedâncias"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.magnetic.mutual-inductance"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.magnetic.real-transformer",
+			"kind": "topic",
+			"parentId": "ee.ac.magnetic",
+			"order": 2,
+			"title": {
+				"pt": "Transformador real: circuito equivalente e perdas",
+				"en": "Real transformer: equivalent circuit and losses"
+			},
+			"summary": "Indutância de magnetização, dispersão, perdas no cobre e no núcleo, ensaios de vazio e curto.",
+			"scope": "Dentro: circuito equivalente, regulação, rendimento, ensaios. Fora: projeto de magnéticos de alta frequência.",
+			"objectives": [
+				"Montar o circuito equivalente de um transformador a partir de ensaios",
+				"Calcular regulação e rendimento"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.magnetic.ideal-transformer",
+					"ee.physics.magnetism.magnetic-materials"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "2",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.threephase",
+			"kind": "unit",
+			"parentId": "ee.ac",
+			"order": 7,
+			"title": {
+				"pt": "Sistemas trifásicos, rede e máquinas",
+				"en": "Three-phase systems, mains and machines"
+			},
+			"summary": "Circuitos trifásicos equilibrados, potência trifásica, a rede elétrica brasileira, visão geral de motores e a estrutura do sistema elétrico.",
+			"scope": "Dentro: Y e Δ equilibrados, potência trifásica, tensões de 127/220 V e 60 Hz, aterramento TN/TT, DR, visão geral de máquinas, diagrama unifilar e sistema por unidade. Fora: fluxo de carga, curto-circuito e proteção de sistemas de potência.",
+			"objectives": [
+				"Calcular tensões, correntes e potências em sistemas trifásicos",
+				"Explicar a rede de distribuição brasileira e seus esquemas de aterramento",
+				"Usar o sistema por unidade em um diagrama unifilar simples"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "5",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Power Systems",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "esquemas de aterramento",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.threephase.three-phase",
+			"kind": "topic",
+			"parentId": "ee.ac.threephase",
+			"order": 0,
+			"title": {
+				"pt": "Sistemas trifásicos equilibrados (Y e Δ)",
+				"en": "Balanced three-phase systems (Y and Δ)"
+			},
+			"summary": "Sequência de fases, tensões de linha e de fase, ligações estrela e triângulo e análise por fase.",
+			"scope": "Dentro: Y e Δ equilibrados, relações √3, análise por fase. Fora: sistemas desequilibrados e componentes simétricas.",
+			"objectives": [
+				"Calcular tensões e correntes de linha e de fase em Y e Δ",
+				"Analisar um sistema equilibrado pelo equivalente monofásico"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Aplicar √3 entre grandezas de fase em ligação estrela"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.power.complex-power"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "5",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Power Systems",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "esquemas de aterramento",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.threephase.three-phase-power",
+			"kind": "topic",
+			"parentId": "ee.ac.threephase",
+			"order": 1,
+			"title": {
+				"pt": "Potência trifásica e medição",
+				"en": "Three-phase power and measurement"
+			},
+			"summary": "Potência total em sistemas equilibrados e o método dos dois wattímetros.",
+			"scope": "Dentro: P, Q, S trifásicas, dois wattímetros. Fora: medição em sistemas desequilibrados.",
+			"objectives": [
+				"Calcular a potência total de uma carga trifásica",
+				"Aplicar o método dos dois wattímetros"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.threephase.three-phase"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "5",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Power Systems",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "esquemas de aterramento",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.threephase.mains-br",
+			"kind": "topic",
+			"parentId": "ee.ac.threephase",
+			"order": 2,
+			"title": {
+				"pt": "Rede elétrica no Brasil: tensões, aterramento e DR",
+				"en": "Brazilian mains: voltages, earthing and RCDs"
+			},
+			"summary": "Tensões 127/220 V e 220/380 V, 60 Hz, padrão de tomadas NBR 14136, esquemas TN e TT, terra versus neutro e dispositivo DR.",
+			"scope": "Dentro: tensões de distribuição, tomadas, esquemas de aterramento, DR, DPS. Fora: projeto de instalações.",
+			"objectives": [
+				"Explicar a diferença entre neutro e terra e o funcionamento do DR",
+				"Identificar as tensões disponíveis em instalações residenciais brasileiras"
+			],
+			"bloom": "understand",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Usar o neutro como terra de proteção"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.ac-waveforms"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "5",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Power Systems",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "esquemas de aterramento",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"safety"
+			]
+		},
+		{
+			"id": "ee.ac.threephase.motors-intro",
+			"kind": "topic",
+			"parentId": "ee.ac.threephase",
+			"order": 3,
+			"title": {
+				"pt": "Máquinas elétricas: visão geral",
+				"en": "Electric machines: overview"
+			},
+			"summary": "Princípios de motores CC, de indução e síncronos, curvas de torque e campo girante.",
+			"scope": "Dentro: princípio de operação, campo girante, curvas torque-velocidade, placa do motor. Fora: projeto de máquinas.",
+			"objectives": [
+				"Explicar como o campo girante produz torque em um motor de indução",
+				"Interpretar os dados de placa de um motor"
+			],
+			"bloom": "understand",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.ac.threephase.three-phase"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "5",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Power Systems",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "esquemas de aterramento",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac.threephase.power-grid-basics",
+			"kind": "topic",
+			"parentId": "ee.ac.threephase",
+			"order": 4,
+			"title": {
+				"pt": "Sistema elétrico: geração, transmissão, distribuição e valores por unidade",
+				"en": "The power grid: generation, transmission, distribution and per-unit values"
+			},
+			"summary": "Estrutura do sistema elétrico, diagrama unifilar, níveis de tensão, sistema por unidade e queda de tensão e perdas em linhas curtas.",
+			"scope": "Dentro: geração, transmissão e distribuição, diagrama unifilar, sistema por unidade, modelo de linha curta, regulação de tensão. Fora: fluxo de carga, curto-circuito, estabilidade e proteção de sistemas de potência.",
+			"objectives": [
+				"Converter impedâncias e potências para o sistema por unidade em um diagrama unifilar",
+				"Calcular a queda de tensão e as perdas em uma linha curta"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que transmitir em tensão mais alta aumenta as perdas, confundindo a tensão da linha com a queda de tensão sobre ela"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.threephase.three-phase-power",
+					"ee.ac.magnetic.ideal-transformer"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Power Systems",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.ac.frequency.bode",
+			"to": "ee.control.freq-design",
+			"kind": "also_in"
+		},
+		{
+			"from": "ee.ac.transients2.damping",
+			"to": "ee.control.response.time-specs",
+			"kind": "related"
+		},
+		{
+			"from": "ee.ac.power.complex-power",
+			"to": "ee.ac.power.instantaneous-average",
+			"kind": "confusable_with"
+		}
+	],
+	"sources": [
+		{
+			"id": "abnt-nbr-5410",
+			"title": "ABNT NBR 5410 — Instalações elétricas de baixa tensão",
+			"license": "© ABNT; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "agarwal-lang",
+			"title": "Agarwal & Lang — Foundations of Analog and Digital Electronic Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "liec-kuphaldt",
+			"title": "Tony R. Kuphaldt — Lessons in Electric Circuits (vol. I–VI)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/",
+			"license": "Design Science License ou CC BY 4.0 conforme a edição; tratado aqui como só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.002-s07",
+			"title": "MIT OCW 6.002 — Circuits and Electronics (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "oppenheim-willsky-ss",
+			"title": "Oppenheim & Willsky — Signals and Systems, 2ª ed.",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		}
+	]
+}

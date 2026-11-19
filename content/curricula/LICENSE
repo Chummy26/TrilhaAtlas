@@ -1,0 +1,25 @@
+Curriculum data (content/curricula/**)
+Copyright (c) 2026 learnharness contributors
+
+This directory contains DATA, not code. It is licensed separately from the
+application source code (AGPL-3.0) under:
+
+  Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+  https://creativecommons.org/licenses/by-sa/4.0/
+  Full legal code: https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+You are free to share and adapt this material for any purpose, including
+commercially, as long as you give appropriate credit, indicate if changes were
+made, and distribute your contributions under the same license.
+
+Third-party sources:
+- Each seed file lists the sources it consulted in its "sources" array, with
+  license notes. Anchors marked "embeddable": false (e.g. CEFR Companion
+  Volume descriptors, English Profile EGP/EVP, Pearson GSE, MIT OCW, commercial
+  textbooks) are cited by name/level/identifier only; no text from them is
+  reproduced here.
+- Lists such as NGSL/NAWL and Octanove C1/C2 are CC BY-SA 4.0; CEFR-J profiles
+  (Tono Lab, TUFS) are free for research and commercial use with citation.
+
+Os dados de currículo deste diretório são distribuídos sob CC BY-SA 4.0,
+separados do código AGPL-3.0 do aplicativo.

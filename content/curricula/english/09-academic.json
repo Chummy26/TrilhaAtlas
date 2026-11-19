@@ -1,0 +1,2531 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.academic",
+	"items": [
+		{
+			"id": "en.academic.foundations",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 0,
+			"title": {
+				"pt": "Fundamentos do inglês acadêmico",
+				"en": "Academic English foundations"
+			},
+			"summary": "Gêneros acadêmicos, traços de estilo formal e estratégias para textos acadêmicos.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 6.5,
+				"hi": 10.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 50–62",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.foundations.genres",
+			"kind": "topic",
+			"parentId": "en.academic.foundations",
+			"order": 0,
+			"title": {
+				"pt": "Gêneros acadêmicos e técnicos",
+				"en": "Academic and technical genres"
+			},
+			"summary": "Paper, tese, relatório técnico, datasheet, nota de aplicação, norma: propósito e estrutura.",
+			"objectives": [
+				"Identificar gênero e propósito de um documento técnico pela estrutura."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 50
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.foundations.style-features",
+			"kind": "topic",
+			"parentId": "en.academic.foundations",
+			"order": 1,
+			"title": {
+				"pt": "Traços do estilo acadêmico",
+				"en": "Features of academic style"
+			},
+			"summary": "Impessoalidade, nominalização, precisão e cautela.",
+			"objectives": [
+				"Distinguir frases acadêmicas de frases conversacionais e reescrevê-las."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"softPrereqs": [
+				"en.grammar.b1.passive-basic"
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.foundations.reading-strategies",
+			"kind": "topic",
+			"parentId": "en.academic.foundations",
+			"order": 2,
+			"title": {
+				"pt": "Estratégias de leitura acadêmica",
+				"en": "Academic reading strategies"
+			},
+			"summary": "Ler pela estrutura: títulos, frases-tópico, figuras e conclusões primeiro.",
+			"objectives": [
+				"Extrair a contribuição principal de um texto acadêmico em 10 min."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.foundations.citation-integrity",
+			"kind": "topic",
+			"parentId": "en.academic.foundations",
+			"order": 3,
+			"title": {
+				"pt": "Citação e integridade",
+				"en": "Citation and academic integrity"
+			},
+			"summary": "Citar, parafrasear, evitar plágio e usar IA com transparência.",
+			"objectives": [
+				"Diferenciar citação, paráfrase e plágio em exemplos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.technical-vocab",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 1,
+			"title": {
+				"pt": "Vocabulário técnico de eletrônica",
+				"en": "Electronics technical vocabulary"
+			},
+			"summary": "Termos essenciais de circuitos, componentes, medidas e sistemas digitais, e como ler matemática em voz alta.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 17.5,
+				"hi": 24.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 48–66",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.technical-vocab.components",
+			"kind": "topic",
+			"parentId": "en.academic.technical-vocab",
+			"order": 0,
+			"title": {
+				"pt": "Componentes eletrônicos",
+				"en": "Electronic components"
+			},
+			"summary": "Nomes, símbolos e verbos associados a componentes passivos e ativos.",
+			"objectives": [
+				"Nomear e descrever a função de 20 componentes comuns em inglês."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 46
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"electronics-bridge",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "resistor",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "capacitor",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "inductor",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "diode",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "transistor",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "op-amp",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "relay",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "crystal",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.academic.technical-vocab.circuit-terms",
+			"kind": "topic",
+			"parentId": "en.academic.technical-vocab",
+			"order": 1,
+			"title": {
+				"pt": "Termos de circuitos",
+				"en": "Circuit terms"
+			},
+			"summary": "Grandezas, topologias e verbos de circuitos (drive, sink, bias, couple).",
+			"objectives": [
+				"Descrever um circuito simples em inglês com termos corretos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 48
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"electronics-bridge",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "voltage",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "current",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "ground",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "node",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "series",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "parallel",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "bias",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "load",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.academic.technical-vocab.instruments",
+			"kind": "topic",
+			"parentId": "en.academic.technical-vocab",
+			"order": 2,
+			"title": {
+				"pt": "Instrumentos e medidas",
+				"en": "Instruments and measurement"
+			},
+			"summary": "Osciloscópio, multímetro, fonte, gerador de funções e vocabulário de bancada.",
+			"objectives": [
+				"Explicar um procedimento de medição em inglês."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 50
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"electronics-bridge",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "oscilloscope",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "multimeter",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "probe",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "power supply",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "measure",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "trigger",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "calibrate",
+					"pos": "verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.academic.technical-vocab.math-aloud",
+			"kind": "topic",
+			"parentId": "en.academic.technical-vocab",
+			"order": 3,
+			"title": {
+				"pt": "Ler matemática e unidades em voz alta",
+				"en": "Reading maths and units aloud"
+			},
+			"summary": "Equações, potências de dez, prefixos SI, letras gregas, frações e o ponto decimal.",
+			"objectives": [
+				"Ler em voz alta equações e valores com unidades sem ambiguidade."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"misconceptions": [
+				"Ler a vírgula decimal do português ('two comma five') em vez de 'two point five'.",
+				"Ler 10⁻³ como 'ten minus three' em vez de 'ten to the minus three'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"electronics-bridge",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "squared",
+					"pos": "adj",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "over",
+					"pos": "preposition",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "to the power of",
+					"pos": "phrase",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "micro",
+					"pos": "prefix",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "tau",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "omega",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "approximately",
+					"pos": "adverb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.academic.technical-vocab.signals-terms",
+			"kind": "topic",
+			"parentId": "en.academic.technical-vocab",
+			"order": 4,
+			"title": {
+				"pt": "Termos de sinais e sistemas",
+				"en": "Signals and systems terms"
+			},
+			"summary": "Frequência, ganho, banda, fase, ruído e filtragem.",
+			"objectives": [
+				"Descrever a resposta de um filtro em inglês."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"electronics-bridge",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "frequency",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "gain",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "bandwidth",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "phase",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "noise",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "cutoff",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "attenuate",
+					"pos": "verb",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.academic.technical-vocab.digital-embedded-terms",
+			"kind": "topic",
+			"parentId": "en.academic.technical-vocab",
+			"order": 5,
+			"title": {
+				"pt": "Termos de digital e embarcados",
+				"en": "Digital and embedded terms"
+			},
+			"summary": "Registradores, barramentos, clock, interrupções e firmware.",
+			"objectives": [
+				"Explicar o funcionamento de um periférico de microcontrolador em inglês."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"electronics-bridge",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "register",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "bus",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "clock",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "interrupt",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "firmware",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "flash",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "peripheral",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.academic.technical-vocab.pcb-lab",
+			"kind": "topic",
+			"parentId": "en.academic.technical-vocab",
+			"order": 6,
+			"title": {
+				"pt": "PCB, montagem e laboratório",
+				"en": "PCB, assembly and lab"
+			},
+			"summary": "Layout, solda, footprint, trilha, via e segurança no laboratório.",
+			"objectives": [
+				"Descrever um problema de montagem de placa em inglês."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"electronics-bridge",
+				"lexical_set"
+			],
+			"lexicalItems": [
+				{
+					"lemma": "footprint",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "trace",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "via",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "solder",
+					"pos": "verb",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "schematic",
+					"pos": "noun",
+					"cefr": "B1"
+				},
+				{
+					"lemma": "enclosure",
+					"pos": "noun",
+					"cefr": "B1"
+				}
+			]
+		},
+		{
+			"id": "en.academic.technical-reading",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 2,
+			"title": {
+				"pt": "Leitura técnica",
+				"en": "Technical reading"
+			},
+			"summary": "Datasheets, notas de aplicação, manuais de referência, normas e fóruns técnicos.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.academic.technical-vocab"
+			],
+			"hours": {
+				"lo": 14,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.technical-reading.datasheets",
+			"kind": "topic",
+			"parentId": "en.academic.technical-reading",
+			"order": 0,
+			"title": {
+				"pt": "Datasheets",
+				"en": "Datasheets"
+			},
+			"summary": "Estrutura, absolute maximum ratings, características elétricas, notas de rodapé e condições de teste.",
+			"objectives": [
+				"Extrair de um datasheet os limites e parâmetros para um projeto."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"misconceptions": [
+				"Tratar valores 'typical' como garantidos."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.technical-reading.app-notes",
+			"kind": "topic",
+			"parentId": "en.academic.technical-reading",
+			"order": 1,
+			"title": {
+				"pt": "Notas de aplicação",
+				"en": "Application notes"
+			},
+			"summary": "Raciocínio de projeto, recomendações e armadilhas descritas pelos fabricantes.",
+			"objectives": [
+				"Resumir as recomendações de projeto de uma nota de aplicação."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 62
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.technical-reading.reference-manuals",
+			"kind": "topic",
+			"parentId": "en.academic.technical-reading",
+			"order": 2,
+			"title": {
+				"pt": "Manuais de referência",
+				"en": "Reference manuals"
+			},
+			"summary": "Manuais de microcontroladores: mapas de registradores, diagramas de tempo, errata.",
+			"objectives": [
+				"Localizar e interpretar a configuração de um periférico no manual."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.technical-reading.standards",
+			"kind": "topic",
+			"parentId": "en.academic.technical-reading",
+			"order": 3,
+			"title": {
+				"pt": "Normas e especificações",
+				"en": "Standards and specifications"
+			},
+			"summary": "Linguagem normativa: shall, should, may; requisitos e conformidade.",
+			"objectives": [
+				"Interpretar requisitos normativos distinguindo shall, should e may."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.technical-reading.forums-docs",
+			"kind": "topic",
+			"parentId": "en.academic.technical-reading",
+			"order": 4,
+			"title": {
+				"pt": "Fóruns e documentação online",
+				"en": "Forums and online docs"
+			},
+			"summary": "Stack Exchange, issues de GitHub e documentação de ferramentas.",
+			"objectives": [
+				"Encontrar e validar uma solução técnica em fóruns em inglês."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.technical-reading.patents",
+			"kind": "topic",
+			"parentId": "en.academic.technical-reading",
+			"order": 5,
+			"title": {
+				"pt": "Patentes",
+				"en": "Patents"
+			},
+			"summary": "Estrutura de patentes e leitura de reivindicações.",
+			"objectives": [
+				"Identificar o problema, a solução e as reivindicações de uma patente."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-reading",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 3,
+			"title": {
+				"pt": "Leitura de papers",
+				"en": "Reading research papers"
+			},
+			"summary": "Anatomia de um paper de engenharia e leitura eficiente em três passadas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"softPrereqs": [
+				"en.academic.foundations",
+				"en.vocab.academic.nawl-1"
+			],
+			"hours": {
+				"lo": 15.5,
+				"hi": 22.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 66–80",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.paper-reading.anatomy",
+			"kind": "topic",
+			"parentId": "en.academic.paper-reading",
+			"order": 0,
+			"title": {
+				"pt": "Anatomia de um paper",
+				"en": "Anatomy of a paper"
+			},
+			"summary": "IMRaD e variações em papers IEEE: título, abstract, seções, referências.",
+			"objectives": [
+				"Mapear a função de cada seção de um paper IEEE."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 66
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "ieee-author-center",
+					"ref": "estrutura de artigos",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-reading.three-pass",
+			"kind": "topic",
+			"parentId": "en.academic.paper-reading",
+			"order": 1,
+			"title": {
+				"pt": "Leitura em três passadas",
+				"en": "Three-pass reading"
+			},
+			"summary": "Passadas de triagem, compreensão e reconstrução crítica.",
+			"objectives": [
+				"Fazer a triagem de 5 papers em 30 min e escolher qual ler a fundo."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 68
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.academic.paper-reading.abstracts",
+			"kind": "topic",
+			"parentId": "en.academic.paper-reading",
+			"order": 2,
+			"title": {
+				"pt": "Abstracts",
+				"en": "Abstracts"
+			},
+			"summary": "Movimentos retóricos do abstract: contexto, lacuna, método, resultado, implicação.",
+			"objectives": [
+				"Identificar os movimentos retóricos de um abstract."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 70
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "academic-phrasebank",
+					"ref": "abstracts",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-reading.introductions",
+			"kind": "topic",
+			"parentId": "en.academic.paper-reading",
+			"order": 3,
+			"title": {
+				"pt": "Introduções e trabalhos relacionados",
+				"en": "Introductions and related work"
+			},
+			"summary": "Criar espaço de pesquisa: território, lacuna e contribuição.",
+			"objectives": [
+				"Explicar a lacuna e a contribuição declaradas na introdução."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-reading.methods",
+			"kind": "topic",
+			"parentId": "en.academic.paper-reading",
+			"order": 4,
+			"title": {
+				"pt": "Métodos e montagem experimental",
+				"en": "Methods and experimental setup"
+			},
+			"summary": "Descrição de circuitos, simulações, montagem e parâmetros.",
+			"objectives": [
+				"Reconstruir o procedimento experimental a partir da seção de métodos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 73
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-reading.figures-tables",
+			"kind": "topic",
+			"parentId": "en.academic.paper-reading",
+			"order": 5,
+			"title": {
+				"pt": "Figuras, gráficos e tabelas",
+				"en": "Figures, plots and tables"
+			},
+			"summary": "Ler legendas, eixos, escalas logarítmicas e tabelas comparativas.",
+			"objectives": [
+				"Descrever em inglês o que uma figura de resultados mostra."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 74
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-reading.results-discussion",
+			"kind": "topic",
+			"parentId": "en.academic.paper-reading",
+			"order": 6,
+			"title": {
+				"pt": "Resultados e discussão",
+				"en": "Results and discussion"
+			},
+			"summary": "Como os autores interpretam, comparam e limitam seus resultados.",
+			"objectives": [
+				"Separar resultado, interpretação e especulação na discussão."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-critique",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 4,
+			"title": {
+				"pt": "Leitura crítica de papers",
+				"en": "Critical reading of papers"
+			},
+			"summary": "Avaliar afirmações, evidência estatística, limitações e comparar trabalhos como um revisor.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.academic.paper-reading"
+			],
+			"hours": {
+				"lo": 11.5,
+				"hi": 16.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.paper-critique.claims",
+			"kind": "topic",
+			"parentId": "en.academic.paper-critique",
+			"order": 0,
+			"title": {
+				"pt": "Avaliar afirmações",
+				"en": "Evaluating claims"
+			},
+			"summary": "Força da afirmação × força da evidência; linguagem de cautela.",
+			"objectives": [
+				"Classificar afirmações de um paper pela força da evidência."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-critique.stats-language",
+			"kind": "topic",
+			"parentId": "en.academic.paper-critique",
+			"order": 1,
+			"title": {
+				"pt": "Linguagem estatística",
+				"en": "Language of statistics"
+			},
+			"summary": "significant, confidence interval, error bars, outlier, correlation.",
+			"objectives": [
+				"Interpretar corretamente a linguagem estatística de resultados."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"misconceptions": [
+				"Ler 'significant' como 'grande' ou 'importante'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-critique.limitations",
+			"kind": "topic",
+			"parentId": "en.academic.paper-critique",
+			"order": 2,
+			"title": {
+				"pt": "Limitações e ameaças à validade",
+				"en": "Limitations and threats to validity"
+			},
+			"summary": "O que os autores admitem e o que omitem.",
+			"objectives": [
+				"Listar limitações explícitas e implícitas de um paper."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-critique.compare-papers",
+			"kind": "topic",
+			"parentId": "en.academic.paper-critique",
+			"order": 3,
+			"title": {
+				"pt": "Comparar trabalhos",
+				"en": "Comparing papers"
+			},
+			"summary": "Tabelas de comparação, métricas e condições de teste.",
+			"objectives": [
+				"Comparar 3 papers da mesma área numa tabela crítica."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.paper-critique.referee-review",
+			"kind": "topic",
+			"parentId": "en.academic.paper-critique",
+			"order": 4,
+			"title": {
+				"pt": "Revisar como um parecerista",
+				"en": "Reviewing like a referee"
+			},
+			"summary": "Estrutura e tom de pareceres de revisão por pares.",
+			"objectives": [
+				"Escrever um parecer curto, construtivo e fundamentado."
+			],
+			"assess": [
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 5,
+			"title": {
+				"pt": "Escrita acadêmica",
+				"en": "Academic writing"
+			},
+			"summary": "Escrever seções de paper, abstract e relatórios técnicos com convenções acadêmicas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.academic.paper-reading",
+				"en.writing.b2"
+			],
+			"hours": {
+				"lo": 20,
+				"hi": 29
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 76–86",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.academic-writing.hedging",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 0,
+			"title": {
+				"pt": "Hedging e cautela",
+				"en": "Hedging"
+			},
+			"summary": "may, appears to, suggests, it is likely that: calibrar a força das afirmações.",
+			"objectives": [
+				"Calibrar afirmações com hedges adequados à evidência."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "academic-phrasebank",
+					"ref": "being cautious",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.academic-paragraph",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 1,
+			"title": {
+				"pt": "Parágrafo acadêmico",
+				"en": "Academic paragraph"
+			},
+			"summary": "Frase-tópico, evidência, comentário e ligação.",
+			"objectives": [
+				"Escrever parágrafos acadêmicos com evidência e comentário."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 77
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.writing-abstract",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 2,
+			"title": {
+				"pt": "Escrever o abstract",
+				"en": "Writing the abstract"
+			},
+			"summary": "Abstract de 150–250 palavras com todos os movimentos retóricos.",
+			"objectives": [
+				"Escrever o abstract de um projeto próprio."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"softPrereqs": [
+				"en.academic.paper-reading.abstracts"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.writing-introduction",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 3,
+			"title": {
+				"pt": "Escrever a introdução",
+				"en": "Writing the introduction"
+			},
+			"summary": "Contexto, lacuna, objetivo e contribuições em sequência.",
+			"objectives": [
+				"Escrever uma introdução com lacuna e contribuição claras."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"softPrereqs": [
+				"en.academic.paper-reading.introductions"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.methods-results",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 4,
+			"title": {
+				"pt": "Descrever métodos e resultados",
+				"en": "Describing methods and results"
+			},
+			"summary": "Passiva, tempos verbais e descrição de figuras e números.",
+			"objectives": [
+				"Descrever um experimento e seus resultados com convenções acadêmicas."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.grammar.b2.passive-advanced"
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.discussion-conclusion",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 5,
+			"title": {
+				"pt": "Escrever discussão e conclusão",
+				"en": "Writing the discussion and conclusion"
+			},
+			"summary": "Interpretar os resultados, compará-los com trabalhos anteriores, admitir limitações e fechar com contribuições e trabalhos futuros sem repetir o abstract.",
+			"objectives": [
+				"Escrever uma discussão que interprete, compare e delimite os resultados.",
+				"Escrever uma conclusão que não seja cópia do abstract."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"misconceptions": [
+				"Repetir os resultados na discussão em vez de interpretá-los.",
+				"Fazer afirmações mais fortes do que os dados permitem."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"softPrereqs": [
+				"en.academic.paper-reading.results-discussion",
+				"en.academic.academic-writing.hedging"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "academic-phrasebank",
+					"ref": "Discussing findings; Writing conclusions",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.citing",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 6,
+			"title": {
+				"pt": "Citar e usar verbos de relato",
+				"en": "Citing and reporting verbs"
+			},
+			"summary": "argue, propose, demonstrate, claim; estilo IEEE de referência.",
+			"objectives": [
+				"Integrar citações com verbos de relato e formato IEEE."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "ieee-author-center",
+					"ref": "guia de referências",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.synthesis-paraphrase",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 7,
+			"title": {
+				"pt": "Paráfrase e síntese de literatura",
+				"en": "Paraphrase and literature synthesis"
+			},
+			"summary": "Agrupar trabalhos por ideia, não por autor.",
+			"objectives": [
+				"Escrever um parágrafo de trabalhos relacionados sintetizando 4+ fontes."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.academic-writing.reviewer-response",
+			"kind": "topic",
+			"parentId": "en.academic.academic-writing",
+			"order": 8,
+			"title": {
+				"pt": "Responder a pareceristas",
+				"en": "Responding to reviewers"
+			},
+			"summary": "Carta de resposta ponto a ponto: agradecer, concordar, discordar com evidência e indicar onde o manuscrito mudou; carta de submissão ao editor.",
+			"objectives": [
+				"Redigir respostas educadas e verificáveis a 5 comentários de pareceristas."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"misconceptions": [
+				"Responder de forma defensiva ou vaga, sem citar a mudança feita no manuscrito."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique.referee-review"
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "ieee-author-center",
+					"ref": "Revisão por pares e resposta a pareceristas",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.lectures-seminars",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 6,
+			"title": {
+				"pt": "Aulas e seminários",
+				"en": "Lectures and seminars"
+			},
+			"summary": "Acompanhar aulas técnicas, participar de seminários e fazer perguntas acadêmicas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.listening.b2.lectures"
+			],
+			"hours": {
+				"lo": 6.5,
+				"hi": 9.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 62–78",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.lectures-seminars.technical-lectures",
+			"kind": "topic",
+			"parentId": "en.academic.lectures-seminars",
+			"order": 0,
+			"title": {
+				"pt": "Aulas técnicas gravadas",
+				"en": "Recorded technical lectures"
+			},
+			"summary": "Aulas de engenharia com quadro, equações e demonstrações.",
+			"objectives": [
+				"Acompanhar uma aula técnica de 50 min tomando notas com equações."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 62
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.lectures-seminars.seminar-discussion",
+			"kind": "topic",
+			"parentId": "en.academic.lectures-seminars",
+			"order": 1,
+			"title": {
+				"pt": "Discussão em seminário",
+				"en": "Seminar discussion"
+			},
+			"summary": "Apresentar leitura, comentar trabalhos de colegas e defender posições.",
+			"objectives": [
+				"Conduzir 10 min de discussão sobre um paper lido."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 68
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.lectures-seminars.academic-questions",
+			"kind": "topic",
+			"parentId": "en.academic.lectures-seminars",
+			"order": 2,
+			"title": {
+				"pt": "Perguntas acadêmicas",
+				"en": "Asking academic questions"
+			},
+			"summary": "Formular perguntas claras e pertinentes a palestrantes.",
+			"objectives": [
+				"Fazer perguntas de esclarecimento e de desafio a um palestrante."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.tech-communication",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 7,
+			"title": {
+				"pt": "Comunicação técnica profissional",
+				"en": "Professional technical communication"
+			},
+			"summary": "Apresentações técnicas, documentos de projeto, revisão de código e comunicação em equipes de engenharia.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.speaking.b2.presentations"
+			],
+			"hours": {
+				"lo": 11,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 74–86",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.academic.tech-communication.technical-talks",
+			"kind": "topic",
+			"parentId": "en.academic.tech-communication",
+			"order": 0,
+			"title": {
+				"pt": "Apresentações técnicas",
+				"en": "Technical presentations"
+			},
+			"summary": "Narrativa técnica, slides com dados e demonstrações.",
+			"objectives": [
+				"Apresentar um projeto técnico de 15 min com dados e demonstração."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.tech-communication.conference",
+			"kind": "topic",
+			"parentId": "en.academic.tech-communication",
+			"order": 1,
+			"title": {
+				"pt": "Pôster e apresentação em congresso",
+				"en": "Conference poster and talk"
+			},
+			"summary": "Formato de congressos, pitch de pôster e sessão de perguntas.",
+			"objectives": [
+				"Defender um pôster técnico em 3 min e responder perguntas."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.tech-communication.design-docs",
+			"kind": "topic",
+			"parentId": "en.academic.tech-communication",
+			"order": 2,
+			"title": {
+				"pt": "Documentos de projeto",
+				"en": "Design documents"
+			},
+			"summary": "Requisitos, alternativas, decisões e trade-offs por escrito.",
+			"objectives": [
+				"Escrever um documento de projeto com alternativas e trade-offs."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.tech-communication.code-review",
+			"kind": "topic",
+			"parentId": "en.academic.tech-communication",
+			"order": 3,
+			"title": {
+				"pt": "Linguagem de revisão de código e hardware",
+				"en": "Code and design review language"
+			},
+			"summary": "Comentários de revisão, nits, bloqueios e sugestões.",
+			"objectives": [
+				"Escrever e responder comentários de revisão de forma clara e cordial."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"softPrereqs": [
+				"en.writing.c1.review-comments"
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.tech-communication.status-updates",
+			"kind": "topic",
+			"parentId": "en.academic.tech-communication",
+			"order": 4,
+			"title": {
+				"pt": "Status, standups e incidentes",
+				"en": "Status updates and incidents"
+			},
+			"summary": "Relatar progresso, bloqueios e incidentes de forma concisa.",
+			"objectives": [
+				"Dar um status de projeto em 1 min e redigir um relato de incidente."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.research-fronts",
+			"kind": "unit",
+			"parentId": "en.academic",
+			"order": 8,
+			"title": {
+				"pt": "Frentes de leitura (pós-C1)",
+				"en": "Reading fronts (post-C1)"
+			},
+			"summary": "Depois do C1, o inglês avança por frentes de leitura de papers por área de interesse, com horas-alvo e critério de saída.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 28.5,
+				"hi": 34
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 80–90",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"reading_front"
+			]
+		},
+		{
+			"id": "en.academic.research-fronts.literature-search",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 0,
+			"title": {
+				"pt": "Busca bibliográfica",
+				"en": "Literature search"
+			},
+			"summary": "IEEE Xplore, arXiv, Google Scholar, palavras-chave e encadeamento de citações.",
+			"objectives": [
+				"Montar uma lista de 10 papers relevantes sobre um tema com estratégia de busca."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.academic.research-fronts.reading-group",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 1,
+			"title": {
+				"pt": "Clube de leitura técnico",
+				"en": "Technical reading group"
+			},
+			"summary": "Ritual semanal de leitura, resumo oral e discussão de um paper.",
+			"objectives": [
+				"Apresentar oralmente um paper em 5 min e conduzir a discussão."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 3,
+				"exitCriterion": "Apresentar 2 papers em sessões de clube de leitura (5 min cada) respondendo a 3 perguntas sem preparação."
+			}
+		},
+		{
+			"id": "en.academic.research-fronts.front-analog",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 2,
+			"title": {
+				"pt": "Frente de leitura: Circuitos analógicos",
+				"en": "Reading front: analog circuits"
+			},
+			"summary": "Regime de leitura de papers e notas de aplicação em circuitos analógicos, com resumo e glossário pessoal.",
+			"objectives": [
+				"Ler, resumir e discutir criticamente 2–3 papers recentes de circuitos analógicos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"reading_front",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Resumir em inglês (150–200 palavras cada) 2–3 papers de circuitos analógicos/IC analógico, com 15+ termos novos no SRS e uma pergunta de pesquisa própria."
+			}
+		},
+		{
+			"id": "en.academic.research-fronts.front-rf",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 3,
+			"title": {
+				"pt": "Frente de leitura: RF e micro-ondas",
+				"en": "Reading front: RF and microwave"
+			},
+			"summary": "Regime de leitura de papers e notas de aplicação em RF e micro-ondas, com resumo e glossário pessoal.",
+			"objectives": [
+				"Ler, resumir e discutir criticamente 2–3 papers recentes de rf e micro-ondas."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"reading_front",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Resumir em inglês (150–200 palavras cada) 2–3 papers de RF/micro-ondas, com 15+ termos novos no SRS e uma pergunta de pesquisa própria."
+			}
+		},
+		{
+			"id": "en.academic.research-fronts.front-power",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 4,
+			"title": {
+				"pt": "Frente de leitura: Eletrônica de potência",
+				"en": "Reading front: power electronics"
+			},
+			"summary": "Regime de leitura de papers e notas de aplicação em eletrônica de potência, com resumo e glossário pessoal.",
+			"objectives": [
+				"Ler, resumir e discutir criticamente 2–3 papers recentes de eletrônica de potência."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"reading_front",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Resumir em inglês (150–200 palavras cada) 2–3 papers de eletrônica de potência, com 15+ termos novos no SRS e uma pergunta de pesquisa própria."
+			}
+		},
+		{
+			"id": "en.academic.research-fronts.front-embedded",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 5,
+			"title": {
+				"pt": "Frente de leitura: Sistemas embarcados",
+				"en": "Reading front: embedded systems"
+			},
+			"summary": "Regime de leitura de papers e notas de aplicação em sistemas embarcados, com resumo e glossário pessoal.",
+			"objectives": [
+				"Ler, resumir e discutir criticamente 2–3 papers recentes de sistemas embarcados."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"reading_front",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Resumir em inglês (150–200 palavras cada) 2–3 papers de sistemas embarcados, com 15+ termos novos no SRS e uma pergunta de pesquisa própria."
+			}
+		},
+		{
+			"id": "en.academic.research-fronts.front-digital-ic",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 6,
+			"title": {
+				"pt": "Frente de leitura: Digital, VLSI e projeto de CI",
+				"en": "Reading front: digital, VLSI and IC design"
+			},
+			"summary": "Regime de leitura de papers e notas de aplicação em circuitos digitais, VLSI e projeto de CI, com resumo e glossário pessoal.",
+			"objectives": [
+				"Ler, resumir e discutir criticamente 2–3 papers recentes de digital, VLSI ou projeto de CI."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"reading_front",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Resumir em inglês (150–200 palavras cada) 2–3 papers de circuitos digitais, VLSI ou projeto de CI, com 15+ termos novos no SRS e uma pergunta de pesquisa própria."
+			}
+		},
+		{
+			"id": "en.academic.research-fronts.front-signal",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 7,
+			"title": {
+				"pt": "Frente de leitura: Processamento de sinais",
+				"en": "Reading front: signal processing"
+			},
+			"summary": "Regime de leitura de papers e notas de aplicação em processamento de sinais, com resumo e glossário pessoal.",
+			"objectives": [
+				"Ler, resumir e discutir criticamente 2–3 papers recentes de processamento de sinais."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"reading_front",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Resumir em inglês (150–200 palavras cada) 2–3 papers de processamento de sinais, com 15+ termos novos no SRS e uma pergunta de pesquisa própria."
+			}
+		},
+		{
+			"id": "en.academic.research-fronts.front-control",
+			"kind": "topic",
+			"parentId": "en.academic.research-fronts",
+			"order": 8,
+			"title": {
+				"pt": "Frente de leitura: Controle",
+				"en": "Reading front: control systems"
+			},
+			"summary": "Regime de leitura de papers e notas de aplicação em controle, com resumo e glossário pessoal.",
+			"objectives": [
+				"Ler, resumir e discutir criticamente 2–3 papers recentes de controle."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"writing_rubric"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"softPrereqs": [
+				"en.academic.paper-critique"
+			],
+			"hours": {
+				"lo": 3.5,
+				"hi": 4
+			},
+			"status": "stub",
+			"tags": [
+				"academic",
+				"reading_front",
+				"practice_regime"
+			],
+			"practice": {
+				"targetHours": 4,
+				"exitCriterion": "Resumir em inglês (150–200 palavras cada) 2–3 papers de sistemas de controle, com 15+ termos novos no SRS e uma pergunta de pesquisa própria."
+			}
+		}
+	],
+	"edges": [
+		{
+			"from": "en.academic.technical-vocab.math-aloud",
+			"to": "en.pron.foundations.word-stress",
+			"kind": "related"
+		},
+		{
+			"from": "en.academic.paper-critique.stats-language",
+			"to": "en.reading.b2.critical-reading",
+			"kind": "related"
+		},
+		{
+			"from": "en.academic.academic-writing.discussion-conclusion",
+			"to": "en.academic.paper-critique.limitations",
+			"kind": "related"
+		},
+		{
+			"from": "en.academic.academic-writing.reviewer-response",
+			"to": "en.pragmatics.c1.face-negotiation",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "gse-lo-academic",
+			"title": "Global Scale of English Learning Objectives — Academic (Pearson)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE como referência",
+			"usage": "reference"
+		},
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "nawl-1.2",
+			"title": "New Academic Word List 1.2 (957 palavras)",
+			"url": "https://www.newgeneralservicelist.com/",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "academic-phrasebank",
+			"title": "Academic Phrasebank (University of Manchester)",
+			"url": "https://www.phrasebank.manchester.ac.uk/",
+			"license": "© University of Manchester; apenas referência a categorias funcionais",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-author-center",
+			"title": "IEEE Author Center — estrutura de artigos e guia de referências",
+			"url": "https://journals.ieeeauthorcenter.ieee.org/",
+			"license": "© IEEE; apenas referência",
+			"usage": "reference"
+		}
+	]
+}

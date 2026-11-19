@@ -1,0 +1,3212 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.semi",
+	"items": [
+		{
+			"id": "ee.semi.intro",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 0,
+			"title": {
+				"pt": "Semicondutores: visão qualitativa",
+				"en": "Semiconductors: qualitative view"
+			},
+			"summary": "Trilha técnica que explica qualitativamente semicondutores, junção pn e transistores, sem física quantitativa de portadores.",
+			"scope": "Dentro: dopagem, junção pn, diodo e transistores em nível conceitual. Fora: equações de portadores e modelos quantitativos.",
+			"objectives": [
+				"Explicar qualitativamente como diodos e transistores controlam corrente",
+				"Reconhecer terminais e regiões de operação"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 4,
+				"hi": 6
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.intro.pn-qualitative",
+			"kind": "topic",
+			"parentId": "ee.semi.intro",
+			"order": 0,
+			"title": {
+				"pt": "Semicondutores e junção pn em visão qualitativa",
+				"en": "Semiconductors and the pn junction, qualitatively"
+			},
+			"summary": "Silício, dopagem N e P, portadores majoritários, região de depleção e por que o diodo conduz em um sentido.",
+			"scope": "Dentro: dopagem, portadores, depleção, polarização direta e reversa em nível conceitual. Fora: equação de Shockley.",
+			"objectives": [
+				"Explicar por que um diodo conduz em polarização direta e bloqueia na reversa",
+				"Descrever a região de depleção sem equações"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.physics.current.resistivity"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.intro.transistor-qualitative",
+			"kind": "topic",
+			"parentId": "ee.semi.intro",
+			"order": 1,
+			"title": {
+				"pt": "Transistores BJT e MOSFET em visão qualitativa",
+				"en": "BJT and MOSFET transistors, qualitatively"
+			},
+			"summary": "Como a base de um BJT e a porta de um MOSFET controlam a corrente principal; terminais, polaridades NPN/PNP e canal N/P.",
+			"scope": "Dentro: terminais, controle por corrente e por tensão, regiões corte, ativa e saturação em nível conceitual. Fora: modelos quantitativos.",
+			"objectives": [
+				"Identificar terminais e polaridades de BJTs e MOSFETs",
+				"Explicar a diferença entre controle por corrente (BJT) e por tensão (MOSFET)"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.semi.intro.pn-qualitative"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.materials",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 1,
+			"title": {
+				"pt": "Física de semicondutores",
+				"en": "Semiconductor physics"
+			},
+			"summary": "Bandas de energia, portadores, dopagem, estatística de Fermi, deriva, difusão, recombinação e as equações de transporte.",
+			"scope": "Dentro: modelo de bandas, concentrações em equilíbrio, transporte, geração e recombinação, continuidade. Fora: mecânica quântica formal.",
+			"objectives": [
+				"Calcular concentrações de portadores e correntes de deriva e difusão",
+				"Usar as equações de continuidade em problemas unidimensionais"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 18,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:semiconductor-fundamentals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.materials.crystal-bands",
+			"kind": "topic",
+			"parentId": "ee.semi.materials",
+			"order": 0,
+			"title": {
+				"pt": "Estrutura cristalina e bandas de energia",
+				"en": "Crystal structure and energy bands"
+			},
+			"summary": "Rede cristalina do silício, bandas de valência e condução, banda proibida e diferença entre metal, isolante e semicondutor.",
+			"scope": "Dentro: rede cristalina, bandas, gap, massa efetiva qualitativa. Fora: estrutura de bandas calculada.",
+			"objectives": [
+				"Explicar a diferença entre condutores, isolantes e semicondutores pelo modelo de bandas",
+				"Relacionar a energia do gap à absorção de luz"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.physics.modern.quantum-basics",
+					"ee.physics.current.resistivity"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:semiconductor-fundamentals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.materials.carriers-doping",
+			"kind": "topic",
+			"parentId": "ee.semi.materials",
+			"order": 1,
+			"title": {
+				"pt": "Elétrons, lacunas e dopagem",
+				"en": "Electrons, holes and doping"
+			},
+			"summary": "Portadores intrínsecos, dopantes doadores e aceitadores, lei de ação de massas e neutralidade de carga.",
+			"scope": "Dentro: n_i, dopagem N e P, n·p = n_i², neutralidade. Fora: dopagem degenerada.",
+			"objectives": [
+				"Calcular as concentrações de elétrons e lacunas em silício dopado",
+				"Explicar o que é uma lacuna"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Achar que lacunas são partículas positivas reais vindas de fora"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.materials.crystal-bands"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:semiconductor-fundamentals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.materials.fermi-statistics",
+			"kind": "topic",
+			"parentId": "ee.semi.materials",
+			"order": 2,
+			"title": {
+				"pt": "Estatística de Fermi-Dirac e nível de Fermi",
+				"en": "Fermi-Dirac statistics and the Fermi level"
+			},
+			"summary": "Distribuição de Fermi-Dirac, densidade de estados, nível de Fermi e sua posição com a dopagem e a temperatura.",
+			"scope": "Dentro: Fermi-Dirac, aproximação de Boltzmann, nível de Fermi, dependência com T. Fora: estatística em degeneração.",
+			"objectives": [
+				"Calcular a posição do nível de Fermi em função da dopagem",
+				"Explicar a dependência de n_i com a temperatura"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.materials.carriers-doping",
+					"ee.physics.modern.thermal-statistics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:semiconductor-fundamentals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.materials.drift-diffusion",
+			"kind": "topic",
+			"parentId": "ee.semi.materials",
+			"order": 3,
+			"title": {
+				"pt": "Deriva, difusão e relação de Einstein",
+				"en": "Drift, diffusion and the Einstein relation"
+			},
+			"summary": "Mobilidade, corrente de deriva, corrente de difusão, relação de Einstein e condutividade.",
+			"scope": "Dentro: mobilidade, deriva, difusão, D = µkT/q, condutividade. Fora: transporte balístico.",
+			"objectives": [
+				"Calcular correntes de deriva e de difusão",
+				"Aplicar a relação de Einstein para obter o coeficiente de difusão"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.materials.fermi-statistics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:semiconductor-fundamentals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.materials.generation-recombination",
+			"kind": "topic",
+			"parentId": "ee.semi.materials",
+			"order": 4,
+			"title": {
+				"pt": "Geração, recombinação e tempo de vida",
+				"en": "Generation, recombination and lifetime"
+			},
+			"summary": "Recombinação direta e via armadilhas (SRH), injeção de baixo nível e tempo de vida de portadores minoritários.",
+			"scope": "Dentro: taxas de G-R, SRH, tempo de vida, injeção baixa. Fora: Auger e recombinação de superfície em detalhe.",
+			"objectives": [
+				"Calcular o excesso de portadores em regime estacionário sob geração",
+				"Explicar o papel dos centros de recombinação"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.materials.drift-diffusion"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:semiconductor-fundamentals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.materials.continuity-eq",
+			"kind": "topic",
+			"parentId": "ee.semi.materials",
+			"order": 5,
+			"title": {
+				"pt": "Equações da continuidade e de Poisson",
+				"en": "Continuity and Poisson equations"
+			},
+			"summary": "Equação da continuidade de minoritários, comprimento de difusão e equação de Poisson para a eletrostática do dispositivo.",
+			"scope": "Dentro: continuidade, comprimento de difusão, Poisson 1D. Fora: solução numérica completa (ver TCAD).",
+			"objectives": [
+				"Resolver a equação da continuidade em problemas 1D simples",
+				"Aplicar a equação de Poisson a uma distribuição de carga"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.materials.generation-recombination",
+					"ee.math.ode.second-order"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:semiconductor-fundamentals",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.pn",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 2,
+			"title": {
+				"pt": "Junção pn e contatos",
+				"en": "pn junction and contacts"
+			},
+			"summary": "Eletrostática da junção pn, característica I–V, capacitâncias, ruptura e junções metal-semicondutor.",
+			"scope": "Dentro: equilíbrio, polarização, equação de Shockley, capacitâncias, ruptura, Schottky e contatos ôhmicos. Fora: heterojunções.",
+			"objectives": [
+				"Derivar a característica I–V do diodo",
+				"Explicar capacitâncias e ruptura da junção"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:pn-junction",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.pn.pn-equilibrium",
+			"kind": "topic",
+			"parentId": "ee.semi.pn",
+			"order": 0,
+			"title": {
+				"pt": "Junção pn em equilíbrio",
+				"en": "pn junction in equilibrium"
+			},
+			"summary": "Região de depleção, potencial interno, campo elétrico e larguras de depleção pela aproximação de depleção.",
+			"scope": "Dentro: potencial interno, aproximação de depleção, larguras e campo máximo. Fora: junções graduais.",
+			"objectives": [
+				"Calcular o potencial interno e as larguras de depleção",
+				"Esboçar carga, campo e potencial ao longo da junção"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.materials.drift-diffusion"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:pn-junction",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.pn.pn-iv",
+			"kind": "topic",
+			"parentId": "ee.semi.pn",
+			"order": 1,
+			"title": {
+				"pt": "Característica I–V do diodo (equação de Shockley)",
+				"en": "Diode I–V characteristic (Shockley equation)"
+			},
+			"summary": "Injeção de minoritários, corrente de saturação, equação de Shockley e desvios em baixa e alta corrente.",
+			"scope": "Dentro: derivação da equação do diodo, I_S, dependência com a temperatura, fator de idealidade. Fora: modelos de alta injeção completos.",
+			"objectives": [
+				"Derivar a equação de Shockley a partir da injeção de minoritários",
+				"Calcular a variação de V_D com a temperatura"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Tomar a corrente reversa medida como igual a I_S: em silício ela é dominada pela geração na região de depleção e cresce com a tensão reversa, mesmo abaixo da ruptura"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-equilibrium",
+					"ee.semi.materials.generation-recombination"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:pn-junction",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.pn.pn-capacitance",
+			"kind": "topic",
+			"parentId": "ee.semi.pn",
+			"order": 2,
+			"title": {
+				"pt": "Capacitâncias de junção e de difusão",
+				"en": "Junction and diffusion capacitances"
+			},
+			"summary": "Capacitância de depleção dependente da tensão e capacitância de difusão em polarização direta; varicaps.",
+			"scope": "Dentro: C_j(V), capacitância de difusão, tempo de recuperação reversa. Fora: modelos de grandes sinais completos.",
+			"objectives": [
+				"Calcular a capacitância de junção em função da tensão reversa",
+				"Explicar o tempo de recuperação reversa de um diodo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-iv"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:pn-junction",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.pn.breakdown",
+			"kind": "topic",
+			"parentId": "ee.semi.pn",
+			"order": 3,
+			"title": {
+				"pt": "Ruptura: Zener e avalanche",
+				"en": "Breakdown: Zener and avalanche"
+			},
+			"summary": "Mecanismos de ruptura por tunelamento e por avalanche e sua dependência com a dopagem e a temperatura.",
+			"scope": "Dentro: tunelamento, avalanche, coeficiente de temperatura. Fora: ruptura em dispositivos de potência.",
+			"objectives": [
+				"Distinguir ruptura Zener de avalanche",
+				"Explicar por que diodos Zener de cerca de 5,6 V têm baixo coeficiente de temperatura"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-iv"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:pn-junction",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.pn.metal-semi",
+			"kind": "topic",
+			"parentId": "ee.semi.pn",
+			"order": 4,
+			"title": {
+				"pt": "Contatos metal-semicondutor e diodo Schottky",
+				"en": "Metal-semiconductor contacts and Schottky diodes"
+			},
+			"summary": "Barreira Schottky, contato ôhmico, característica do diodo Schottky e suas vantagens em velocidade.",
+			"scope": "Dentro: barreira Schottky, contatos ôhmicos, comparação com junção pn. Fora: física de interfaces avançada.",
+			"objectives": [
+				"Explicar a diferença entre contato Schottky e ôhmico",
+				"Comparar diodos Schottky e pn quanto a queda e velocidade"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-equilibrium"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:pn-junction",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.bjt",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 3,
+			"title": {
+				"pt": "Física do transistor bipolar",
+				"en": "Bipolar transistor physics"
+			},
+			"summary": "Operação do BJT a partir das junções, modelo de Ebers–Moll, efeitos de segunda ordem e comportamento em frequência.",
+			"scope": "Dentro: regiões de operação, Ebers–Moll, Early, alta injeção, capacitâncias, f_T. Fora: HBTs e modelos Gummel-Poon completos.",
+			"objectives": [
+				"Explicar o ganho de corrente do BJT pela física das junções",
+				"Usar o modelo de Ebers–Moll para prever correntes"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:bjt",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.bjt.bjt-operation",
+			"kind": "topic",
+			"parentId": "ee.semi.bjt",
+			"order": 0,
+			"title": {
+				"pt": "Operação do BJT",
+				"en": "BJT operation"
+			},
+			"summary": "Injeção do emissor, transporte na base e coleta, ganhos α e β e regiões ativa, saturação e corte.",
+			"scope": "Dentro: fluxos de portadores, α, β, regiões de operação. Fora: modelos de circuito.",
+			"objectives": [
+				"Explicar como uma pequena corrente de base controla a corrente de coletor",
+				"Identificar a região de operação a partir das polarizações das junções"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Achar que o BJT é dois diodos costas com costas"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-iv"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:bjt",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.bjt.ebers-moll",
+			"kind": "topic",
+			"parentId": "ee.semi.bjt",
+			"order": 1,
+			"title": {
+				"pt": "Modelo de Ebers–Moll e curvas características",
+				"en": "Ebers–Moll model and characteristic curves"
+			},
+			"summary": "Modelo de Ebers–Moll, curvas de saída I_C × V_CE e de entrada e a dependência exponencial de I_C com V_BE.",
+			"scope": "Dentro: Ebers–Moll, curvas características, V_CE(sat). Fora: Gummel-Poon.",
+			"objectives": [
+				"Usar Ebers–Moll para calcular correntes em diferentes regiões",
+				"Interpretar as curvas características de um BJT"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.bjt.bjt-operation"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:bjt",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.bjt.bjt-second-order",
+			"kind": "topic",
+			"parentId": "ee.semi.bjt",
+			"order": 2,
+			"title": {
+				"pt": "Efeito Early, alta injeção e ruptura no BJT",
+				"en": "Early effect, high injection and breakdown in BJTs"
+			},
+			"summary": "Modulação da largura da base, tensão Early, queda de β em alta corrente e ruptura BV_CEO.",
+			"scope": "Dentro: efeito Early, alta injeção, ruptura, efeitos térmicos. Fora: dispositivos de RF especializados.",
+			"objectives": [
+				"Calcular a resistência de saída a partir da tensão Early",
+				"Explicar a queda de β em correntes altas"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.bjt.ebers-moll"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:bjt",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.bjt.bjt-hf",
+			"kind": "topic",
+			"parentId": "ee.semi.bjt",
+			"order": 3,
+			"title": {
+				"pt": "Capacitâncias do BJT e frequência de transição",
+				"en": "BJT capacitances and transition frequency"
+			},
+			"summary": "Capacitâncias de junção e de difusão, tempo de trânsito na base e frequência de transição f_T.",
+			"scope": "Dentro: C_π, C_µ, tempo de trânsito, f_T. Fora: modelos de RF distribuídos.",
+			"objectives": [
+				"Calcular f_T a partir de g_m e das capacitâncias",
+				"Explicar como o tempo de trânsito na base limita a velocidade"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.bjt.ebers-moll",
+					"ee.semi.pn.pn-capacitance"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "pierret-sdf",
+					"ref": "toc:bjt",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.mos",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 4,
+			"title": {
+				"pt": "Física do MOSFET",
+				"en": "MOSFET physics"
+			},
+			"summary": "Capacitor MOS, tensão de limiar, equações I–V, efeitos de segunda ordem, capacitâncias e canal curto.",
+			"scope": "Dentro: estrutura MOS, V_T, modelo quadrático, modulação de canal, subliminar, capacitâncias, canal curto. Fora: FinFET e GAA (ver dispositivos avançados).",
+			"objectives": [
+				"Derivar e aplicar o modelo quadrático do MOSFET",
+				"Explicar os efeitos de segunda ordem e de canal curto"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 17,
+				"hi": 23
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.mos.mos-capacitor",
+			"kind": "topic",
+			"parentId": "ee.semi.mos",
+			"order": 0,
+			"title": {
+				"pt": "Capacitor MOS: acumulação, depleção e inversão",
+				"en": "MOS capacitor: accumulation, depletion and inversion"
+			},
+			"summary": "Estrutura metal-óxido-semicondutor, diagrama de bandas e regimes de operação com a tensão de porta.",
+			"scope": "Dentro: regimes do capacitor MOS, curva C–V, carga de inversão. Fora: óxidos high-k em detalhe.",
+			"objectives": [
+				"Esboçar a curva C–V de um capacitor MOS",
+				"Explicar a formação da camada de inversão"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-equilibrium",
+					"ee.physics.electrostatics.capacitance-physics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.mos.threshold",
+			"kind": "topic",
+			"parentId": "ee.semi.mos",
+			"order": 1,
+			"title": {
+				"pt": "Tensão de limiar e efeito de corpo",
+				"en": "Threshold voltage and body effect"
+			},
+			"summary": "Componentes de V_T, ajuste por dopagem e implantes e o efeito de corpo.",
+			"scope": "Dentro: expressão de V_T, efeito de corpo, dependência com a temperatura. Fora: variabilidade estatística.",
+			"objectives": [
+				"Calcular V_T a partir de parâmetros de processo",
+				"Calcular a variação de V_T com a tensão fonte-corpo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.mos-capacitor"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.mos.mosfet-iv",
+			"kind": "topic",
+			"parentId": "ee.semi.mos",
+			"order": 2,
+			"title": {
+				"pt": "MOSFET: equações I–V (triodo e saturação)",
+				"en": "MOSFET I–V equations (triode and saturation)"
+			},
+			"summary": "Modelo quadrático de canal longo, regiões de corte, triodo e saturação e o pinch-off.",
+			"scope": "Dentro: modelo de canal longo, triodo, saturação, k' e W/L. Fora: modelos de canal curto.",
+			"objectives": [
+				"Calcular a corrente de dreno em triodo e em saturação",
+				"Determinar a região de operação a partir das tensões"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Achar que 'saturação' no MOSFET significa o mesmo que no BJT"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.threshold"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.mos.mosfet-second-order",
+			"kind": "topic",
+			"parentId": "ee.semi.mos",
+			"order": 3,
+			"title": {
+				"pt": "Modulação de canal, subliminar e velocidade de saturação",
+				"en": "Channel-length modulation, subthreshold and velocity saturation"
+			},
+			"summary": "Modulação do comprimento de canal (λ), condução subliminar exponencial e saturação da velocidade.",
+			"scope": "Dentro: λ e r_o, inclinação subliminar, saturação de velocidade, inversão fraca e moderada. Fora: modelos BSIM.",
+			"objectives": [
+				"Calcular r_o a partir de λ",
+				"Explicar a inclinação subliminar de cerca de 60–100 mV/década"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.mosfet-iv"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.mos.mosfet-capacitances",
+			"kind": "topic",
+			"parentId": "ee.semi.mos",
+			"order": 4,
+			"title": {
+				"pt": "Capacitâncias do MOSFET e f_T",
+				"en": "MOSFET capacitances and f_T"
+			},
+			"summary": "C_gs, C_gd, capacitâncias de junção e de sobreposição em cada região e frequência de transição.",
+			"scope": "Dentro: capacitâncias intrínsecas e extrínsecas, f_T. Fora: modelos não quase-estáticos.",
+			"objectives": [
+				"Estimar C_gs e C_gd em saturação",
+				"Calcular f_T de um MOSFET"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.mosfet-iv"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.mos.short-channel",
+			"kind": "topic",
+			"parentId": "ee.semi.mos",
+			"order": 5,
+			"title": {
+				"pt": "Efeitos de canal curto e escalamento",
+				"en": "Short-channel effects and scaling"
+			},
+			"summary": "DIBL, roll-off de V_T, corrente de fuga, escalamento de Dennard e seus limites.",
+			"scope": "Dentro: DIBL, roll-off, fugas, escalamento clássico e seu fim. Fora: FinFET e GAA.",
+			"objectives": [
+				"Explicar o DIBL e seu efeito sobre a fuga",
+				"Explicar por que o escalamento de Dennard deixou de valer"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.mosfet-second-order"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:basic-mos-device-physics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.devices",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 5,
+			"title": {
+				"pt": "Outros dispositivos e ruído",
+				"en": "Other devices and noise"
+			},
+			"summary": "JFET, dispositivos de potência, semicondutores de banda larga e os mecanismos físicos de ruído.",
+			"scope": "Dentro: JFET, MOSFET de potência, IGBT, tiristores, SiC e GaN, ruído térmico, shot e flicker. Fora: projeto de conversores (ver potência).",
+			"objectives": [
+				"Comparar dispositivos de potência para uma aplicação",
+				"Explicar a origem física do ruído em dispositivos"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.devices.jfet",
+			"kind": "topic",
+			"parentId": "ee.semi.devices",
+			"order": 0,
+			"title": {
+				"pt": "JFET",
+				"en": "JFET"
+			},
+			"summary": "Estrutura, pinch-off, curva de transferência e usos em entradas de baixa corrente.",
+			"scope": "Dentro: operação, I_DSS e V_P, curvas. Fora: circuitos com JFET em detalhe.",
+			"objectives": [
+				"Explicar o pinch-off em um JFET",
+				"Usar a equação de Shockley do JFET para calcular I_D"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-iv"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.devices.power-devices",
+			"kind": "topic",
+			"parentId": "ee.semi.devices",
+			"order": 1,
+			"title": {
+				"pt": "Dispositivos de potência: MOSFET, IGBT e tiristor",
+				"en": "Power devices: MOSFET, IGBT and thyristor"
+			},
+			"summary": "MOSFET vertical, R_DS(on), IGBT, tiristor e TRIAC, área de operação segura e figuras de mérito.",
+			"scope": "Dentro: estruturas verticais, R_DS(on), carga de porta, SOA, IGBT, SCR e TRIAC. Fora: projeto de chips de potência.",
+			"objectives": [
+				"Comparar MOSFET e IGBT para uma faixa de tensão e frequência",
+				"Interpretar a área de operação segura (SOA) de uma folha de dados"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.mosfet-iv",
+					"ee.semi.bjt.bjt-operation",
+					"ee.semi.pn.breakdown"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.devices.wide-bandgap",
+			"kind": "topic",
+			"parentId": "ee.semi.devices",
+			"order": 2,
+			"title": {
+				"pt": "SiC e GaN",
+				"en": "SiC and GaN"
+			},
+			"summary": "Por que materiais de banda larga suportam campos maiores, HEMTs de GaN e MOSFETs de SiC.",
+			"scope": "Dentro: propriedades de SiC e GaN, HEMT, figuras de mérito de Baliga. Fora: crescimento de materiais.",
+			"objectives": [
+				"Explicar a vantagem do campo crítico alto para dispositivos de potência",
+				"Comparar Si, SiC e GaN em uma aplicação de conversão"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.devices.power-devices"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.devices.noise-devices",
+			"kind": "topic",
+			"parentId": "ee.semi.devices",
+			"order": 3,
+			"title": {
+				"pt": "Ruído em dispositivos: térmico, shot e flicker",
+				"en": "Device noise: thermal, shot and flicker"
+			},
+			"summary": "Origem física do ruído térmico (4kTR), do ruído shot (2qI) e do ruído 1/f em resistores, diodos e transistores.",
+			"scope": "Dentro: térmico, shot, 1/f, modelos de fonte de ruído em dispositivos. Fora: análise de ruído de circuitos.",
+			"objectives": [
+				"Calcular a densidade de ruído térmico de um resistor e shot de um diodo",
+				"Explicar a origem do ruído 1/f em MOSFETs"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-iv",
+					"ee.semi.mos.mosfet-iv",
+					"ee.math.prob.gaussian"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.opto",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 6,
+			"title": {
+				"pt": "Optoeletrônica",
+				"en": "Optoelectronics"
+			},
+			"summary": "Absorção e emissão de luz em junções: fotodiodos, células solares, LEDs, lasers e optoacopladores.",
+			"scope": "Dentro: fotodiodos, células solares, LEDs, diodos laser, optoacopladores. Fora: fotônica integrada.",
+			"objectives": [
+				"Explicar a conversão luz-corrente e corrente-luz em junções",
+				"Selecionar dispositivos optoeletrônicos para uma aplicação"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 7,
+				"hi": 10
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:photonic-devices",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:optoelectronics",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.opto.photodiodes",
+			"kind": "topic",
+			"parentId": "ee.semi.opto",
+			"order": 0,
+			"title": {
+				"pt": "Fotodiodos e células solares",
+				"en": "Photodiodes and solar cells"
+			},
+			"summary": "Fotocorrente, responsividade, modos fotovoltaico e fotocondutivo e curva I–V de células solares.",
+			"scope": "Dentro: fotocorrente, responsividade, modos de operação, ponto de máxima potência. Fora: fotodetectores de avalanche.",
+			"objectives": [
+				"Calcular a fotocorrente a partir da potência óptica e da responsividade",
+				"Interpretar a curva I–V de uma célula solar"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-iv"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:photonic-devices",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:optoelectronics",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.opto.leds-lasers",
+			"kind": "topic",
+			"parentId": "ee.semi.opto",
+			"order": 1,
+			"title": {
+				"pt": "LEDs e diodos laser",
+				"en": "LEDs and laser diodes"
+			},
+			"summary": "Recombinação radiativa, materiais e cor, eficiência, limiar laser e segurança óptica.",
+			"scope": "Dentro: emissão espontânea e estimulada, cor por gap, eficiência, limiar. Fora: lasers de semicondutor avançados.",
+			"objectives": [
+				"Relacionar o gap do material à cor do LED",
+				"Explicar o limiar de corrente de um diodo laser"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.pn.pn-iv"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:photonic-devices",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:optoelectronics",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.opto.optocouplers",
+			"kind": "topic",
+			"parentId": "ee.semi.opto",
+			"order": 2,
+			"title": {
+				"pt": "Optoacopladores e isolamento",
+				"en": "Optocouplers and isolation"
+			},
+			"summary": "Estrutura LED-fotodetector, CTR, velocidade e isolação galvânica.",
+			"scope": "Dentro: CTR, velocidade, isolação, alternativas capacitivas e magnéticas. Fora: normas de isolação em detalhe.",
+			"objectives": [
+				"Calcular o resistor de LED e de carga de um optoacoplador",
+				"Explicar por que o CTR degrada com o tempo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.opto.photodiodes",
+					"ee.semi.opto.leds-lasers"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:photonic-devices",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:optoelectronics",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.fab",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 7,
+			"title": {
+				"pt": "Fabricação e tecnologia",
+				"en": "Fabrication and technology"
+			},
+			"summary": "Etapas de fabricação de CIs, fluxo CMOS, regras de layout e componentes passivos integrados.",
+			"scope": "Dentro: oxidação, litografia, dopagem, deposição, fluxo CMOS, regras de projeto, passivos integrados. Fora: física de processos avançada.",
+			"objectives": [
+				"Descrever o fluxo de fabricação CMOS",
+				"Relacionar regras de layout a limitações de processo"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 8,
+				"hi": 11
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc:cmos-fabrication",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc:cmos-processing-technology",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.fab.fab-process",
+			"kind": "topic",
+			"parentId": "ee.semi.fab",
+			"order": 0,
+			"title": {
+				"pt": "Processos de fabricação",
+				"en": "Fabrication processes"
+			},
+			"summary": "Oxidação, fotolitografia, corrosão, difusão, implantação iônica, deposição e metalização.",
+			"scope": "Dentro: etapas unitárias de processo, sala limpa, rendimento. Fora: litografia EUV em detalhe.",
+			"objectives": [
+				"Descrever a sequência de etapas para formar uma região dopada",
+				"Explicar o papel da fotolitografia na definição de dimensões"
+			],
+			"bloom": "understand",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.mos-capacitor"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc:cmos-fabrication",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc:cmos-processing-technology",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.fab.cmos-process",
+			"kind": "topic",
+			"parentId": "ee.semi.fab",
+			"order": 1,
+			"title": {
+				"pt": "Fluxo CMOS e regras de layout",
+				"en": "CMOS process flow and layout rules"
+			},
+			"summary": "Poços, isolação, porta, fonte e dreno, interconexões e regras de projeto (DRC).",
+			"scope": "Dentro: fluxo CMOS twin-well, camadas, regras de projeto, latch-up. Fora: processos BiCMOS e SOI.",
+			"objectives": [
+				"Desenhar a seção transversal de um inversor CMOS",
+				"Explicar a origem e a prevenção do latch-up"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.fab.fab-process",
+					"ee.semi.mos.threshold"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc:cmos-fabrication",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc:cmos-processing-technology",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.fab.passives-ic",
+			"kind": "topic",
+			"parentId": "ee.semi.fab",
+			"order": 2,
+			"title": {
+				"pt": "Resistores, capacitores e indutores integrados",
+				"en": "Integrated resistors, capacitors and inductors"
+			},
+			"summary": "Resistores de poli e de poço, capacitores MIM e MOS, indutores espirais e suas tolerâncias e parasitas.",
+			"scope": "Dentro: tipos de passivos integrados, tolerâncias, coeficientes, parasitas. Fora: modelagem EM de indutores.",
+			"objectives": [
+				"Comparar tipos de resistores e capacitores integrados",
+				"Estimar as tolerâncias absoluta e de casamento"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.fab.cmos-process"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc:cmos-fabrication",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc:cmos-processing-technology",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi.advanced",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 8,
+			"title": {
+				"pt": "Dispositivos avançados",
+				"en": "Advanced devices"
+			},
+			"summary": "Especialização em dispositivos: transistores multiporta, modelos compactos, TCAD, confiabilidade e dispositivos emergentes.",
+			"scope": "Dentro: FinFET, GAA, FD-SOI, BSIM, TCAD, confiabilidade, dispositivos 2D e memórias emergentes. Fora: física de estado sólido teórica.",
+			"objectives": [
+				"Analisar os compromissos de transistores de nós avançados",
+				"Usar modelos compactos e TCAD para estudar dispositivos"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.advanced.finfet-gaa",
+			"kind": "topic",
+			"parentId": "ee.semi.advanced",
+			"order": 0,
+			"title": {
+				"pt": "FinFET, GAA e FD-SOI",
+				"en": "FinFET, GAA and FD-SOI"
+			},
+			"summary": "Controle eletrostático multiporta, quantização da largura, nanofolhas e transistores em SOI totalmente depletado.",
+			"scope": "Dentro: FinFET, nanofolha GAA, FD-SOI, comprimento natural. Fora: CFET e roteiros futuros em detalhe.",
+			"objectives": [
+				"Explicar por que o controle multiporta reduz efeitos de canal curto",
+				"Comparar FinFET e FD-SOI para baixo consumo"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.short-channel"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.advanced.device-modeling",
+			"kind": "topic",
+			"parentId": "ee.semi.advanced",
+			"order": 1,
+			"title": {
+				"pt": "Modelos compactos e extração de parâmetros",
+				"en": "Compact models and parameter extraction"
+			},
+			"summary": "Estrutura de modelos como BSIM e EKV, extração a partir de medidas e cantos de processo.",
+			"scope": "Dentro: BSIM, EKV, extração, cantos de processo. Fora: desenvolvimento de novos modelos.",
+			"objectives": [
+				"Extrair parâmetros simples de um modelo a partir de curvas medidas",
+				"Explicar o significado dos cantos de processo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.short-channel",
+					"ee.instruments.sim.spice-ac-models"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.advanced.tcad",
+			"kind": "topic",
+			"parentId": "ee.semi.advanced",
+			"order": 2,
+			"title": {
+				"pt": "Simulação TCAD de dispositivos",
+				"en": "TCAD device simulation"
+			},
+			"summary": "Solução numérica acoplada de Poisson e continuidade, malhas e modelos físicos em ferramentas TCAD.",
+			"scope": "Dentro: deriva-difusão numérica, malhas, modelos de mobilidade, simulação de processo. Fora: Monte Carlo de transporte.",
+			"objectives": [
+				"Configurar uma simulação TCAD de um diodo ou MOSFET",
+				"Analisar criticamente a escolha de modelos físicos numa simulação"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"simulate",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.materials.continuity-eq",
+					"ee.math.numerical.numerical-methods",
+					"ee.semi.mos.mosfet-iv"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.advanced.reliability",
+			"kind": "topic",
+			"parentId": "ee.semi.advanced",
+			"order": 3,
+			"title": {
+				"pt": "Confiabilidade de dispositivos",
+				"en": "Device reliability"
+			},
+			"summary": "Portadores quentes, NBTI, ruptura do óxido (TDDB) e eletromigração em interconexões.",
+			"scope": "Dentro: HCI, BTI, TDDB, eletromigração, ensaios acelerados. Fora: confiabilidade de sistemas.",
+			"objectives": [
+				"Explicar os principais mecanismos de degradação de MOSFETs",
+				"Estimar a vida útil por ensaio acelerado"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.short-channel",
+					"ee.semi.fab.cmos-process"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.advanced.emerging-devices",
+			"kind": "topic",
+			"parentId": "ee.semi.advanced",
+			"order": 4,
+			"title": {
+				"pt": "Dispositivos emergentes",
+				"en": "Emerging devices"
+			},
+			"summary": "Materiais 2D, transistores de tunelamento, spintrônica e memórias resistivas, de mudança de fase e ferroelétricas.",
+			"scope": "Dentro: TFET, materiais 2D, MRAM, ReRAM, PCM, FeFET. Fora: computação quântica.",
+			"objectives": [
+				"Comparar memórias emergentes quanto a velocidade, densidade e endurance",
+				"Avaliar criticamente a promessa de um dispositivo emergente"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.advanced.finfet-gaa"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.physics-adv",
+			"kind": "unit",
+			"parentId": "ee.semi",
+			"order": 9,
+			"title": {
+				"pt": "Física avançada de dispositivos",
+				"en": "Advanced device physics"
+			},
+			"summary": "Transporte em nanoescala, heteroestruturas, física de dispositivos de potência, memórias semicondutoras e caracterização elétrica.",
+			"scope": "Dentro: transporte balístico e quântico, HEMT e HBT, deriva em dispositivos de potência, flash e DRAM, extração por medidas. Fora: teoria de muitos corpos.",
+			"objectives": [
+				"Analisar dispositivos além do modelo de deriva-difusão clássico",
+				"Caracterizar dispositivos por medidas elétricas"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.physics-adv.quantum-transport",
+			"kind": "topic",
+			"parentId": "ee.semi.physics-adv",
+			"order": 0,
+			"title": {
+				"pt": "Transporte balístico e quântico",
+				"en": "Ballistic and quantum transport"
+			},
+			"summary": "Formalismo de Landauer, MOSFET balístico, confinamento quântico e tunelamento em dispositivos nanométricos.",
+			"scope": "Dentro: Landauer, limite balístico, confinamento, tunelamento fonte-dreno. Fora: NEGF em detalhe.",
+			"objectives": [
+				"Explicar o limite balístico da corrente de um MOSFET",
+				"Estimar o efeito do confinamento quântico na tensão de limiar"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Achar que a mobilidade continua definindo a corrente em canais muito curtos"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.advanced.finfet-gaa",
+					"ee.semi.materials.continuity-eq"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.physics-adv.heterostructures",
+			"kind": "topic",
+			"parentId": "ee.semi.physics-adv",
+			"order": 1,
+			"title": {
+				"pt": "Heteroestruturas, HEMTs e HBTs",
+				"en": "Heterostructures, HEMTs and HBTs"
+			},
+			"summary": "Descontinuidades de banda, gás bidimensional de elétrons, HEMTs de GaN e HBTs de SiGe.",
+			"scope": "Dentro: alinhamento de bandas, 2DEG, HEMT, HBT, aplicações de RF e potência. Fora: crescimento epitaxial.",
+			"objectives": [
+				"Explicar a formação do 2DEG numa heterojunção AlGaN/GaN",
+				"Comparar HBT de SiGe e BJT de silício em frequência de corte"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.devices.wide-bandgap",
+					"ee.semi.bjt.bjt-hf"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.physics-adv.power-device-physics",
+			"kind": "topic",
+			"parentId": "ee.semi.physics-adv",
+			"order": 2,
+			"title": {
+				"pt": "Física de dispositivos de potência",
+				"en": "Power device physics"
+			},
+			"summary": "Região de deriva, compromisso entre tensão de ruptura e resistência, superjunção, IGBT e limites de SiC e GaN.",
+			"scope": "Dentro: deriva, limite unipolar, superjunção, modulação de condutividade, IGBT. Fora: encapsulamento.",
+			"objectives": [
+				"Calcular a resistência específica mínima para uma tensão de ruptura",
+				"Explicar a modulação de condutividade no IGBT"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.devices.wide-bandgap"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.physics-adv.memory-devices",
+			"kind": "topic",
+			"parentId": "ee.semi.physics-adv",
+			"order": 3,
+			"title": {
+				"pt": "Memórias semicondutoras",
+				"en": "Semiconductor memories"
+			},
+			"summary": "Célula DRAM, porta flutuante e armadilha de carga, NAND 3D, retenção, perturbações e endurance.",
+			"scope": "Dentro: DRAM, flash NOR e NAND, NAND 3D, retenção e endurance. Fora: memórias emergentes, já cobertas.",
+			"objectives": [
+				"Explicar os mecanismos de programação e apagamento de uma célula flash",
+				"Estimar o tempo de retenção de uma célula DRAM"
+			],
+			"bloom": "apply",
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.mos.threshold",
+					"ee.digital.cmos.memories"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		},
+		{
+			"id": "ee.semi.physics-adv.device-characterization",
+			"kind": "topic",
+			"parentId": "ee.semi.physics-adv",
+			"order": 4,
+			"title": {
+				"pt": "Caracterização elétrica de dispositivos",
+				"en": "Electrical device characterization"
+			},
+			"summary": "Medidas C-V e I-V, extração de mobilidade e de V_T, bombeamento de carga e estruturas de teste.",
+			"scope": "Dentro: C-V, I-V, extração de parâmetros, charge pumping, estruturas de teste. Fora: microscopia e análise de materiais.",
+			"objectives": [
+				"Extrair tensão de limiar e mobilidade de curvas medidas",
+				"Planejar estruturas de teste para caracterizar um processo"
+			],
+			"bloom": "create",
+			"assess": [
+				"lab",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.advanced.device-modeling",
+					"ee.instruments.measurement.impedance-measurement"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sze-ng-physics",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.720j-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Electron Devices / IEDM",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:devices"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.semi.bjt.ebers-moll",
+			"to": "ee.analog.bjt-dc.bjt-models-circuit",
+			"kind": "related"
+		},
+		{
+			"from": "ee.semi.mos.mosfet-iv",
+			"to": "ee.analog.mos-dc.mos-models-circuit",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "baker-cmos",
+			"title": "R. J. Baker — CMOS Circuit Design, Layout, and Simulation",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "liec-kuphaldt",
+			"title": "Tony R. Kuphaldt — Lessons in Electric Circuits (vol. I–VI)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/",
+			"license": "Design Science License ou CC BY 4.0 conforme a edição; tratado aqui como só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.012-f09",
+			"title": "MIT OCW 6.012 — Microelectronic Devices and Circuits (F2009)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.720j-s07",
+			"title": "MIT OCW 6.720J — Integrated Microelectronic Devices (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "pierret-sdf",
+			"title": "R. F. Pierret — Semiconductor Device Fundamentals",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "razavi-analog-cmos-2e",
+			"title": "B. Razavi — Design of Analog CMOS Integrated Circuits, 2ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "sedra-smith-8e",
+			"title": "Sedra, Smith, Carusone, Gaudet — Microelectronic Circuits, 8ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "sze-ng-physics",
+			"title": "Sze & Ng — Physics of Semiconductor Devices, 3ª ed.",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "weste-harris-vlsi",
+			"title": "Weste & Harris — CMOS VLSI Design",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		}
+	]
+}

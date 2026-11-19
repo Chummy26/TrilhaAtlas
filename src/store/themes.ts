@@ -3,6 +3,8 @@
  * config.THEMES_DIR behind the core ThemeStore port. Files are re-validated
  * on read (a hand-edited or truncated file is skipped, never thrown), and
  * ids follow the slug grammar so a crafted id cannot leave the directory.
+ * Cel wave (SÍNTESE §2.12, r9 §10.4): the optional `family` survives the
+ * write, so cel themes round-trip through import/export.
  */
 
 import fs from "node:fs";
@@ -48,7 +50,11 @@ export const themeStore: ThemeStore = {
 	writeTheme(id: string, theme: ThemeFile): void {
 		if (!isThemeId(id) || isBuiltinThemeId(id)) throw new Error(`Invalid custom theme id "${id}"`);
 		fs.mkdirSync(THEMES_DIR, { recursive: true });
+		// Only the known fields reach disk; the cel family (estudos-sota M8,
+		// SÍNTESE §2.12) is persisted when present so an exported cel theme
+		// re-imports as cel. Classic files keep the pre-family shape.
 		const file: ThemeFile = { name: theme.name, mode: theme.mode, colors: theme.colors };
+		if (theme.family === "cel") file.family = "cel";
 		writeFileAtomicSync(fileFor(id), `${JSON.stringify(file, null, "\t")}\n`);
 	},
 

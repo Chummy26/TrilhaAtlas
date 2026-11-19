@@ -24,6 +24,7 @@ function fixture(document) {
     propositions: [{ id: 'p1', name: 'Fact one', statement: 'A useful statement', memberships: ['d1'], cues: [{ id: 'c1', question: 'Question **one**?', answer: 'SECRET ANSWER' }], schedule: {}, archived: false, version: 1 }], batch: null,
   };
   const overrides = {};
+  const sync = { settings: { obsidianVaultPath: null, reviewClient: 'app', ankiConnectUrl: 'http://127.0.0.1:8765', ankiApiKeySet: false, domainId: null, domainTitle: null }, domain: { id: 'default', title: 'default' }, cursor: null, linked: { obsidian: 0, anki: 0 }, ankiReviews: 0, lastApkg: null, evidenceWeight: 0.3 };
   let filePreflight;
   const manualReceipts = new Map(), deletionReceipts = new Map();
   const catalog = { slots: { cheap: { model: { provider: 'test', id: 'cheap' }, thinkingLevel: 'low' } } };
@@ -76,6 +77,11 @@ function fixture(document) {
       if (overrides[operation]) return overrides[operation](input);
       if (operation === 'get-state' || operation === 'resume-results') return clone(state);
       if (operation === 'get-catalog') return clone(catalog);
+      if (operation === 'get-sync') return clone(sync);
+      if (operation === 'save-sync-settings') { sync.settings = { ...sync.settings, ...input }; return clone(sync); }
+      if (operation === 'export-obsidian') return { vaultPath: sync.settings.obsidianVaultPath, cards: 1, written: ['LearnHarness/default/Notes.md'], unchanged: [], removed: [], emptied: [] };
+      if (operation === 'export-anki') return { mode: 'apkg', path: '/data/exports/learnharness-default.apkg', notes: 1, bytes: 1024, reason: 'Anki fechado' };
+      if (operation === 'anki-import-reviews') return { imported: 2, skipped: 0, latestId: 2, replayed: 0, evidenceWeight: 0.3 };
       if (operation === 'preflight') return { id: 'pf', propositionCount: input.propositionIds.length, chunkCount: 1, estimatedTokens: 123, modelLabel: 'Test model' };
       if (operation === 'preflight-file' || operation === 'preflight-file-retry') {
         filePreflight = { id: operation === 'preflight-file' ? 'pf-file' : 'pf-file-retry', kind: 'file', name: input.name || state.batch.name, chunkCount: 1, estimatedTokens: 321, modelLabel: 'Test file model' };
@@ -234,7 +240,7 @@ function fixture(document) {
   };
   let viewController, viewCleanup, settingsController, settingsCleanup;
   return {
-    ctx, app, settings, calls, conversions, markdowns, handles, registrations, overrides, catalog,
+    ctx, app, settings, calls, conversions, markdowns, handles, registrations, overrides, catalog, sync,
     get state() { return state; },
     mount() { viewController = new AbortController(); viewCleanup = view.mount(app, viewController.signal); },
     unmount() { viewController?.abort(); viewCleanup?.(); },

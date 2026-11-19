@@ -40,6 +40,8 @@ export interface ServerEvents {
 	"plugins-changed": Record<string, never>;
 	/** Live-only, plugin-scoped notifications. Reconnect requires snapshot resync. */
 	"plugin-message": { pluginId: string; topic: string; data?: unknown };
+	/** The active study domain changed (null = "Geral"): every per-world view refetches. */
+	"domain-changed": { domainId: string | null };
 }
 
 export type ServerEventType = keyof ServerEvents;
@@ -60,6 +62,7 @@ export const SERVER_EVENT_TYPES = [
 	"side-chats-changed",
 	"plugins-changed",
 	"plugin-message",
+	"domain-changed",
 ] as const satisfies readonly ServerEventType[];
 
 /** One notification: distribute over the vocabulary so narrowing `type`

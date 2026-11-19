@@ -1,0 +1,8337 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.pron",
+	"items": [
+		{
+			"id": "en.pron.foundations",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 0,
+			"title": {
+				"pt": "Fundamentos: sons, símbolos e sílabas",
+				"en": "Foundations: sounds, symbols and syllables"
+			},
+			"summary": "Ferramentas para ouvir e descrever sons: IPA, relação letra-som, vozeamento, sílaba e acento de palavra.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 12.5,
+				"hi": 19.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.foundations.ipa-intro",
+			"kind": "topic",
+			"parentId": "en.pron.foundations",
+			"order": 0,
+			"title": {
+				"pt": "Símbolos fonéticos (IPA) do inglês",
+				"en": "IPA symbols for English"
+			},
+			"summary": "Ler as transcrições fonéticas dos dicionários para descobrir a pronúncia sozinho.",
+			"objectives": [
+				"Ler em voz alta palavras novas a partir da transcrição IPA de um dicionário.",
+				"Associar cada símbolo vocálico a uma palavra-chave."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				},
+				{
+					"source": "ipa-chart",
+					"ref": "quadro completo",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.ipa-intro.vowel-symbols",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.ipa-intro",
+			"order": 0,
+			"title": {
+				"pt": "Símbolos das vogais e palavras-chave",
+				"en": "Vowel symbols and keywords"
+			},
+			"summary": "Cada símbolo vocálico do IPA ligado a uma palavra-chave fácil de lembrar (/iː/ see, /ɪ/ sit, /æ/ cat, /ʌ/ cup, /ə/ about).",
+			"objectives": [
+				"Associar cada um dos 12 símbolos de vogais simples a uma palavra-chave.",
+				"Dizer se um símbolo vocálico tem ou não equivalente próximo no português."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"short"
+			],
+			"misconceptions": [
+				"Ler /e/ e /i/ do IPA com o valor das letras do português e ignorar a marca de duração ː.",
+				"Achar que /ʌ/ é uma variante do 'a' de 'casa'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.ipa-intro.consonant-symbols",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.ipa-intro",
+			"order": 1,
+			"title": {
+				"pt": "Símbolos de consoantes que não são letras",
+				"en": "Consonant symbols beyond the alphabet"
+			},
+			"summary": "Os símbolos /θ ð ʃ ʒ tʃ dʒ ŋ j/ e o /ɹ/ americano, cada um com uma palavra-chave.",
+			"objectives": [
+				"Associar /θ ð ʃ ʒ tʃ dʒ ŋ j/ a palavras-chave (think, this, she, vision, chair, job, sing, yes)."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"short"
+			],
+			"misconceptions": [
+				"Ler /j/ como o 'j' de 'janela'; no IPA ele é o som de 'y' em 'yes'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.ipa-intro.stress-length-marks",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.ipa-intro",
+			"order": 2,
+			"title": {
+				"pt": "Acento, duração e sílabas na transcrição",
+				"en": "Stress, length and syllable marks"
+			},
+			"summary": "As marcas ˈ (acento principal), ˌ (acento secundário), ː (duração) e a divisão de sílabas nas transcrições de dicionário.",
+			"objectives": [
+				"Localizar a sílaba tônica pela marca ˈ em 15 transcrições.",
+				"Distinguir vogal longa e curta pela marca ː."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"short"
+			],
+			"misconceptions": [
+				"Achar que a marca ˈ fica sobre a vogal tônica, como um acento agudo; ela vem antes da sílaba inteira."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.ipa-intro.dictionary-reading",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.foundations.ipa-intro",
+			"order": 3,
+			"title": {
+				"pt": "Ler transcrições do dicionário",
+				"en": "Reading dictionary transcriptions"
+			},
+			"summary": "Usar a transcrição de um dicionário americano ou britânico para pronunciar sozinho uma palavra nova.",
+			"scope": "Inclui as diferenças de notação entre dicionários (/oʊ/ × /əʊ/, r entre parênteses). Não inclui transcrição fonética estreita.",
+			"objectives": [
+				"Pronunciar de forma inteligível 8 de 10 palavras desconhecidas a partir da transcrição.",
+				"Escolher, entre três transcrições, a que corresponde a uma palavra ouvida."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Confiar na grafia quando ela contradiz a transcrição."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.ipa-intro.vowel-symbols",
+					"en.pron.foundations.ipa-intro.consonant-symbols",
+					"en.pron.foundations.ipa-intro.stress-length-marks"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.foundations.ipa-intro.vowel-symbols",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.foundations.ipa-intro.consonant-symbols",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.foundations.ipa-intro.stress-length-marks",
+					"w": 0.4
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.spelling-sound",
+			"kind": "topic",
+			"parentId": "en.pron.foundations",
+			"order": 1,
+			"title": {
+				"pt": "Ortografia e som no inglês",
+				"en": "English spelling and sound"
+			},
+			"summary": "Por que a escrita do inglês não indica a pronúncia e quais padrões de letra-som são confiáveis.",
+			"objectives": [
+				"Prever a pronúncia de padrões regulares (magic e, -igh, -tion).",
+				"Reconhecer palavras de grafia enganosa (women, colonel, island)."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Pronunciar todas as letras escritas, como no português."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.spelling-sound.magic-e",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.foundations.spelling-sound",
+			"order": 0,
+			"title": {
+				"pt": "Vogal + consoante + e mudo",
+				"en": "Silent final e (magic e)"
+			},
+			"summary": "O e final mudo muda a vogal anterior: hat/hate, bit/bite, hop/hope, cut/cute.",
+			"objectives": [
+				"Prever a vogal de pares como hat/hate e bit/bite.",
+				"Ler palavras com e final mudo sem pronunciar o e."
+			],
+			"bloom": "apply",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar o e final como 'i' ('make' = 'mêiki')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.spelling-sound.vowel-digraphs",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.foundations.spelling-sound",
+			"order": 1,
+			"title": {
+				"pt": "Padrões confiáveis: ee, igh, -tion",
+				"en": "Reliable spelling patterns"
+			},
+			"summary": "Combinações de letras com pronúncia previsível na maioria das palavras frequentes (ee, igh, -tion, -sion) e as exceções mais comuns de ea e oo.",
+			"objectives": [
+				"Ler corretamente palavras novas com ee, igh, -tion e -sion.",
+				"Citar uma exceção frequente para ea e para oo (bread, book)."
+			],
+			"bloom": "apply",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"misconceptions": [
+				"Ler -tion como 'ti-on' em vez de /ʃən/.",
+				"Ler todo 'oo' como /uː/ ('book' = 'buuk')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.spelling-sound.silent-letters",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.foundations.spelling-sound",
+			"order": 2,
+			"title": {
+				"pt": "Letras mudas",
+				"en": "Silent letters"
+			},
+			"summary": "Palavras frequentes com k, w, b, l, t, h ou s que não se pronunciam.",
+			"objectives": [
+				"Pronunciar 12 palavras frequentes com letra muda sem pronunciá-la."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Pronunciar todas as letras escritas, como no português ('lis-ten', 'k-nife')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "knife",
+					"pos": "n"
+				},
+				{
+					"lemma": "know",
+					"pos": "v"
+				},
+				{
+					"lemma": "write",
+					"pos": "v"
+				},
+				{
+					"lemma": "wrong",
+					"pos": "adj"
+				},
+				{
+					"lemma": "listen",
+					"pos": "v"
+				},
+				{
+					"lemma": "castle",
+					"pos": "n"
+				},
+				{
+					"lemma": "climb",
+					"pos": "v"
+				},
+				{
+					"lemma": "comb",
+					"pos": "n"
+				},
+				{
+					"lemma": "half",
+					"pos": "n"
+				},
+				{
+					"lemma": "walk",
+					"pos": "v"
+				},
+				{
+					"lemma": "talk",
+					"pos": "v"
+				},
+				{
+					"lemma": "island",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.spelling-sound.tricky-spellings",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.foundations.spelling-sound",
+			"order": 3,
+			"title": {
+				"pt": "Palavras de grafia enganosa",
+				"en": "Words with misleading spelling"
+			},
+			"summary": "Palavras muito usadas cuja pronúncia foge das regras: women, colonel, said, busy, friend.",
+			"objectives": [
+				"Pronunciar de forma inteligível 10 palavras de grafia enganosa.",
+				"Escrever essas palavras corretamente num ditado."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Ler 'recipe' com duas sílabas ('ri-saip'), como se o e final fosse mudo.",
+				"Ler 'said' com o ditongo de 'say'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "women",
+					"pos": "n"
+				},
+				{
+					"lemma": "colonel",
+					"pos": "n"
+				},
+				{
+					"lemma": "said",
+					"pos": "v"
+				},
+				{
+					"lemma": "says",
+					"pos": "v"
+				},
+				{
+					"lemma": "busy",
+					"pos": "adj"
+				},
+				{
+					"lemma": "business",
+					"pos": "n"
+				},
+				{
+					"lemma": "friend",
+					"pos": "n"
+				},
+				{
+					"lemma": "people",
+					"pos": "n"
+				},
+				{
+					"lemma": "recipe",
+					"pos": "n"
+				},
+				{
+					"lemma": "enough",
+					"pos": "det"
+				},
+				{
+					"lemma": "laugh",
+					"pos": "v"
+				},
+				{
+					"lemma": "bury",
+					"pos": "v"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.vowel-system",
+			"kind": "topic",
+			"parentId": "en.pron.foundations",
+			"order": 2,
+			"title": {
+				"pt": "O sistema vocálico do inglês",
+				"en": "The English vowel system"
+			},
+			"summary": "Panorama das cerca de 12 vogais e 8 ditongos do inglês contra as 7 vogais orais do PT-BR.",
+			"objectives": [
+				"Situar as vogais do inglês num quadro de altura e anterioridade.",
+				"Explicar por que o PT-BR funde pares como /ɪ/–/iː/."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.vowel-system.quality-length",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.vowel-system",
+			"order": 0,
+			"title": {
+				"pt": "Qualidade × duração das vogais",
+				"en": "Vowel quality vs length"
+			},
+			"summary": "As vogais 'longas' do inglês diferem também na posição da língua; alongar a vogal do português não basta.",
+			"objectives": [
+				"Explicar por que /ɪ/ e /iː/ diferem em qualidade e não só em duração.",
+				"Dizer qual de duas gravações tem a vogal relaxada."
+			],
+			"bloom": "understand",
+			"assess": [
+				"explain",
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Achar que basta alongar a vogal do português para fazer a vogal longa."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.vowel-system.vowel-chart",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.vowel-system",
+			"order": 1,
+			"title": {
+				"pt": "O quadro das vogais",
+				"en": "The vowel chart"
+			},
+			"summary": "Situar as vogais simples do inglês por altura da língua, anterioridade e arredondamento, ao lado das 7 vogais orais do português.",
+			"objectives": [
+				"Posicionar /iː ɪ e æ ʌ ɑː ɔː ʊ uː ɜː ə/ no quadro.",
+				"Apontar a vogal do português mais próxima de cada uma."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"short"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.vowel-system.pt-gaps",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.vowel-system",
+			"order": 2,
+			"title": {
+				"pt": "Vogais que o português não tem",
+				"en": "Vowels Portuguese lacks"
+			},
+			"summary": "As vogais /ɪ æ ʌ ʊ ɜː ə/ e a substituição típica de cada uma por um falante de português.",
+			"objectives": [
+				"Prever a troca típica do brasileiro para cada vogal ausente no português e o par mínimo que ela desfaz (ship/sheep, bad/bed, cup/cop)."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Achar que trocar vogais é só sotaque e nunca muda o sentido."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.vowel-system.vowel-chart"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.vowel-system.schwa-intro",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.vowel-system",
+			"order": 3,
+			"title": {
+				"pt": "Primeiro contato com o schwa /ə/",
+				"en": "Meeting schwa"
+			},
+			"summary": "A vogal neutra das sílabas átonas (about, banana, teacher), a mais frequente do inglês. O estudo completo da redução fica para a prosódia (B1).",
+			"objectives": [
+				"Reconhecer /ə/ nas sílabas átonas de 10 palavras frequentes."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"dictation"
+			],
+			"misconceptions": [
+				"Pronunciar todas as vogais escritas com timbre pleno ('ba-NA-NA')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.consonant-system",
+			"kind": "topic",
+			"parentId": "en.pron.foundations",
+			"order": 3,
+			"title": {
+				"pt": "O sistema consonantal do inglês",
+				"en": "The English consonant system"
+			},
+			"summary": "Ponto e modo de articulação das consoantes e quais delas não existem no PT-BR.",
+			"objectives": [
+				"Identificar as consoantes ausentes no PT-BR (/θ/, /ð/, /ɹ/, /h/ inicial com função distintiva)."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.consonant-system.place-manner",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.consonant-system",
+			"order": 0,
+			"title": {
+				"pt": "Lugar, modo e vozeamento",
+				"en": "Place, manner and voicing"
+			},
+			"summary": "Descrever uma consoante pelos articuladores, pelo tipo de obstrução do ar e pela vibração das cordas vocais.",
+			"objectives": [
+				"Descrever /p b t d k g f v s z/ por lugar, modo e vozeamento."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"explain"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.consonant-system.new-consonants",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.consonant-system",
+			"order": 1,
+			"title": {
+				"pt": "Consoantes que o português não tem",
+				"en": "Consonants missing in Portuguese"
+			},
+			"summary": "/θ/, /ð/ e o /ɹ/ aproximante não existem no português; /h/ e /ŋ/ existem como variantes, mas não nas mesmas posições.",
+			"objectives": [
+				"Identificar /θ/, /ð/ e /ɹ/ como sons novos e dizer qual substituição o brasileiro costuma usar para cada um."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Achar que o th é uma variante de t ou de f."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.consonant-system.letter-traps",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.consonant-system",
+			"order": 2,
+			"title": {
+				"pt": "Mesma letra, outro som",
+				"en": "Same letter, different sound"
+			},
+			"summary": "Letras com valor diferente do português: r inicial não é /h/, h é pronunciado, t e d não viram 'tch' e 'dj' antes de i, l final não vira 'u', m e n finais se fecham.",
+			"objectives": [
+				"Ler em voz alta 10 palavras evitando as cinco transferências de letra mais comuns do português."
+			],
+			"bloom": "understand",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Ler 'red' como 'hed', 'hotel' sem h, 'team' como 'tchim' e 'feel' como 'fiu'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.consonant-system.consonant-diagnostic",
+			"kind": "atom",
+			"atomType": "checkpoint",
+			"parentId": "en.pron.foundations.consonant-system",
+			"order": 3,
+			"title": {
+				"pt": "Diagnóstico das minhas consoantes",
+				"en": "Consonant self-diagnosis"
+			},
+			"summary": "Gravar a leitura de um texto curto e marcar as três trocas de consoante mais frequentes; elas orientam a ordem de estudo da unidade de consoantes.",
+			"objectives": [
+				"Identificar na própria gravação as três substituições de consoante mais frequentes."
+			],
+			"bloom": "analyze",
+			"assess": [
+				"speak",
+				"short"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.consonant-system.new-consonants",
+					"en.pron.foundations.consonant-system.letter-traps"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.foundations.consonant-system.letter-traps",
+					"w": 0.4
+				},
+				{
+					"id": "en.pron.foundations.consonant-system.new-consonants",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.voicing",
+			"kind": "topic",
+			"parentId": "en.pron.foundations",
+			"order": 4,
+			"title": {
+				"pt": "Consciência de vozeamento",
+				"en": "Voicing awareness"
+			},
+			"summary": "Sentir e ouvir a diferença entre sons sonoros e surdos, base para -ed, -s e consoantes finais.",
+			"objectives": [
+				"Classificar consoantes finais como sonoras ou surdas pelo tato e pela audição."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.foundations.voicing.voiced-voiceless",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.voicing",
+			"order": 0,
+			"title": {
+				"pt": "Surdas e sonoras: sentir a vibração",
+				"en": "Voiced and voiceless sounds"
+			},
+			"summary": "Os pares /p b/, /t d/, /k g/, /f v/, /s z/, /θ ð/, /ʃ ʒ/, /tʃ dʒ/: a mão na garganta mostra a vibração.",
+			"objectives": [
+				"Classificar 16 consoantes como surdas ou sonoras pelo tato e pela audição."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"short"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.foundations.voicing.initial-pairs",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.foundations.voicing",
+			"order": 1,
+			"title": {
+				"pt": "Pares surdo-sonoro no início da palavra",
+				"en": "Initial voicing pairs"
+			},
+			"summary": "fan × van, sue × zoo, few × view, chin × gin: fricativas e africadas iniciais em que só o vozeamento muda a palavra.",
+			"scope": "Os pares p/b, t/d e k/g iniciais, cuja pista principal é a aspiração, ficam em 'Aspiração de /p t k/'.",
+			"objectives": [
+				"Discriminar pares surdo-sonoro iniciais com ≥90% de acerto em várias vozes."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.foundations.voicing.final-voicing",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.foundations.voicing",
+			"order": 2,
+			"title": {
+				"pt": "Vozeamento no fim: a vogal alonga antes da sonora",
+				"en": "Final voicing and vowel length"
+			},
+			"summary": "bet × bed, cap × cab, back × bag: a pista principal é a vogal mais longa antes da consoante sonora.",
+			"objectives": [
+				"Discriminar pares com consoante final surda × sonora pela duração da vogal.",
+				"Produzir 'bed' e 'bag' sem acrescentar vogal no fim."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Manter a consoante final sonora acrescentando um 'i' ('bed' = 'bédi')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.voicing.voiced-voiceless"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.foundations.voicing.medial-s-z",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.foundations.voicing",
+			"order": 3,
+			"title": {
+				"pt": "A letra s com som de /z/ no meio da palavra",
+				"en": "Letter s as /z/ inside words"
+			},
+			"summary": "Palavras frequentes em que a letra s soa sonora: easy, music, busy, reason, visit, president.",
+			"objectives": [
+				"Pronunciar com /z/ 12 palavras em que a letra s é sonora."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Ler a letra s sempre como /s/ ('music' com s surdo)."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "easy",
+					"pos": "adj"
+				},
+				{
+					"lemma": "music",
+					"pos": "n"
+				},
+				{
+					"lemma": "busy",
+					"pos": "adj"
+				},
+				{
+					"lemma": "reason",
+					"pos": "n"
+				},
+				{
+					"lemma": "visit",
+					"pos": "v"
+				},
+				{
+					"lemma": "president",
+					"pos": "n"
+				},
+				{
+					"lemma": "cousin",
+					"pos": "n"
+				},
+				{
+					"lemma": "thousand",
+					"pos": "num"
+				},
+				{
+					"lemma": "museum",
+					"pos": "n"
+				},
+				{
+					"lemma": "result",
+					"pos": "n"
+				},
+				{
+					"lemma": "physics",
+					"pos": "n"
+				},
+				{
+					"lemma": "present",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.syllable-structure",
+			"kind": "topic",
+			"parentId": "en.pron.foundations",
+			"order": 5,
+			"title": {
+				"pt": "Estrutura silábica e encontros consonantais",
+				"en": "Syllable structure and consonant clusters"
+			},
+			"summary": "O inglês aceita até três consoantes no início e quatro no fim da sílaba; o PT-BR prefere consoante + vogal.",
+			"objectives": [
+				"Contar sílabas de palavras como 'strengths' e 'texts' sem inserir vogais."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.foundations.syllable-structure.syllable-count",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.syllable-structure",
+			"order": 0,
+			"title": {
+				"pt": "Contar sílabas em inglês",
+				"en": "Counting syllables"
+			},
+			"summary": "Palavras como 'strengths' e 'texts' têm uma sílaba só: a sílaba inglesa aceita várias consoantes em volta da vogal.",
+			"objectives": [
+				"Contar corretamente as sílabas de 15 palavras com encontros consonantais."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"short"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.foundations.syllable-structure.phantom-vowel",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.syllable-structure",
+			"order": 1,
+			"title": {
+				"pt": "A vogal fantasma do brasileiro",
+				"en": "The intrusive vowel"
+			},
+			"summary": "O português insere 'i' ou 'e' para desfazer encontros ('Facebook' = 'fêi-ci-bu-qui'); em inglês isso cria sílabas e às vezes outras palavras.",
+			"objectives": [
+				"Detectar a vogal inserida na própria gravação e na de outros falantes."
+			],
+			"bloom": "understand",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Achar que a vogal extra não muda nada para quem ouve."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.foundations.syllable-structure.onset-clusters",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.foundations.syllable-structure",
+			"order": 2,
+			"title": {
+				"pt": "Encontros no início: pl, br, tr, θr",
+				"en": "Onset clusters"
+			},
+			"summary": "Encontros iniciais sem s: play, bring, tree, cry, glass, three, through. O /θr/ é o mais difícil.",
+			"scope": "Encontros com s inicial ficam em 'Encontros iniciais com s'.",
+			"objectives": [
+				"Produzir 12 palavras com encontro inicial sem vogal entre as consoantes."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.syllable-structure.syncope-words",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.foundations.syllable-structure",
+			"order": 3,
+			"title": {
+				"pt": "Sílabas que somem: different, family, every",
+				"en": "Dropped syllables"
+			},
+			"summary": "Palavras frequentes que o falante nativo pronuncia com uma sílaba a menos do que a escrita sugere.",
+			"objectives": [
+				"Pronunciar as 12 palavras com o número de sílabas usual ('comfortable' com 3)."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Pronunciar 'comfortable' e 'vegetable' sílaba por sílaba, como 'confortável' e 'vegetal'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "different",
+					"pos": "adj"
+				},
+				{
+					"lemma": "family",
+					"pos": "n"
+				},
+				{
+					"lemma": "every",
+					"pos": "det"
+				},
+				{
+					"lemma": "interesting",
+					"pos": "adj"
+				},
+				{
+					"lemma": "comfortable",
+					"pos": "adj"
+				},
+				{
+					"lemma": "vegetable",
+					"pos": "n"
+				},
+				{
+					"lemma": "chocolate",
+					"pos": "n"
+				},
+				{
+					"lemma": "camera",
+					"pos": "n"
+				},
+				{
+					"lemma": "Wednesday",
+					"pos": "n"
+				},
+				{
+					"lemma": "restaurant",
+					"pos": "n"
+				},
+				{
+					"lemma": "temperature",
+					"pos": "n"
+				},
+				{
+					"lemma": "favorite",
+					"pos": "adj"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.word-stress",
+			"kind": "topic",
+			"parentId": "en.pron.foundations",
+			"order": 6,
+			"title": {
+				"pt": "Acento de palavra",
+				"en": "Word stress"
+			},
+			"summary": "Localizar a sílaba tônica, usar o dicionário e perceber que errar o acento atrapalha mais que errar um som.",
+			"objectives": [
+				"Marcar a sílaba tônica de palavras de 2–4 sílabas.",
+				"Pronunciar com acento correto palavras cognatas traiçoeiras (hotel, develop, comfortable)."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Manter o acento da palavra cognata em português."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.word-stress.stress-concept",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.word-stress",
+			"order": 0,
+			"title": {
+				"pt": "O que faz uma sílaba tônica em inglês",
+				"en": "What makes a syllable stressed"
+			},
+			"summary": "A sílaba tônica é mais longa, mais alta e tem vogal plena; as átonas encolhem. Errar o acento atrapalha mais que errar um som.",
+			"objectives": [
+				"Explicar as três pistas do acento (duração, altura, vogal plena).",
+				"Marcar a sílaba tônica de palavras de 2–4 sílabas ouvidas."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"explain"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.word-stress.stress-perception",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.foundations.word-stress",
+			"order": 1,
+			"title": {
+				"pt": "Ouvir onde cai o acento",
+				"en": "Hearing word stress"
+			},
+			"summary": "Identificar o padrão acentual (Oo, oO, Ooo, oOo) de palavras ouvidas em vozes diferentes e conferir no dicionário.",
+			"objectives": [
+				"Identificar o padrão acentual de 20 palavras ouvidas com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.word-stress.stress-concept"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.word-stress.two-syllable-tendencies",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.foundations.word-stress",
+			"order": 2,
+			"title": {
+				"pt": "Tendências em palavras de duas sílabas",
+				"en": "Two-syllable tendencies"
+			},
+			"summary": "Substantivos e adjetivos tendem ao acento na 1ª sílaba (TAble, HAPpy); muitos verbos, na 2ª (reLAX, beGIN); prefixos costumam ser átonos.",
+			"scope": "Pares substantivo/verbo como REcord × reCORD ficam para a prosódia (B1).",
+			"objectives": [
+				"Prever o acento de palavras de duas sílabas desconhecidas e conferir no dicionário."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.foundations.word-stress.cognate-stress",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.foundations.word-stress",
+			"order": 3,
+			"title": {
+				"pt": "Cognatos com acento traiçoeiro",
+				"en": "Cognates with tricky stress"
+			},
+			"summary": "Palavras parecidas com o português, mas com a tônica em outro lugar: ANimal, CATegory, TELevision, INternet.",
+			"objectives": [
+				"Pronunciar com o acento correto 12 cognatos cujo acento difere do português."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Manter o acento da palavra cognata em português (aniMAL, televiSÃO)."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.word-stress.stress-perception"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.foundations.word-stress.stress-perception",
+					"w": 0.4
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "animal",
+					"pos": "n"
+				},
+				{
+					"lemma": "telephone",
+					"pos": "n"
+				},
+				{
+					"lemma": "category",
+					"pos": "n"
+				},
+				{
+					"lemma": "industry",
+					"pos": "n"
+				},
+				{
+					"lemma": "material",
+					"pos": "n"
+				},
+				{
+					"lemma": "capital",
+					"pos": "n"
+				},
+				{
+					"lemma": "Internet",
+					"pos": "n"
+				},
+				{
+					"lemma": "television",
+					"pos": "n"
+				},
+				{
+					"lemma": "positive",
+					"pos": "adj"
+				},
+				{
+					"lemma": "negative",
+					"pos": "adj"
+				},
+				{
+					"lemma": "elephant",
+					"pos": "n"
+				},
+				{
+					"lemma": "secretary",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"cognates"
+			]
+		},
+		{
+			"id": "en.pron.vowels",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 1,
+			"title": {
+				"pt": "Vogais: contrastes críticos para brasileiros",
+				"en": "Vowels: critical contrasts for Brazilians"
+			},
+			"summary": "Pares mínimos de vogais com alta carga funcional que o PT-BR tende a fundir.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.vowel-system"
+				]
+			],
+			"hours": {
+				"lo": 13.5,
+				"hi": 20.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.vowels.kit-fleece",
+			"kind": "topic",
+			"parentId": "en.pron.vowels",
+			"order": 0,
+			"title": {
+				"pt": "Vogais /ɪ/ e /iː/ (ship × sheep)",
+				"en": "/ɪ/ vs /iː/ (ship vs sheep)"
+			},
+			"summary": "Contraste de qualidade e duração entre a vogal curta e a longa.",
+			"objectives": [
+				"Discriminar /ɪ/ e /iː/ em pares mínimos com ≥90% de acerto.",
+				"Produzir 'live/leave', 'sit/seat' de forma inteligível."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Achar que a diferença é só de duração."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				},
+				{
+					"source": "functional-load",
+					"ref": "/ɪ/–/iː/ (alta)",
+					"embeddable": false
+				},
+				{
+					"source": "hvpt-meta-2025",
+					"ref": "treino perceptivo de alta variabilidade",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.vowels.kit-fleece.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.kit-fleece",
+			"order": 0,
+			"title": {
+				"pt": "Ouvir /ɪ/ × /iː/ em muitas vozes",
+				"en": "Hearing /ɪ/ vs /iː/"
+			},
+			"summary": "Treino perceptivo de alta variabilidade com ship/sheep, live/leave, fill/feel e sit/seat em vozes e sotaques diferentes.",
+			"objectives": [
+				"Discriminar /ɪ/ e /iː/ em pares mínimos com ≥90% de acerto em pelo menos 4 vozes."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Achar que a diferença é só de duração."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.kit-fleece.production",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.kit-fleece",
+			"order": 1,
+			"title": {
+				"pt": "Produzir o /ɪ/ relaxado",
+				"en": "Producing lax /ɪ/"
+			},
+			"summary": "Língua mais baixa e relaxada que no 'i' do português, perto de um 'ê' curto; o /iː/ sai com os lábios esticados.",
+			"objectives": [
+				"Produzir 'live/leave' e 'sit/seat' de forma que um ouvinte identifique a palavra."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Usar o 'i' do português para as duas vogais."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.kit-fleece.perception"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.kit-fleece.minimal-pairs",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.kit-fleece",
+			"order": 2,
+			"title": {
+				"pt": "Pares mínimos frequentes /ɪ/–/iː/",
+				"en": "Frequent /ɪ/–/iː/ pairs"
+			},
+			"summary": "live/leave, fill/feel, still/steal, rich/reach e os pares em que a troca gera palavra constrangedora (beach, sheet, piece).",
+			"objectives": [
+				"Pronunciar 6 pares frequentes mantendo o contraste."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "live",
+					"pos": "v"
+				},
+				{
+					"lemma": "leave",
+					"pos": "v"
+				},
+				{
+					"lemma": "fill",
+					"pos": "v"
+				},
+				{
+					"lemma": "feel",
+					"pos": "v"
+				},
+				{
+					"lemma": "still",
+					"pos": "adv"
+				},
+				{
+					"lemma": "steal",
+					"pos": "v"
+				},
+				{
+					"lemma": "rich",
+					"pos": "adj"
+				},
+				{
+					"lemma": "reach",
+					"pos": "v"
+				},
+				{
+					"lemma": "sit",
+					"pos": "v"
+				},
+				{
+					"lemma": "seat",
+					"pos": "n"
+				},
+				{
+					"lemma": "beach",
+					"pos": "n"
+				},
+				{
+					"lemma": "sheet",
+					"pos": "n"
+				},
+				{
+					"lemma": "piece",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.kit-fleece.dictation",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.kit-fleece",
+			"order": 3,
+			"title": {
+				"pt": "Ditado com /ɪ/ e /iː/ em frases",
+				"en": "Sentence dictation with /ɪ/ and /iː/"
+			},
+			"summary": "Frases em que só a vogal decide o sentido ('Did they live or leave?').",
+			"objectives": [
+				"Transcrever 10 frases com pares /ɪ/–/iː/ com ≥90% de acerto nas palavras-alvo."
+			],
+			"bloom": "apply",
+			"assess": [
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.kit-fleece.perception"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.kit-fleece.read-aloud",
+			"kind": "atom",
+			"atomType": "can_do",
+			"parentId": "en.pron.vowels.kit-fleece",
+			"order": 4,
+			"title": {
+				"pt": "Ler um parágrafo mantendo o contraste",
+				"en": "Reading aloud with the contrast"
+			},
+			"summary": "Ler e gravar um parágrafo curto e conferir, palavra a palavra, se /ɪ/ e /iː/ ficaram distintos.",
+			"objectives": [
+				"Ler um parágrafo de 60 palavras com ≥85% das vogais-alvo inteligíveis."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.kit-fleece.production",
+					"en.pron.vowels.kit-fleece.minimal-pairs"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.vowels.kit-fleece.production",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.vowels.kit-fleece.minimal-pairs",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.vowels.kit-fleece.perception",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.trap-dress",
+			"kind": "topic",
+			"parentId": "en.pron.vowels",
+			"order": 1,
+			"title": {
+				"pt": "Vogais /æ/ e /e/ (bad × bed)",
+				"en": "/æ/ vs /e/ (bad vs bed)"
+			},
+			"summary": "A vogal aberta /æ/ não existe no PT-BR e costuma virar o 'é' do português, apagando o contraste com /e/ (bad × bed).",
+			"objectives": [
+				"Discriminar e produzir 'man/men', 'had/head'."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				},
+				{
+					"source": "functional-load",
+					"ref": "/æ/–/ɛ/ (alta)",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.vowels.trap-dress.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.trap-dress",
+			"order": 0,
+			"title": {
+				"pt": "Ouvir /æ/ × /e/",
+				"en": "Hearing /æ/ vs /e/"
+			},
+			"summary": "man/men, bad/bed, had/head, sad/said e pan/pen em vozes variadas.",
+			"objectives": [
+				"Discriminar /æ/ e /e/ com ≥90% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Achar que /æ/ é só um 'é' bem aberto."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.trap-dress.production",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.trap-dress",
+			"order": 1,
+			"title": {
+				"pt": "Produzir o /æ/",
+				"en": "Producing /æ/"
+			},
+			"summary": "Abrir mais a mandíbula que no 'é', com a língua baixa e à frente: o som fica entre 'é' e 'a'.",
+			"objectives": [
+				"Produzir 'man' e 'men', 'had' e 'head' de forma distinguível."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar /æ/ como o 'a' de 'casa', que o americano ouve como 'hot' em vez de 'hat'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.trap-dress.perception"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.trap-dress.frequent-words",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.trap-dress",
+			"order": 2,
+			"title": {
+				"pt": "Palavras frequentes com /æ/",
+				"en": "Frequent /æ/ words"
+			},
+			"summary": "Palavras do dia a dia com /æ/ em que o brasileiro costuma usar 'é' ou 'a'.",
+			"objectives": [
+				"Pronunciar 12 palavras frequentes com /æ/ inteligível."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "man",
+					"pos": "n"
+				},
+				{
+					"lemma": "bad",
+					"pos": "adj"
+				},
+				{
+					"lemma": "have",
+					"pos": "v"
+				},
+				{
+					"lemma": "that",
+					"pos": "det"
+				},
+				{
+					"lemma": "cat",
+					"pos": "n"
+				},
+				{
+					"lemma": "black",
+					"pos": "adj"
+				},
+				{
+					"lemma": "happy",
+					"pos": "adj"
+				},
+				{
+					"lemma": "back",
+					"pos": "adv"
+				},
+				{
+					"lemma": "plan",
+					"pos": "n"
+				},
+				{
+					"lemma": "thank",
+					"pos": "v"
+				},
+				{
+					"lemma": "apple",
+					"pos": "n"
+				},
+				{
+					"lemma": "class",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.trap-dress.dictation",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.trap-dress",
+			"order": 3,
+			"title": {
+				"pt": "Ditado com /æ/ e /e/",
+				"en": "Dictation with /æ/ and /e/"
+			},
+			"summary": "Frases em que só a vogal separa as palavras ('The men had bad beds').",
+			"objectives": [
+				"Transcrever 10 frases com pares /æ/–/e/ com ≥90% de acerto nas palavras-alvo."
+			],
+			"bloom": "apply",
+			"assess": [
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.trap-dress.perception"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.strut-lot-thought",
+			"kind": "topic",
+			"parentId": "en.pron.vowels",
+			"order": 2,
+			"title": {
+				"pt": "Vogais /ʌ/, /ɑː/ e /ɔː/",
+				"en": "/ʌ/, /ɑː/ and /ɔː/"
+			},
+			"summary": "Cup, cop e caught em inglês americano e britânico.",
+			"objectives": [
+				"Distinguir 'cut/cot/caught' e saber onde o americano funde /ɑ/ e /ɔ/."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.vowels.strut-lot-thought.strut",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.strut-lot-thought",
+			"order": 0,
+			"title": {
+				"pt": "A vogal /ʌ/ (cup, love, money)",
+				"en": "The /ʌ/ vowel"
+			},
+			"summary": "Vogal central curta, sem equivalente no português, escrita com u ou o (but, cup, love, money).",
+			"objectives": [
+				"Produzir /ʌ/ em 10 palavras frequentes sem abrir para 'ó' nem 'á'."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.strut-lot-thought.o-as-strut",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.strut-lot-thought",
+			"order": 1,
+			"title": {
+				"pt": "Palavras com 'o' que soam /ʌ/",
+				"en": "Words with o pronounced /ʌ/"
+			},
+			"summary": "come, some, love, money, mother, month, Monday: a letra o com som de /ʌ/.",
+			"objectives": [
+				"Pronunciar 12 palavras com 'o' = /ʌ/."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Ler 'love', 'money' e 'come' com 'ó' por causa da letra o."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "come",
+					"pos": "v"
+				},
+				{
+					"lemma": "some",
+					"pos": "det"
+				},
+				{
+					"lemma": "love",
+					"pos": "v"
+				},
+				{
+					"lemma": "money",
+					"pos": "n"
+				},
+				{
+					"lemma": "mother",
+					"pos": "n"
+				},
+				{
+					"lemma": "brother",
+					"pos": "n"
+				},
+				{
+					"lemma": "other",
+					"pos": "det"
+				},
+				{
+					"lemma": "nothing",
+					"pos": "pron"
+				},
+				{
+					"lemma": "month",
+					"pos": "n"
+				},
+				{
+					"lemma": "Monday",
+					"pos": "n"
+				},
+				{
+					"lemma": "front",
+					"pos": "n"
+				},
+				{
+					"lemma": "son",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.strut-lot-thought.lot-thought",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.vowels.strut-lot-thought",
+			"order": 2,
+			"title": {
+				"pt": "/ɑ/ e /ɔ/ no americano e no britânico",
+				"en": "LOT and THOUGHT in GA and RP"
+			},
+			"summary": "hot, stop (/ɑ/ no americano, /ɒ/ no britânico) e law, thought (/ɔː/); muitos americanos fundem cot e caught.",
+			"objectives": [
+				"Explicar onde o americano funde /ɑ/ e /ɔ/ e onde o britânico mantém três vogais.",
+				"Reconhecer as duas pronúncias de 'hot' e 'caught' em gravações."
+			],
+			"bloom": "understand",
+			"assess": [
+				"explain",
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Achar que só uma das pronúncias, a americana ou a britânica, está certa."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.strut-lot-thought.three-way",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.strut-lot-thought",
+			"order": 3,
+			"title": {
+				"pt": "cup × cop × cap",
+				"en": "cup, cop, cap"
+			},
+			"summary": "Discriminar /ʌ/, /ɑ/ e /æ/ em trios: hut/hot/hat, luck/lock/lack, cut/cot/cat.",
+			"objectives": [
+				"Discriminar os três sons em trios com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.strut-lot-thought.strut"
+				]
+			],
+			"softPrereqs": [
+				"en.pron.vowels.trap-dress.perception"
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.foot-goose",
+			"kind": "topic",
+			"parentId": "en.pron.vowels",
+			"order": 3,
+			"title": {
+				"pt": "Vogais /ʊ/ e /uː/ (full × fool)",
+				"en": "/ʊ/ vs /uː/ (full vs fool)"
+			},
+			"summary": "Contraste curto/longo das vogais posteriores arredondadas.",
+			"objectives": [
+				"Produzir 'pull/pool', 'look/Luke' de forma distinguível."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.vowels.foot-goose.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.foot-goose",
+			"order": 0,
+			"title": {
+				"pt": "Ouvir /ʊ/ × /uː/",
+				"en": "Hearing /ʊ/ vs /uː/"
+			},
+			"summary": "full/fool, pull/pool, look/Luke, hood/who'd em vozes variadas.",
+			"objectives": [
+				"Discriminar /ʊ/ e /uː/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.foot-goose.production",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.foot-goose",
+			"order": 1,
+			"title": {
+				"pt": "Produzir o /ʊ/ relaxado",
+				"en": "Producing lax /ʊ/"
+			},
+			"summary": "Lábios menos arredondados e língua mais relaxada que no 'u' do português, perto de um 'ô' curto.",
+			"objectives": [
+				"Produzir 'pull/pool' e 'look/Luke' de forma distinguível."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Usar o 'u' do português para as duas vogais."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.foot-goose.perception"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.foot-goose.oo-spellings",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.foot-goose",
+			"order": 2,
+			"title": {
+				"pt": "oo: book ou food?",
+				"en": "oo: book or food?"
+			},
+			"summary": "Palavras com oo divididas entre /ʊ/ (book, look, good, foot) e /uː/ (food, moon, school, room).",
+			"objectives": [
+				"Classificar e pronunciar 12 palavras com oo pela vogal certa."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Ler todo 'oo' como /uː/ ('book' = 'buuk')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "book",
+					"pos": "n"
+				},
+				{
+					"lemma": "look",
+					"pos": "v"
+				},
+				{
+					"lemma": "good",
+					"pos": "adj"
+				},
+				{
+					"lemma": "foot",
+					"pos": "n"
+				},
+				{
+					"lemma": "cook",
+					"pos": "v"
+				},
+				{
+					"lemma": "took",
+					"pos": "v"
+				},
+				{
+					"lemma": "food",
+					"pos": "n"
+				},
+				{
+					"lemma": "moon",
+					"pos": "n"
+				},
+				{
+					"lemma": "school",
+					"pos": "n"
+				},
+				{
+					"lemma": "room",
+					"pos": "n"
+				},
+				{
+					"lemma": "soon",
+					"pos": "adv"
+				},
+				{
+					"lemma": "too",
+					"pos": "adv"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.foot-goose.modal-words",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.foot-goose",
+			"order": 3,
+			"title": {
+				"pt": "would, could, should, put, woman",
+				"en": "Frequent words with /ʊ/"
+			},
+			"summary": "Palavras gramaticais e frequentes com /ʊ/, incluindo o l mudo de could, should e would.",
+			"objectives": [
+				"Pronunciar would, could e should sem 'l' e com /ʊ/.",
+				"Pronunciar 10 palavras frequentes com /ʊ/."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Pronunciar o l de 'could', 'should' e 'would'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "would",
+					"pos": "modal"
+				},
+				{
+					"lemma": "could",
+					"pos": "modal"
+				},
+				{
+					"lemma": "should",
+					"pos": "modal"
+				},
+				{
+					"lemma": "put",
+					"pos": "v"
+				},
+				{
+					"lemma": "push",
+					"pos": "v"
+				},
+				{
+					"lemma": "pull",
+					"pos": "v"
+				},
+				{
+					"lemma": "woman",
+					"pos": "n"
+				},
+				{
+					"lemma": "full",
+					"pos": "adj"
+				},
+				{
+					"lemma": "sugar",
+					"pos": "n"
+				},
+				{
+					"lemma": "cookie",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.nurse-r-colored",
+			"kind": "topic",
+			"parentId": "en.pron.vowels",
+			"order": 4,
+			"title": {
+				"pt": "Vogal /ɜː/ e vogais com r",
+				"en": "/ɜː/ and r-coloured vowels"
+			},
+			"summary": "Bird, word, work: a vogal central sem equivalente no PT-BR e o r americano.",
+			"objectives": [
+				"Pronunciar 'work' diferente de 'walk' e 'bird' sem abrir para 'bérd'."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Pronunciar 'work' e 'walk' iguais."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.vowels.nurse-r-colored.nurse-vowel",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.nurse-r-colored",
+			"order": 0,
+			"title": {
+				"pt": "A vogal /ɜː/ (bird, work, learn)",
+				"en": "The NURSE vowel"
+			},
+			"summary": "Vogal central sem equivalente no português; no americano ela vem fundida ao r (/ɝ/).",
+			"objectives": [
+				"Produzir /ɜː/ em 10 palavras sem abrir para 'é' nem fechar para 'u'."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Pronunciar 'bird' como 'bérd' ou 'burd'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.nurse-r-colored.work-walk",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.nurse-r-colored",
+			"order": 1,
+			"title": {
+				"pt": "work × walk, word × ward",
+				"en": "work vs walk"
+			},
+			"summary": "work/walk, word/ward, firm/form, shirt/short: o par que mais causa mal-entendido em conversas sobre rotina e trabalho.",
+			"objectives": [
+				"Discriminar e produzir os quatro pares com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'work' e 'walk' iguais."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.nurse-r-colored.nurse-vowel"
+				]
+			],
+			"softPrereqs": [
+				"en.pron.vowels.strut-lot-thought.lot-thought"
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.nurse-r-colored.er-spellings",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.nurse-r-colored",
+			"order": 2,
+			"title": {
+				"pt": "As grafias de /ɜː/: er, ir, ur, or, ear",
+				"en": "Spellings of NURSE"
+			},
+			"summary": "As cinco grafias da mesma vogal em palavras frequentes.",
+			"objectives": [
+				"Reconhecer as cinco grafias de /ɜː/ e pronunciar 12 palavras frequentes."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "her",
+					"pos": "pron"
+				},
+				{
+					"lemma": "first",
+					"pos": "adj"
+				},
+				{
+					"lemma": "third",
+					"pos": "adj"
+				},
+				{
+					"lemma": "thirty",
+					"pos": "num"
+				},
+				{
+					"lemma": "girl",
+					"pos": "n"
+				},
+				{
+					"lemma": "world",
+					"pos": "n"
+				},
+				{
+					"lemma": "word",
+					"pos": "n"
+				},
+				{
+					"lemma": "learn",
+					"pos": "v"
+				},
+				{
+					"lemma": "early",
+					"pos": "adv"
+				},
+				{
+					"lemma": "Thursday",
+					"pos": "n"
+				},
+				{
+					"lemma": "nurse",
+					"pos": "n"
+				},
+				{
+					"lemma": "turn",
+					"pos": "v"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.nurse-r-colored.r-colored",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.vowels.nurse-r-colored",
+			"order": 3,
+			"title": {
+				"pt": "Vogal + r no americano: car, more, here, hair",
+				"en": "R-coloured vowels"
+			},
+			"summary": "No americano o r depois da vogal colore a vogal; no britânico ele não é pronunciado. Panorama de car, more, here, hair, sure.",
+			"scope": "A articulação do /ɹ/ em si fica em 'O r do inglês /ɹ/'.",
+			"objectives": [
+				"Reconhecer vogais seguidas de r nos dois sotaques e escolher um modelo coerente."
+			],
+			"bloom": "understand",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.diphthongs",
+			"kind": "topic",
+			"parentId": "en.pron.vowels",
+			"order": 5,
+			"title": {
+				"pt": "Ditongos do inglês",
+				"en": "English diphthongs"
+			},
+			"summary": "Os ditongos /eɪ aɪ ɔɪ aʊ oʊ/ e a tendência de monotongar ou trocar por ditongos do PT-BR.",
+			"objectives": [
+				"Produzir 'late/let', 'coat/caught' com o ditongo correto."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.vowels.diphthongs.closing-diphthongs",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.vowels.diphthongs",
+			"order": 0,
+			"title": {
+				"pt": "Os ditongos /eɪ aɪ ɔɪ aʊ oʊ/",
+				"en": "Closing diphthongs"
+			},
+			"summary": "Os cinco ditongos que deslizam para /ɪ/ ou /ʊ/, comparados com 'ei', 'ai', 'ói', 'au' e 'ou' do português.",
+			"objectives": [
+				"Associar os cinco ditongos a palavras-chave (day, my, boy, now, go) e produzi-los."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.diphthongs.ei-vs-e",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.diphthongs",
+			"order": 1,
+			"title": {
+				"pt": "late × let, sale × sell",
+				"en": "/eɪ/ vs /e/"
+			},
+			"summary": "Pares em que monotongar /eɪ/ apaga a diferença: late/let, sale/sell, pain/pen, wait/wet, taste/test.",
+			"objectives": [
+				"Discriminar e produzir pares /eɪ/–/e/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.diphthongs.ou-vs-aw",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.diphthongs",
+			"order": 2,
+			"title": {
+				"pt": "low × law, coat × caught",
+				"en": "/oʊ/ vs /ɔː/"
+			},
+			"summary": "O ditongo de 'go' contra a vogal aberta de 'law': coat/caught, boat/bought, so/saw, woke/walk.",
+			"objectives": [
+				"Discriminar e produzir pares /oʊ/–/ɔː/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'home', 'phone' e 'go' com 'ó' aberto e sem deslizar."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.diphthongs.a-as-ei",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.diphthongs",
+			"order": 3,
+			"title": {
+				"pt": "Cognatos com 'a' = /eɪ/ (data, basic, radio)",
+				"en": "Cognates where a = /eɪ/"
+			},
+			"summary": "Palavras parecidas com o português em que a letra a soa /eɪ/.",
+			"objectives": [
+				"Pronunciar 12 cognatos com /eɪ/ em vez de 'a'."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Ler 'data', 'basic' e 'radio' com o 'a' do português."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.diphthongs.closing-diphthongs"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "data",
+					"pos": "n"
+				},
+				{
+					"lemma": "basic",
+					"pos": "adj"
+				},
+				{
+					"lemma": "radio",
+					"pos": "n"
+				},
+				{
+					"lemma": "nation",
+					"pos": "n"
+				},
+				{
+					"lemma": "patient",
+					"pos": "n"
+				},
+				{
+					"lemma": "danger",
+					"pos": "n"
+				},
+				{
+					"lemma": "change",
+					"pos": "v"
+				},
+				{
+					"lemma": "table",
+					"pos": "n"
+				},
+				{
+					"lemma": "able",
+					"pos": "adj"
+				},
+				{
+					"lemma": "paper",
+					"pos": "n"
+				},
+				{
+					"lemma": "major",
+					"pos": "adj"
+				},
+				{
+					"lemma": "famous",
+					"pos": "adj"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"cognates"
+			]
+		},
+		{
+			"id": "en.pron.vowels.no-nasalization",
+			"kind": "topic",
+			"parentId": "en.pron.vowels",
+			"order": 6,
+			"title": {
+				"pt": "Vogais orais antes de nasais",
+				"en": "Oral vowels before nasals"
+			},
+			"summary": "Evitar a nasalização portuguesa em 'can', 'man', 'time', 'some'.",
+			"objectives": [
+				"Fechar a consoante nasal sem nasalizar a vogal anterior."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Pronunciar 'man' como 'mã'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.vowels.no-nasalization.oral-vowel",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.vowels.no-nasalization",
+			"order": 0,
+			"title": {
+				"pt": "Vogal oral antes de m e n",
+				"en": "Oral vowels before nasals"
+			},
+			"summary": "Em português a vogal antes de m/n fica nasal ('cama', 'banana'); em inglês ela continua oral e quem soa é a consoante nasal.",
+			"objectives": [
+				"Explicar a diferença entre 'man' do inglês e 'mã' do português."
+			],
+			"bloom": "understand",
+			"assess": [
+				"explain",
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Pronunciar 'man' como 'mã'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.no-nasalization.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.vowels.no-nasalization",
+			"order": 1,
+			"title": {
+				"pt": "Ouvir vogal oral × nasalizada",
+				"en": "Hearing oral vs nasalized vowels"
+			},
+			"summary": "Comparar gravações de 'can', 'time', 'some' e 'banana' com vogal oral e com vogal nasalizada à brasileira.",
+			"objectives": [
+				"Identificar qual de duas gravações tem a vogal nasalizada com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.no-nasalization.oral-vowel"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.vowels.no-nasalization.cognates",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.vowels.no-nasalization",
+			"order": 2,
+			"title": {
+				"pt": "Cognatos que o brasileiro nasaliza",
+				"en": "Cognates Brazilians nasalize"
+			},
+			"summary": "Palavras parecidas com o português em que a vogal antes de m/n deve continuar oral.",
+			"objectives": [
+				"Pronunciar 12 cognatos com vogal oral antes de m/n."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "banana",
+					"pos": "n"
+				},
+				{
+					"lemma": "camera",
+					"pos": "n"
+				},
+				{
+					"lemma": "animal",
+					"pos": "n"
+				},
+				{
+					"lemma": "Canada",
+					"pos": "n"
+				},
+				{
+					"lemma": "planet",
+					"pos": "n"
+				},
+				{
+					"lemma": "candidate",
+					"pos": "n"
+				},
+				{
+					"lemma": "January",
+					"pos": "n"
+				},
+				{
+					"lemma": "manager",
+					"pos": "n"
+				},
+				{
+					"lemma": "panic",
+					"pos": "n"
+				},
+				{
+					"lemma": "dance",
+					"pos": "v"
+				},
+				{
+					"lemma": "chance",
+					"pos": "n"
+				},
+				{
+					"lemma": "command",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"cognates"
+			]
+		},
+		{
+			"id": "en.pron.vowels.no-nasalization.read-aloud",
+			"kind": "atom",
+			"atomType": "can_do",
+			"parentId": "en.pron.vowels.no-nasalization",
+			"order": 3,
+			"title": {
+				"pt": "Ler frases sem nasalizar",
+				"en": "Reading without nasalization"
+			},
+			"summary": "Ler e gravar frases densas em m/n ('Can Sam come on Monday?') conferindo as vogais orais.",
+			"objectives": [
+				"Ler 10 frases mantendo vogais orais em ≥85% das sílabas-alvo."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"clauses": [
+				[
+					"en.pron.vowels.no-nasalization.perception",
+					"en.pron.vowels.no-nasalization.cognates"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.vowels.no-nasalization.perception",
+					"w": 0.4
+				},
+				{
+					"id": "en.pron.vowels.no-nasalization.cognates",
+					"w": 0.5
+				}
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 2,
+			"title": {
+				"pt": "Consoantes: contrastes e posições críticas",
+				"en": "Consonants: critical contrasts and positions"
+			},
+			"summary": "Consoantes inexistentes no PT-BR e posições (inicial, final, encontros) em que o brasileiro insere ou troca sons.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 33
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.consonant-system"
+				]
+			],
+			"hours": {
+				"lo": 20,
+				"hi": 32
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.consonants.th-voiceless",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 0,
+			"title": {
+				"pt": "O som /θ/ (think)",
+				"en": "The /θ/ sound (think)"
+			},
+			"summary": "Língua entre os dentes, sem trocar por /t/, /f/ ou /s/.",
+			"objectives": [
+				"Produzir 'think/sink/tink' de forma distinta.",
+				"Discriminar /θ/ de /s/ e /f/ em pares mínimos."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				},
+				{
+					"source": "ipa-chart",
+					"ref": "/θ/",
+					"embeddable": false
+				},
+				{
+					"source": "lfc-jenkins-2000",
+					"ref": "substitutos aceitáveis de th",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiceless.articulation",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.th-voiceless",
+			"order": 0,
+			"title": {
+				"pt": "Articular o /θ/: língua entre os dentes",
+				"en": "Articulating /θ/"
+			},
+			"summary": "Ponta da língua entre os dentes e ar contínuo, sem a explosão do /t/ e sem o lábio do /f/.",
+			"scope": "Meta de inteligibilidade: /θ/ é o alvo, mas as trocas por /f/ ou /t/ raramente impedem a compreensão em inglês internacional (Lingua Franca Core).",
+			"objectives": [
+				"Sustentar /θ/ isolado e em sílabas (tha, thi, thu) sem virar /t/, /f/ ou /s/."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiceless.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.th-voiceless",
+			"order": 1,
+			"title": {
+				"pt": "think × sink × tink",
+				"en": "/θ/ vs /s/, /t/, /f/"
+			},
+			"summary": "Discriminar /θ/ das três trocas brasileiras: think/sink, three/tree/free, thank/tank, mouth/mouse.",
+			"objectives": [
+				"Discriminar /θ/ de /s/, /t/ e /f/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiceless.words",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.th-voiceless",
+			"order": 2,
+			"title": {
+				"pt": "Palavras frequentes com /θ/",
+				"en": "Frequent /θ/ words"
+			},
+			"summary": "/θ/ no início, no meio e no fim de palavras muito usadas.",
+			"objectives": [
+				"Pronunciar 12 palavras com /θ/ em todas as posições."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Trocar /θ/ por /f/ no fim da palavra ('mouf', 'bof')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.th-voiceless.articulation"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "think",
+					"pos": "v"
+				},
+				{
+					"lemma": "thing",
+					"pos": "n"
+				},
+				{
+					"lemma": "three",
+					"pos": "num"
+				},
+				{
+					"lemma": "thank",
+					"pos": "v"
+				},
+				{
+					"lemma": "Thursday",
+					"pos": "n"
+				},
+				{
+					"lemma": "birthday",
+					"pos": "n"
+				},
+				{
+					"lemma": "nothing",
+					"pos": "pron"
+				},
+				{
+					"lemma": "mouth",
+					"pos": "n"
+				},
+				{
+					"lemma": "both",
+					"pos": "det"
+				},
+				{
+					"lemma": "month",
+					"pos": "n"
+				},
+				{
+					"lemma": "health",
+					"pos": "n"
+				},
+				{
+					"lemma": "math",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiceless.ordinals",
+			"kind": "atom",
+			"atomType": "can_do",
+			"parentId": "en.pron.consonants.th-voiceless",
+			"order": 3,
+			"title": {
+				"pt": "Datas e ordinais com th (fourth, fifth, thirtieth)",
+				"en": "Dates and ordinals with th"
+			},
+			"summary": "Dizer datas e posições (the 4th, the 13th, the 30th) mantendo o /θ/ depois de consoante.",
+			"objectives": [
+				"Dizer 10 datas com ordinais terminados em -th de forma inteligível."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Omitir o th final ('the fif of May')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.th-voiceless.words"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.consonants.th-voiceless.words",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.consonants.th-voiceless.articulation",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiced",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 1,
+			"title": {
+				"pt": "O som /ð/ (this)",
+				"en": "The /ð/ sound (this)"
+			},
+			"summary": "A versão sonora do th em palavras gramaticais muito frequentes.",
+			"objectives": [
+				"Produzir 'this, they, those' sem virar /d/ ou /z/."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				},
+				{
+					"source": "ipa-chart",
+					"ref": "/ð/",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiced.articulation",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.th-voiced",
+			"order": 0,
+			"title": {
+				"pt": "Articular o /ð/ sonoro",
+				"en": "Articulating /ð/"
+			},
+			"summary": "A mesma posição do /θ/, agora com vibração das cordas vocais.",
+			"objectives": [
+				"Sustentar /ð/ com vibração e alterná-lo com /θ/."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiced.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.th-voiced",
+			"order": 1,
+			"title": {
+				"pt": "they × day, then × den",
+				"en": "/ð/ vs /d/ and /z/"
+			},
+			"summary": "Discriminar /ð/ de /d/ e /z/: they/day, then/den, though/dough, breathe/breeze, clothing/closing.",
+			"objectives": [
+				"Discriminar /ð/ de /d/ e /z/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiced.function-words",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.th-voiced",
+			"order": 2,
+			"title": {
+				"pt": "Palavras gramaticais com /ð/",
+				"en": "Function words with /ð/"
+			},
+			"summary": "As palavras mais frequentes do inglês com /ð/: the, this, that, they, there, with.",
+			"objectives": [
+				"Pronunciar as palavras gramaticais com /ð/ em frases de fala natural."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Trocar /ð/ por /d/ nas palavras gramaticais ('de', 'dis', 'dey')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.th-voiced.articulation"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "the",
+					"pos": "det"
+				},
+				{
+					"lemma": "this",
+					"pos": "det"
+				},
+				{
+					"lemma": "that",
+					"pos": "det"
+				},
+				{
+					"lemma": "these",
+					"pos": "det"
+				},
+				{
+					"lemma": "those",
+					"pos": "det"
+				},
+				{
+					"lemma": "they",
+					"pos": "pron"
+				},
+				{
+					"lemma": "them",
+					"pos": "pron"
+				},
+				{
+					"lemma": "their",
+					"pos": "det"
+				},
+				{
+					"lemma": "there",
+					"pos": "adv"
+				},
+				{
+					"lemma": "then",
+					"pos": "adv"
+				},
+				{
+					"lemma": "than",
+					"pos": "conj"
+				},
+				{
+					"lemma": "with",
+					"pos": "prep"
+				},
+				{
+					"lemma": "mother",
+					"pos": "n"
+				},
+				{
+					"lemma": "other",
+					"pos": "det"
+				},
+				{
+					"lemma": "weather",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.th-voiced.the-before-vowel",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.consonants.th-voiced",
+			"order": 3,
+			"title": {
+				"pt": "the: /ðə/ antes de consoante, /ði/ antes de vogal",
+				"en": "Two pronunciations of 'the'"
+			},
+			"summary": "the book × the apple, the hour, the university: a escolha depende do som que vem depois, não da letra.",
+			"objectives": [
+				"Escolher /ðə/ ou /ði/ em 15 sintagmas, inclusive com h mudo e com u = /juː/."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"softPrereqs": [
+				"en.pron.consonants.h-initial.silent-h",
+				"en.pron.consonants.w-v-j.u-as-ju"
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.h-initial",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 2,
+			"title": {
+				"pt": "O /h/ inicial (house, hat)",
+				"en": "Initial /h/ (house, hat)"
+			},
+			"summary": "O /h/ do inglês é aspirado e distingue palavras (hate × eight, hear × ear).",
+			"objectives": [
+				"Produzir e omitir /h/ conforme a palavra (hour sem h; house com h)."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.h-initial.articulation",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.h-initial",
+			"order": 0,
+			"title": {
+				"pt": "O /h/: só ar, sem atrito",
+				"en": "Articulating /h/"
+			},
+			"summary": "/h/ é um sopro suave antes da vogal, como o 'r' de 'carro' bem leve, sem raspar a garganta.",
+			"objectives": [
+				"Produzir /h/ suave em 10 palavras (house, hat, help)."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.h-initial.h-vs-zero",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.h-initial",
+			"order": 1,
+			"title": {
+				"pt": "hate × eight, hear × ear",
+				"en": "/h/ vs no /h/"
+			},
+			"summary": "Pares em que o h decide a palavra: hate/eight, hear/ear, hair/air, heat/eat, hold/old, high/I.",
+			"objectives": [
+				"Discriminar e produzir pares com e sem /h/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.h-initial.h-cognates",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.h-initial",
+			"order": 2,
+			"title": {
+				"pt": "Cognatos com h pronunciado",
+				"en": "Cognates with pronounced h"
+			},
+			"summary": "Palavras com h mudo em português e /h/ audível em inglês.",
+			"objectives": [
+				"Pronunciar 12 cognatos com /h/ inicial."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Ler o h como mudo, como no português ('hospital' = 'óspital')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "hotel",
+					"pos": "n"
+				},
+				{
+					"lemma": "hospital",
+					"pos": "n"
+				},
+				{
+					"lemma": "history",
+					"pos": "n"
+				},
+				{
+					"lemma": "human",
+					"pos": "adj"
+				},
+				{
+					"lemma": "horrible",
+					"pos": "adj"
+				},
+				{
+					"lemma": "habit",
+					"pos": "n"
+				},
+				{
+					"lemma": "hero",
+					"pos": "n"
+				},
+				{
+					"lemma": "helicopter",
+					"pos": "n"
+				},
+				{
+					"lemma": "hamburger",
+					"pos": "n"
+				},
+				{
+					"lemma": "harmony",
+					"pos": "n"
+				},
+				{
+					"lemma": "horizon",
+					"pos": "n"
+				},
+				{
+					"lemma": "humor",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"cognates"
+			]
+		},
+		{
+			"id": "en.pron.consonants.h-initial.silent-h",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.h-initial",
+			"order": 3,
+			"title": {
+				"pt": "As poucas palavras com h mudo",
+				"en": "Silent h"
+			},
+			"summary": "hour, honest, honor, heir e derivados, com efeito no artigo: an hour, an honest man.",
+			"objectives": [
+				"Pronunciar as palavras com h mudo e escolher 'an' antes delas."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Generalizar o h mudo para 'house', 'happy' ou 'hotel'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "hour",
+					"pos": "n"
+				},
+				{
+					"lemma": "honest",
+					"pos": "adj"
+				},
+				{
+					"lemma": "honor",
+					"pos": "n"
+				},
+				{
+					"lemma": "heir",
+					"pos": "n"
+				},
+				{
+					"lemma": "honestly",
+					"pos": "adv"
+				},
+				{
+					"lemma": "hourly",
+					"pos": "adj"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.english-r",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 3,
+			"title": {
+				"pt": "O r do inglês /ɹ/",
+				"en": "The English /ɹ/"
+			},
+			"summary": "O r aproximante (red, very, car) contra o r forte e o tepe do PT-BR.",
+			"objectives": [
+				"Produzir /ɹ/ em início, meio e fim de palavra sem vibrar nem aspirar."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Ler 'red' com o r de 'rato' (soa como 'hed')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.english-r.articulation",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.english-r",
+			"order": 0,
+			"title": {
+				"pt": "Articular o /ɹ/ aproximante",
+				"en": "Articulating /ɹ/"
+			},
+			"summary": "Língua recuada ou com a ponta curvada, sem tocar o céu da boca e sem vibrar; lábios levemente arredondados.",
+			"objectives": [
+				"Sustentar /ɹ/ isolado e antes de vogais (ra, re, ri) sem tepe nem 'h'."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.english-r.initial-r",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.english-r",
+			"order": 1,
+			"title": {
+				"pt": "r inicial não é /h/: red × head",
+				"en": "Initial /ɹ/ vs /h/"
+			},
+			"summary": "O 'r' de 'rato' soa como /h/ para o ouvinte: red/head, rat/hat, rope/hope, row/hoe, rate/hate.",
+			"objectives": [
+				"Discriminar e produzir pares /ɹ/–/h/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Ler 'red' com o r de 'rato' (soa como 'head')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.english-r.articulation"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.english-r.medial-r",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.english-r",
+			"order": 2,
+			"title": {
+				"pt": "r entre vogais e em encontros: very, sorry, tree",
+				"en": "Medial /ɹ/ and clusters"
+			},
+			"summary": "Evitar o tepe de 'caro' em very, sorry e carry, e manter /ɹ/ em tr, br, pr e gr (tree, bring, problem, green).",
+			"objectives": [
+				"Produzir 12 palavras com r entre vogais ou em encontro sem tepe."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Usar o r de 'caro' em 'very', que o americano ouve como 'veddy'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.english-r.articulation"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.english-r.final-r",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.english-r",
+			"order": 3,
+			"title": {
+				"pt": "r no fim da sílaba: car, door, teacher",
+				"en": "Post-vocalic r"
+			},
+			"summary": "No americano o r final é pronunciado e colore a vogal; no britânico, não. Escolher um modelo e mantê-lo.",
+			"objectives": [
+				"Pronunciar 10 palavras com r final de forma coerente com o modelo escolhido."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar o r final como 'h' ('car' = 'cah') ou com vibração."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.english-r.articulation"
+				]
+			],
+			"softPrereqs": [
+				"en.pron.vowels.nurse-r-colored.r-colored"
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.dark-l",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 4,
+			"title": {
+				"pt": "O l final (dark l)",
+				"en": "Final dark l"
+			},
+			"summary": "No PT-BR o l final vira [w] (Brasil → 'Brasiu'); no inglês a língua toca os alvéolos.",
+			"objectives": [
+				"Distinguir 'feel/few', 'bell/bow' na produção."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 31
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.dark-l.clear-dark",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.consonants.dark-l",
+			"order": 0,
+			"title": {
+				"pt": "l claro e l escuro",
+				"en": "Clear and dark l"
+			},
+			"summary": "No início da sílaba o l é claro (light); no fim fica escuro (feel), mas a ponta da língua continua tocando atrás dos dentes.",
+			"objectives": [
+				"Explicar a diferença entre l claro, l escuro e o 'u' do português no fim de sílaba."
+			],
+			"bloom": "understand",
+			"assess": [
+				"explain",
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 31
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.dark-l.vocalization-contrast",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.dark-l",
+			"order": 1,
+			"title": {
+				"pt": "feel × few, bowl × bow",
+				"en": "Dark l vs /w/"
+			},
+			"summary": "Pares em que trocar o l final por 'u' muda ou apaga a palavra: feel/few, bowl/bow, hole/hoe, sold/sewed.",
+			"objectives": [
+				"Discriminar e produzir pares com l final × 'u' com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar o l final como 'u', como em 'Brasil' ('feel' = 'fiu')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 31
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.dark-l.clear-dark"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.dark-l.l-production",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.dark-l",
+			"order": 2,
+			"title": {
+				"pt": "l final e antes de consoante: feel, milk, help",
+				"en": "Producing final dark l"
+			},
+			"summary": "Tocar a ponta da língua atrás dos dentes no fim da palavra e antes de consoante: call, school, milk, help, world.",
+			"objectives": [
+				"Produzir l escuro audível em 12 palavras."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 31
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.dark-l.clear-dark"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.dark-l.le-al-endings",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.dark-l",
+			"order": 3,
+			"title": {
+				"pt": "Finais -le e -al: people, table, possible",
+				"en": "-le and -al endings"
+			},
+			"summary": "O l silábico de people, table, little, simple, possible, hospital, general, natural.",
+			"objectives": [
+				"Pronunciar 12 palavras terminadas em -le ou -al com l audível."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'possible' e 'hospital' como 'possíveu' e 'hospitau'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 31
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "people",
+					"pos": "n"
+				},
+				{
+					"lemma": "table",
+					"pos": "n"
+				},
+				{
+					"lemma": "little",
+					"pos": "adj"
+				},
+				{
+					"lemma": "simple",
+					"pos": "adj"
+				},
+				{
+					"lemma": "possible",
+					"pos": "adj"
+				},
+				{
+					"lemma": "hospital",
+					"pos": "n"
+				},
+				{
+					"lemma": "general",
+					"pos": "adj"
+				},
+				{
+					"lemma": "natural",
+					"pos": "adj"
+				},
+				{
+					"lemma": "travel",
+					"pos": "v"
+				},
+				{
+					"lemma": "level",
+					"pos": "n"
+				},
+				{
+					"lemma": "final",
+					"pos": "adj"
+				},
+				{
+					"lemma": "total",
+					"pos": "adj"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-nasals",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 5,
+			"title": {
+				"pt": "Nasais finais /m n ŋ/",
+				"en": "Final nasals /m n ŋ/"
+			},
+			"summary": "Fechar de fato a consoante nasal no fim da palavra: 'sun/sung/some'.",
+			"objectives": [
+				"Produzir 'thin/thing', 'ran/rang' com consoante nasal audível."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-nasals.m-n-closure",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.final-nasals",
+			"order": 0,
+			"title": {
+				"pt": "Fechar m e n no fim da palavra",
+				"en": "Closing final m and n"
+			},
+			"summary": "Lábios fechados no m (time, home) e língua nos alvéolos no n (ten, sun), sem nasalizar a vogal anterior.",
+			"objectives": [
+				"Produzir m e n finais audíveis em 12 palavras."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'time' só nasalizando a vogal, sem fechar os lábios ('tãi')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-nasals.three-way",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.final-nasals",
+			"order": 1,
+			"title": {
+				"pt": "some × sun × sung",
+				"en": "/m/ vs /n/ vs /ŋ/"
+			},
+			"summary": "Trios e pares em que só a nasal final muda: some/sun/sung, Kim/kin/king, ram/ran/rang, thin/thing.",
+			"objectives": [
+				"Discriminar /m n ŋ/ finais com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-nasals.ng-ending",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.final-nasals",
+			"order": 2,
+			"title": {
+				"pt": "O /ŋ/ e o -ing",
+				"en": "/ŋ/ and -ing"
+			},
+			"summary": "Terminar com o dorso da língua no véu, sem soltar um 'g' e sem virar 'ĩ': singing, thing, morning, long.",
+			"objectives": [
+				"Pronunciar -ing e -ng finais sem /ɡ/ solto e sem vogal nasal."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar -ing como 'ĩ' nasal ('morning' = 'mórnĩ')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.final-nasals.three-way"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-nasals.read-aloud",
+			"kind": "atom",
+			"atomType": "can_do",
+			"parentId": "en.pron.consonants.final-nasals",
+			"order": 3,
+			"title": {
+				"pt": "Frases com nasais finais",
+				"en": "Sentences with final nasals"
+			},
+			"summary": "Ler e gravar frases como 'I'm coming home in the morning' com as nasais finais audíveis.",
+			"objectives": [
+				"Ler 10 frases com ≥85% das nasais finais audíveis."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.final-nasals.m-n-closure",
+					"en.pron.consonants.final-nasals.ng-ending"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.consonants.final-nasals.m-n-closure",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.consonants.final-nasals.ng-ending",
+					"w": 0.5
+				}
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.no-palatalization",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 6,
+			"title": {
+				"pt": "t e d antes de /i/ sem chiado",
+				"en": "t and d before /i/ without affrication"
+			},
+			"summary": "Evitar 'tchi' e 'dji' em 'team', 'dinner', 'city'.",
+			"objectives": [
+				"Pronunciar 'tea/tee/D' sem africar."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Pronunciar 'dinner' como 'djiner'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.no-palatalization.concept",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.consonants.no-palatalization",
+			"order": 0,
+			"title": {
+				"pt": "Por que 'tia' vira 'tchia' e 'team' não deve virar",
+				"en": "Why t and d palatalize in Portuguese"
+			},
+			"summary": "No PT-BR, t e d antes de 'i' viram 'tch' e 'dj'; no inglês eles continuam /t/ e /d/ (team, deep, tip).",
+			"objectives": [
+				"Prever onde o hábito do português produziria 'tch' ou 'dj' numa frase em inglês."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"explain"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.no-palatalization.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.no-palatalization",
+			"order": 1,
+			"title": {
+				"pt": "tip × chip, deep × jeep",
+				"en": "/t d/ vs /tʃ dʒ/"
+			},
+			"summary": "Pares que a palatalização funde: tip/chip, tease/cheese, deep/jeep, din/gin, tin/chin.",
+			"objectives": [
+				"Discriminar e produzir pares /t/–/tʃ/ e /d/–/dʒ/ antes de /ɪ iː/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'dinner' como 'djiner'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.no-palatalization.words",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.no-palatalization",
+			"order": 2,
+			"title": {
+				"pt": "Palavras frequentes com ti, di, te",
+				"en": "Frequent words with t/d before i"
+			},
+			"summary": "Palavras do dia a dia em que t e d antes de /ɪ iː/ não podem africar.",
+			"objectives": [
+				"Pronunciar 12 palavras sem africar t e d."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.no-palatalization.concept"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "tea",
+					"pos": "n"
+				},
+				{
+					"lemma": "team",
+					"pos": "n"
+				},
+				{
+					"lemma": "teacher",
+					"pos": "n"
+				},
+				{
+					"lemma": "ticket",
+					"pos": "n"
+				},
+				{
+					"lemma": "tip",
+					"pos": "n"
+				},
+				{
+					"lemma": "still",
+					"pos": "adv"
+				},
+				{
+					"lemma": "did",
+					"pos": "v"
+				},
+				{
+					"lemma": "different",
+					"pos": "adj"
+				},
+				{
+					"lemma": "difficult",
+					"pos": "adj"
+				},
+				{
+					"lemma": "dinner",
+					"pos": "n"
+				},
+				{
+					"lemma": "deep",
+					"pos": "adj"
+				},
+				{
+					"lemma": "discount",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.no-palatalization.final-t-d",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.no-palatalization",
+			"order": 3,
+			"title": {
+				"pt": "t e d finais sem 'tchi' e 'dji'",
+				"en": "Final t and d without an added vowel"
+			},
+			"summary": "Quando o brasileiro acrescenta 'i' depois de t ou d final, o t vira 'tchi': internet, chat, good, bad.",
+			"objectives": [
+				"Pronunciar 10 palavras com t ou d finais sem vogal nem africação."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'internet' como 'internétchi' e 'good' como 'gudji'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.no-palatalization.concept"
+				]
+			],
+			"softPrereqs": [
+				"en.pron.consonants.final-consonants.final-stops"
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.s-clusters",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 7,
+			"title": {
+				"pt": "Encontros iniciais com s",
+				"en": "Initial s-clusters"
+			},
+			"summary": "Evitar a vogal de apoio em 'school', 'stop', 'Spain', 'student'.",
+			"objectives": [
+				"Produzir s + consoante inicial sem 'e' epentético."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Dizer 'eschool' e 'estudent'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.s-clusters.concept",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.consonants.s-clusters",
+			"order": 0,
+			"title": {
+				"pt": "Por que dizemos 'iscola'",
+				"en": "Why Portuguese adds a vowel before s"
+			},
+			"summary": "O português não aceita s + consoante no início da sílaba e cria um 'e' ou 'i' de apoio; o inglês começa direto no s.",
+			"objectives": [
+				"Explicar por que 'school' vira 'eschool' e quantas sílabas isso acrescenta."
+			],
+			"bloom": "understand",
+			"assess": [
+				"explain",
+				"mcq"
+			],
+			"misconceptions": [
+				"Dizer 'eschool' e 'estudent'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"softPrereqs": [
+				"en.pron.foundations.syllable-structure.phantom-vowel"
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.s-clusters.production",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.s-clusters",
+			"order": 1,
+			"title": {
+				"pt": "Começar no s: sssschool",
+				"en": "Starting on the s"
+			},
+			"summary": "Prolongar o s e emendar a consoante (ssss-top, ssss-pain) até sair sem vogal inicial.",
+			"objectives": [
+				"Produzir 12 palavras com sp, st, sk, sm, sn e sl iniciais sem vogal de apoio."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.s-clusters.concept"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.s-clusters.three-consonants",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.s-clusters",
+			"order": 2,
+			"title": {
+				"pt": "str, spr, scr, spl",
+				"en": "Three-consonant onsets"
+			},
+			"summary": "Três consoantes antes da vogal: street, strong, spring, screen, split, string.",
+			"objectives": [
+				"Produzir 8 palavras com encontro inicial triplo sem vogal inserida."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.s-clusters.production"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.s-clusters.cognates",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.s-clusters",
+			"order": 3,
+			"title": {
+				"pt": "Cognatos com s inicial",
+				"en": "Cognates with initial s-clusters"
+			},
+			"summary": "Palavras parecidas com o português que começam com s + consoante em inglês.",
+			"objectives": [
+				"Pronunciar 12 cognatos sem o 'e' do português ('student', não 'estudent')."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "student",
+					"pos": "n"
+				},
+				{
+					"lemma": "special",
+					"pos": "adj"
+				},
+				{
+					"lemma": "star",
+					"pos": "n"
+				},
+				{
+					"lemma": "standard",
+					"pos": "n"
+				},
+				{
+					"lemma": "structure",
+					"pos": "n"
+				},
+				{
+					"lemma": "style",
+					"pos": "n"
+				},
+				{
+					"lemma": "sport",
+					"pos": "n"
+				},
+				{
+					"lemma": "space",
+					"pos": "n"
+				},
+				{
+					"lemma": "stress",
+					"pos": "n"
+				},
+				{
+					"lemma": "study",
+					"pos": "v"
+				},
+				{
+					"lemma": "state",
+					"pos": "n"
+				},
+				{
+					"lemma": "stomach",
+					"pos": "n"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"cognates"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-consonants",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 8,
+			"title": {
+				"pt": "Consoantes finais sem vogal extra",
+				"en": "Final consonants without epenthesis"
+			},
+			"summary": "Fechar a palavra na consoante: 'big', 'book', 'Facebook', 'hot dog'.",
+			"objectives": [
+				"Pronunciar consoantes finais e encontros finais sem acrescentar 'i'.",
+				"Perceber como a vogal extra muda o número de sílabas."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Achar que 'bigui' é só sotaque sem efeito no sentido."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast",
+				"phonemic_awareness"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-consonants.final-stops",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.final-consonants",
+			"order": 0,
+			"title": {
+				"pt": "p, t, k, b, d, g finais",
+				"en": "Final stops"
+			},
+			"summary": "Fechar a palavra na oclusiva, soltando pouco ar: stop, cat, book, job, bad, big.",
+			"objectives": [
+				"Produzir 12 palavras terminadas em oclusiva sem vogal final."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Acrescentar 'i' no fim ('book' = 'buki')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-consonants.epenthesis-perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.final-consonants",
+			"order": 1,
+			"title": {
+				"pt": "cook × cookie, Bob × Bobby",
+				"en": "Hearing the added vowel"
+			},
+			"summary": "Pares em que a vogal extra cria outra palavra: cook/cookie, Bob/Bobby, bag/baggy, mess/messy, doll/dolly.",
+			"objectives": [
+				"Discriminar palavras com e sem vogal final com ≥90% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"misconceptions": [
+				"Achar que 'bigui' é só sotaque sem efeito no sentido."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"softPrereqs": [
+				"en.pron.foundations.syllable-structure.phantom-vowel"
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-consonants.final-fricatives",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.final-consonants",
+			"order": 2,
+			"title": {
+				"pt": "f, v, s, z, ʃ, tʃ, dʒ finais",
+				"en": "Final fricatives and affricates"
+			},
+			"summary": "five, bus, wash, watch, page, orange: terminar sem 'i' ('page' não é 'pêiji').",
+			"objectives": [
+				"Produzir 12 palavras terminadas em fricativa ou africada sem vogal final."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-consonants.coda-clusters",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.final-consonants",
+			"order": 3,
+			"title": {
+				"pt": "Encontros no fim: -nd, -st, -lt, -sk, -nts",
+				"en": "Final consonant clusters"
+			},
+			"summary": "hand, first, felt, ask, wants, texts: duas ou três consoantes no fim, sem vogal entre elas nem depois.",
+			"objectives": [
+				"Produzir 12 palavras com encontro final sem inserir vogal."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.final-consonants.final-stops"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.consonants.final-consonants.final-stops",
+					"w": 0.4
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.aspiration",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 9,
+			"title": {
+				"pt": "Aspiração de /p t k/",
+				"en": "Aspiration of /p t k/"
+			},
+			"summary": "No início de sílaba tônica, /p t k/ saem com sopro; sem ele, soam como /b d g/.",
+			"objectives": [
+				"Produzir 'pin/bin', 'tie/die', 'coat/goat' com aspiração."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.aspiration.concept",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.consonants.aspiration",
+			"order": 0,
+			"title": {
+				"pt": "O sopro de p, t, k",
+				"en": "Aspiration of p, t, k"
+			},
+			"summary": "No início de sílaba tônica, /p t k/ saem com um sopro; sem ele, o ouvinte tende a perceber /b d g/.",
+			"objectives": [
+				"Explicar o papel da aspiração na diferença pin × bin."
+			],
+			"bloom": "understand",
+			"assess": [
+				"explain",
+				"mcq"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.aspiration.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.aspiration",
+			"order": 1,
+			"title": {
+				"pt": "pin × bin, tie × die, coat × goat",
+				"en": "Hearing aspirated stops"
+			},
+			"summary": "Pares surdo-sonoro iniciais cuja pista principal é o sopro.",
+			"objectives": [
+				"Discriminar pares /p t k/–/b d g/ iniciais com ≥90% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.aspiration.concept"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.aspiration.production",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.aspiration",
+			"order": 2,
+			"title": {
+				"pt": "Teste do papel: pin, ten, key",
+				"en": "Producing aspiration"
+			},
+			"summary": "Com uma folha diante da boca, ela deve se mexer em 'pin', 'ten' e 'key' e ficar parada em 'bin', 'den' e 'go'.",
+			"objectives": [
+				"Produzir 12 palavras com /p t k/ iniciais aspirados."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar p, t, k iniciais sem sopro, como no português ('pig' ouvido como 'big')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.aspiration.concept"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.aspiration.after-s",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.aspiration",
+			"order": 3,
+			"title": {
+				"pt": "Sem sopro depois de s: spin, stop, sky",
+				"en": "No aspiration after s"
+			},
+			"summary": "Depois de s, /p t k/ perdem o sopro: pin × spin, top × stop, kill × skill.",
+			"objectives": [
+				"Produzir pares como pin/spin e top/stop com e sem aspiração."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.aspiration.production"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.w-v-j",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 10,
+			"title": {
+				"pt": "Sons /w/, /v/ e /j/",
+				"en": "/w/, /v/ and /j/"
+			},
+			"summary": "Wine × vine, west × vest; 'year' × 'ear'.",
+			"objectives": [
+				"Distinguir e produzir /w/–/v/ e a presença de /j/ inicial."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.w-v-j.w-v",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.w-v-j",
+			"order": 0,
+			"title": {
+				"pt": "west × vest, wine × vine",
+				"en": "/w/ vs /v/"
+			},
+			"summary": "Pares em que trocar /w/ por /v/ muda a palavra: west/vest, wine/vine, wet/vet, while/vile, worse/verse.",
+			"objectives": [
+				"Discriminar e produzir /w/–/v/ com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Ler w como /v/, como em nomes alemães ('Wagner')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.w-v-j.w-spellings",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.w-v-j",
+			"order": 1,
+			"title": {
+				"pt": "w, wh e qu: we, what, quick",
+				"en": "Spellings of /w/"
+			},
+			"summary": "Lábios arredondados e rápidos em we, want, what, why, quick, queen, language.",
+			"objectives": [
+				"Pronunciar 12 palavras escritas com w, wh e qu com /w/ claro."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Ler o h de 'wh' ou ler 'qu' como 'k' ('quick' = 'kick')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.w-v-j.w-v"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.w-v-j.j-glide",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.w-v-j",
+			"order": 2,
+			"title": {
+				"pt": "year × ear, yeast × east",
+				"en": "/j/ vs no glide"
+			},
+			"summary": "O /j/ inicial distingue palavras: year/ear, yeast/east, Yale/ail.",
+			"objectives": [
+				"Discriminar e produzir 'year' e 'ear' de forma distinguível."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'year' igual a 'ear'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.w-v-j.u-as-ju",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.w-v-j",
+			"order": 3,
+			"title": {
+				"pt": "u = /juː/: university, use, menu",
+				"en": "u pronounced /juː/"
+			},
+			"summary": "Palavras em que a letra u soa /juː/, com efeito no artigo: a university, a useful tool.",
+			"objectives": [
+				"Pronunciar 12 palavras com /juː/ e escolher 'a' antes delas."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Ler 'university' com 'u' puro e escrever 'an university'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.w-v-j.j-glide"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "university",
+					"pos": "n"
+				},
+				{
+					"lemma": "use",
+					"pos": "v"
+				},
+				{
+					"lemma": "usually",
+					"pos": "adv"
+				},
+				{
+					"lemma": "community",
+					"pos": "n"
+				},
+				{
+					"lemma": "computer",
+					"pos": "n"
+				},
+				{
+					"lemma": "menu",
+					"pos": "n"
+				},
+				{
+					"lemma": "future",
+					"pos": "n"
+				},
+				{
+					"lemma": "uniform",
+					"pos": "n"
+				},
+				{
+					"lemma": "unit",
+					"pos": "n"
+				},
+				{
+					"lemma": "huge",
+					"pos": "adj"
+				},
+				{
+					"lemma": "cute",
+					"pos": "adj"
+				},
+				{
+					"lemma": "unique",
+					"pos": "adj"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-z-s",
+			"kind": "topic",
+			"parentId": "en.pron.consonants",
+			"order": 11,
+			"title": {
+				"pt": "/z/ e /s/ finais",
+				"en": "Final /z/ vs /s/"
+			},
+			"summary": "Eyes × ice, prize × price: o PT-BR tende a ensurdecer o final.",
+			"objectives": [
+				"Manter o vozeamento de /z/ final e alongar a vogal antes de consoante sonora."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.voicing"
+				]
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-z-s.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.consonants.final-z-s",
+			"order": 0,
+			"title": {
+				"pt": "rice × rise, price × prize",
+				"en": "Final /s/ vs /z/"
+			},
+			"summary": "Pares em que as pistas são a vogal mais longa e o zumbido final: rice/rise, price/prize, peace/peas, bus/buzz, place/plays.",
+			"objectives": [
+				"Discriminar /s/ e /z/ finais com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-z-s.production",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.consonants.final-z-s",
+			"order": 1,
+			"title": {
+				"pt": "Manter o /z/ sonoro no fim",
+				"en": "Keeping final /z/ voiced"
+			},
+			"summary": "Alongar a vogal e manter a vibração até o fim, sem 'i' e sem chiar.",
+			"objectives": [
+				"Produzir 'eyes/ice' e 'prize/price' de forma distinguível."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"misconceptions": [
+				"Ensurdecer o z final ('is' soa 'iss').",
+				"Chiar o s final como no sotaque carioca ('yes' = 'iéch')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.final-z-s.perception"
+				]
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-z-s.function-words",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.final-z-s",
+			"order": 2,
+			"title": {
+				"pt": "is, was, has, his: o -s que soa /z/",
+				"en": "Function words ending in /z/"
+			},
+			"summary": "Palavras gramaticais muito frequentes que terminam em /z/.",
+			"objectives": [
+				"Pronunciar 12 palavras gramaticais com /z/ final."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "is",
+					"pos": "v"
+				},
+				{
+					"lemma": "was",
+					"pos": "v"
+				},
+				{
+					"lemma": "has",
+					"pos": "v"
+				},
+				{
+					"lemma": "does",
+					"pos": "v"
+				},
+				{
+					"lemma": "his",
+					"pos": "det"
+				},
+				{
+					"lemma": "hers",
+					"pos": "pron"
+				},
+				{
+					"lemma": "these",
+					"pos": "det"
+				},
+				{
+					"lemma": "those",
+					"pos": "det"
+				},
+				{
+					"lemma": "because",
+					"pos": "conj"
+				},
+				{
+					"lemma": "please",
+					"pos": "adv"
+				},
+				{
+					"lemma": "always",
+					"pos": "adv"
+				},
+				{
+					"lemma": "yours",
+					"pos": "pron"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.consonants.final-z-s.noun-verb",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.consonants.final-z-s",
+			"order": 3,
+			"title": {
+				"pt": "use (n) × use (v), advice × advise",
+				"en": "Noun/adjective vs verb pairs with /s/ and /z/"
+			},
+			"summary": "Pares em que o substantivo (ou o adjetivo) tem /s/ e o verbo tem /z/: use, close, excuse, house, advice/advise.",
+			"objectives": [
+				"Escolher /s/ ou /z/ conforme a classe da palavra em 5 pares."
+			],
+			"bloom": "remember",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"lexicalItems": [
+				{
+					"lemma": "use",
+					"pos": "n"
+				},
+				{
+					"lemma": "use",
+					"pos": "v"
+				},
+				{
+					"lemma": "close",
+					"pos": "adj"
+				},
+				{
+					"lemma": "close",
+					"pos": "v"
+				},
+				{
+					"lemma": "advice",
+					"pos": "n"
+				},
+				{
+					"lemma": "advise",
+					"pos": "v"
+				},
+				{
+					"lemma": "excuse",
+					"pos": "n"
+				},
+				{
+					"lemma": "excuse",
+					"pos": "v"
+				},
+				{
+					"lemma": "house",
+					"pos": "n"
+				},
+				{
+					"lemma": "house",
+					"pos": "v"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 3,
+			"title": {
+				"pt": "Morfofonologia: -ed, -s e derivação",
+				"en": "Morphophonology: -ed, -s and derivation"
+			},
+			"summary": "Regras de pronúncia das terminações gramaticais e mudanças de acento em famílias de palavras.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 8,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.morphophonology.ed-endings",
+			"kind": "topic",
+			"parentId": "en.pron.morphophonology",
+			"order": 0,
+			"title": {
+				"pt": "Pronúncia do -ed: /t/, /d/, /ɪd/",
+				"en": "-ed endings: /t/, /d/, /ɪd/"
+			},
+			"summary": "A regra do vozeamento para o passado regular e por que 'worked' tem uma sílaba.",
+			"objectives": [
+				"Aplicar a regra /t/, /d/, /ɪd/ a verbos regulares novos.",
+				"Ler 'walked, played, wanted' com o número certo de sílabas."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Pronunciar 'worked' como 'uórked'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.voicing",
+					"en.pron.consonants.final-consonants"
+				]
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.ed-endings.rule",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.morphophonology.ed-endings",
+			"order": 0,
+			"title": {
+				"pt": "As três pronúncias do -ed",
+				"en": "Three pronunciations of -ed"
+			},
+			"summary": "/ɪd/ depois de t e d; /t/ depois das outras surdas; /d/ depois de sonoras e vogais.",
+			"objectives": [
+				"Classificar 20 verbos regulares pela pronúncia do -ed com ≥90% de acerto."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"explain"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"softPrereqs": [
+				"en.grammar.a2.past-simple-regular.form-ed"
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.ed-endings.extra-syllable",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.ed-endings",
+			"order": 1,
+			"title": {
+				"pt": "Só -ted e -ded ganham sílaba",
+				"en": "Only -ted and -ded add a syllable"
+			},
+			"summary": "wanted, needed e started têm sílaba extra; worked, played e watched, não.",
+			"objectives": [
+				"Ler 15 verbos no passado com o número certo de sílabas."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"mcq"
+			],
+			"misconceptions": [
+				"Pronunciar 'worked' como 'uórked'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.ed-endings.rule"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.ed-endings.perception",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.morphophonology.ed-endings",
+			"order": 2,
+			"title": {
+				"pt": "Ouvir o -ed na frase",
+				"en": "Hearing -ed in connected speech"
+			},
+			"summary": "Perceber o passado quando o -ed quase some: 'I walk to work' × 'I walked to work', 'They play' × 'They played'.",
+			"objectives": [
+				"Identificar se a frase está no presente ou no passado só pelo -ed com ≥85% de acerto."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.ed-endings.rule"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.ed-endings.clusters",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.ed-endings",
+			"order": 3,
+			"title": {
+				"pt": "-ed em encontros difíceis: asked, watched, helped",
+				"en": "-ed in hard clusters"
+			},
+			"summary": "Juntar o /t/ ou /d/ do -ed ao encontro final sem vogal: asked, watched, helped, changed, solved.",
+			"objectives": [
+				"Produzir 10 passados com encontro final de 2–3 consoantes."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.ed-endings.extra-syllable"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.consonants.final-consonants.coda-clusters",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.ed-endings.frequent-past",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.morphophonology.ed-endings",
+			"order": 4,
+			"title": {
+				"pt": "Passados regulares frequentes",
+				"en": "Frequent regular past forms"
+			},
+			"summary": "Os passados regulares mais usados, misturando as três terminações.",
+			"objectives": [
+				"Dizer e escrever num ditado 12 passados regulares frequentes com a terminação correta."
+			],
+			"bloom": "remember",
+			"assess": [
+				"dictation",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.ed-endings.extra-syllable"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.morphophonology.ed-endings.extra-syllable",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.morphophonology.ed-endings.rule",
+					"w": 0.4
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "worked",
+					"pos": "v"
+				},
+				{
+					"lemma": "watched",
+					"pos": "v"
+				},
+				{
+					"lemma": "liked",
+					"pos": "v"
+				},
+				{
+					"lemma": "wanted",
+					"pos": "v"
+				},
+				{
+					"lemma": "needed",
+					"pos": "v"
+				},
+				{
+					"lemma": "started",
+					"pos": "v"
+				},
+				{
+					"lemma": "played",
+					"pos": "v"
+				},
+				{
+					"lemma": "lived",
+					"pos": "v"
+				},
+				{
+					"lemma": "called",
+					"pos": "v"
+				},
+				{
+					"lemma": "opened",
+					"pos": "v"
+				},
+				{
+					"lemma": "studied",
+					"pos": "v"
+				},
+				{
+					"lemma": "stopped",
+					"pos": "v"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.s-endings",
+			"kind": "topic",
+			"parentId": "en.pron.morphophonology",
+			"order": 1,
+			"title": {
+				"pt": "Pronúncia do -s: /s/, /z/, /ɪz/",
+				"en": "-s endings: /s/, /z/, /ɪz/"
+			},
+			"summary": "Plural, 3ª pessoa e possessivo seguem a mesma regra de vozeamento.",
+			"objectives": [
+				"Escolher /s/, /z/ ou /ɪz/ em plurais e verbos na 3ª pessoa."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.final-z-s"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.s-endings.rule",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.morphophonology.s-endings",
+			"order": 0,
+			"title": {
+				"pt": "As três pronúncias do -s",
+				"en": "Three pronunciations of -s"
+			},
+			"summary": "Plural, 3ª pessoa e posse seguem a mesma regra: /ɪz/ após sibilantes, /s/ após surdas, /z/ após sonoras.",
+			"objectives": [
+				"Classificar 20 palavras com -s pela pronúncia com ≥90% de acerto."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq",
+				"explain"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"softPrereqs": [
+				"en.grammar.a1.present-simple.third-person-s"
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.s-endings.iz-sibilants",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.s-endings",
+			"order": 1,
+			"title": {
+				"pt": "/ɪz/ depois de s, z, ʃ, tʃ, dʒ",
+				"en": "/ɪz/ after sibilants"
+			},
+			"summary": "Só depois de sibilantes o -s ganha sílaba: buses, watches, pages, washes, Alex's.",
+			"objectives": [
+				"Pronunciar 10 formas com /ɪz/ e não acrescentar sílaba nas outras."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.s-endings.rule"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.s-endings.z-after-voiced",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.s-endings",
+			"order": 2,
+			"title": {
+				"pt": "-s sonoro: dogs, plays, John's",
+				"en": "Voiced -s"
+			},
+			"summary": "Depois de sons sonoros e vogais o -s soa /z/: dogs, plays, reads, cars, John's.",
+			"objectives": [
+				"Produzir /z/ no -s de 12 palavras depois de som sonoro."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Pronunciar todo -s como /s/ ('dogs' com s surdo)."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.s-endings.rule"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.consonants.final-z-s.production",
+					"w": 0.4
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.s-endings.clusters",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.s-endings",
+			"order": 3,
+			"title": {
+				"pt": "-s em encontros: texts, months, asks",
+				"en": "-s in clusters"
+			},
+			"summary": "Encontros finais com -s: texts, costs, asks, months, clothes.",
+			"objectives": [
+				"Produzir 10 formas com -s em encontro final sem vogal inserida."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 34
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.s-endings.rule"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.contractions",
+			"kind": "topic",
+			"parentId": "en.pron.morphophonology",
+			"order": 2,
+			"title": {
+				"pt": "Contrações e formas curtas",
+				"en": "Contractions"
+			},
+			"summary": "I'm, you're, don't, won't, can't e a diferença won't × want.",
+			"objectives": [
+				"Produzir e reconhecer contrações comuns na fala."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.contractions.be-contractions",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.contractions",
+			"order": 0,
+			"title": {
+				"pt": "I'm, you're, he's, it's, they're",
+				"en": "Contractions of be"
+			},
+			"summary": "Juntar o be ao sujeito numa só sílaba, sem vogal extra.",
+			"objectives": [
+				"Produzir e reconhecer as contrações de be em frases."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Pronunciar 'it's' como 'itis' e 'you're' como 'iú-ar'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"softPrereqs": [
+				"en.grammar.a1.verb-be.affirmative"
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.contractions.negative-contractions",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.contractions",
+			"order": 1,
+			"title": {
+				"pt": "isn't, don't, doesn't, won't",
+				"en": "Negative contractions"
+			},
+			"summary": "As negativas contraídas mais frequentes e o par won't /woʊnt/ × want /wɑnt/.",
+			"objectives": [
+				"Produzir 'won't' e 'want' de forma distinguível.",
+				"Reconhecer negativas contraídas em fala rápida."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Pronunciar 'won't' igual a 'want'."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"softPrereqs": [
+				"en.grammar.a2.will-future.form"
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.contractions.can-cant",
+			"kind": "atom",
+			"atomType": "phoneme_contrast",
+			"parentId": "en.pron.morphophonology.contractions",
+			"order": 2,
+			"title": {
+				"pt": "can × can't na frase",
+				"en": "can vs can't"
+			},
+			"summary": "Na afirmativa, can é átono (/kən/); can't é tônico e tem vogal plena (/kænt/ no americano, /kɑːnt/ no britânico).",
+			"objectives": [
+				"Identificar can × can't em frases com ≥90% de acerto.",
+				"Produzir a diferença pelo acento, não só pelo t."
+			],
+			"bloom": "apply",
+			"assess": [
+				"minimal_pair",
+				"speak"
+			],
+			"misconceptions": [
+				"Confiar só no t final, que muitas vezes nem é solto."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"softPrereqs": [
+				"en.grammar.a1.can-ability.form"
+			],
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.contractions.other-auxiliaries",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.contractions",
+			"order": 3,
+			"title": {
+				"pt": "I'll, I've, I'd, we'll",
+				"en": "'ll, 've and 'd"
+			},
+			"summary": "Contrações de will, have e would/had e como ouvi-las na fala natural.",
+			"objectives": [
+				"Reconhecer 'll, 've e 'd num ditado de 10 frases."
+			],
+			"bloom": "apply",
+			"assess": [
+				"dictation",
+				"speak"
+			],
+			"misconceptions": [
+				"Não ouvir o 'll e entender a frase no presente ('I'll go' → 'I go')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 38
+			},
+			"hours": {
+				"lo": 0.4,
+				"hi": 0.6
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.stress-shift",
+			"kind": "topic",
+			"parentId": "en.pron.morphophonology",
+			"order": 3,
+			"title": {
+				"pt": "Acento em famílias de palavras",
+				"en": "Stress shift in word families"
+			},
+			"summary": "PHOtograph, phoTOgraphy, photoGRAphic; sufixos que atraem o acento.",
+			"objectives": [
+				"Prever o acento de derivados com -tion, -ic, -ity, -ian."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"softPrereqs": [
+				"en.pron.foundations.word-stress"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.stress-shift.neutral-suffixes",
+			"kind": "atom",
+			"atomType": "concept",
+			"parentId": "en.pron.morphophonology.stress-shift",
+			"order": 0,
+			"title": {
+				"pt": "Sufixos que não mexem no acento",
+				"en": "Stress-neutral suffixes"
+			},
+			"summary": "-ment, -ness, -er, -ful, -less e -ly mantêm o acento da base: enJOY → enJOYment, CARE → CAREful.",
+			"objectives": [
+				"Prever que o acento se mantém em derivados com sufixos neutros."
+			],
+			"bloom": "understand",
+			"assess": [
+				"mcq"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.stress-shift.attracting-suffixes",
+			"kind": "atom",
+			"atomType": "procedure",
+			"parentId": "en.pron.morphophonology.stress-shift",
+			"order": 1,
+			"title": {
+				"pt": "Sufixos que puxam o acento: -tion, -ic, -ity, -ian",
+				"en": "Stress-attracting suffixes"
+			},
+			"summary": "-tion, -sion, -ic, -ical, -ity e -ian põem o acento na sílaba anterior: eCONomy → ecoNOMic, POLitics → poLITical → poliTIcian.",
+			"objectives": [
+				"Prever o acento de derivados com -tion, -ic, -ity e -ian.",
+				"Aplicar a regra a palavras novas e conferir no dicionário."
+			],
+			"bloom": "apply",
+			"assess": [
+				"mcq",
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.stress-shift.neutral-suffixes"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.stress-shift.families",
+			"kind": "atom",
+			"atomType": "lexical_set",
+			"parentId": "en.pron.morphophonology.stress-shift",
+			"order": 2,
+			"title": {
+				"pt": "Famílias de palavras com acento móvel",
+				"en": "Word families with shifting stress"
+			},
+			"summary": "Cinco famílias frequentes em que o acento muda de lugar a cada derivação.",
+			"objectives": [
+				"Pronunciar 5 famílias de palavras com o acento certo em cada membro."
+			],
+			"bloom": "remember",
+			"assess": [
+				"speak",
+				"dictation"
+			],
+			"misconceptions": [
+				"Manter o acento da palavra-base em todos os derivados ('PHOtography')."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.stress-shift.attracting-suffixes"
+				]
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"lexicalItems": [
+				{
+					"lemma": "photograph",
+					"pos": "n"
+				},
+				{
+					"lemma": "photography",
+					"pos": "n"
+				},
+				{
+					"lemma": "photographic",
+					"pos": "adj"
+				},
+				{
+					"lemma": "economy",
+					"pos": "n"
+				},
+				{
+					"lemma": "economic",
+					"pos": "adj"
+				},
+				{
+					"lemma": "politics",
+					"pos": "n"
+				},
+				{
+					"lemma": "political",
+					"pos": "adj"
+				},
+				{
+					"lemma": "politician",
+					"pos": "n"
+				},
+				{
+					"lemma": "democracy",
+					"pos": "n"
+				},
+				{
+					"lemma": "democratic",
+					"pos": "adj"
+				},
+				{
+					"lemma": "technology",
+					"pos": "n"
+				},
+				{
+					"lemma": "technological",
+					"pos": "adj"
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.morphophonology.stress-shift.technical-reading",
+			"kind": "atom",
+			"atomType": "can_do",
+			"parentId": "en.pron.morphophonology.stress-shift",
+			"order": 3,
+			"title": {
+				"pt": "Ler um texto técnico curto com o acento certo",
+				"en": "Reading a short technical text with correct stress"
+			},
+			"summary": "Ler em voz alta um parágrafo de divulgação técnica rico em derivados (-tion, -ic, -ity) e conferir o acento na gravação.",
+			"objectives": [
+				"Ler um parágrafo de 80 palavras acertando o acento de ≥85% dos derivados."
+			],
+			"bloom": "apply",
+			"assess": [
+				"speak"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"clauses": [
+				[
+					"en.pron.morphophonology.stress-shift.families"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "en.pron.morphophonology.stress-shift.families",
+					"w": 0.5
+				},
+				{
+					"id": "en.pron.morphophonology.stress-shift.attracting-suffixes",
+					"w": 0.4
+				}
+			],
+			"hours": {
+				"lo": 0.47,
+				"hi": 0.7
+			},
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.prosody",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 4,
+			"title": {
+				"pt": "Prosódia: redução, ritmo e acento de frase",
+				"en": "Prosody: reduction, rhythm and sentence stress"
+			},
+			"summary": "O inglês é cronometrado pelo acento: sílabas átonas se reduzem e as palavras gramaticais encolhem.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 50
+			},
+			"hours": {
+				"lo": 12,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.prosody.schwa",
+			"kind": "topic",
+			"parentId": "en.pron.prosody",
+			"order": 0,
+			"title": {
+				"pt": "Schwa e vogais reduzidas",
+				"en": "Schwa and vowel reduction"
+			},
+			"summary": "A vogal mais frequente do inglês aparece só em sílabas átonas (about, banana, problem).",
+			"objectives": [
+				"Reduzir vogais átonas a /ə/ em palavras frequentes.",
+				"Reconhecer palavras com sílabas reduzidas na fala."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"clauses": [
+				[
+					"en.pron.foundations.word-stress"
+				]
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.prosody.weak-forms",
+			"kind": "topic",
+			"parentId": "en.pron.prosody",
+			"order": 1,
+			"title": {
+				"pt": "Formas fracas",
+				"en": "Weak forms"
+			},
+			"summary": "to, of, for, can, was, and, them: forma forte e fraca conforme o contexto.",
+			"objectives": [
+				"Usar formas fracas em frases e reconhecê-las na escuta."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 46
+			},
+			"clauses": [
+				[
+					"en.pron.prosody.schwa"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation",
+				"phoneme_contrast"
+			]
+		},
+		{
+			"id": "en.pron.prosody.sentence-stress",
+			"kind": "topic",
+			"parentId": "en.pron.prosody",
+			"order": 2,
+			"title": {
+				"pt": "Acento de frase",
+				"en": "Sentence stress"
+			},
+			"summary": "Palavras de conteúdo carregam o acento; palavras gramaticais ficam fracas.",
+			"objectives": [
+				"Marcar e produzir o acento de frase em enunciados de 6–12 palavras."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 48
+			},
+			"softPrereqs": [
+				"en.pron.prosody.weak-forms"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.prosody.rhythm",
+			"kind": "topic",
+			"parentId": "en.pron.prosody",
+			"order": 3,
+			"title": {
+				"pt": "Ritmo acentual × ritmo silábico",
+				"en": "Stress-timed rhythm"
+			},
+			"summary": "Por que o inglês 'acelera' entre sílabas tônicas e como o ritmo silábico do PT-BR soa robótico.",
+			"objectives": [
+				"Ler frases mantendo o intervalo entre sílabas tônicas."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"softPrereqs": [
+				"en.pron.prosody.sentence-stress"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.prosody.compound-stress",
+			"kind": "topic",
+			"parentId": "en.pron.prosody",
+			"order": 4,
+			"title": {
+				"pt": "Acento em compostos e pares nome/verbo",
+				"en": "Compound and noun/verb stress"
+			},
+			"summary": "GREENhouse × green HOUSE; REcord × reCORD.",
+			"objectives": [
+				"Aplicar o acento correto em compostos e pares nome/verbo frequentes."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 53
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.prosody.intonation-basics",
+			"kind": "topic",
+			"parentId": "en.pron.prosody",
+			"order": 5,
+			"title": {
+				"pt": "Entonação básica",
+				"en": "Basic intonation"
+			},
+			"summary": "Contornos descendente e ascendente em afirmações, perguntas wh- e yes/no.",
+			"objectives": [
+				"Usar o contorno adequado em perguntas e afirmações."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.connected-speech",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 5,
+			"title": {
+				"pt": "Fala conectada",
+				"en": "Connected speech"
+			},
+			"summary": "Como as palavras se juntam na fala real: ligação, elisão, assimilação, flap e reduções informais.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 55
+			},
+			"softPrereqs": [
+				"en.pron.prosody"
+			],
+			"hours": {
+				"lo": 11,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.connected-speech.linking",
+			"kind": "topic",
+			"parentId": "en.pron.connected-speech",
+			"order": 0,
+			"title": {
+				"pt": "Ligação entre palavras",
+				"en": "Linking"
+			},
+			"summary": "Consoante + vogal (turn_off), linking r e sons de transição /j/ /w/.",
+			"objectives": [
+				"Ligar palavras em frases curtas sem pausas entre elas."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 48
+			},
+			"clauses": [
+				[
+					"en.pron.consonants.final-consonants"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.connected-speech.elision-assimilation",
+			"kind": "topic",
+			"parentId": "en.pron.connected-speech",
+			"order": 1,
+			"title": {
+				"pt": "Elisão e assimilação",
+				"en": "Elision and assimilation"
+			},
+			"summary": "next day → 'nex day', ten boys → 'tem boys', handbag → 'hambag'.",
+			"objectives": [
+				"Reconhecer elisões e assimilações frequentes na escuta."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.connected-speech.flap-glottal",
+			"kind": "topic",
+			"parentId": "en.pron.connected-speech",
+			"order": 2,
+			"title": {
+				"pt": "Flap t e glottal stop",
+				"en": "Flap t and glottal stop"
+			},
+			"summary": "water, better (flap americano); button, can't (oclusiva glotal).",
+			"objectives": [
+				"Reconhecer o flap e a oclusiva glotal e distinguir 'can' de 'can't'."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"misconceptions": [
+				"Achar que 'can't' sempre tem /t/ audível."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.connected-speech.coalescence",
+			"kind": "topic",
+			"parentId": "en.pron.connected-speech",
+			"order": 3,
+			"title": {
+				"pt": "Coalescência: did you, would you",
+				"en": "Yod coalescence"
+			},
+			"summary": "did you → 'didja', got you → 'gotcha', would you → 'wudja'.",
+			"objectives": [
+				"Decodificar e produzir coalescências frequentes."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.connected-speech.informal-reductions",
+			"kind": "topic",
+			"parentId": "en.pron.connected-speech",
+			"order": 4,
+			"title": {
+				"pt": "Reduções informais",
+				"en": "Informal reductions"
+			},
+			"summary": "gonna, wanna, gotta, lemme, kinda e quando não usá-las por escrito.",
+			"objectives": [
+				"Entender reduções informais e usá-las só na fala casual."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 57
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.connected-speech.fast-speech-decoding",
+			"kind": "topic",
+			"parentId": "en.pron.connected-speech",
+			"order": 5,
+			"title": {
+				"pt": "Decodificação de fala rápida",
+				"en": "Decoding fast speech"
+			},
+			"summary": "Treino bottom-up: ditado de trechos curtos de fala autêntica para segmentar palavras.",
+			"objectives": [
+				"Transcrever trechos de 5–10 s de fala nativa natural com ≥85% das palavras."
+			],
+			"assess": [
+				"dictation"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.intonation",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 6,
+			"title": {
+				"pt": "Entonação e discurso",
+				"en": "Intonation and discourse"
+			},
+			"summary": "Proeminência, contraste e atitude: a entonação como portadora de significado pragmático.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 66
+			},
+			"softPrereqs": [
+				"en.pron.prosody.intonation-basics"
+			],
+			"hours": {
+				"lo": 7.5,
+				"hi": 11.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.intonation.contrastive-stress",
+			"kind": "topic",
+			"parentId": "en.pron.intonation",
+			"order": 0,
+			"title": {
+				"pt": "Proeminência e acento contrastivo",
+				"en": "Nuclear and contrastive stress"
+			},
+			"summary": "Mover o acento muda o sentido: 'I didn't say HE stole it'.",
+			"objectives": [
+				"Deslocar o acento nuclear para marcar contraste ou correção."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.intonation.attitude",
+			"kind": "topic",
+			"parentId": "en.pron.intonation",
+			"order": 1,
+			"title": {
+				"pt": "Entonação e atitude",
+				"en": "Intonation and attitude"
+			},
+			"summary": "Entusiasmo, dúvida, ironia e polidez carregadas pelo contorno melódico.",
+			"objectives": [
+				"Reconhecer atitude do falante pela entonação em diálogos."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.intonation.tag-intonation",
+			"kind": "topic",
+			"parentId": "en.pron.intonation",
+			"order": 2,
+			"title": {
+				"pt": "Entonação de question tags",
+				"en": "Question tag intonation"
+			},
+			"summary": "Tag descendente (confirmação) × ascendente (dúvida real).",
+			"objectives": [
+				"Usar a entonação certa em question tags conforme a intenção."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 68
+			},
+			"softPrereqs": [
+				"en.grammar.b1.question-tags"
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.intonation.thought-groups",
+			"kind": "topic",
+			"parentId": "en.pron.intonation",
+			"order": 3,
+			"title": {
+				"pt": "Grupos tonais e pausas",
+				"en": "Thought groups and pausing"
+			},
+			"summary": "Dividir falas longas em unidades de sentido para apresentações claras.",
+			"objectives": [
+				"Ler um parágrafo marcando grupos tonais e pausas adequadas."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.accents",
+			"kind": "unit",
+			"parentId": "en.pron",
+			"order": 7,
+			"title": {
+				"pt": "Sotaques e refinamento",
+				"en": "Accents and refinement"
+			},
+			"summary": "Variedades do inglês, prioridades de inteligibilidade e autoavaliação contínua da pronúncia.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 9.5,
+				"hi": 14.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · C1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pron.accents.ga-rp",
+			"kind": "topic",
+			"parentId": "en.pron.accents",
+			"order": 0,
+			"title": {
+				"pt": "Inglês americano × britânico",
+				"en": "General American vs RP"
+			},
+			"summary": "Diferenças sistemáticas: rótico × não rótico, vogal de 'bath', flap, /oʊ/ × /əʊ/.",
+			"objectives": [
+				"Identificar se um falante usa GA ou RP por 3+ pistas."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.accents.world-englishes",
+			"kind": "topic",
+			"parentId": "en.pron.accents",
+			"order": 1,
+			"title": {
+				"pt": "Sotaques do mundo",
+				"en": "World Englishes"
+			},
+			"summary": "Escocês, irlandês, australiano, indiano, nigeriano e inglês como língua franca.",
+			"objectives": [
+				"Compreender falantes de ao menos 4 variedades com pouca perda de sentido."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"softPrereqs": [
+				"en.pron.accents.ga-rp"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.accents.intelligibility",
+			"kind": "topic",
+			"parentId": "en.pron.accents",
+			"order": 2,
+			"title": {
+				"pt": "Inteligibilidade × sotaque",
+				"en": "Intelligibility vs accent"
+			},
+			"summary": "O que priorizar: contrastes de alta carga funcional e acento, não 'sotaque nativo'.",
+			"objectives": [
+				"Diagnosticar os 3 traços do próprio sotaque que mais prejudicam a inteligibilidade."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · C1",
+					"embeddable": false
+				},
+				{
+					"source": "lfc-jenkins-2000",
+					"ref": "prioridades",
+					"embeddable": false
+				},
+				{
+					"source": "functional-load",
+					"ref": "ranking de contrastes",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.accents.self-monitoring",
+			"kind": "topic",
+			"parentId": "en.pron.accents",
+			"order": 3,
+			"title": {
+				"pt": "Autoavaliação por gravação",
+				"en": "Self-monitoring with recordings"
+			},
+			"summary": "Gravar, comparar com modelo e usar transcrição automática como espelho de inteligibilidade.",
+			"objectives": [
+				"Gravar 1 min de fala e listar desvios com ajuda de STT."
+			],
+			"assess": [
+				"read_aloud_recording",
+				"self_assessment"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.pron.accents.prosodic-shadowing",
+			"kind": "topic",
+			"parentId": "en.pron.accents",
+			"order": 4,
+			"title": {
+				"pt": "Shadowing prosódico avançado",
+				"en": "Advanced prosodic shadowing"
+			},
+			"summary": "Imitar ritmo e entonação de falas autênticas (TED, podcasts) em trechos curtos.",
+			"objectives": [
+				"Fazer shadowing de 1–2 min de fala nativa mantendo ritmo e entonação."
+			],
+			"assess": [
+				"minimal_pair_discrimination",
+				"read_aloud_recording",
+				"shadowing"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"softPrereqs": [
+				"en.pron.connected-speech",
+				"en.pron.intonation"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Phonological control · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pronunciation"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "en.pron.vowels.kit-fleece",
+			"to": "en.pron.vowels.foot-goose",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.consonants.th-voiceless",
+			"to": "en.pron.consonants.th-voiced",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "en.pron.morphophonology.ed-endings",
+			"to": "en.pron.morphophonology.s-endings",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.connected-speech.flap-glottal",
+			"to": "en.pron.connected-speech.coalescence",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.vowels.nurse-r-colored.work-walk",
+			"to": "en.pron.vowels.diphthongs.ou-vs-aw",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "en.pron.vowels.strut-lot-thought.three-way",
+			"to": "en.pron.vowels.trap-dress.perception",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "en.pron.foundations.vowel-system.schwa-intro",
+			"to": "en.pron.foundations.word-stress.stress-concept",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.foundations.syllable-structure.phantom-vowel",
+			"to": "en.pron.consonants.final-consonants.epenthesis-perception",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.foundations.syllable-structure.phantom-vowel",
+			"to": "en.pron.consonants.s-clusters.concept",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.consonants.no-palatalization.final-t-d",
+			"to": "en.pron.consonants.final-consonants.final-stops",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.consonants.final-nasals.m-n-closure",
+			"to": "en.pron.vowels.no-nasalization.oral-vowel",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.consonants.english-r.initial-r",
+			"to": "en.pron.consonants.h-initial.h-vs-zero",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "en.pron.consonants.th-voiceless.perception",
+			"to": "en.pron.consonants.th-voiced.perception",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "en.pron.consonants.final-z-s.perception",
+			"to": "en.pron.foundations.voicing.final-voicing",
+			"kind": "related"
+		},
+		{
+			"from": "en.pron.morphophonology.ed-endings.rule",
+			"to": "en.pron.morphophonology.s-endings.rule",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "ipa-chart",
+			"title": "IPA Chart (International Phonetic Association)",
+			"url": "https://www.internationalphoneticassociation.org/content/ipa-chart",
+			"license": "CC BY-SA 3.0; usado só como referência de símbolos",
+			"usage": "reference"
+		},
+		{
+			"id": "lfc-jenkins-2000",
+			"title": "Jenkins (2000), The Phonology of English as an International Language — Lingua Franca Core",
+			"license": "© Oxford University Press; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "functional-load",
+			"title": "Carga funcional de contrastes do inglês (Brown 1988; Munro & Derwing 2006)",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "hvpt-meta-2025",
+			"title": "Uchihara, Karas & Thomson (2025), meta-análise de HVPT (SSLA)",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		}
+	]
+}

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { SOURCE_ORGANIZATION_FILE } from "../../config.ts";
+import { GRAPH_FILES } from "../../config.ts";
 import { emptySourceOrganization, parseSourceOrganization } from "../core/source-organization.ts";
 import type { SourceOrganizationStore } from "../core/ports.ts";
 import { emit } from "../core/events.ts";
@@ -11,7 +11,7 @@ export const sourceOrganizationStore: SourceOrganizationStore = {
 	read() {
 		assertGraphFormat();
 		let raw: string;
-		try { raw = fs.readFileSync(SOURCE_ORGANIZATION_FILE, "utf8"); }
+		try { raw = fs.readFileSync(GRAPH_FILES.sourceOrganization, "utf8"); }
 		catch (error) {
 			if ((error as NodeJS.ErrnoException).code === "ENOENT") return emptySourceOrganization();
 			throw error;
@@ -21,10 +21,10 @@ export const sourceOrganizationStore: SourceOrganizationStore = {
 	write(state) {
 		assertGraphFormat();
 		const valid = parseSourceOrganization(state);
-		fs.mkdirSync(path.dirname(SOURCE_ORGANIZATION_FILE), { recursive: true });
+		fs.mkdirSync(path.dirname(GRAPH_FILES.sourceOrganization), { recursive: true });
 		ensureGraphFormat();
-		writeFileAtomicSync(SOURCE_ORGANIZATION_FILE, JSON.stringify(valid, null, "\t") + "\n");
-		removeLeftoverTemps(SOURCE_ORGANIZATION_FILE); // crash leftovers could still place deleted sources
+		writeFileAtomicSync(GRAPH_FILES.sourceOrganization, JSON.stringify(valid, null, "\t") + "\n");
+		removeLeftoverTemps(GRAPH_FILES.sourceOrganization); // crash leftovers could still place deleted sources
 		emit("sources-changed", {});
 	},
 };

@@ -634,3 +634,409 @@ body {
 	outline: 1px solid var(--border);
 	border-radius: 0.25rem;
 }
+
+/* ═══ CEL ═══════════════════════════════════════════════════════════════
+   The cel-shaded skin (estudos-sota M8 — SÍNTESE §2.12; r9 §2.3 the seven
+   laws, §4 color, §10.1 tokens). Everything here is GATED: the token
+   blocks match only under data-theme-family="cel" (themeRootAttributes()
+   in src/core/themes.ts, set on <html> next to the mode class), so the
+   eleven classic themes resolve none of it. The .cel-* utilities fall back
+   to the classic shadcn tokens, so a component that uses them still looks
+   native in a classic theme. Color values are pinned to celTokens() /
+   celPrimitiveTokens() by tests/cel-contrast.test.ts (WCAG AA there too).
+   Laws in force: one light from the top-left (shadows fall right/down,
+   self-shade sits bottom-right, rim/specular top-left); ink hierarchy
+   1.5 / 2 / 3 / 4 px; at most three flat tones per object, NO blur and NO
+   gradient; hard offset shadows 2/3/4/6/8 px; text on a colored fill is
+   always ink (--cel-on-fill); shape before color. */
+
+/* Primitives (mode-independent ramps and insignia metals), the night
+   palette (Cel Noite, the default variant) and the scale tokens. */
+[data-theme-family="cel"] {
+	/* Accent ramps: base / self-shade / lit tone / text on paper / text on night. */
+	--c-volt: #ffd23f;
+	--c-volt-shade: #e49e09;
+	--c-volt-hl: #fff5d8;
+	--c-volt-deep: #8a6400;
+	--c-volt-lite: #ffd23f;
+	--c-coral: #ff7a59;
+	--c-coral-shade: #d34a4b;
+	--c-coral-hl: #fcb398;
+	--c-coral-deep: #bc4335;
+	--c-coral-lite: #ff7a59;
+	--c-sky: #4fb3ff;
+	--c-sky-shade: #3386d8;
+	--c-sky-hl: #97d4f7;
+	--c-sky-deep: #0b6db3;
+	--c-sky-lite: #4fb3ff;
+	--c-mint: #3dd68c;
+	--c-mint-shade: #0fa785;
+	--c-mint-hl: #abe9b9;
+	--c-mint-deep: #027957;
+	--c-mint-lite: #3dd68c;
+	--c-grape: #a98bff;
+	--c-grape-shade: #8461d4;
+	--c-grape-hl: #ceb4f3;
+	--c-grape-deep: #7759bf;
+	--c-grape-lite: #a98bff;
+	--c-rose: #ff5c7a;
+	--c-rose-shade: #ce2a68;
+	--c-rose-hl: #fba09e;
+	--c-rose-deep: #c22f5b;
+	--c-rose-lite: #fd667f;
+	--c-amber: #ffb020;
+	--c-amber-shade: #dd7e01;
+	--c-amber-hl: #feddac;
+	--c-amber-deep: #995d04;
+	--c-amber-lite: #ffb020;
+	--c-teal: #2ec4b6;
+	--c-teal-shade: #07969b;
+	--c-teal-hl: #9ddaca;
+	--c-teal-deep: #037674;
+	--c-teal-lite: #2ec4b6;
+	--c-bronze: #d9894a;
+	--c-bronze-shade: #b25e26;
+	--c-bronze-hl: #e5bb9d;
+	--c-silver: #c3ccd8;
+	--c-silver-shade: #99a3ae;
+	--c-silver-hl: #eef3f9;
+	--c-gold: #ffc93c;
+	--c-gold-shade: #d89c11;
+	--c-gold-hl: #fff4dd;
+	--c-jade: #46d6a8;
+	--c-jade-shade: #11ac76;
+	--c-jade-hl: #b4f0d7;
+	--c-sapphire: #5aa9ff;
+	--c-sapphire-shade: #0883d2;
+	--c-sapphire-hl: #a9cffb;
+	--c-amethyst: #a98bff;
+	--c-amethyst-shade: #7965d8;
+	--c-amethyst-hl: #cabffa;
+	--c-ruby: #ff5c7a;
+	--c-ruby-shade: #cf2962;
+	--c-ruby-hl: #fca9b1;
+	/* Neutrals + semantic roles (night). */
+	--cel-bg: #16161f;
+	--cel-bg-shade: #0c0c15;
+	--cel-surface-1: #22222f;
+	--cel-surface-1-shade: #181724;
+	--cel-surface-1-rim: #3b3b49;
+	--cel-surface-2: #1b1b26;
+	--cel-surface-2-shade: #11111b;
+	--cel-surface-3: #2c2c3c;
+	--cel-surface-3-rim: #464657;
+	--cel-text: #e9e4d6;
+	--cel-text-muted: #a9a5ba;
+	--cel-text-faint: #77738a;
+	--cel-line: #07070b;
+	--cel-line-object: #e9e4d6;
+	--cel-line-soft: rgb(233 228 214 / 0.2);
+	--cel-edge: #8c88a6;
+	--cel-shadow-color: #000000;
+	--cel-on-fill: #07070b;
+	--cel-focus: #ffd23f;
+	--cel-link: #7cc4ff;
+	--cel-hl: rgb(255 255 255 / 0.85);
+	--cel-rim: rgb(255 255 255 / 0.14);
+	--cel-shade: rgb(0 0 0 / 0.3);
+	--cel-scrim: rgb(0 0 0 / 0.55);
+	--cel-accent: #ffd23f;
+	--cel-accent-shade: #e49e09;
+	--cel-accent-hl: #fff5d8;
+	--cel-accent-text: #ffd23f;
+	--cel-success: #3dd68c;
+	--cel-success-shade: #0fa785;
+	--cel-success-hl: #abe9b9;
+	--cel-success-text: #3dd68c;
+	--cel-warning: #ffb020;
+	--cel-warning-shade: #dd7e01;
+	--cel-warning-hl: #feddac;
+	--cel-warning-text: #ffb020;
+	--cel-danger: #ff5c7a;
+	--cel-danger-shade: #ce2a68;
+	--cel-danger-hl: #fba09e;
+	--cel-danger-text: #fd667f;
+	--cel-info: #4fb3ff;
+	--cel-info-shade: #3386d8;
+	--cel-info-hl: #97d4f7;
+	--cel-info-text: #4fb3ff;
+	--cel-xp: #a98bff;
+	--cel-xp-shade: #8461d4;
+	--cel-xp-hl: #ceb4f3;
+	--cel-xp-text: #a98bff;
+	/* Ink hierarchy (law 2): detail, contour, silhouette/selected, hero. */
+	--cel-ink-w-1: 1.5px;
+	--cel-ink-w-2: 2px;
+	--cel-ink-w-3: 3px;
+	--cel-ink-w-4: 4px;
+	/* Hard offset shadows (law 4): light top-left → shadow right/down, 0 blur. */
+	--cel-shadow-1: 2px 2px 0 0 var(--cel-shadow-color);
+	--cel-shadow-2: 3px 3px 0 0 var(--cel-shadow-color);
+	--cel-shadow-3: 4px 4px 0 0 var(--cel-shadow-color);
+	--cel-shadow-4: 6px 6px 0 0 var(--cel-shadow-color);
+	--cel-shadow-5: 8px 8px 0 0 var(--cel-shadow-color);
+	/* Radii: chunky, on the 4 px rhythm (plus the pill). */
+	--cel-radius: 12px;
+	--cel-radius-sm: 8px;
+	--cel-radius-lg: 16px;
+	--cel-radius-xl: 24px;
+	--cel-radius-pill: 999px;
+	/* Motion: snappy, slight overshoot; cel boil at 8 fps (on threes). */
+	--cel-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--cel-dur: 120ms;
+	--cel-boil-dur: 375ms;
+	/* Faces (next/font variables when the layout provides them). */
+	--cel-font-display: var(--font-cel-display, var(--font-prose));
+	--cel-font-body: var(--font-cel-body, var(--font-prose));
+	--cel-font-hand: var(--font-cel-hand, var(--font-prose));
+}
+
+/* Paper (Cel Papel): the light variant. Only the tokens that differ. */
+[data-theme-family="cel"]:is(.light, [data-theme-mode="light"]) {
+	--cel-bg: #fbf7ee;
+	--cel-bg-shade: #ece8df;
+	--cel-surface-1: #ffffff;
+	--cel-surface-1-shade: #f0f0f0;
+	--cel-surface-1-rim: #ffffff;
+	--cel-surface-2: #f3ede0;
+	--cel-surface-2-shade: #e4ded1;
+	--cel-surface-3: #ffffff;
+	--cel-surface-3-rim: #ffffff;
+	--cel-text: #1e1b2e;
+	--cel-text-muted: #5e5870;
+	--cel-text-faint: #8c8698;
+	--cel-line: #1e1b2e;
+	--cel-line-object: #1e1b2e;
+	--cel-line-soft: rgb(30 27 46 / 0.22);
+	--cel-edge: #1e1b2e;
+	--cel-shadow-color: #1e1b2e;
+	--cel-on-fill: #1e1b2e;
+	--cel-focus: #0b6db3;
+	--cel-link: #0b6db3;
+	--cel-hl: #ffffff;
+	--cel-rim: rgb(255 255 255 / 0.55);
+	--cel-shade: rgb(30 27 46 / 0.1);
+	--cel-scrim: rgb(30 27 46 / 0.45);
+	--cel-accent-text: #8a6400;
+	--cel-success-text: #027957;
+	--cel-warning-text: #995d04;
+	--cel-danger-text: #c22f5b;
+	--cel-info-text: #0b6db3;
+	--cel-xp-text: #7759bf;
+}
+
+/* Domain accent (r9 §4.4): Inglês swaps the accent to coral; status and
+   XP never follow the domain. A nested data-domain="electronics" swaps
+   back to volt. */
+[data-theme-family="cel"][data-domain="english"],
+[data-theme-family="cel"] [data-domain="english"] {
+	--cel-accent: #ff7a59;
+	--cel-accent-shade: #d34a4b;
+	--cel-accent-hl: #fcb398;
+	--cel-accent-text: #ff7a59;
+}
+
+[data-theme-family="cel"]:is(.light, [data-theme-mode="light"])[data-domain="english"],
+[data-theme-family="cel"]:is(.light, [data-theme-mode="light"]) [data-domain="english"] {
+	--cel-accent-text: #bc4335;
+}
+
+[data-theme-family="cel"] [data-domain="electronics"] {
+	--cel-accent: #ffd23f;
+	--cel-accent-shade: #e49e09;
+	--cel-accent-hl: #fff5d8;
+	--cel-accent-text: #ffd23f;
+}
+
+[data-theme-family="cel"]:is(.light, [data-theme-mode="light"]) [data-domain="electronics"] {
+	--cel-accent-text: #8a6400;
+}
+
+/* ─── Utilities (the value after each comma is the classic fallback) ─── */
+
+/* A raised panel: ink outline, flat surface, rim on the lit edge, hard shadow. */
+.cel-card {
+	background: var(--cel-surface-1, var(--card));
+	color: var(--cel-text, var(--card-foreground));
+	border: var(--cel-ink-w-2, 1px) solid var(--cel-line, var(--border));
+	border-radius: var(--cel-radius, var(--radius-lg));
+	box-shadow: inset 0 2px 0 0 var(--cel-rim, transparent), var(--cel-shadow-2, 0 0 #0000);
+}
+
+/* A pressable chunk: lifts on hover, presses flat on :active. */
+.cel-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	min-height: 2.25rem;
+	padding: 0.375rem 1rem;
+	font-family: var(--cel-font-display, inherit);
+	font-weight: 700;
+	line-height: 1.2;
+	cursor: pointer;
+	user-select: none;
+	background: var(--cel-surface-1, var(--secondary));
+	color: var(--cel-text, var(--secondary-foreground));
+	border: var(--cel-ink-w-2, 1px) solid var(--cel-edge, var(--border));
+	border-radius: var(--cel-radius, var(--radius-md));
+	/* The self-shade lip (bottom-right, light from the top-left): the
+	   neutral band here, each filled variant's own ramp shade below — kept
+	   through hover and press, never translucent black over a color. */
+	--cel-lip: var(--cel-shade, transparent);
+	box-shadow: inset -2px -3px 0 0 var(--cel-lip, transparent), var(--cel-shadow-1, 0 0 #0000);
+	transition:
+		transform var(--cel-dur, 120ms) var(--cel-ease, ease-out),
+		box-shadow var(--cel-dur, 120ms) var(--cel-ease, ease-out);
+}
+.cel-button:hover:not(:disabled, [aria-disabled="true"]) {
+	transform: translate(-1px, -1px);
+	box-shadow: inset -2px -3px 0 0 var(--cel-lip, transparent), var(--cel-shadow-2, 0 0 #0000);
+}
+.cel-button:active:not(:disabled, [aria-disabled="true"]) {
+	transform: translate(2px, 2px);
+	box-shadow: inset -2px -3px 0 0 var(--cel-lip, transparent);
+}
+/* Filled variants: ink outline, text on color = ink, the CTA gets the specular rim. */
+.cel-button-primary,
+.cel-button-danger,
+.cel-button-success,
+.cel-button-xp {
+	color: var(--cel-on-fill, var(--primary-foreground));
+	border-color: var(--cel-line, var(--border));
+}
+.cel-button-primary {
+	--cel-lip: var(--cel-accent-shade, transparent);
+	background: var(--cel-accent, var(--primary));
+	box-shadow: inset 0 2px 0 0 var(--cel-accent-hl, transparent), inset -2px -3px 0 0 var(--cel-lip, transparent), var(--cel-shadow-2, 0 0 #0000);
+}
+.cel-button-primary:hover:not(:disabled, [aria-disabled="true"]) {
+	box-shadow: inset 0 2px 0 0 var(--cel-accent-hl, transparent), inset -2px -3px 0 0 var(--cel-lip, transparent), var(--cel-shadow-3, 0 0 #0000);
+}
+.cel-button-danger {
+	--cel-lip: var(--cel-danger-shade, transparent);
+	background: var(--cel-danger, var(--destructive));
+}
+.cel-button-success {
+	--cel-lip: var(--cel-success-shade, transparent);
+	background: var(--cel-success, var(--lh-success));
+}
+.cel-button-xp {
+	--cel-lip: var(--cel-xp-shade, transparent);
+	background: var(--cel-xp, var(--primary));
+}
+.cel-button-ghost {
+	background: transparent;
+	border-color: transparent;
+	box-shadow: none;
+}
+.cel-button-ghost:hover:not(:disabled, [aria-disabled="true"]) {
+	background: var(--cel-surface-2, var(--accent));
+	box-shadow: none;
+}
+/* Disabled reads by SHAPE (dashed ink, flat, no shadow), not only by color. */
+.cel-button:is(:disabled, [aria-disabled="true"]) {
+	cursor: not-allowed;
+	background: var(--cel-surface-2, var(--muted));
+	color: var(--cel-text-faint, var(--muted-foreground));
+	border-style: dashed;
+	border-color: var(--cel-edge, var(--border));
+	box-shadow: none;
+	transform: none;
+}
+
+/* Keyboard focus: a solid focus band outside the ink (no browser outline —
+   the app's no-ring law bans the UA outline, not a designed indicator).
+   LAST of the button rules and as specific as the :hover/:active ones
+   (0,3,0), so a pointer resting on a keyboard-focused button (or a
+   variant's hover) never hides the band; aria-disabled stays focusable
+   and keeps it too. */
+.cel-button:focus-visible:not(:disabled) {
+	box-shadow:
+		0 0 0 2px var(--cel-bg, var(--background)),
+		0 0 0 5px var(--cel-focus, var(--ring)),
+		var(--cel-shadow-1, 0 0 #0000);
+}
+
+/* A tag / filter / state chip. Selected = lit accent tone, ink text, thicker ink. */
+.cel-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.125rem 0.625rem;
+	font-weight: 600;
+	line-height: 1.4;
+	background: var(--cel-surface-2, var(--muted));
+	color: var(--cel-text, var(--foreground));
+	border: var(--cel-ink-w-1, 1px) solid var(--cel-edge, var(--border));
+	border-radius: var(--cel-radius-pill, 999px);
+	box-shadow: var(--cel-shadow-1, 0 0 #0000);
+}
+.cel-chip:is([aria-pressed="true"], [aria-selected="true"], [data-selected="true"]) {
+	background: var(--cel-accent-hl, var(--accent));
+	color: var(--cel-on-fill, var(--accent-foreground));
+	border-width: var(--cel-ink-w-2, 1px);
+	border-color: var(--cel-line, var(--border));
+}
+
+/* A field: sunken (the top-left light shades the inner top-left lip). */
+.cel-input {
+	background: var(--cel-surface-1, var(--background));
+	color: var(--cel-text, var(--foreground));
+	border: var(--cel-ink-w-2, 1px) solid var(--cel-edge, var(--input));
+	border-radius: var(--cel-radius-sm, var(--radius-md));
+	box-shadow: inset 2px 2px 0 0 var(--cel-shade, transparent);
+}
+.cel-input:focus-visible {
+	border-color: var(--cel-focus, var(--ring));
+	box-shadow: inset 2px 2px 0 0 var(--cel-shade, transparent), 0 0 0 3px var(--cel-focus, var(--ring));
+}
+
+/* Display type (titles, XP counters, level numbers). */
+.cel-display {
+	font-family: var(--cel-font-display, inherit);
+	font-weight: 700;
+	letter-spacing: 0.01em;
+}
+
+/* Live icon boil (<Icon live>): three ink frames stacked; only the first
+   shows unless a cel theme animates them (8 fps, stepped, never tweened). */
+.cel-boil > * {
+	opacity: 0;
+}
+.cel-boil > :first-child {
+	opacity: 1;
+}
+@keyframes cel-boil {
+	0% {
+		opacity: 1;
+	}
+	33.333% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+[data-theme-family="cel"] .cel-boil > * {
+	animation: cel-boil var(--cel-boil-dur) step-end infinite;
+}
+[data-theme-family="cel"] .cel-boil > :nth-child(2) {
+	animation-delay: calc(var(--cel-boil-dur) * -2 / 3);
+}
+[data-theme-family="cel"] .cel-boil > :nth-child(3) {
+	animation-delay: calc(var(--cel-boil-dur) * -1 / 3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cel-button,
+	.cel-button:hover:not(:disabled, [aria-disabled="true"]),
+	.cel-button:active:not(:disabled, [aria-disabled="true"]) {
+		transition: none;
+		transform: none;
+	}
+	[data-theme-family="cel"] .cel-boil > * {
+		animation: none;
+	}
+}
+/* ═══ /CEL ═══ */

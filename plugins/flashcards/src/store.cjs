@@ -2,6 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
+const { migrateStoreSchedules } = require('./fsrs7.ts');
 
 function atomicWrite(file, content) {
   const temporary = `${file}.${randomUUID()}.tmp`;
@@ -46,6 +47,9 @@ function migrate(state) {
   }
   // Ratings/timing/schedule snapshots suffice for statistics and retry receipts.
   for (const r of state.reviews) for (const key of ['question', 'answer']) if (Object.hasOwn(r, key)) { delete r[key]; changed = true; }
+  // FSRS-6 → FSRS-7 without loss: reviewed schedules with a provably complete review
+  // history get their memory replayed (fsrs7.ts); incomplete ones stay on FSRS-6.
+  if (migrateStoreSchedules(state).migrated) changed = true;
   return changed;
 }
 const defaults = () => ({ retention: 0.9, learningSteps: [1, 10], relearningSteps: [10], dayStart: 4, fuzz: false, chunkBudget: 4000, modelOverride: null });

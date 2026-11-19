@@ -9,7 +9,8 @@ import { ServerEventsProvider } from "@/components/server-events";
 import { AppearanceProvider } from "@/components/settings/appearance";
 import UpdateBanner from "@/components/update-banner";
 import { PluginsProvider } from "@/components/plugins";
-import { readThemeBoot } from "@/src/server";
+import { activeDomainId, readThemeBoot } from "@/src/server";
+import { themeRootAttributes } from "@/src/core";
 
 // Chrome = JetBrains Mono, teaching prose = Source Sans 3, titles = CMU
 // Serif (the bundled lh-cmu @font-face in globals.css — no CDN).
@@ -30,7 +31,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	const { appearance, theme, vars } = readThemeBoot();
 	return (
 		<html
-			lang="en"
+			lang="pt-BR"
+			{...themeRootAttributes(theme)}
+			data-domain={activeDomainId() ?? undefined}
 			className={`${theme.mode} ${ui.variable} ${prose.variable}`}
 			style={vars as React.CSSProperties}
 			suppressHydrationWarning

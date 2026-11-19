@@ -1,0 +1,1498 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.research",
+	"items": [
+		{
+			"id": "ee.research.professional",
+			"kind": "unit",
+			"parentId": "ee.research",
+			"order": 0,
+			"title": {
+				"pt": "Prática profissional",
+				"en": "Professional practice"
+			},
+			"summary": "Ética, economia de engenharia, normas e regulamentação brasileiras e gestão de projetos.",
+			"scope": "Dentro: ética profissional, análise econômica, ABNT, Inmetro, Anatel, CREA, gestão de projetos. Fora: direito empresarial.",
+			"objectives": [
+				"Tomar decisões de engenharia considerando ética, custo e normas",
+				"Planejar um projeto de engenharia"
+			],
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "abet-ee-2025",
+					"ref": "Student Outcomes",
+					"embeddable": false
+				},
+				{
+					"source": "cne-ces-2-2019",
+					"ref": "competências do egresso",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.professional.ethics",
+			"kind": "topic",
+			"parentId": "ee.research.professional",
+			"order": 0,
+			"title": {
+				"pt": "Ética profissional e responsabilidade",
+				"en": "Professional ethics and responsibility"
+			},
+			"summary": "Códigos de ética, responsabilidade técnica, segurança do público, propriedade intelectual e conflitos de interesse.",
+			"scope": "Dentro: códigos de ética, ART e CREA, propriedade intelectual, casos. Fora: filosofia moral.",
+			"objectives": [
+				"Analisar um caso de dilema ético em engenharia",
+				"Explicar a responsabilidade técnica no sistema CONFEA/CREA"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§3",
+					"embeddable": false
+				},
+				{
+					"source": "abet-ee-2025",
+					"ref": "Student Outcomes",
+					"embeddable": false
+				},
+				{
+					"source": "cne-ces-2-2019",
+					"ref": "competências do egresso",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.professional.engineering-economics",
+			"kind": "topic",
+			"parentId": "ee.research.professional",
+			"order": 1,
+			"title": {
+				"pt": "Economia de engenharia",
+				"en": "Engineering economics"
+			},
+			"summary": "Valor do dinheiro no tempo, fluxo de caixa, VPL, TIR, custo de ciclo de vida e análise de custo de BOM.",
+			"scope": "Dentro: juros, VPL, TIR, payback, custo de ciclo de vida, BOM. Fora: finanças corporativas.",
+			"objectives": [
+				"Calcular o VPL e o payback de um investimento",
+				"Comparar alternativas de projeto por custo de ciclo de vida"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.math.algebra.exponentials-logs"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§4",
+					"embeddable": false
+				},
+				{
+					"source": "abet-ee-2025",
+					"ref": "Student Outcomes",
+					"embeddable": false
+				},
+				{
+					"source": "cne-ces-2-2019",
+					"ref": "competências do egresso",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.professional.standards-regulation",
+			"kind": "topic",
+			"parentId": "ee.research.professional",
+			"order": 2,
+			"title": {
+				"pt": "Normas, certificação e regulamentação",
+				"en": "Standards, certification and regulation"
+			},
+			"summary": "Normalização técnica, certificação compulsória no Inmetro, homologação na Anatel, IEC e diretivas internacionais.",
+			"scope": "Dentro: ABNT e IEC, Inmetro, Anatel, marcação CE e FCC em visão, RoHS. Fora: normas setoriais específicas.",
+			"objectives": [
+				"Identificar as normas e certificações aplicáveis a um produto eletrônico",
+				"Planejar o caminho de homologação de um produto com rádio"
+			],
+			"bloom": "create",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.instruments.safety.electrical-safety"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "visão geral",
+					"embeddable": false
+				},
+				{
+					"source": "nr-10",
+					"ref": "escopo e responsabilidades",
+					"embeddable": false
+				},
+				{
+					"source": "abet-ee-2025",
+					"ref": "Student Outcomes",
+					"embeddable": false
+				},
+				{
+					"source": "cne-ces-2-2019",
+					"ref": "competências do egresso",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.professional.project-management",
+			"kind": "topic",
+			"parentId": "ee.research.professional",
+			"order": 3,
+			"title": {
+				"pt": "Gestão de projetos de engenharia",
+				"en": "Engineering project management"
+			},
+			"summary": "Requisitos, escopo, cronograma, riscos, controle de versões de hardware e revisões de projeto.",
+			"scope": "Dentro: requisitos, WBS, cronograma, riscos, revisões de projeto, gestão de configuração. Fora: certificações de gestão.",
+			"objectives": [
+				"Elaborar requisitos e um cronograma para um projeto de hardware",
+				"Planejar revisões de projeto e gestão de riscos"
+			],
+			"bloom": "create",
+			"assess": [
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.research.professional.engineering-economics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "abet-ee-2025",
+					"ref": "Student Outcomes",
+					"embeddable": false
+				},
+				{
+					"source": "cne-ces-2-2019",
+					"ref": "competências do egresso",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.method",
+			"kind": "unit",
+			"parentId": "ee.research",
+			"order": 1,
+			"title": {
+				"pt": "Metodologia de pesquisa",
+				"en": "Research methodology"
+			},
+			"summary": "Leitura de artigos, revisão de literatura, desenho experimental, reprodutibilidade, escrita e apresentação científica.",
+			"scope": "Dentro: leitura, revisão, experimentos, reprodutibilidade, escrita e revisão por pares. Fora: estatística avançada.",
+			"objectives": [
+				"Ler e avaliar criticamente artigos técnicos",
+				"Planejar experimentos reprodutíveis e comunicar resultados"
+			],
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 21
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.method.reading-papers",
+			"kind": "topic",
+			"parentId": "ee.research.method",
+			"order": 0,
+			"title": {
+				"pt": "Leitura de artigos técnicos",
+				"en": "Reading technical papers"
+			},
+			"summary": "Leitura em várias passagens, estrutura de artigos IEEE e avaliação crítica de alegações.",
+			"scope": "Dentro: leitura em passagens, estrutura de artigos, crítica de resultados. Fora: redação.",
+			"objectives": [
+				"Resumir as contribuições de um artigo em poucas linhas",
+				"Avaliar criticamente as alegações e a metodologia de um artigo"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.amp-concepts"
+				],
+				[
+					"ee.signals.lti.convolution-ct"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.method.literature-review",
+			"kind": "topic",
+			"parentId": "ee.research.method",
+			"order": 1,
+			"title": {
+				"pt": "Revisão de literatura",
+				"en": "Literature review"
+			},
+			"summary": "Busca em bases, gestão de referências, mapeamento do estado da arte e identificação de lacunas.",
+			"scope": "Dentro: IEEE Xplore, Scholar, arXiv, gerenciadores de referência, tabelas comparativas. Fora: revisões sistemáticas formais.",
+			"objectives": [
+				"Construir uma tabela comparativa do estado da arte de um tema",
+				"Identificar lacunas na literatura"
+			],
+			"bloom": "create",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.research.method.reading-papers"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.method.experimental-design",
+			"kind": "topic",
+			"parentId": "ee.research.method",
+			"order": 2,
+			"title": {
+				"pt": "Desenho experimental em eletrônica",
+				"en": "Experimental design in electronics"
+			},
+			"summary": "Hipóteses, variáveis, planejamento fatorial, controle de erros sistemáticos e análise estatística dos resultados.",
+			"scope": "Dentro: hipóteses, fatorial, repetição, erros sistemáticos, estatística de resultados. Fora: planejamento de experimentos avançado.",
+			"objectives": [
+				"Planejar um experimento para comparar duas técnicas de circuito",
+				"Avaliar a significância de uma diferença medida"
+			],
+			"bloom": "create",
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.research.method.reading-papers",
+					"ee.instruments.measurement.uncertainty"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.method.reproducibility",
+			"kind": "topic",
+			"parentId": "ee.research.method",
+			"order": 3,
+			"title": {
+				"pt": "Reprodutibilidade e ciência aberta",
+				"en": "Reproducibility and open science"
+			},
+			"summary": "Controle de versões, dados e código abertos, hardware aberto e documentação de experimentos.",
+			"scope": "Dentro: git, cadernos de laboratório, dados abertos, hardware aberto, licenças. Fora: gestão institucional de dados.",
+			"objectives": [
+				"Organizar um repositório reprodutível de um experimento",
+				"Escolher licenças adequadas para código, dados e hardware"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.research.method.experimental-design"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.method.technical-writing",
+			"kind": "topic",
+			"parentId": "ee.research.method",
+			"order": 4,
+			"title": {
+				"pt": "Escrita científica e técnica",
+				"en": "Scientific and technical writing"
+			},
+			"summary": "Estrutura de artigos, figuras, notação, LaTeX e o processo de submissão e revisão por pares.",
+			"scope": "Dentro: estrutura IMRaD, figuras, LaTeX, submissão, resposta a revisores. Fora: escrita de patentes.",
+			"objectives": [
+				"Redigir um artigo curto em formato IEEE",
+				"Redigir respostas a comentários de revisores"
+			],
+			"bloom": "create",
+			"assess": [
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.research.method.literature-review"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.method.presentations-reviews",
+			"kind": "topic",
+			"parentId": "ee.research.method",
+			"order": 5,
+			"title": {
+				"pt": "Apresentações e revisão por pares",
+				"en": "Presentations and peer review"
+			},
+			"summary": "Apresentações orais e pôsteres, e como revisar artigos de outros autores.",
+			"scope": "Dentro: apresentações, pôsteres, revisão por pares. Fora: oratória geral.",
+			"objectives": [
+				"Apresentar um resultado técnico em dez minutos",
+				"Revisar um artigo com comentários construtivos"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.research.method.technical-writing"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.research.tools",
+			"kind": "unit",
+			"parentId": "ee.research",
+			"order": 2,
+			"title": {
+				"pt": "Ferramentas avançadas de pesquisa",
+				"en": "Advanced research tools"
+			},
+			"summary": "Simulação avançada, automação de laboratório, otimização de projeto e aprendizado de máquina aplicado à engenharia elétrica.",
+			"scope": "Dentro: simulação EM e multifísica, automação de instrumentos, otimização, ML para EE. Fora: desenvolvimento de ferramentas EDA.",
+			"objectives": [
+				"Automatizar medições e simulações",
+				"Aplicar otimização e ML a problemas de projeto"
+			],
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Xplore",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.tools.advanced-simulation",
+			"kind": "topic",
+			"parentId": "ee.research.tools",
+			"order": 0,
+			"title": {
+				"pt": "Simulação avançada",
+				"en": "Advanced simulation"
+			},
+			"summary": "Simulação EM 3D e 2,5D, multifísica, co-simulação de circuito e campo e validação de modelos.",
+			"scope": "Dentro: EM 3D, método dos momentos e FEM em visão, multifísica, validação. Fora: desenvolvimento de solucionadores.",
+			"objectives": [
+				"Escolher o tipo de simulador para um problema",
+				"Validar um modelo simulado com medição"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.instruments.sim.spice-numerics",
+					"ee.rf.em.maxwell-differential"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Xplore",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.tools.lab-automation",
+			"kind": "topic",
+			"parentId": "ee.research.tools",
+			"order": 1,
+			"title": {
+				"pt": "Automação de laboratório",
+				"en": "Lab automation"
+			},
+			"summary": "Controle de instrumentos por SCPI e VISA em Python, varreduras automáticas e registro de dados.",
+			"scope": "Dentro: SCPI, VISA, PyVISA, varreduras, registro e metadados. Fora: sistemas de teste em produção.",
+			"objectives": [
+				"Automatizar uma varredura de medição com instrumentos programáveis",
+				"Registrar dados com metadados suficientes para reprodução"
+			],
+			"bloom": "apply",
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.math.numerical.python-numpy",
+					"ee.instruments.bench.oscilloscope-advanced"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Xplore",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.tools.optimization-design",
+			"kind": "topic",
+			"parentId": "ee.research.tools",
+			"order": 2,
+			"title": {
+				"pt": "Otimização aplicada ao projeto",
+				"en": "Optimization for design"
+			},
+			"summary": "Otimização convexa e não convexa, programação geométrica e busca global aplicadas ao dimensionamento de circuitos.",
+			"scope": "Dentro: formulação, convexa, programação geométrica, busca global, otimização bayesiana. Fora: teoria de otimização.",
+			"objectives": [
+				"Formular o dimensionamento de um circuito como problema de otimização",
+				"Comparar otimizadores em um problema de projeto"
+			],
+			"bloom": "create",
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.math.numerical.numerical-methods",
+					"ee.math.linalg.eigen"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Xplore",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.tools.ml-for-ee",
+			"kind": "topic",
+			"parentId": "ee.research.tools",
+			"order": 3,
+			"title": {
+				"pt": "Aprendizado de máquina para engenharia elétrica",
+				"en": "Machine learning for electrical engineering"
+			},
+			"summary": "Modelos substitutos, classificação de sinais, ML para projeto e testes e limites de validade.",
+			"scope": "Dentro: regressão, redes neurais, modelos substitutos, validação. Fora: teoria de aprendizado.",
+			"objectives": [
+				"Treinar um modelo substituto para uma simulação cara",
+				"Avaliar a validade de um modelo de ML fora do domínio de treino"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.math.prob.stats-measurement",
+					"ee.math.numerical.python-numpy"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Xplore",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts",
+			"kind": "unit",
+			"parentId": "ee.research",
+			"order": 3,
+			"title": {
+				"pt": "Frentes de pesquisa",
+				"en": "Research fronts"
+			},
+			"summary": "Panoramas orientados à literatura recente das principais frentes de pesquisa em eletrônica.",
+			"scope": "Dentro: problemas em aberto, artigos de referência e conferências de cada frente. Fora: conteúdo técnico básico das áreas.",
+			"objectives": [
+				"Mapear o estado da arte e os problemas em aberto de uma frente",
+				"Identificar grupos, conferências e periódicos de referência"
+			],
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.research.method.literature-review"
+				]
+			],
+			"hours": {
+				"lo": 24,
+				"hi": 32
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-analog-mixed",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 0,
+			"title": {
+				"pt": "Frente: analógico e sinal misto",
+				"en": "Front: analog and mixed-signal"
+			},
+			"summary": "Conversores de altíssima eficiência, circuitos assistidos por digital e projeto analógico automatizado.",
+			"scope": "Dentro: tendências em ADCs, calibração digital, automação de projeto analógico. Fora: detalhes de implementação.",
+			"objectives": [
+				"Mapear as tendências recentes em conversores de dados",
+				"Identificar problemas em aberto em automação de projeto analógico"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.ic.data-converters.sar-adc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-rf-mmwave",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 1,
+			"title": {
+				"pt": "Frente: RF e ondas milimétricas",
+				"en": "Front: RF and millimeter waves"
+			},
+			"summary": "Transceptores de ondas milimétricas, formação de feixe, sub-THz e coexistência.",
+			"scope": "Dentro: mmWave, phased arrays, sub-THz, full-duplex. Fora: padrões de telecomunicações.",
+			"objectives": [
+				"Mapear desafios de transceptores em ondas milimétricas",
+				"Comparar arquiteturas de formação de feixe"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.rfic.transceiver-integration"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-power",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 2,
+			"title": {
+				"pt": "Frente: eletrônica de potência",
+				"en": "Front: power electronics"
+			},
+			"summary": "Altíssima densidade de potência, GaN e SiC, conversores para data centers e veículos elétricos.",
+			"scope": "Dentro: WBG, densidade de potência, magnéticos integrados, aplicações emergentes. Fora: sistemas de potência em alta tensão.",
+			"objectives": [
+				"Mapear as tendências em densidade de potência",
+				"Identificar problemas em aberto em magnéticos de alta frequência"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.advanced.wbg-design"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-devices",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 3,
+			"title": {
+				"pt": "Frente: dispositivos",
+				"en": "Front: devices"
+			},
+			"summary": "Escalamento além do CMOS, integração 3D, dispositivos de potência e dispositivos emergentes.",
+			"scope": "Dentro: GAA e CFET, integração 3D, materiais 2D, dispositivos emergentes. Fora: física de estado sólido avançada.",
+			"objectives": [
+				"Mapear as alternativas de escalamento além do FinFET",
+				"Avaliar alegações sobre dispositivos emergentes"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.advanced.emerging-devices"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-embedded-edge",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 4,
+			"title": {
+				"pt": "Frente: embarcados e computação na borda",
+				"en": "Front: embedded and edge computing"
+			},
+			"summary": "IA na borda, ultra-baixo consumo, coleta de energia e segurança de dispositivos.",
+			"scope": "Dentro: TinyML, energy harvesting, intermitência, segurança de hardware. Fora: computação em nuvem.",
+			"objectives": [
+				"Mapear as tendências em IA na borda",
+				"Identificar desafios de dispositivos alimentados por coleta de energia"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.embedded.advanced.tinyml"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-signal-processing",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 5,
+			"title": {
+				"pt": "Frente: processamento de sinais",
+				"en": "Front: signal processing"
+			},
+			"summary": "Processamento esparso, aprendizado aplicado a sinais e comunicações e hardware para DSP.",
+			"scope": "Dentro: compressed sensing, aprendizado para sinais, hardware de DSP. Fora: teoria de sinais pura.",
+			"objectives": [
+				"Mapear as tendências em processamento de sinais com aprendizado",
+				"Comparar abordagens clássicas e baseadas em dados"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.signals.adv-dsp.optimal-estimation"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-control",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 6,
+			"title": {
+				"pt": "Frente: controle",
+				"en": "Front: control"
+			},
+			"summary": "Controle baseado em dados, aprendizado por reforço com garantias e sistemas ciberfísicos.",
+			"scope": "Dentro: controle por dados, RL seguro, sistemas ciberfísicos. Fora: teoria de controle pura.",
+			"objectives": [
+				"Mapear as tendências em controle baseado em dados",
+				"Avaliar garantias de estabilidade em controladores aprendidos"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.control.advanced.mpc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.fronts.front-biomedical",
+			"kind": "topic",
+			"parentId": "ee.research.fronts",
+			"order": 7,
+			"title": {
+				"pt": "Frente: eletrônica biomédica",
+				"en": "Front: biomedical electronics"
+			},
+			"summary": "Front-ends para biopotenciais, implantes, sensores vestíveis e segurança elétrica de pacientes.",
+			"scope": "Dentro: biopotenciais, implantes, vestíveis, segurança do paciente. Fora: regulamentação de dispositivos médicos em detalhe.",
+			"objectives": [
+				"Mapear os desafios de front-ends para biopotenciais",
+				"Identificar requisitos de segurança de dispositivos médicos"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.analog.design.sensor-frontend-project",
+					"ee.analog.noise.low-noise-design"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "periódicos e conferências da área",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.thesis",
+			"kind": "unit",
+			"parentId": "ee.research",
+			"order": 4,
+			"title": {
+				"pt": "Trabalho de tese",
+				"en": "Thesis work"
+			},
+			"summary": "Da pergunta de pesquisa à proposta e à escrita da primeira publicação.",
+			"scope": "Dentro: pergunta, proposta, planejamento da execução, escrita, submissão e resposta a revisores. Fora: a execução da pesquisa em si, com meses de trabalho que não entram nas horas de estudo, e a burocracia de programas de pós-graduação.",
+			"objectives": [
+				"Formular uma pergunta de pesquisa relevante e viável",
+				"Publicar um primeiro artigo revisado por pares"
+			],
+			"assess": [
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.thesis.research-question",
+			"kind": "topic",
+			"parentId": "ee.research.thesis",
+			"order": 0,
+			"title": {
+				"pt": "Pergunta de pesquisa",
+				"en": "Research question"
+			},
+			"summary": "Da lacuna identificada à pergunta, hipótese e critérios de sucesso verificáveis.",
+			"scope": "Dentro: lacuna, pergunta, hipótese, critérios de sucesso, viabilidade. Fora: escolha de orientador.",
+			"objectives": [
+				"Formular uma pergunta de pesquisa com critérios de sucesso",
+				"Avaliar a viabilidade de uma pergunta com os recursos disponíveis"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.research.method.experimental-design",
+					"ee.research.method.literature-review"
+				]
+			],
+			"softPrereqs": [
+				"ee.research.fronts.front-analog-mixed",
+				"ee.research.fronts.front-rf-mmwave",
+				"ee.research.fronts.front-power",
+				"ee.research.fronts.front-devices",
+				"ee.research.fronts.front-embedded-edge",
+				"ee.research.fronts.front-signal-processing",
+				"ee.research.fronts.front-control",
+				"ee.research.fronts.front-biomedical"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.thesis.research-proposal",
+			"kind": "topic",
+			"parentId": "ee.research.thesis",
+			"order": 1,
+			"title": {
+				"pt": "Proposta de pesquisa",
+				"en": "Research proposal"
+			},
+			"summary": "Estrutura de uma proposta, plano de trabalho, riscos e pedido de financiamento.",
+			"scope": "Dentro: proposta, cronograma, riscos, editais de fomento. Fora: gestão de bolsas.",
+			"objectives": [
+				"Redigir uma proposta de pesquisa com plano de trabalho",
+				"Avaliar os riscos de uma proposta"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.research.thesis.research-question",
+					"ee.research.method.technical-writing"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		},
+		{
+			"id": "ee.research.thesis.first-paper",
+			"kind": "topic",
+			"parentId": "ee.research.thesis",
+			"order": 2,
+			"title": {
+				"pt": "Escrita e submissão do primeiro artigo",
+				"en": "Writing and submitting the first paper"
+			},
+			"summary": "Organizar resultados em um artigo, escolher o veículo, submeter e responder a revisores; as horas cobrem a escrita, não a execução da pesquisa.",
+			"scope": "Dentro: estrutura do artigo, figuras, escolha do veículo, submissão, carta de resposta, versão final. Fora: execução da pesquisa e carreira acadêmica.",
+			"objectives": [
+				"Redigir e submeter um artigo revisado por pares",
+				"Responder às revisões e preparar a versão final"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.research.thesis.research-proposal",
+					"ee.research.method.presentations-reviews",
+					"ee.research.method.reproducibility"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "Author Center",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:research"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.research.professional.standards-regulation",
+			"to": "ee.pcb.emc.emc-standards",
+			"kind": "related"
+		},
+		{
+			"from": "ee.research.tools.lab-automation",
+			"to": "ee.embedded.comms.uart",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "abet-ee-2025",
+			"title": "ABET — Program Criteria for Electrical/Electronic(s) Engineering, 2025–2026",
+			"url": "https://www.abet.org/accreditation/accreditation-criteria/criteria-for-accrediting-engineering-programs-2025-2026/",
+			"license": "Documento público; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "abnt-nbr-5410",
+			"title": "ABNT NBR 5410 — Instalações elétricas de baixa tensão",
+			"license": "© ABNT; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "cne-ces-2-2019",
+			"title": "Resolução CNE/CES nº 2/2019 — Diretrizes Curriculares Nacionais de Engenharia",
+			"license": "Ato normativo público; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "keshav-how-to-read-a-paper",
+			"title": "S. Keshav — How to Read a Paper (ACM SIGCOMM CCR, 2007)",
+			"license": "© ACM; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "nr-10",
+			"title": "NR-10 — Segurança em Instalações e Serviços em Eletricidade (MTE)",
+			"license": "Norma regulamentadora pública; só referência",
+			"usage": "reference"
+		}
+	]
+}

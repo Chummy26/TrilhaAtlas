@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,14 +22,64 @@ const DATA_ROOT = process.env.LH_DATA_DIR
 	? path.resolve(/* turbopackIgnore: true */ process.env.LH_DATA_DIR)
 	: path.join(/* turbopackIgnore: true */ ROOT, "data");
 
+// ─── Study domains (estudos-sota, docs/research/00-SINTESE.md §2.2) ─────────
+// The ACTIVE domain scopes every per-world record (chats, graph, jobs):
+// `<data>/domains/<id>/…`. With no active domain (no
+// profile/active-domain.json — fresh installs before onboarding, every test
+// run) the paths are the original `<data>/…` ones byte-for-byte: that legacy
+// world stays reachable as "Geral" and nothing is ever migrated or moved.
+// The choice lives on globalThis (one value per server process, shared by
+// every bundled module instance); src/server/domains.ts switches it.
+const DOMAIN_ID = /^[a-z][a-z0-9-]{1,39}$/;
+type LhDomainGlobal = { __lhActiveDomain?: { id: string | null } };
+
+function readActiveDomainFile(): string | null {
+	try {
+		const raw = fs.readFileSync(path.join(/* turbopackIgnore: true */ DATA_ROOT, "profile", "active-domain.json"), "utf8");
+		const parsed = JSON.parse(raw.replace(/^\uFEFF/, "")) as { domainId?: unknown };
+		const id = parsed.domainId;
+		if (typeof id !== "string" || !DOMAIN_ID.test(id)) return null;
+		return fs.existsSync(path.join(/* turbopackIgnore: true */ DATA_ROOT, "domains", id, "domain.json")) ? id : null;
+	} catch {
+		return null;
+	}
+}
+
+/** The active study domain id, or null for the legacy "Geral" world. */
+export function activeDomainId(): string | null {
+	const g = globalThis as typeof globalThis & LhDomainGlobal;
+	return (g.__lhActiveDomain ??= { id: readActiveDomainFile() }).id;
+}
+
+/** Point this process at a domain (null = "Geral"). The caller persists the choice. */
+export function setActiveDomainId(id: string | null): void {
+	if (id !== null && !DOMAIN_ID.test(id)) throw new Error(`Invalid domain id: ${id}`);
+	(globalThis as typeof globalThis & LhDomainGlobal).__lhActiveDomain = { id };
+}
+
+/** Root of the active world's mutable records. */
+export function domainDataRoot(): string {
+	const id = activeDomainId();
+	return id ? path.join(/* turbopackIgnore: true */ DATA_ROOT, "domains", id) : DATA_ROOT;
+}
+
 export const PATHS = {
 	root: ROOT,
 	/** Teacher system prompt — the agent's instructions (src/agent/). */
 	teacherPrompt: path.join(ROOT, "src", "agent", "system-prompt.md"),
 	data: DATA_ROOT,
-	/** Chat sessions (AI SDK UIMessage transcripts, one JSON file per chat). */
-	chats: path.join(/* turbopackIgnore: true */ DATA_ROOT, "chats"),
-	graph: path.join(/* turbopackIgnore: true */ DATA_ROOT, "graph"),
+	/** Chat sessions (AI SDK UIMessage transcripts, one JSON file per chat) — per active domain. */
+	get chats(): string {
+		return path.join(/* turbopackIgnore: true */ domainDataRoot(), "chats");
+	},
+	/** Graph ledgers — per active domain. */
+	get graph(): string {
+		return path.join(/* turbopackIgnore: true */ domainDataRoot(), "graph");
+	},
+	/** Background job records — per active domain. */
+	get jobs(): string {
+		return path.join(/* turbopackIgnore: true */ domainDataRoot(), "jobs");
+	},
 	/** Debug artifacts (env-gated): data/debug/provider-events/<chatId>.jsonl
 	 * raw provider stream recordings (src/agent/provider-events.ts). */
 	debug: path.join(/* turbopackIgnore: true */ DATA_ROOT, "debug"),
@@ -64,14 +115,45 @@ export type ModelRole =
  * TRUTH (owner, 2026-09-30): edges are a derived view, never stored.
  */
 export const LEDGER_FILES = {
-	nodes: path.join(/* turbopackIgnore: true */ PATHS.graph, "nodes.jsonl"),
-	chains: path.join(/* turbopackIgnore: true */ PATHS.graph, "chains.jsonl"),
-	sessions: path.join(/* turbopackIgnore: true */ PATHS.graph, "sessions.jsonl"),
+	get nodes(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "nodes.jsonl");
+	},
+	get chains(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "chains.jsonl");
+	},
+	get sessions(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "sessions.jsonl");
+	},
 	/** Per-message extraction coverage (contracts/graph.ts CoverageEntry;
 	 *  the checkpoint's replacement for chat extractions — notes keep
 	 *  sessions.jsonl, whole-file as they are). */
-	coverage: path.join(/* turbopackIgnore: true */ PATHS.graph, "coverage.jsonl"),
-} as const;
+	get coverage(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "coverage.jsonl");
+	},
+};
+
+/**
+ * The graph-family JSON files of the ACTIVE domain, resolved at call time.
+ * The named *_FILE constants below are their boot-time values, kept for
+ * tests and tools that run without an active domain.
+ */
+export const GRAPH_FILES = {
+	get sources(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "sources.json");
+	},
+	get sourceOrganization(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "source-organization.json");
+	},
+	get positions(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "positions.json");
+	},
+	get renderSettings(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "render-settings.json");
+	},
+	get format(): string {
+		return path.join(/* turbopackIgnore: true */ PATHS.graph, "format.json");
+	},
+};
 
 /**
  * Notes-import bookkeeping (NOT a ledger): one JSON map, src-id → NotesSource

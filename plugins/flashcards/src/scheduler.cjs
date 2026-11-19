@@ -214,4 +214,6 @@ function isDue(schedule, now = Date.now(), startHour = 4) {
   return schedule.due <= now;
 }
 
-module.exports = { createSchedule, rate, preview, chooseCue, studyDay, dayBounds, isDue };
+// Legacy FSRS-6 engine. New schedules use FSRS-7 (src/fsrs7.ts); this module keeps
+// rating schedules whose review history is incomplete and owns the study-day calendar.
+module.exports = { createSchedule, rate, preview, chooseCue, studyDay, dayBounds, isDue, reviewDue };

@@ -1,0 +1,2380 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.speaking",
+	"items": [
+		{
+			"id": "en.speaking.a1",
+			"kind": "unit",
+			"parentId": "en.speaking",
+			"order": 0,
+			"title": {
+				"pt": "Fala A1",
+				"en": "Speaking A1"
+			},
+			"summary": "Interações simples sobre si mesmo e necessidades imediatas, com ajuda do interlocutor.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 11,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · A1",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall spoken interaction · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.speaking.a1.greetings",
+			"kind": "topic",
+			"parentId": "en.speaking.a1",
+			"order": 0,
+			"title": {
+				"pt": "Cumprimentos e apresentações",
+				"en": "Greetings and introductions"
+			},
+			"summary": "Cumprimentar, apresentar-se e despedir-se.",
+			"objectives": [
+				"Apresentar-se e apresentar alguém em uma interação curta."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"softPrereqs": [
+				"en.grammar.a1.verb-be"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a1.verb-be",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a1.spelling-aloud",
+			"kind": "topic",
+			"parentId": "en.speaking.a1",
+			"order": 1,
+			"title": {
+				"pt": "Soletrar e ditar dados",
+				"en": "Spelling aloud and giving details"
+			},
+			"summary": "Nomes das letras (a, e, i, g, j, h, r, w, y, z), soletrar nome e sobrenome e ditar e-mail (at, dot, underscore, hyphen) e telefone.",
+			"objectives": [
+				"Soletrar o próprio nome e ditar um e-mail e um telefone sem erro para um ouvinte."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"misconceptions": [
+				"Dar às letras o nome do português: e dito como 'i', i como 'ai', g e j trocados.",
+				"Ditar e-mails sem 'at' e 'dot', lendo os símbolos em português."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"softPrereqs": [
+				"en.listening.a1.alphabet-spelling"
+			],
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Information exchange · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a1.personal-questions",
+			"kind": "topic",
+			"parentId": "en.speaking.a1",
+			"order": 2,
+			"title": {
+				"pt": "Perguntas pessoais",
+				"en": "Personal questions"
+			},
+			"summary": "Perguntar e responder sobre origem, trabalho, família e gostos.",
+			"objectives": [
+				"Manter uma troca de 6+ perguntas e respostas pessoais."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 23
+			},
+			"softPrereqs": [
+				"en.grammar.a1.wh-questions"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a1.wh-questions",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Information exchange · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a1.ordering",
+			"kind": "topic",
+			"parentId": "en.speaking.a1",
+			"order": 3,
+			"title": {
+				"pt": "Pedir comida e comprar",
+				"en": "Ordering and buying"
+			},
+			"summary": "Pedir em cafés e lojas, perguntar preço e pagar.",
+			"objectives": [
+				"Pedir comida e pagar numa lanchonete."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 25
+			},
+			"softPrereqs": [
+				"en.vocab.a1.food-drink"
+			],
+			"encompasses": [
+				{
+					"id": "en.vocab.a1.food-drink",
+					"w": 0.2
+				}
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Obtaining goods and services · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a1.about-me",
+			"kind": "topic",
+			"parentId": "en.speaking.a1",
+			"order": 4,
+			"title": {
+				"pt": "Falar sobre mim",
+				"en": "Talking about myself"
+			},
+			"summary": "Monólogo curto sobre rotina, família e casa.",
+			"objectives": [
+				"Falar 1 min sobre si mesmo com frases simples."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"softPrereqs": [
+				"en.grammar.a1.present-simple"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a1.present-simple",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: describing experience · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a1.clarification",
+			"kind": "topic",
+			"parentId": "en.speaking.a1",
+			"order": 5,
+			"title": {
+				"pt": "Pedir repetição e esclarecimento",
+				"en": "Asking for repetition and clarification"
+			},
+			"summary": "Sorry?, Could you repeat that?, How do you spell…?, What does … mean?",
+			"objectives": [
+				"Pedir repetição, soletração e significado sem travar a conversa."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 28
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Asking for clarification · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a1.numbers-dates-speaking",
+			"kind": "topic",
+			"parentId": "en.speaking.a1",
+			"order": 6,
+			"title": {
+				"pt": "Dizer números, datas e horas",
+				"en": "Saying numbers, dates and times"
+			},
+			"summary": "Telefone, preços, datas e horários em voz alta.",
+			"objectives": [
+				"Dizer datas, horas e telefones sem hesitação."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Information exchange · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2",
+			"kind": "unit",
+			"parentId": "en.speaking",
+			"order": 1,
+			"title": {
+				"pt": "Fala A2",
+				"en": "Speaking A2"
+			},
+			"summary": "Trocas simples e diretas sobre atividades familiares, passado recente e planos.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"softPrereqs": [
+				"en.speaking.a1"
+			],
+			"hours": {
+				"lo": 18,
+				"hi": 26
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · A2",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall spoken interaction · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.speaking.a2.small-talk",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 0,
+			"title": {
+				"pt": "Conversa casual",
+				"en": "Small talk"
+			},
+			"summary": "Clima, fim de semana, trabalho: abrir e manter conversa curta.",
+			"objectives": [
+				"Manter 2–3 min de conversa casual com perguntas de retorno."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2.services",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 1,
+			"title": {
+				"pt": "Lojas e serviços",
+				"en": "Shops and services"
+			},
+			"summary": "Trocar produto, marcar horário, resolver pequenos problemas.",
+			"objectives": [
+				"Resolver uma troca ou reclamação simples numa loja."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Obtaining goods and services · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2.past-events",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 2,
+			"title": {
+				"pt": "Contar o que aconteceu",
+				"en": "Telling what happened"
+			},
+			"summary": "Narrar fim de semana, viagem ou evento com sequência temporal.",
+			"objectives": [
+				"Narrar um acontecimento em 1–2 min com marcadores de sequência."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 33
+			},
+			"softPrereqs": [
+				"en.grammar.a2.past-simple-irregular"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a2.past-simple-irregular",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: describing experience · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2.plans",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 3,
+			"title": {
+				"pt": "Planos e combinados",
+				"en": "Plans and arrangements"
+			},
+			"summary": "Combinar encontros, sugerir, aceitar e recusar convites.",
+			"objectives": [
+				"Combinar um encontro negociando dia, hora e lugar."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"softPrereqs": [
+				"en.grammar.a2.going-to"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a2.going-to",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Information exchange · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2.giving-directions",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 4,
+			"title": {
+				"pt": "Dar direções",
+				"en": "Giving directions"
+			},
+			"summary": "Explicar caminhos e localização de lugares.",
+			"objectives": [
+				"Explicar o caminho entre dois pontos de um mapa."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: giving information · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2.preferences",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 5,
+			"title": {
+				"pt": "Gostos e preferências",
+				"en": "Likes and preferences"
+			},
+			"summary": "Comparar opções e justificar preferências.",
+			"objectives": [
+				"Comparar duas opções e justificar a escolha."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"softPrereqs": [
+				"en.grammar.a2.comparatives"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.a2.comparatives",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Informal discussion · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2.simple-calls",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 6,
+			"title": {
+				"pt": "Ligações simples",
+				"en": "Simple phone calls"
+			},
+			"summary": "Ligar para marcar, confirmar ou cancelar algo.",
+			"objectives": [
+				"Marcar ou cancelar um horário por telefone."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Using telecommunications · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.a2.mini-presentation",
+			"kind": "topic",
+			"parentId": "en.speaking.a2",
+			"order": 7,
+			"title": {
+				"pt": "Mini apresentação",
+				"en": "Mini presentation"
+			},
+			"summary": "Apresentação ensaiada de 2 min sobre tema conhecido.",
+			"objectives": [
+				"Fazer uma apresentação ensaiada de 2 min e responder 1 pergunta simples."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Addressing audiences · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1",
+			"kind": "unit",
+			"parentId": "en.speaking",
+			"order": 2,
+			"title": {
+				"pt": "Fala B1",
+				"en": "Speaking B1"
+			},
+			"summary": "Lidar com a maioria das situações de viagem, narrar experiências e dar opiniões com justificativas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"softPrereqs": [
+				"en.speaking.a2"
+			],
+			"hours": {
+				"lo": 21.5,
+				"hi": 29.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · B1",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall spoken interaction · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.speaking.b1.experiences",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 0,
+			"title": {
+				"pt": "Narrar experiências",
+				"en": "Narrating experiences"
+			},
+			"summary": "Histórias pessoais com detalhes, sentimentos e reações.",
+			"objectives": [
+				"Contar uma história pessoal de 3 min com começo, meio e fim."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"softPrereqs": [
+				"en.grammar.b1.perfect-vs-past"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.b1.perfect-vs-past",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: describing experience · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1.opinions",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 1,
+			"title": {
+				"pt": "Dar e justificar opiniões",
+				"en": "Giving and justifying opinions"
+			},
+			"summary": "Concordar, discordar e justificar com exemplos.",
+			"objectives": [
+				"Defender uma opinião com 2 razões e 1 exemplo."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 45
+			},
+			"softPrereqs": [
+				"en.vocab.b1.opinion-language"
+			],
+			"encompasses": [
+				{
+					"id": "en.vocab.b1.opinion-language",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Informal discussion · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1.complaints",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 2,
+			"title": {
+				"pt": "Problemas e reclamações",
+				"en": "Problems and complaints"
+			},
+			"summary": "Reclamar de serviço, explicar problema e pedir solução.",
+			"objectives": [
+				"Fazer uma reclamação clara e negociar uma solução."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 47
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Obtaining goods and services · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1.travel",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 3,
+			"title": {
+				"pt": "Situações de viagem",
+				"en": "Travel situations"
+			},
+			"summary": "Imprevistos em aeroporto, hotel e transporte.",
+			"objectives": [
+				"Resolver um imprevisto de viagem por conta própria."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 49
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Obtaining goods and services · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1.job-interview-1",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 4,
+			"title": {
+				"pt": "Entrevista de emprego (básica)",
+				"en": "Job interview (basic)"
+			},
+			"summary": "Falar de formação, experiência e motivação.",
+			"objectives": [
+				"Responder às 8 perguntas mais comuns de entrevista."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Interviewing and being interviewed · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1.processes",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 5,
+			"title": {
+				"pt": "Explicar como algo funciona",
+				"en": "Explaining how something works"
+			},
+			"summary": "Descrever passos de um processo ou funcionamento de um aparelho.",
+			"objectives": [
+				"Explicar um processo de 5+ etapas com sequenciadores."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"softPrereqs": [
+				"en.grammar.b1.passive-basic"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.b1.passive-basic",
+					"w": 0.2
+				}
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: giving information · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1.group-chat",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 6,
+			"title": {
+				"pt": "Discussão informal em grupo",
+				"en": "Informal group discussion"
+			},
+			"summary": "Participar de conversas entre amigos sobre temas gerais.",
+			"objectives": [
+				"Entrar na conversa, opinar e reagir em grupo."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Informal discussion · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b1.circumlocution",
+			"kind": "topic",
+			"parentId": "en.speaking.b1",
+			"order": 7,
+			"title": {
+				"pt": "Contornar palavras que faltam",
+				"en": "Circumlocution"
+			},
+			"summary": "Parafrasear, descrever e usar palavras genéricas quando falta vocabulário.",
+			"objectives": [
+				"Descrever um objeto sem saber seu nome para que o outro o identifique."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Compensating · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2",
+			"kind": "unit",
+			"parentId": "en.speaking",
+			"order": 3,
+			"title": {
+				"pt": "Fala B2",
+				"en": "Speaking B2"
+			},
+			"summary": "Interação fluente e espontânea com nativos, argumentação clara e apresentações estruturadas.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.speaking.b1"
+			],
+			"hours": {
+				"lo": 25.5,
+				"hi": 34.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · B2",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall spoken interaction · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.speaking.b2.argue",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 0,
+			"title": {
+				"pt": "Argumentar um ponto de vista",
+				"en": "Arguing a viewpoint"
+			},
+			"summary": "Vantagens, desvantagens, concessão e refutação.",
+			"objectives": [
+				"Desenvolver um argumento com concessão e refutação por 3 min."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"softPrereqs": [
+				"en.grammar.b2.contrast-linkers"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.b2.contrast-linkers",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: putting a case · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.meetings",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 1,
+			"title": {
+				"pt": "Reuniões de trabalho",
+				"en": "Work meetings"
+			},
+			"summary": "Propor, interromper com educação, resumir e acordar ações.",
+			"objectives": [
+				"Participar de uma reunião propondo e defendendo uma solução."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 61
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Formal discussion (meetings) · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.negotiation",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 2,
+			"title": {
+				"pt": "Negociação",
+				"en": "Negotiation"
+			},
+			"summary": "Propostas, concessões e fechamento de acordo.",
+			"objectives": [
+				"Negociar prazo e escopo chegando a um acordo."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 63
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Goal-oriented co-operation · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.presentations",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 3,
+			"title": {
+				"pt": "Apresentações estruturadas",
+				"en": "Structured presentations"
+			},
+			"summary": "Abertura, sinalização, transições e conclusão.",
+			"objectives": [
+				"Fazer uma apresentação de 10 min com estrutura sinalizada."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"softPrereqs": [
+				"en.pron.intonation.thought-groups"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Addressing audiences · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.job-interview-2",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 4,
+			"title": {
+				"pt": "Entrevista de emprego (avançada)",
+				"en": "Job interview (advanced)"
+			},
+			"summary": "Perguntas comportamentais (STAR), técnicas e de negociação salarial.",
+			"objectives": [
+				"Responder perguntas comportamentais com o método STAR."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.speaking.b1.job-interview-1"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Interviewing and being interviewed · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.explain-technical",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 5,
+			"title": {
+				"pt": "Explicar temas técnicos",
+				"en": "Explaining technical topics"
+			},
+			"summary": "Explicar um conceito técnico a leigos e a especialistas.",
+			"objectives": [
+				"Explicar um conceito de eletrônica em dois níveis de profundidade."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: giving information · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.remote-calls",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 6,
+			"title": {
+				"pt": "Chamadas de vídeo e remotas",
+				"en": "Video and remote calls"
+			},
+			"summary": "Problemas de conexão, pausas, compartilhamento de tela.",
+			"objectives": [
+				"Conduzir uma chamada de vídeo resolvendo falhas de comunicação."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 71
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Using telecommunications · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.turn-taking",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 7,
+			"title": {
+				"pt": "Tomar e ceder o turno",
+				"en": "Turn-taking"
+			},
+			"summary": "Entrar, segurar e passar a vez em conversas rápidas.",
+			"objectives": [
+				"Usar 6+ expressões para tomar, manter e ceder o turno."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 73
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Taking the turn · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.b2.hypotheticals",
+			"kind": "topic",
+			"parentId": "en.speaking.b2",
+			"order": 8,
+			"title": {
+				"pt": "Discutir hipóteses",
+				"en": "Discussing hypotheticals"
+			},
+			"summary": "Cenários, previsões e alternativas ('what if').",
+			"objectives": [
+				"Discutir cenários hipotéticos com condicionais variadas."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"softPrereqs": [
+				"en.grammar.b2.mixed-conditionals"
+			],
+			"encompasses": [
+				{
+					"id": "en.grammar.b2.mixed-conditionals",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Informal discussion · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c1",
+			"kind": "unit",
+			"parentId": "en.speaking",
+			"order": 4,
+			"title": {
+				"pt": "Fala C1",
+				"en": "Speaking C1"
+			},
+			"summary": "Expressão fluente, espontânea e flexível em contextos sociais, acadêmicos e profissionais.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.speaking.b2"
+			],
+			"hours": {
+				"lo": 19.5,
+				"hi": 26.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · C1",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall spoken interaction · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.speaking.c1.spontaneous",
+			"kind": "topic",
+			"parentId": "en.speaking.c1",
+			"order": 0,
+			"title": {
+				"pt": "Fluência espontânea",
+				"en": "Spontaneous fluency"
+			},
+			"summary": "Falar sem busca visível de expressões sobre temas complexos.",
+			"objectives": [
+				"Discorrer 5 min sobre tema complexo sem preparo, com poucas pausas."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c1.complex-presentations",
+			"kind": "topic",
+			"parentId": "en.speaking.c1",
+			"order": 1,
+			"title": {
+				"pt": "Apresentações complexas",
+				"en": "Complex presentations"
+			},
+			"summary": "Apresentar temas complexos com subtemas, exemplos e conclusão.",
+			"objectives": [
+				"Fazer apresentação de 20 min sobre tema técnico complexo."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 77
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Addressing audiences · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c1.persuasion",
+			"kind": "topic",
+			"parentId": "en.speaking.c1",
+			"order": 2,
+			"title": {
+				"pt": "Persuasão",
+				"en": "Persuasion"
+			},
+			"summary": "Técnicas retóricas, evidência e apelo ao público.",
+			"objectives": [
+				"Convencer um público cético com evidência e retórica."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: putting a case · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c1.handling-qa",
+			"kind": "topic",
+			"parentId": "en.speaking.c1",
+			"order": 3,
+			"title": {
+				"pt": "Responder perguntas difíceis",
+				"en": "Handling difficult questions"
+			},
+			"summary": "Perguntas hostis, fora do tema ou que você não sabe responder.",
+			"objectives": [
+				"Responder perguntas difíceis com fluidez e honestidade."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Addressing audiences · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c1.storytelling",
+			"kind": "topic",
+			"parentId": "en.speaking.c1",
+			"order": 4,
+			"title": {
+				"pt": "Contar histórias com impacto",
+				"en": "Engaging storytelling"
+			},
+			"summary": "Narrativa com suspense, detalhe e ritmo.",
+			"objectives": [
+				"Contar uma anedota envolvente para um grupo."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: describing experience · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c1.networking",
+			"kind": "topic",
+			"parentId": "en.speaking.c1",
+			"order": 5,
+			"title": {
+				"pt": "Networking e conversa social",
+				"en": "Networking"
+			},
+			"summary": "Conferências, eventos e apresentações pessoais curtas (elevator pitch).",
+			"objectives": [
+				"Iniciar e encerrar conversas em eventos profissionais."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 83
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Conversation · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c1.being-interviewed",
+			"kind": "topic",
+			"parentId": "en.speaking.c1",
+			"order": 6,
+			"title": {
+				"pt": "Ser entrevistado",
+				"en": "Being interviewed"
+			},
+			"summary": "Entrevistas para mídia, podcasts ou banca.",
+			"objectives": [
+				"Responder entrevistas longas com respostas desenvolvidas."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Interviewing and being interviewed · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c2",
+			"kind": "unit",
+			"parentId": "en.speaking",
+			"order": 5,
+			"title": {
+				"pt": "Fala C2",
+				"en": "Speaking C2"
+			},
+			"summary": "Precisão de sentido, nuance e domínio retórico em qualquer situação.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"softPrereqs": [
+				"en.speaking.c1"
+			],
+			"hours": {
+				"lo": 13,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · C2",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall spoken interaction · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.speaking.c2.nuance",
+			"kind": "topic",
+			"parentId": "en.speaking.c2",
+			"order": 0,
+			"title": {
+				"pt": "Precisão e nuance",
+				"en": "Precision and nuance"
+			},
+			"summary": "Distinguir graus finos de sentido com modificadores e modalidade.",
+			"objectives": [
+				"Expressar graus finos de certeza, atitude e ênfase."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 85
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c2.rhetoric",
+			"kind": "topic",
+			"parentId": "en.speaking.c2",
+			"order": 1,
+			"title": {
+				"pt": "Retórica",
+				"en": "Rhetoric"
+			},
+			"summary": "Paralelismo, tríades, perguntas retóricas e ênfase.",
+			"objectives": [
+				"Usar recursos retóricos de forma natural num discurso."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 86
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Addressing audiences · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c2.impromptu",
+			"kind": "topic",
+			"parentId": "en.speaking.c2",
+			"order": 2,
+			"title": {
+				"pt": "Discurso de improviso",
+				"en": "Impromptu speeches"
+			},
+			"summary": "Falar bem estruturado sem preparo prévio.",
+			"objectives": [
+				"Fazer um discurso de 3 min de improviso com estrutura clara."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Addressing audiences · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c2.advanced-debate",
+			"kind": "topic",
+			"parentId": "en.speaking.c2",
+			"order": 3,
+			"title": {
+				"pt": "Debate avançado",
+				"en": "Advanced debate"
+			},
+			"summary": "Refutar com precisão e reformular argumentos do oponente.",
+			"objectives": [
+				"Refutar argumentos complexos em tempo real."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 89
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: putting a case · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking.c2.teaching",
+			"kind": "topic",
+			"parentId": "en.speaking.c2",
+			"order": 4,
+			"title": {
+				"pt": "Ensinar e explicar",
+				"en": "Teaching and explaining"
+			},
+			"summary": "Explicar temas complexos adaptando-se ao público em tempo real.",
+			"objectives": [
+				"Ensinar um conceito técnico a um público misto."
+			],
+			"assess": [
+				"role_play_rubric",
+				"recorded_monologue",
+				"task_completion"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 90
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sustained monologue: giving information · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Speaking · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "en.speaking.b1.circumlocution",
+			"to": "en.pragmatics.mediation.paraphrase",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "gse-lo-adult",
+			"title": "Global Scale of English Learning Objectives — Adult (Pearson, 2022)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE aproximadas como referência de nível",
+			"usage": "reference"
+		},
+		{
+			"id": "nation-four-strands",
+			"title": "Nation (2007), The four strands; Nation & Newton — ensino de L2",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		}
+	]
+}

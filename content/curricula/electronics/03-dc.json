@@ -1,0 +1,2304 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.dc",
+	"items": [
+		{
+			"id": "ee.dc.basics",
+			"kind": "unit",
+			"parentId": "ee.dc",
+			"order": 0,
+			"title": {
+				"pt": "Grandezas e componentes básicos",
+				"en": "Quantities and basic components"
+			},
+			"summary": "Tensão, corrente e potência em circuitos, a lei de Ohm, resistores reais, fontes e leitura de esquemáticos.",
+			"scope": "Dentro: grandezas de circuito, lei de Ohm, resistores, fontes ideais e reais, esquemáticos. Fora: análise de redes com várias malhas.",
+			"objectives": [
+				"Aplicar a convenção passiva de sinais",
+				"Usar a lei de Ohm e a potência para dimensionar resistores"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "1",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.basics.quantities",
+			"kind": "topic",
+			"parentId": "ee.dc.basics",
+			"order": 0,
+			"title": {
+				"pt": "Tensão, corrente, potência e convenção passiva",
+				"en": "Voltage, current, power and passive sign convention"
+			},
+			"summary": "Variáveis de circuito, sentidos de referência e a convenção passiva para decidir se um elemento absorve ou fornece potência.",
+			"scope": "Dentro: tensão, corrente, potência, convenção passiva, modelo de parâmetros concentrados. Fora: campos distribuídos.",
+			"objectives": [
+				"Aplicar a convenção passiva para decidir se um elemento absorve ou fornece potência",
+				"Explicar a abstração de parâmetros concentrados"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que o sentido de referência escolhido precisa coincidir com o sentido real da corrente"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.physics.current.energy-power-physics"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "1",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.basics.ohms-law",
+			"kind": "topic",
+			"parentId": "ee.dc.basics",
+			"order": 1,
+			"title": {
+				"pt": "Lei de Ohm",
+				"en": "Ohm's law"
+			},
+			"summary": "Relação V = RI para resistores lineares, condutância e curvas I–V de elementos ôhmicos e não ôhmicos.",
+			"scope": "Dentro: V = RI, condutância, curva I–V, curto-circuito e circuito aberto. Fora: elementos não lineares em detalhe.",
+			"objectives": [
+				"Aplicar V = RI para calcular tensão, corrente ou resistência",
+				"Distinguir curto-circuito de circuito aberto pela curva I–V"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que um curto-circuito tem tensão alta",
+				"Aplicar V = RI a um diodo como se fosse resistor"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.quantities",
+					"ee.physics.current.resistivity"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "1",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.basics.resistors-practical",
+			"kind": "topic",
+			"parentId": "ee.dc.basics",
+			"order": 2,
+			"title": {
+				"pt": "Resistores reais: código de cores, tolerância e potência",
+				"en": "Real resistors: colour code, tolerance and power rating"
+			},
+			"summary": "Séries E, código de cores e SMD, tolerância, coeficiente de temperatura e potência nominal.",
+			"scope": "Dentro: séries E12/E24/E96, código de cores, marcação SMD, tolerância, potência nominal. Fora: ruído de resistores.",
+			"objectives": [
+				"Ler o valor de resistores pelo código de cores e pela marcação SMD",
+				"Selecionar a potência nominal adequada com margem"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.ohms-law"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "1",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.dc.basics.sources",
+			"kind": "topic",
+			"parentId": "ee.dc.basics",
+			"order": 3,
+			"title": {
+				"pt": "Fontes ideais e reais de tensão e corrente",
+				"en": "Ideal and real voltage and current sources"
+			},
+			"summary": "Fontes independentes ideais, resistência interna, curva I–V de fontes reais e limites de operação.",
+			"scope": "Dentro: fontes ideais de tensão e corrente, resistência interna, curva I–V. Fora: fontes dependentes.",
+			"objectives": [
+				"Modelar uma fonte real por fonte ideal e resistência interna",
+				"Prever a tensão terminal de uma fonte real sob carga"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que uma fonte de corrente ideal em aberto é inofensiva"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.ohms-law"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "1",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.basics.schematics",
+			"kind": "topic",
+			"parentId": "ee.dc.basics",
+			"order": 4,
+			"title": {
+				"pt": "Leitura de esquemáticos e símbolos",
+				"en": "Reading schematics and symbols"
+			},
+			"summary": "Símbolos IEC e ANSI, nós, terra, referências e convenções de desenho de esquemáticos.",
+			"scope": "Dentro: símbolos, nós, terra, rótulos de rede, convenções de desenho. Fora: layout de PCB.",
+			"objectives": [
+				"Identificar nós e componentes em um esquemático",
+				"Redesenhar um circuito para evidenciar ligações série e paralelo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que fios desenhados longos têm resistência"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.quantities"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "1",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.basics.power-energy-dc",
+			"kind": "topic",
+			"parentId": "ee.dc.basics",
+			"order": 5,
+			"title": {
+				"pt": "Potência, energia e eficiência em CC",
+				"en": "Power, energy and efficiency in DC"
+			},
+			"summary": "Balanço de potência, P = VI = RI² = V²/R, energia, rendimento e consumo de dispositivos.",
+			"scope": "Dentro: balanço de potência, formas de P, eficiência, energia em Wh. Fora: potência em CA.",
+			"objectives": [
+				"Verificar o balanço de potência de um circuito",
+				"Calcular a eficiência de um sistema simples fonte-carga"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.sources"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "1",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.laws",
+			"kind": "unit",
+			"parentId": "ee.dc",
+			"order": 1,
+			"title": {
+				"pt": "Leis de Kirchhoff e associações",
+				"en": "Kirchhoff's laws and combinations"
+			},
+			"summary": "Conservação de carga e de energia nos nós e malhas, associações de resistores e divisores.",
+			"scope": "Dentro: LKC, LKT, série-paralelo, divisores, efeito de carga, estrela-triângulo. Fora: métodos sistemáticos.",
+			"objectives": [
+				"Aplicar LKC e LKT a circuitos com várias malhas",
+				"Usar divisores e associações para simplificar circuitos"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.ohms-law",
+					"ee.dc.basics.schematics"
+				]
+			],
+			"hours": {
+				"lo": 13,
+				"hi": 19
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.laws.kcl",
+			"kind": "topic",
+			"parentId": "ee.dc.laws",
+			"order": 0,
+			"title": {
+				"pt": "Lei das correntes de Kirchhoff (LKC)",
+				"en": "Kirchhoff's current law (KCL)"
+			},
+			"summary": "Conservação de carga em nós e superfícies fechadas.",
+			"scope": "Dentro: LKC em nós e supernós, consequências para associação em série. Fora: análise nodal sistemática.",
+			"objectives": [
+				"Aplicar a LKC para encontrar correntes desconhecidas em um nó",
+				"Aplicar a LKC a uma superfície fechada contendo vários elementos"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Somar correntes sem respeitar os sentidos de referência"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.laws.kvl",
+			"kind": "topic",
+			"parentId": "ee.dc.laws",
+			"order": 1,
+			"title": {
+				"pt": "Lei das tensões de Kirchhoff (LKT)",
+				"en": "Kirchhoff's voltage law (KVL)"
+			},
+			"summary": "Conservação de energia em percursos fechados; somatório de quedas e elevações de tensão.",
+			"scope": "Dentro: LKT em malhas e laços, consequências para associação em paralelo. Fora: análise de malhas sistemática.",
+			"objectives": [
+				"Aplicar a LKT em um laço respeitando polaridades",
+				"Calcular tensões desconhecidas usando a LKT"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Misturar quedas e elevações de tensão com sinais inconsistentes"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.laws.series-parallel",
+			"kind": "topic",
+			"parentId": "ee.dc.laws",
+			"order": 2,
+			"title": {
+				"pt": "Associação série-paralelo e resistência equivalente",
+				"en": "Series-parallel combinations and equivalent resistance"
+			},
+			"summary": "Identificação de ligações série e paralelo e redução de redes à resistência equivalente.",
+			"scope": "Dentro: série, paralelo, combinação mista, resistência equivalente. Fora: pontes não balanceadas.",
+			"objectives": [
+				"Calcular a resistência equivalente de redes série-paralelo",
+				"Identificar quando dois elementos não estão nem em série nem em paralelo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Considerar em série elementos que compartilham só um nó mas têm uma derivação nele"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.kcl",
+					"ee.dc.laws.kvl"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.laws.dividers",
+			"kind": "topic",
+			"parentId": "ee.dc.laws",
+			"order": 3,
+			"title": {
+				"pt": "Divisores de tensão e de corrente",
+				"en": "Voltage and current dividers"
+			},
+			"summary": "Fórmulas de divisor de tensão e de corrente e suas condições de validade.",
+			"scope": "Dentro: divisor de tensão, divisor de corrente, condições de validade. Fora: efeito de carga.",
+			"objectives": [
+				"Aplicar o divisor de tensão e de corrente corretamente",
+				"Projetar um divisor para obter uma tensão desejada"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.series-parallel"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.laws.loading",
+			"kind": "topic",
+			"parentId": "ee.dc.laws",
+			"order": 4,
+			"title": {
+				"pt": "Efeito de carga",
+				"en": "Loading effect"
+			},
+			"summary": "Como conectar uma carga altera tensões de um divisor e a regra prática de impedâncias 10:1.",
+			"scope": "Dentro: carga em divisores, regra 10:1, impedância de entrada e saída intuitivas. Fora: casamento de impedâncias em RF.",
+			"objectives": [
+				"Calcular a variação de tensão de um divisor ao conectar uma carga",
+				"Avaliar se uma carga pode ser desprezada pela regra 10:1"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.dividers"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.laws.wye-delta",
+			"kind": "topic",
+			"parentId": "ee.dc.laws",
+			"order": 5,
+			"title": {
+				"pt": "Transformação estrela-triângulo e ponte de Wheatstone",
+				"en": "Wye-delta transformation and Wheatstone bridge"
+			},
+			"summary": "Conversão Y-Δ para redes não redutíveis por série-paralelo e condição de equilíbrio da ponte.",
+			"scope": "Dentro: transformação Y-Δ, ponte de Wheatstone, equilíbrio. Fora: pontes de CA.",
+			"objectives": [
+				"Converter redes estrela em triângulo e vice-versa",
+				"Calcular a condição de equilíbrio de uma ponte de Wheatstone"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.series-parallel"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.methods",
+			"kind": "unit",
+			"parentId": "ee.dc",
+			"order": 2,
+			"title": {
+				"pt": "Métodos sistemáticos de análise",
+				"en": "Systematic analysis methods"
+			},
+			"summary": "Análise nodal e de malhas, casos especiais, fontes dependentes e formulação matricial usada por simuladores.",
+			"scope": "Dentro: nodal, malhas, supernó, supermalha, fontes dependentes, formulação matricial. Fora: regime senoidal.",
+			"objectives": [
+				"Escrever e resolver equações nodais e de malha para qualquer circuito linear",
+				"Tratar fontes dependentes em análise sistemática"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 14,
+				"hi": 19
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.methods.nodal",
+			"kind": "topic",
+			"parentId": "ee.dc.methods",
+			"order": 0,
+			"title": {
+				"pt": "Análise nodal",
+				"en": "Nodal analysis"
+			},
+			"summary": "Escolha do nó de referência, equações de LKC em termos das tensões nodais e solução do sistema.",
+			"scope": "Dentro: nodal com fontes de corrente e de tensão aterradas. Fora: supernó.",
+			"objectives": [
+				"Escrever as equações nodais de um circuito resistivo",
+				"Resolver o sistema de equações nodais e obter correntes de ramo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.kcl",
+					"ee.dc.basics.sources"
+				]
+			],
+			"softPrereqs": [
+				"ee.math.linalg.matrices"
+			],
+			"encompasses": [
+				{
+					"id": "ee.dc.laws.kcl",
+					"w": 0.5
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.methods.mesh",
+			"kind": "topic",
+			"parentId": "ee.dc.methods",
+			"order": 1,
+			"title": {
+				"pt": "Análise de malhas",
+				"en": "Mesh analysis"
+			},
+			"summary": "Correntes de malha em circuitos planares e equações de LKT.",
+			"scope": "Dentro: malhas em circuitos planares com fontes de tensão. Fora: circuitos não planares.",
+			"objectives": [
+				"Escrever as equações de malha de um circuito planar",
+				"Escolher entre nodal e malhas conforme o circuito"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.kvl",
+					"ee.dc.basics.sources"
+				]
+			],
+			"softPrereqs": [
+				"ee.math.linalg.matrices"
+			],
+			"encompasses": [
+				{
+					"id": "ee.dc.laws.kvl",
+					"w": 0.5
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.methods.supernode-supermesh",
+			"kind": "topic",
+			"parentId": "ee.dc.methods",
+			"order": 2,
+			"title": {
+				"pt": "Supernó e supermalha",
+				"en": "Supernode and supermesh"
+			},
+			"summary": "Tratamento de fontes de tensão flutuantes na análise nodal e de fontes de corrente compartilhadas na de malhas.",
+			"scope": "Dentro: supernó, supermalha, equações de restrição. Fora: fontes dependentes.",
+			"objectives": [
+				"Aplicar o supernó a fontes de tensão entre dois nós não aterrados",
+				"Aplicar a supermalha a fontes de corrente compartilhadas"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.methods.nodal",
+					"ee.dc.methods.mesh"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.methods.dependent-sources",
+			"kind": "topic",
+			"parentId": "ee.dc.methods",
+			"order": 3,
+			"title": {
+				"pt": "Fontes dependentes",
+				"en": "Dependent sources"
+			},
+			"summary": "As quatro fontes controladas (VCVS, VCCS, CCVS, CCCS) e sua inclusão em equações de circuito.",
+			"scope": "Dentro: quatro tipos de fonte controlada, equações de restrição, modelos de amplificadores. Fora: modelos de transistores.",
+			"objectives": [
+				"Incluir fontes dependentes nas equações nodais",
+				"Explicar por que fontes dependentes modelam amplificadores"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Desativar uma fonte dependente como se fosse independente"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.methods.nodal"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.methods.matrix-formulation",
+			"kind": "topic",
+			"parentId": "ee.dc.methods",
+			"order": 4,
+			"title": {
+				"pt": "Formulação matricial (MNA) e solução numérica",
+				"en": "Matrix formulation (MNA) and numerical solution"
+			},
+			"summary": "Montagem sistemática da matriz de condutância e da análise nodal modificada; solução em Python.",
+			"scope": "Dentro: estampas de elementos, MNA, solução numérica. Fora: métodos de matrizes esparsas.",
+			"objectives": [
+				"Montar a matriz MNA de um circuito com fontes de tensão",
+				"Resolver um circuito numericamente em Python"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.dc.methods.supernode-supermesh",
+					"ee.dc.methods.dependent-sources",
+					"ee.math.numerical.python-numpy",
+					"ee.math.linalg.linear-systems"
+				]
+			],
+			"softPrereqs": [
+				"ee.math.discrete.graphs"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.theorems",
+			"kind": "unit",
+			"parentId": "ee.dc",
+			"order": 3,
+			"title": {
+				"pt": "Teoremas de rede",
+				"en": "Network theorems"
+			},
+			"summary": "Linearidade e superposição, equivalentes de Thévenin e Norton e máxima transferência de potência.",
+			"scope": "Dentro: superposição, Thévenin, Norton, transformação de fontes, máxima transferência de potência. Fora: teoremas de reciprocidade e Tellegen.",
+			"objectives": [
+				"Reduzir uma rede linear a seu equivalente de Thévenin ou Norton",
+				"Usar superposição para analisar circuitos com várias fontes"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.theorems.linearity-superposition",
+			"kind": "topic",
+			"parentId": "ee.dc.theorems",
+			"order": 0,
+			"title": {
+				"pt": "Linearidade e superposição",
+				"en": "Linearity and superposition"
+			},
+			"summary": "Propriedade de linearidade e soma das respostas a cada fonte independente isoladamente.",
+			"scope": "Dentro: homogeneidade, aditividade, superposição com fontes independentes. Fora: potência não superpõe.",
+			"objectives": [
+				"Aplicar superposição em circuitos com várias fontes independentes",
+				"Explicar por que a potência não obedece à superposição"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Somar potências calculadas para cada fonte",
+				"Desligar fonte de tensão como circuito aberto"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.methods.nodal"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.theorems.thevenin",
+			"kind": "topic",
+			"parentId": "ee.dc.theorems",
+			"order": 1,
+			"title": {
+				"pt": "Equivalente de Thévenin",
+				"en": "Thévenin equivalent"
+			},
+			"summary": "Tensão de circuito aberto e resistência equivalente vistas de dois terminais.",
+			"scope": "Dentro: Thévenin com fontes independentes, medição de V_th e R_th. Fora: fontes dependentes.",
+			"objectives": [
+				"Calcular o equivalente de Thévenin de uma rede resistiva",
+				"Usar o equivalente para analisar cargas diferentes rapidamente"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.theorems.linearity-superposition",
+					"ee.dc.laws.series-parallel"
+				]
+			],
+			"encompasses": [
+				{
+					"id": "ee.dc.laws.series-parallel",
+					"w": 0.3
+				}
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.theorems.norton",
+			"kind": "topic",
+			"parentId": "ee.dc.theorems",
+			"order": 2,
+			"title": {
+				"pt": "Equivalente de Norton e transformação de fontes",
+				"en": "Norton equivalent and source transformation"
+			},
+			"summary": "Corrente de curto-circuito, relação Thévenin-Norton e transformação de fontes como técnica de simplificação.",
+			"scope": "Dentro: Norton, equivalência Thévenin-Norton, transformação de fontes. Fora: redes não lineares.",
+			"objectives": [
+				"Converter entre equivalentes de Thévenin e de Norton",
+				"Simplificar um circuito usando transformações de fonte sucessivas"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.theorems.thevenin"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.theorems.max-power",
+			"kind": "topic",
+			"parentId": "ee.dc.theorems",
+			"order": 3,
+			"title": {
+				"pt": "Máxima transferência de potência",
+				"en": "Maximum power transfer"
+			},
+			"summary": "Condição R_L = R_th, eficiência nessa condição e quando a máxima transferência não é desejável.",
+			"scope": "Dentro: condição de máxima transferência, eficiência de 50%. Fora: casamento conjugado em CA.",
+			"objectives": [
+				"Calcular a carga que recebe máxima potência",
+				"Explicar por que fontes de energia não operam em máxima transferência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que máxima transferência de potência significa máxima eficiência"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.theorems.thevenin"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.theorems.thevenin-dependent",
+			"kind": "topic",
+			"parentId": "ee.dc.theorems",
+			"order": 4,
+			"title": {
+				"pt": "Thévenin com fontes dependentes e fonte de teste",
+				"en": "Thévenin with dependent sources and test source"
+			},
+			"summary": "Cálculo de R_th com fonte de teste quando há fontes dependentes; resistências negativas aparentes.",
+			"scope": "Dentro: fonte de teste, R_th com fontes controladas, resistência negativa. Fora: modelos de transistores.",
+			"objectives": [
+				"Calcular R_th com uma fonte de teste em circuitos com fontes dependentes",
+				"Interpretar uma resistência equivalente negativa"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.theorems.thevenin",
+					"ee.dc.methods.dependent-sources"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.nonlinear",
+			"kind": "unit",
+			"parentId": "ee.dc",
+			"order": 4,
+			"title": {
+				"pt": "Elementos não lineares e abstração digital",
+				"en": "Nonlinear elements and the digital abstraction"
+			},
+			"summary": "Análise gráfica com reta de carga, linearização incremental e a abstração digital com chaves ideais.",
+			"scope": "Dentro: reta de carga, análise incremental, chaves ideais, níveis lógicos. Fora: modelos físicos de dispositivos.",
+			"objectives": [
+				"Encontrar o ponto de operação de um elemento não linear graficamente",
+				"Linearizar um circuito em torno do ponto de operação"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 8,
+				"hi": 11
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:nonlinear-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.nonlinear.nonlinear-graphical",
+			"kind": "topic",
+			"parentId": "ee.dc.nonlinear",
+			"order": 0,
+			"title": {
+				"pt": "Análise gráfica e reta de carga",
+				"en": "Graphical analysis and load line"
+			},
+			"summary": "Interseção da curva I–V do elemento com a reta de carga do restante do circuito para obter o ponto de operação.",
+			"scope": "Dentro: reta de carga, ponto de operação, solução iterativa simples. Fora: modelos de diodos e transistores.",
+			"objectives": [
+				"Traçar a reta de carga e encontrar o ponto de operação",
+				"Resolver iterativamente um circuito com um elemento não linear"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.theorems.thevenin"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:nonlinear-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.nonlinear.incremental",
+			"kind": "topic",
+			"parentId": "ee.dc.nonlinear",
+			"order": 1,
+			"title": {
+				"pt": "Análise incremental (pequenos sinais)",
+				"en": "Incremental (small-signal) analysis"
+			},
+			"summary": "Linearização em torno do ponto de operação: resistência incremental e circuito de pequenos sinais.",
+			"scope": "Dentro: resistência incremental, superposição de DC e pequenos sinais, validade da aproximação. Fora: modelos de transistores.",
+			"objectives": [
+				"Calcular a resistência incremental de um elemento no ponto de operação",
+				"Separar o circuito em análise de polarização e de pequenos sinais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Usar o modelo de pequenos sinais para excursões grandes"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.dc.nonlinear.nonlinear-graphical",
+					"ee.math.calc.derivative-apps"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:nonlinear-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.nonlinear.switches-digital-abstraction",
+			"kind": "topic",
+			"parentId": "ee.dc.nonlinear",
+			"order": 2,
+			"title": {
+				"pt": "Chaves ideais e abstração digital",
+				"en": "Ideal switches and the digital abstraction"
+			},
+			"summary": "Chaves controladas, níveis lógicos, margens de ruído e por que discretizar valores torna circuitos robustos.",
+			"scope": "Dentro: chaves ideais, níveis lógicos, margens de ruído estáticas, portas como chaves. Fora: lógica booleana.",
+			"objectives": [
+				"Explicar a abstração digital e o papel das margens de ruído",
+				"Analisar redes simples de chaves que implementam funções lógicas"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.laws.dividers"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:nonlinear-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.storage",
+			"kind": "unit",
+			"parentId": "ee.dc",
+			"order": 5,
+			"title": {
+				"pt": "Capacitores e indutores como elementos",
+				"en": "Capacitors and inductors as elements"
+			},
+			"summary": "Relações i–v de capacitores e indutores, energia, associações e componentes reais.",
+			"scope": "Dentro: relações i–v, continuidade, energia, associações, tipos e não idealidades. Fora: transientes (ver CA).",
+			"objectives": [
+				"Aplicar as relações i–v de capacitores e indutores",
+				"Escolher capacitores e indutores reais adequados"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 8,
+				"hi": 11
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.storage.capacitor-element",
+			"kind": "topic",
+			"parentId": "ee.dc.storage",
+			"order": 0,
+			"title": {
+				"pt": "Capacitor: relação i–v, energia e associações",
+				"en": "Capacitor: i–v relation, energy and combinations"
+			},
+			"summary": "i = C dv/dt, continuidade da tensão, comportamento em CC, energia armazenada e associações série e paralelo.",
+			"scope": "Dentro: relação i–v, continuidade, regime CC, energia, associações. Fora: transientes RC.",
+			"objectives": [
+				"Calcular a corrente em um capacitor a partir da forma de onda da tensão",
+				"Calcular a capacitância equivalente de associações"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Associar capacitores em série como resistores em série",
+				"Achar que a tensão no capacitor pode saltar instantaneamente"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.physics.electrostatics.field-energy",
+					"ee.dc.laws.series-parallel"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.storage.inductor-element",
+			"kind": "topic",
+			"parentId": "ee.dc.storage",
+			"order": 1,
+			"title": {
+				"pt": "Indutor: relação v–i, energia e associações",
+				"en": "Inductor: v–i relation, energy and combinations"
+			},
+			"summary": "v = L di/dt, continuidade da corrente, comportamento em CC, energia armazenada e associações.",
+			"scope": "Dentro: relação v–i, continuidade, regime CC, energia, associações. Fora: transientes RL.",
+			"objectives": [
+				"Calcular a tensão em um indutor a partir da forma de onda da corrente",
+				"Explicar o pico de tensão ao abrir o circuito de um indutor"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que a corrente no indutor pode ser interrompida instantaneamente sem consequência"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.physics.magnetism.inductance-physics",
+					"ee.dc.laws.series-parallel"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.storage.practical-c-l",
+			"kind": "topic",
+			"parentId": "ee.dc.storage",
+			"order": 2,
+			"title": {
+				"pt": "Capacitores e indutores reais",
+				"en": "Real capacitors and inductors"
+			},
+			"summary": "Tipos de capacitor (cerâmico, eletrolítico, filme) e de indutor, ESR, ESL, tensão nominal, DC bias e corrente de saturação.",
+			"scope": "Dentro: tipos, ESR, ESL, tensão nominal, DC bias de cerâmicos, saturação. Fora: projeto de magnéticos.",
+			"objectives": [
+				"Selecionar o tipo de capacitor adequado para uma aplicação",
+				"Interpretar ESR, tensão nominal e corrente de saturação em folhas de dados"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Ignorar a perda de capacitância de cerâmicos X7R sob tensão contínua"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.storage.capacitor-element",
+					"ee.dc.storage.inductor-element"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:dc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.dc.practice",
+			"kind": "unit",
+			"parentId": "ee.dc",
+			"order": 6,
+			"title": {
+				"pt": "Baterias, fiação e proteção",
+				"en": "Batteries, wiring and protection"
+			},
+			"summary": "Aplicações práticas de CC: baterias, dimensionamento de condutores e dispositivos de proteção.",
+			"scope": "Dentro: baterias, resistência interna, bitolas em mm², queda de tensão, fusíveis. Fora: carregadores e BMS (ver potência).",
+			"objectives": [
+				"Dimensionar condutores e proteções para circuitos de baixa tensão",
+				"Estimar autonomia de baterias"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 4,
+				"hi": 6
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "3",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "seleção de linhas elétricas e dispositivos de proteção",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.practice.batteries",
+			"kind": "topic",
+			"parentId": "ee.dc.practice",
+			"order": 0,
+			"title": {
+				"pt": "Baterias: capacidade, resistência interna e química",
+				"en": "Batteries: capacity, internal resistance and chemistry"
+			},
+			"summary": "Capacidade em mAh, curva de descarga, resistência interna e diferenças entre alcalinas, NiMH, chumbo-ácido e lítio.",
+			"scope": "Dentro: capacidade, descarga, resistência interna, tipos de química, associação de células. Fora: gerenciamento de baterias.",
+			"objectives": [
+				"Estimar a autonomia de um equipamento a partir da capacidade da bateria",
+				"Explicar o efeito da resistência interna sob corrente alta"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.power-energy-dc"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "3",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "seleção de linhas elétricas e dispositivos de proteção",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc.practice.wiring-protection",
+			"kind": "topic",
+			"parentId": "ee.dc.practice",
+			"order": 1,
+			"title": {
+				"pt": "Fios, bitolas, fusíveis e queda de tensão",
+				"en": "Wires, gauges, fuses and voltage drop"
+			},
+			"summary": "Escolha de bitola em mm² por corrente e queda de tensão, fusíveis, disjuntores e polyfuses.",
+			"scope": "Dentro: bitolas em mm² e AWG, queda de tensão, fusíveis, polyfuses. Fora: projeto de instalações prediais.",
+			"objectives": [
+				"Calcular a queda de tensão em um cabo e escolher a bitola",
+				"Selecionar um fusível adequado para uma carga"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.power-energy-dc",
+					"ee.dc.laws.series-parallel"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "3",
+					"embeddable": true
+				},
+				{
+					"source": "abnt-nbr-5410",
+					"ref": "seleção de linhas elétricas e dispositivos de proteção",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"safety"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.dc.methods.nodal",
+			"to": "ee.dc.methods.mesh",
+			"kind": "related"
+		},
+		{
+			"from": "ee.dc.theorems.thevenin",
+			"to": "ee.dc.theorems.norton",
+			"kind": "confusable_with"
+		}
+	],
+	"sources": [
+		{
+			"id": "abnt-nbr-5410",
+			"title": "ABNT NBR 5410 — Instalações elétricas de baixa tensão",
+			"license": "© ABNT; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "agarwal-lang",
+			"title": "Agarwal & Lang — Foundations of Analog and Digital Electronic Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "liec-kuphaldt",
+			"title": "Tony R. Kuphaldt — Lessons in Electric Circuits (vol. I–VI)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/",
+			"license": "Design Science License ou CC BY 4.0 conforme a edição; tratado aqui como só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.002-s07",
+			"title": "MIT OCW 6.002 — Circuits and Electronics (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		}
+	]
+}

@@ -1,0 +1,1953 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.reading",
+	"items": [
+		{
+			"id": "en.reading.a1",
+			"kind": "unit",
+			"parentId": "en.reading",
+			"order": 0,
+			"title": {
+				"pt": "Leitura A1",
+				"en": "Reading A1"
+			},
+			"summary": "Textos muito curtos e simples com nomes, números e palavras familiares.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 8.5,
+				"hi": 13.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.reading.a1.signs-notices",
+			"kind": "topic",
+			"parentId": "en.reading.a1",
+			"order": 0,
+			"title": {
+				"pt": "Placas e avisos",
+				"en": "Signs and notices"
+			},
+			"summary": "Avisos públicos, placas e rótulos comuns.",
+			"objectives": [
+				"Entender placas e avisos frequentes em lugares públicos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 22
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for orientation · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a1.forms",
+			"kind": "topic",
+			"parentId": "en.reading.a1",
+			"order": 1,
+			"title": {
+				"pt": "Formulários simples",
+				"en": "Simple forms"
+			},
+			"summary": "Campos de cadastro, check-in e inscrição.",
+			"objectives": [
+				"Identificar o que cada campo de um formulário pede."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 24
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for orientation · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a1.short-messages",
+			"kind": "topic",
+			"parentId": "en.reading.a1",
+			"order": 2,
+			"title": {
+				"pt": "Mensagens curtas",
+				"en": "Short messages"
+			},
+			"summary": "Bilhetes, SMS e cartões com informações pessoais simples.",
+			"objectives": [
+				"Entender mensagens curtas sobre encontros e planos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 26
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading correspondence · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a1.simple-descriptions",
+			"kind": "topic",
+			"parentId": "en.reading.a1",
+			"order": 3,
+			"title": {
+				"pt": "Descrições simples",
+				"en": "Simple descriptions"
+			},
+			"summary": "Textos curtos que descrevem pessoas, lugares e rotinas.",
+			"objectives": [
+				"Responder perguntas factuais sobre um texto de 100 palavras."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 27
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 22–29",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a1.first-graded-reader",
+			"kind": "topic",
+			"parentId": "en.reading.a1",
+			"order": 4,
+			"title": {
+				"pt": "Primeiro graded reader",
+				"en": "First graded reader"
+			},
+			"summary": "Iniciar a leitura de livros graduados de nível inicial (≈300 palavras-base).",
+			"objectives": [
+				"Ler um graded reader inicial sem dicionário, entendendo a história."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1",
+				"gse": 29
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · A1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 22–29",
+					"embeddable": false
+				},
+				{
+					"source": "er-foundation",
+					"ref": "níveis iniciais de graded readers",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a2",
+			"kind": "unit",
+			"parentId": "en.reading",
+			"order": 1,
+			"title": {
+				"pt": "Leitura A2",
+				"en": "Reading A2"
+			},
+			"summary": "Textos curtos e previsíveis do cotidiano: anúncios, horários, cartas pessoais e instruções.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"softPrereqs": [
+				"en.reading.a1"
+			],
+			"hours": {
+				"lo": 13,
+				"hi": 19
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.reading.a2.skim-scan",
+			"kind": "topic",
+			"parentId": "en.reading.a2",
+			"order": 0,
+			"title": {
+				"pt": "Skimming e scanning",
+				"en": "Skimming and scanning"
+			},
+			"summary": "Ler por cima para a ideia geral e procurar informação específica.",
+			"objectives": [
+				"Achar uma informação específica em menos de 1 min num texto de 300 palavras."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.reading.a2.everyday-texts",
+			"kind": "topic",
+			"parentId": "en.reading.a2",
+			"order": 1,
+			"title": {
+				"pt": "Textos do cotidiano",
+				"en": "Everyday texts"
+			},
+			"summary": "Cardápios, horários, anúncios e folhetos.",
+			"objectives": [
+				"Encontrar preços, horários e condições em textos práticos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 32
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for orientation · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a2.personal-emails",
+			"kind": "topic",
+			"parentId": "en.reading.a2",
+			"order": 2,
+			"title": {
+				"pt": "Cartas e e-mails pessoais",
+				"en": "Personal letters and emails"
+			},
+			"summary": "Notícias, convites e agradecimentos de amigos.",
+			"objectives": [
+				"Entender convites e notícias em e-mails pessoais."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 35
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading correspondence · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a2.instructions",
+			"kind": "topic",
+			"parentId": "en.reading.a2",
+			"order": 3,
+			"title": {
+				"pt": "Instruções curtas",
+				"en": "Short instructions"
+			},
+			"summary": "Instruções de uso de aparelhos, receitas e regras.",
+			"objectives": [
+				"Seguir instruções escritas de 5–8 passos."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 37
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading instructions · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a2.short-articles",
+			"kind": "topic",
+			"parentId": "en.reading.a2",
+			"order": 4,
+			"title": {
+				"pt": "Artigos curtos",
+				"en": "Short articles"
+			},
+			"summary": "Textos informativos simples sobre temas conhecidos.",
+			"objectives": [
+				"Identificar o tema e 3 informações de um artigo curto."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 40
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 30–42",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.a2.graded-readers-2",
+			"kind": "topic",
+			"parentId": "en.reading.a2",
+			"order": 5,
+			"title": {
+				"pt": "Graded readers nível elementar",
+				"en": "Elementary graded readers"
+			},
+			"summary": "Livros graduados de 600–1.000 palavras-base.",
+			"objectives": [
+				"Ler um graded reader elementar com fluidez e prazer."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · A2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 30–42",
+					"embeddable": false
+				},
+				{
+					"source": "er-foundation",
+					"ref": "níveis elementares",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b1",
+			"kind": "unit",
+			"parentId": "en.reading",
+			"order": 2,
+			"title": {
+				"pt": "Leitura B1",
+				"en": "Reading B1"
+			},
+			"summary": "Textos factuais e narrativos diretos sobre temas de interesse, com compreensão satisfatória.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"softPrereqs": [
+				"en.reading.a2"
+			],
+			"hours": {
+				"lo": 19,
+				"hi": 27
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.reading.b1.paragraph-structure",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 0,
+			"title": {
+				"pt": "Estrutura do parágrafo",
+				"en": "Paragraph structure"
+			},
+			"summary": "Frase-tópico, apoio e conclusão como mapa de leitura.",
+			"objectives": [
+				"Identificar a frase-tópico e as ideias de apoio de cada parágrafo."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.reading.b1.unknown-words",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 1,
+			"title": {
+				"pt": "Lidar com palavras desconhecidas",
+				"en": "Dealing with unknown words"
+			},
+			"summary": "Decidir quando ignorar, inferir ou procurar uma palavra.",
+			"objectives": [
+				"Manter a compreensão global com 3–5% de palavras desconhecidas."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 45
+			},
+			"softPrereqs": [
+				"en.vocab.strategies.guessing-from-context"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.reading.b1.simple-news",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 2,
+			"title": {
+				"pt": "Notícias simplificadas",
+				"en": "Simplified news"
+			},
+			"summary": "Notícias adaptadas para aprendizes e notícias curtas autênticas.",
+			"objectives": [
+				"Resumir uma notícia em 3 frases."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 47
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				},
+				{
+					"source": "voa-learning-english",
+					"ref": "notícias em nível controlado",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b1.opinion-texts",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 3,
+			"title": {
+				"pt": "Textos de opinião simples",
+				"en": "Simple opinion texts"
+			},
+			"summary": "Colunas e posts que defendem um ponto de vista.",
+			"objectives": [
+				"Identificar a opinião do autor e seus argumentos principais."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 49
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b1.formal-letters",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 4,
+			"title": {
+				"pt": "Cartas e e-mails formais",
+				"en": "Formal letters and emails"
+			},
+			"summary": "Comunicação de empresas, universidades e serviços.",
+			"objectives": [
+				"Entender pedidos, prazos e condições em e-mails formais."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading correspondence · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b1.manuals",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 5,
+			"title": {
+				"pt": "Manuais e guias",
+				"en": "Manuals and guides"
+			},
+			"summary": "Instruções de produtos, softwares e procedimentos.",
+			"objectives": [
+				"Seguir um guia de instalação ou configuração passo a passo."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 54
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading instructions · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b1.reviews-blogs",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 6,
+			"title": {
+				"pt": "Resenhas e blogs",
+				"en": "Reviews and blogs"
+			},
+			"summary": "Avaliações de produtos, viagens e filmes.",
+			"objectives": [
+				"Comparar opiniões em várias resenhas do mesmo produto."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b1.short-stories",
+			"kind": "topic",
+			"parentId": "en.reading.b1",
+			"order": 7,
+			"title": {
+				"pt": "Contos e narrativas",
+				"en": "Short stories"
+			},
+			"summary": "Narrativas curtas autênticas ou adaptadas de nível intermediário.",
+			"objectives": [
+				"Acompanhar enredo, personagens e motivações num conto."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 43–58",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b2",
+			"kind": "unit",
+			"parentId": "en.reading",
+			"order": 3,
+			"title": {
+				"pt": "Leitura B2",
+				"en": "Reading B2"
+			},
+			"summary": "Leitura independente de artigos, relatórios e ficção contemporânea, ajustando estilo e velocidade.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.reading.b1"
+			],
+			"hours": {
+				"lo": 21.5,
+				"hi": 29.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.reading.b2.features",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 0,
+			"title": {
+				"pt": "Reportagens e matérias",
+				"en": "Feature articles"
+			},
+			"summary": "Matérias longas de jornais e revistas com vocabulário variado.",
+			"objectives": [
+				"Extrair ideias e detalhes de uma matéria de 1.000+ palavras."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b2.argumentative",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 1,
+			"title": {
+				"pt": "Textos argumentativos",
+				"en": "Argumentative texts"
+			},
+			"summary": "Ensaios e editoriais com tese, contra-argumento e conclusão.",
+			"objectives": [
+				"Mapear tese, argumentos e contra-argumentos de um editorial."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 61
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b2.field-reports",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 2,
+			"title": {
+				"pt": "Relatórios da própria área",
+				"en": "Reports in one's field"
+			},
+			"summary": "Relatórios e artigos de divulgação em tecnologia e engenharia.",
+			"objectives": [
+				"Ler um relatório técnico de divulgação e listar conclusões."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 64
+			},
+			"softPrereqs": [
+				"en.vocab.academic.nawl-1"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b2.contemporary-fiction",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 3,
+			"title": {
+				"pt": "Ficção contemporânea",
+				"en": "Contemporary fiction"
+			},
+			"summary": "Romances atuais em inglês padrão.",
+			"objectives": [
+				"Ler um romance contemporâneo acompanhando enredo e tom."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 66
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b2.technical-instructions",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 4,
+			"title": {
+				"pt": "Instruções técnicas longas",
+				"en": "Long technical instructions"
+			},
+			"summary": "Documentação, tutoriais e procedimentos com condições e exceções.",
+			"objectives": [
+				"Executar um procedimento técnico longo a partir da documentação."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 68
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading instructions · B2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b2.critical-reading",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 5,
+			"title": {
+				"pt": "Leitura crítica",
+				"en": "Critical reading"
+			},
+			"summary": "Fato × opinião, viés, fontes e falácias comuns.",
+			"objectives": [
+				"Apontar viés e falácias num artigo de opinião."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 70
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.b2.reading-speed",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 6,
+			"title": {
+				"pt": "Velocidade de leitura",
+				"en": "Reading speed"
+			},
+			"summary": "Treino cronometrado para chegar a 200+ palavras/min com compreensão.",
+			"objectives": [
+				"Ler texto do nível a 200 palavras/min com ≥70% de compreensão."
+			],
+			"assess": [
+				"timed_reading"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 73
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.reading.b2.annotate-summarize",
+			"kind": "topic",
+			"parentId": "en.reading.b2",
+			"order": 7,
+			"title": {
+				"pt": "Anotar e resumir",
+				"en": "Annotating and summarising"
+			},
+			"summary": "Marcar, parafrasear e resumir textos longos.",
+			"objectives": [
+				"Escrever um resumo fiel de 100 palavras de um texto de 1.000."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 59–75",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.reading.c1",
+			"kind": "unit",
+			"parentId": "en.reading",
+			"order": 4,
+			"title": {
+				"pt": "Leitura C1",
+				"en": "Reading C1"
+			},
+			"summary": "Textos longos e complexos, literários ou não, percebendo estilo, atitudes implícitas e detalhes.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.reading.b2"
+			],
+			"hours": {
+				"lo": 16,
+				"hi": 22
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.reading.c1.long-complex",
+			"kind": "topic",
+			"parentId": "en.reading.c1",
+			"order": 0,
+			"title": {
+				"pt": "Textos longos e complexos",
+				"en": "Long complex texts"
+			},
+			"summary": "Ensaios, relatórios e análises com raciocínio sofisticado.",
+			"objectives": [
+				"Entender em detalhe textos longos fora da própria área."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c1.literary-fiction",
+			"kind": "topic",
+			"parentId": "en.reading.c1",
+			"order": 1,
+			"title": {
+				"pt": "Ficção literária",
+				"en": "Literary fiction"
+			},
+			"summary": "Romances e contos com linguagem figurada e narrativa não linear.",
+			"objectives": [
+				"Interpretar estilo, tom e subtexto em ficção literária."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c1.implicit-attitude",
+			"kind": "topic",
+			"parentId": "en.reading.c1",
+			"order": 2,
+			"title": {
+				"pt": "Atitudes implícitas",
+				"en": "Implicit attitudes"
+			},
+			"summary": "Ironia, distanciamento e avaliação implícita do autor.",
+			"objectives": [
+				"Identificar a posição implícita do autor e suas pistas linguísticas."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 79
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c1.formal-documents",
+			"kind": "topic",
+			"parentId": "en.reading.c1",
+			"order": 3,
+			"title": {
+				"pt": "Contratos e documentos formais",
+				"en": "Contracts and formal documents"
+			},
+			"summary": "Termos de uso, contratos, licenças e políticas.",
+			"objectives": [
+				"Localizar obrigações, prazos e exceções num contrato ou licença."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 81
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading instructions · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c1.synthesis",
+			"kind": "topic",
+			"parentId": "en.reading.c1",
+			"order": 4,
+			"title": {
+				"pt": "Síntese de várias fontes",
+				"en": "Synthesising multiple sources"
+			},
+			"summary": "Comparar e integrar informações de textos diferentes.",
+			"objectives": [
+				"Produzir uma síntese comparativa de 3 textos sobre o mesmo tema."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · C1",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c1.flexible-speed",
+			"kind": "topic",
+			"parentId": "en.reading.c1",
+			"order": 5,
+			"title": {
+				"pt": "Leitura flexível",
+				"en": "Flexible reading"
+			},
+			"summary": "Alternar leitura rápida, seletiva e detalhada conforme o objetivo.",
+			"objectives": [
+				"Escolher e justificar a estratégia de leitura para cada objetivo."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 76–84",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do",
+				"strategy"
+			]
+		},
+		{
+			"id": "en.reading.c2",
+			"kind": "unit",
+			"parentId": "en.reading",
+			"order": 5,
+			"title": {
+				"pt": "Leitura C2",
+				"en": "Reading C2"
+			},
+			"summary": "Praticamente qualquer texto escrito, inclusive abstrato, literário e estruturalmente complexo.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"softPrereqs": [
+				"en.reading.c1"
+			],
+			"hours": {
+				"lo": 13.5,
+				"hi": 18.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.reading.c2.abstract-dense",
+			"kind": "topic",
+			"parentId": "en.reading.c2",
+			"order": 0,
+			"title": {
+				"pt": "Textos abstratos e densos",
+				"en": "Abstract dense texts"
+			},
+			"summary": "Filosofia, teoria e crítica com sintaxe e conceitos complexos.",
+			"objectives": [
+				"Explicar o argumento central de um texto teórico denso."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 85
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c2.classics",
+			"kind": "topic",
+			"parentId": "en.reading.c2",
+			"order": 1,
+			"title": {
+				"pt": "Clássicos da literatura",
+				"en": "Literary classics"
+			},
+			"summary": "Prosa dos séculos XIX e XX com vocabulário e sintaxe antigos.",
+			"objectives": [
+				"Ler um clássico da literatura em inglês com compreensão do estilo."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 86
+			},
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading as a leisure activity · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c2.stylistic-nuance",
+			"kind": "topic",
+			"parentId": "en.reading.c2",
+			"order": 2,
+			"title": {
+				"pt": "Nuances de estilo",
+				"en": "Stylistic nuance"
+			},
+			"summary": "Registro, ritmo e escolhas lexicais como efeito de sentido.",
+			"objectives": [
+				"Comentar efeitos estilísticos de um trecho literário ou jornalístico."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 88
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c2.satire",
+			"kind": "topic",
+			"parentId": "en.reading.c2",
+			"order": 3,
+			"title": {
+				"pt": "Sátira e paródia",
+				"en": "Satire and parody"
+			},
+			"summary": "Textos satíricos que exigem conhecimento cultural e leitura irônica.",
+			"objectives": [
+				"Explicar o alvo e os recursos de um texto satírico."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 89
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading.c2.outside-field",
+			"kind": "topic",
+			"parentId": "en.reading.c2",
+			"order": 4,
+			"title": {
+				"pt": "Textos especializados de outras áreas",
+				"en": "Specialist texts outside one's field"
+			},
+			"summary": "Direito, medicina e economia com apoio mínimo de referência.",
+			"objectives": [
+				"Entender textos especializados fora da própria área com consulta pontual."
+			],
+			"assess": [
+				"comprehension_items",
+				"summary",
+				"true_false_not_given"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C2",
+				"gse": 90
+			},
+			"hours": {
+				"lo": 2.5,
+				"hi": 3.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · C2",
+					"embeddable": false
+				},
+				{
+					"source": "gse-lo-adult",
+					"ref": "Reading · GSE 85–90",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "en.reading.b2.critical-reading",
+			"to": "en.academic.paper-critique",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "gse-lo-adult",
+			"title": "Global Scale of English Learning Objectives — Adult (Pearson, 2022)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE aproximadas como referência de nível",
+			"usage": "reference"
+		},
+		{
+			"id": "lexical-coverage",
+			"title": "Cobertura lexical para compreensão (Nation 2006; van Zeeland & Schmitt 2012)",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "er-foundation",
+			"title": "Extensive Reading Foundation — Guide to Extensive Reading e escala de graded readers",
+			"url": "https://erfoundation.org/",
+			"license": "Material gratuito; apenas referência",
+			"usage": "reference"
+		},
+		{
+			"id": "voa-learning-english",
+			"title": "VOA Learning English (material em domínio público do governo dos EUA)",
+			"url": "https://learningenglish.voanews.com/",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		}
+	]
+}

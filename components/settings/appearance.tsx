@@ -35,6 +35,7 @@ import {
 	effectiveColors,
 	FACTORY_SETTINGS,
 	resolveTheme,
+	themeFamily,
 	themeVars,
 	type AppearanceSettings,
 	type RenderedMode,
@@ -196,6 +197,7 @@ export function AppearanceProvider({
 		if (appliedRef.current === key) return;
 		appliedRef.current = key;
 		const root = document.documentElement;
+		root.setAttribute("data-theme-family", themeFamily(activeTheme));
 		for (const name of staleVarNames([...appliedNamesRef.current], vars)) {
 			root.style.removeProperty(name);
 			appliedNamesRef.current.delete(name);

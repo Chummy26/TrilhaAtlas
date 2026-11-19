@@ -20,6 +20,10 @@ import { PathInput } from "@/components/path-input";
 import { AttachFilesButton } from "@/components/attach-files-button";
 import { SessionStarter } from "@/components/start-session";
 import type { TurnUsage } from "@/src/core";
+import { DomainSwitcher } from "@/components/study/domain-switcher";
+import { TodayCard, type LessonStart } from "@/components/study/today-card";
+import { Icon } from "@/components/icons/icon";
+import Link from "next/link";
 
 /**
  * Home — the knowledge graph is the main view, full-bleed edge to edge
@@ -118,7 +122,14 @@ export function Home({
 		}
 		void dictation.finish().then(() => begin());
 	};
-	const begin = async () => {
+	const begin = async (lesson?: LessonStart) => {
+		if (lesson) {
+			// A "Hoje" lesson: the node title is the topic (kept in the
+			// composer if a setup guard intercepts) and the curriculum node
+			// rides the creation as session context.
+			topicRef.current = lesson.title;
+			setTopic(lesson.title);
+		}
 		const t = topicRef.current.trim();
 		if (!t || startingRef.current) return;
 		// Unconfigured: the send INTERCEPTS into the setup flow (the draft
@@ -154,8 +165,12 @@ export function Home({
 			// chains among them); the prompt stays the learner's own words.
 			const target = await starterRef.current.start({
 				title: t,
-				...(mode === "practice" ? { kind: "practice" } : {}),
-				...(practiceProps.length > 0 ? { graphContext: { propositions: practiceProps } } : {}),
+				...(mode === "practice" && !lesson ? { kind: "practice" } : {}),
+				...(lesson
+					? { graphContext: { propositions: [lesson.context] } }
+					: practiceProps.length > 0
+						? { graphContext: { propositions: practiceProps } }
+						: {}),
 			}, fetch, JSON.stringify(catalog?.slots.strong));
 			router.push(target);
 		} catch {
@@ -218,6 +233,7 @@ export function Home({
 					    send consumes it). Practice mode with nothing picked
 					    shows the pick HINT so the affordance is discoverable;
 					    teaching mode with nothing picked renders nothing. */}
+					<TodayCard disabled={busy} onStart={(lesson) => void begin(lesson)} />
 					<ComposerActions
 						picker={(practiceProps.length > 0 || mode === "practice") && (
 							<NodePickerControl
@@ -332,6 +348,12 @@ export function Home({
 				<div className="pointer-events-auto">
 					<SidebarToggle />
 				</div>
+				<div className="pointer-events-auto">
+					<DomainSwitcher />
+				</div>
+				<Link href="/profile" aria-label="Perfil" className="lh-no-drag pointer-events-auto rounded-md p-1 hover:bg-accent" data-testid="profile-link">
+					<Icon name="profile" size={22} />
+				</Link>
 			</header>
 
 			{/* First-run setup (unconfigured): the CTA's target and the send

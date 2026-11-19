@@ -1,0 +1,591 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en",
+	"items": [
+		{
+			"id": "en",
+			"kind": "domain",
+			"parentId": null,
+			"order": 0,
+			"title": {
+				"pt": "Inglês",
+				"en": "English"
+			},
+			"summary": "Inglês do A1 ao C2 para falantes de português brasileiro, com trilha de inglês acadêmico e técnico para engenharia.",
+			"scope": "Dentro: pronúncia, gramática, vocabulário, as quatro habilidades, pragmática e mediação, inglês acadêmico/técnico e regimes de prática extensiva. Fora: conteúdo de eletrônica (domínio electronics). Língua não é sequencial: pré-requisitos duros só em gramática e consciência fonêmica; o resto são ligações suaves.",
+			"objectives": [
+				"Chegar a C1 sólido em ~1.400–1.500 h de estudo guiado e prática, com C2 parcial via input extensivo.",
+				"Ler, escrever e apresentar trabalho técnico de engenharia em inglês."
+			],
+			"anchors": [
+				{
+					"source": "cambridge-glh",
+					"ref": "A1→C2: 1030–1450 acumuladas GLH (adulto, L1 de alfabeto latino)",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Common Reference Levels · pre-A1–C2",
+					"embeddable": false
+				},
+				{
+					"source": "nation-four-strands",
+					"ref": "equilíbrio das quatro vertentes",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"language",
+				"cefr"
+			],
+			"hours": {
+				"lo": 1244,
+				"hi": 1786
+			},
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			}
+		},
+		{
+			"id": "en.pron",
+			"kind": "area",
+			"parentId": "en",
+			"order": 0,
+			"title": {
+				"pt": "Pronúncia e fonologia",
+				"en": "Pronunciation and phonology"
+			},
+			"summary": "Sons, acento, ritmo e entonação do inglês com foco nas interferências típicas do português brasileiro.",
+			"scope": "Dentro: percepção e produção de fonemas, morfofonologia (-ed/-s), acento, ritmo, fala conectada, entonação e sotaques. Fora: vocabulário e gramática em si (só como veículo).",
+			"objectives": [
+				"Ser inteligível para ouvintes nativos e não nativos em conversa e apresentação.",
+				"Perceber contrastes e reduções da fala rápida autêntica."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 94,
+				"hi": 145
+			},
+			"anchors": [
+				{
+					"source": "ipa-chart",
+					"ref": "vogais e consoantes do inglês",
+					"embeddable": false
+				},
+				{
+					"source": "lfc-jenkins-2000",
+					"ref": "núcleo de inteligibilidade",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pronunciation"
+			]
+		},
+		{
+			"id": "en.grammar",
+			"kind": "area",
+			"parentId": "en",
+			"order": 1,
+			"title": {
+				"pt": "Gramática",
+				"en": "Grammar"
+			},
+			"summary": "Estruturas gramaticais do A1 ao C2, com atenção aos erros de transferência típicos de falantes de PT-BR.",
+			"scope": "Dentro: morfologia e sintaxe, tempos e aspectos, modalidade, condicionais, passiva, orações e gramática do discurso. Fora: vocabulário (en.vocab) e pronúncia das formas (en.pron).",
+			"objectives": [
+				"Usar com precisão as estruturas de cada nível em fala e escrita.",
+				"Reconhecer e corrigir erros de transferência do português."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 180.5,
+				"hi": 295.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-j-gp",
+					"ref": "inventário completo · A1–B2",
+					"embeddable": true
+				},
+				{
+					"source": "egp",
+					"ref": "inventário completo · A1–C2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"grammar"
+			]
+		},
+		{
+			"id": "en.vocab",
+			"kind": "area",
+			"parentId": "en",
+			"order": 2,
+			"title": {
+				"pt": "Vocabulário",
+				"en": "Vocabulary"
+			},
+			"summary": "Vocabulário organizado por bandas de frequência (NGSL, CEFR-J, Octanove) e listas acadêmicas, em conjuntos lexicais para flashcards.",
+			"scope": "Dentro: conjuntos lexicais por banda e campo semântico, colocações, phrasal verbs, idioms, formação de palavras, falsos cognatos e vocabulário acadêmico geral. Fora: vocabulário técnico de engenharia (en.academic). Ao refinar em átomos, itens novos semanticamente próximos não entram juntos no mesmo átomo.",
+			"objectives": [
+				"Atingir ~3.000 famílias de alta frequência (≈95% de cobertura oral) e avançar para 8–9 mil para leitura autêntica.",
+				"Usar colocações e expressões naturais, não só traduções isoladas."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 185,
+				"hi": 257
+			},
+			"anchors": [
+				{
+					"source": "ngsl-1.2",
+					"ref": "ranks 1–2809",
+					"embeddable": true
+				},
+				{
+					"source": "cefr-j-vp-1.5",
+					"ref": "A1–B2",
+					"embeddable": true
+				},
+				{
+					"source": "octanove-vp-c1c2",
+					"ref": "C1–C2",
+					"embeddable": true
+				},
+				{
+					"source": "lexical-coverage",
+					"ref": "bandas de frequência",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"vocabulary"
+			]
+		},
+		{
+			"id": "en.listening",
+			"kind": "area",
+			"parentId": "en",
+			"order": 3,
+			"title": {
+				"pt": "Compreensão oral",
+				"en": "Listening"
+			},
+			"summary": "Entender o inglês falado do A1 ao C2: estratégias, escuta intensiva com transcrição e descritores can-do por tipo de situação.",
+			"scope": "Dentro: escuta intensiva (material 95–98% conhecido, com tarefas) e estratégias por gênero oral. Fora: horas de escuta extensiva (en.fluency) e treino de fonemas (en.pron). Áudio sempre original em inglês, sem dublagem.",
+			"objectives": [
+				"Compreender fala nativa em velocidade natural, inclusive com sotaques variados.",
+				"Tomar notas úteis de palestras e reuniões."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 106.5,
+				"hi": 148.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral comprehension · A1–C2",
+					"embeddable": false
+				},
+				{
+					"source": "lexical-coverage",
+					"ref": "95% de cobertura para escuta",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"listening",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.reading",
+			"kind": "area",
+			"parentId": "en",
+			"order": 4,
+			"title": {
+				"pt": "Leitura",
+				"en": "Reading"
+			},
+			"summary": "Ler em inglês do A1 ao C2: estratégias, leitura intensiva por gênero e descritores can-do de compreensão escrita.",
+			"scope": "Dentro: leitura intensiva com tarefas (textos 95–98% conhecidos), estratégias e gêneros gerais. Fora: horas de leitura extensiva (en.fluency) e leitura de papers técnicos (en.academic).",
+			"objectives": [
+				"Ler textos autênticos gerais com compreensão detalhada e velocidade adequada.",
+				"Ler criticamente: distinguir fato, opinião e viés."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 91.5,
+				"hi": 129.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall reading comprehension · A1–C2",
+					"embeddable": false
+				},
+				{
+					"source": "lexical-coverage",
+					"ref": "98% para leitura sem apoio",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"reading",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.speaking",
+			"kind": "area",
+			"parentId": "en",
+			"order": 5,
+			"title": {
+				"pt": "Produção e interação oral",
+				"en": "Speaking"
+			},
+			"summary": "Falar e interagir do A1 ao C2: tarefas comunicativas com feedback corretivo, monólogos, apresentações, reuniões e negociação.",
+			"scope": "Dentro: tarefas de fala com propósito (role-play, monólogo, discussão) com feedback e repetição da tarefa. Fora: regimes de conversa e fluência por horas (en.fluency), pronúncia segmental (en.pron) e polidez/registro (en.pragmatics).",
+			"objectives": [
+				"Interagir com fluência e espontaneidade em situações pessoais, sociais e profissionais.",
+				"Apresentar e defender ideias técnicas em público."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 108.5,
+				"hi": 152.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall oral production · A1–C2",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall spoken interaction · A1–C2",
+					"embeddable": false
+				},
+				{
+					"source": "nation-four-strands",
+					"ref": "meaning-focused output",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"speaking",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.writing",
+			"kind": "area",
+			"parentId": "en",
+			"order": 6,
+			"title": {
+				"pt": "Escrita",
+				"en": "Writing"
+			},
+			"summary": "Escrever do A1 ao C2: mensagens, e-mails, parágrafos, ensaios, relatórios e documentação, com revisão orientada.",
+			"scope": "Dentro: gêneros gerais e profissionais, organização de texto, coesão e revisão com feedback. Fora: escrita de papers e abstracts (en.academic) e registro/polidez em si (en.pragmatics).",
+			"objectives": [
+				"Escrever textos claros, bem estruturados e adequados ao gênero e ao leitor.",
+				"Revisar o próprio texto com foco em erros recorrentes."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 98,
+				"hi": 139
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Overall written production · A1–C2",
+					"embeddable": false
+				},
+				{
+					"source": "nation-four-strands",
+					"ref": "meaning-focused output",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"writing",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics",
+			"kind": "area",
+			"parentId": "en",
+			"order": 7,
+			"title": {
+				"pt": "Pragmática, cultura e mediação",
+				"en": "Pragmatics, culture and mediation"
+			},
+			"summary": "Usar a língua de forma adequada: registro, polidez, normas culturais anglófonas e mediação entre pessoas, textos e conceitos.",
+			"scope": "Dentro: adequação sociolinguística, atos de fala, polidez, diferenças culturais (EUA, Reino Unido, equipes globais) e mediação PT↔EN. Fora: as estruturas gramaticais usadas para isso (en.grammar) e gêneros escritos (en.writing).",
+			"objectives": [
+				"Ajustar registro e polidez à situação e ao interlocutor.",
+				"Mediar informação e conceitos entre falantes e entre português e inglês."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2"
+			},
+			"hours": {
+				"lo": 40.5,
+				"hi": 68.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · A1–C2",
+					"embeddable": false
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediation · A1–C2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.academic",
+			"kind": "area",
+			"parentId": "en",
+			"order": 8,
+			"title": {
+				"pt": "Inglês acadêmico e técnico",
+				"en": "Academic and technical English"
+			},
+			"summary": "Inglês para engenharia: vocabulário técnico de eletrônica, datasheets, papers (ler, criticar, escrever) e comunicação técnica; depois do C1 vira frentes de leitura.",
+			"scope": "Dentro: gêneros acadêmicos e técnicos de engenharia elétrica/eletrônica, leitura e escrita de papers, apresentações técnicas e frentes de leitura pós-C1. Fora: o conteúdo de eletrônica em si (domínio electronics) e o vocabulário acadêmico geral (en.vocab.academic).",
+			"objectives": [
+				"Ler datasheets, notas de aplicação e papers IEEE com autonomia.",
+				"Escrever e apresentar trabalho técnico em inglês claro e convencional."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1"
+			},
+			"softPrereqs": [
+				"en.reading.b2",
+				"en.vocab.academic"
+			],
+			"hours": {
+				"lo": 131,
+				"hi": 182.5
+			},
+			"anchors": [
+				{
+					"source": "gse-lo-academic",
+					"ref": "Academic · GSE 59–90",
+					"embeddable": false
+				},
+				{
+					"source": "nawl-1.2",
+					"ref": "1–957",
+					"embeddable": true
+				},
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Reading for information and argument · B2–C2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"academic"
+			]
+		},
+		{
+			"id": "en.fluency",
+			"kind": "area",
+			"parentId": "en",
+			"order": 9,
+			"title": {
+				"pt": "Fluência e prática extensiva",
+				"en": "Fluency and extensive practice"
+			},
+			"summary": "Regimes de prática orçados em horas: leitura e escuta extensivas, shadowing, conversação e exercícios de fluência, cada um com critério de saída.",
+			"scope": "Dentro: blocos de prática com horas-alvo (practice) e critério de saída mensurável, por nível. Fora: ensino explícito de forma (en.grammar, en.vocab, en.pron) e estratégias (en.listening, en.reading). Material sempre no nível certo: ≥98% de cobertura para extensivo; áudio original em inglês.",
+			"objectives": [
+				"Acumular input compreensível suficiente para consolidar o que foi estudado.",
+				"Ganhar velocidade e automaticidade na leitura, escuta, fala e escrita."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A1"
+			},
+			"hours": {
+				"lo": 208.5,
+				"hi": 268
+			},
+			"anchors": [
+				{
+					"source": "nation-four-strands",
+					"ref": "fluency development",
+					"embeddable": false
+				},
+				{
+					"source": "lexical-coverage",
+					"ref": "98% extensivo",
+					"embeddable": false
+				},
+				{
+					"source": "er-foundation",
+					"ref": "leitura extensiva",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"fluency"
+			]
+		}
+	],
+	"sources": [
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		},
+		{
+			"id": "cambridge-glh",
+			"title": "Cambridge English — Guided learning hours por nível CEFR",
+			"url": "https://support.cambridgeenglish.org/hc/en-gb/articles/202838506-Guided-learning-hours",
+			"license": "Público; apenas números de horas como calibração",
+			"usage": "reference"
+		},
+		{
+			"id": "gse-lo-adult",
+			"title": "Global Scale of English Learning Objectives — Adult (Pearson, 2022)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE aproximadas como referência de nível",
+			"usage": "reference"
+		},
+		{
+			"id": "nation-four-strands",
+			"title": "Nation (2007), The four strands; Nation & Newton — ensino de L2",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "ngsl-1.2",
+			"title": "New General Service List 1.2 (Browne, Culligan & Phillips; 2.809 palavras)",
+			"url": "https://www.newgeneralservicelist.com/new-general-service-list",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "cefr-j-vp-1.5",
+			"title": "CEFR-J Vocabulary Profile 1.5 (7.799 entradas)",
+			"url": "https://github.com/openlanguageprofiles/olp-en-cefrj",
+			"license": "Uso comercial e de pesquisa gratuito com citação (© Tono Lab, TUFS)",
+			"usage": "reference"
+		},
+		{
+			"id": "cefr-j-gp",
+			"title": "CEFR-J Grammar Profile (20180315), Tono Lab/TUFS",
+			"url": "https://github.com/openlanguageprofiles/olp-en-cefrj",
+			"license": "Uso comercial e de pesquisa gratuito com citação (© Tono Lab, TUFS)",
+			"usage": "reference"
+		},
+		{
+			"id": "ipa-chart",
+			"title": "IPA Chart (International Phonetic Association)",
+			"url": "https://www.internationalphoneticassociation.org/content/ipa-chart",
+			"license": "CC BY-SA 3.0; usado só como referência de símbolos",
+			"usage": "reference"
+		},
+		{
+			"id": "lfc-jenkins-2000",
+			"title": "Jenkins (2000), The Phonology of English as an International Language — Lingua Franca Core",
+			"license": "© Oxford University Press; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "egp",
+			"title": "English Grammar Profile (Cambridge/English Profile)",
+			"url": "https://www.englishprofile.org/english-grammar-profile",
+			"license": "© Cambridge University Press & Assessment; só categoria e nível, sem copiar descritores",
+			"usage": "reference"
+		},
+		{
+			"id": "octanove-vp-c1c2",
+			"title": "Octanove Vocabulary Profile C1/C2 1.0 (2.136 entradas)",
+			"url": "https://github.com/openlanguageprofiles/olp-en-cefrj",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "lexical-coverage",
+			"title": "Cobertura lexical para compreensão (Nation 2006; van Zeeland & Schmitt 2012)",
+			"license": "Literatura acadêmica; apenas referência bibliográfica",
+			"usage": "reference"
+		},
+		{
+			"id": "gse-lo-academic",
+			"title": "Global Scale of English Learning Objectives — Academic (Pearson)",
+			"url": "https://www.pearson.com/english/about/gse.html",
+			"license": "All rights reserved; só faixas GSE como referência",
+			"usage": "reference"
+		},
+		{
+			"id": "nawl-1.2",
+			"title": "New Academic Word List 1.2 (957 palavras)",
+			"url": "https://www.newgeneralservicelist.com/",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "er-foundation",
+			"title": "Extensive Reading Foundation — Guide to Extensive Reading e escala de graded readers",
+			"url": "https://erfoundation.org/",
+			"license": "Material gratuito; apenas referência",
+			"usage": "reference"
+		}
+	]
+}

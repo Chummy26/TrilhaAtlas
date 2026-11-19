@@ -1,0 +1,1309 @@
+{
+	"schemaVersion": 1,
+	"domainId": "english",
+	"areaId": "en.pragmatics",
+	"items": [
+		{
+			"id": "en.pragmatics.a2",
+			"kind": "unit",
+			"parentId": "en.pragmatics",
+			"order": 0,
+			"title": {
+				"pt": "Pragmática básica",
+				"en": "Basic pragmatics"
+			},
+			"summary": "Fórmulas de polidez e convenções sociais para não soar rude sem querer.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 6.5,
+				"hi": 11.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · A2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pragmatics.a2.politeness-formulas",
+			"kind": "topic",
+			"parentId": "en.pragmatics.a2",
+			"order": 0,
+			"title": {
+				"pt": "Fórmulas de polidez",
+				"en": "Politeness formulas"
+			},
+			"summary": "please, thank you, could you, would you like: o peso de cada uma.",
+			"objectives": [
+				"Transformar pedidos diretos em pedidos educados."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"misconceptions": [
+				"'I want a coffee' soa grosseiro em muitos contextos."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 30
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.a2.greeting-register",
+			"kind": "topic",
+			"parentId": "en.pragmatics.a2",
+			"order": 1,
+			"title": {
+				"pt": "Cumprimentos e tratamento",
+				"en": "Greetings and forms of address"
+			},
+			"summary": "Hi × Good morning, first names, Mr/Ms, Sir/Madam.",
+			"objectives": [
+				"Escolher cumprimento e forma de tratamento adequados."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 33
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.a2.apologising",
+			"kind": "topic",
+			"parentId": "en.pragmatics.a2",
+			"order": 2,
+			"title": {
+				"pt": "Desculpar-se e chamar atenção",
+				"en": "Apologising and getting attention"
+			},
+			"summary": "sorry × excuse me × pardon e quando usar cada um.",
+			"objectives": [
+				"Usar sorry e excuse me nas situações certas."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 36
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.a2.small-talk-topics",
+			"kind": "topic",
+			"parentId": "en.pragmatics.a2",
+			"order": 3,
+			"title": {
+				"pt": "Temas de conversa casual",
+				"en": "Small talk topics"
+			},
+			"summary": "Assuntos seguros e assuntos sensíveis (salário, religião, idade).",
+			"objectives": [
+				"Escolher temas apropriados para conversa casual."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 39
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.a2.thanking-responding",
+			"kind": "topic",
+			"parentId": "en.pragmatics.a2",
+			"order": 4,
+			"title": {
+				"pt": "Agradecer e responder",
+				"en": "Thanking and responding"
+			},
+			"summary": "You're welcome, no problem, my pleasure; responder a elogios.",
+			"objectives": [
+				"Responder naturalmente a agradecimentos e elogios."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "A2",
+				"gse": 42
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · A2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b1",
+			"kind": "unit",
+			"parentId": "en.pragmatics",
+			"order": 1,
+			"title": {
+				"pt": "Registro e polidez",
+				"en": "Register and politeness"
+			},
+			"summary": "Diferenciar formal, neutro e informal e fazer pedidos, recusas e críticas com tato.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 51
+			},
+			"softPrereqs": [
+				"en.pragmatics.a2"
+			],
+			"hours": {
+				"lo": 8.5,
+				"hi": 14.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pragmatics.b1.register-basics",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b1",
+			"order": 0,
+			"title": {
+				"pt": "Formal, neutro e informal",
+				"en": "Formal, neutral and informal register"
+			},
+			"summary": "Escolhas de vocabulário e estrutura em cada registro.",
+			"objectives": [
+				"Reescrever uma mensagem em registro formal e informal."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 43
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b1.indirect-requests",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b1",
+			"order": 1,
+			"title": {
+				"pt": "Pedidos indiretos",
+				"en": "Indirect requests"
+			},
+			"summary": "Would you mind…?, I was wondering if…, Is there any chance…?",
+			"objectives": [
+				"Fazer pedidos com grau de indireção proporcional ao favor."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 46
+			},
+			"softPrereqs": [
+				"en.grammar.b1-plus.indirect-questions"
+			],
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b1.polite-disagreement",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b1",
+			"order": 2,
+			"title": {
+				"pt": "Discordar com educação",
+				"en": "Disagreeing politely"
+			},
+			"summary": "I see your point, but…; I'm not sure I agree.",
+			"objectives": [
+				"Discordar sem soar agressivo."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 49
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b1.invitations-refusals",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b1",
+			"order": 3,
+			"title": {
+				"pt": "Convites e recusas",
+				"en": "Invitations and refusals"
+			},
+			"summary": "Recusar com justificativa e alternativa, sem 'no' seco.",
+			"objectives": [
+				"Recusar um convite de forma educada e oferecer alternativa."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b1.cultural-norms",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b1",
+			"order": 4,
+			"title": {
+				"pt": "Normas culturais anglófonas",
+				"en": "Anglophone cultural norms"
+			},
+			"summary": "Pontualidade, espaço pessoal, gorjeta, filas e informalidade.",
+			"objectives": [
+				"Comparar normas sociais do Brasil, EUA e Reino Unido."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 55
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Building on pluricultural repertoire · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b1.email-etiquette",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b1",
+			"order": 5,
+			"title": {
+				"pt": "Etiqueta de e-mail e chat",
+				"en": "Email and chat etiquette"
+			},
+			"summary": "Assunto, saudação, tom e tempo de resposta em contextos profissionais.",
+			"objectives": [
+				"Ajustar tom e formato de mensagens profissionais."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 58
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b2",
+			"kind": "unit",
+			"parentId": "en.pragmatics",
+			"order": 2,
+			"title": {
+				"pt": "Pragmática intercultural",
+				"en": "Intercultural pragmatics"
+			},
+			"summary": "Suavização, diplomacia e diferenças de estilo comunicativo em equipes internacionais.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 67
+			},
+			"softPrereqs": [
+				"en.pragmatics.b1"
+			],
+			"hours": {
+				"lo": 8.5,
+				"hi": 14.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B2",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pragmatics.b2.softening",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b2",
+			"order": 0,
+			"title": {
+				"pt": "Suavização e atenuação",
+				"en": "Softening and hedging in conversation"
+			},
+			"summary": "a bit, kind of, I'd say, perhaps: reduzir impacto de críticas e pedidos.",
+			"objectives": [
+				"Atenuar críticas e pedidos com hedges conversacionais."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 59
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b2.diplomatic-language",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b2",
+			"order": 1,
+			"title": {
+				"pt": "Linguagem diplomática no trabalho",
+				"en": "Diplomatic language at work"
+			},
+			"summary": "Dizer não, apontar problemas e cobrar prazos sem conflito.",
+			"objectives": [
+				"Apontar um problema num projeto mantendo a relação."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 62
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b2.understatement",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b2",
+			"order": 2,
+			"title": {
+				"pt": "Ironia britânica e understatement",
+				"en": "British understatement"
+			},
+			"summary": "'Not bad', 'quite good', 'with respect': o que se diz × o que se quer dizer.",
+			"objectives": [
+				"Interpretar understatements e expressões britânicas ambíguas."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 65
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Building on pluricultural repertoire · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b2.banter",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b2",
+			"order": 3,
+			"title": {
+				"pt": "Brincadeiras e banter",
+				"en": "Humour and banter"
+			},
+			"summary": "Provocações amigáveis, autodepreciação e limites.",
+			"objectives": [
+				"Reconhecer banter e responder no tom certo."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 69
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b2.feedback-cultures",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b2",
+			"order": 4,
+			"title": {
+				"pt": "Culturas de feedback",
+				"en": "Feedback cultures"
+			},
+			"summary": "Feedback direto × indireto; elogio-crítica-elogio; diferenças EUA/Reino Unido/Brasil.",
+			"objectives": [
+				"Dar e receber feedback adaptando-se à cultura do interlocutor."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 72
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Building on pluricultural repertoire · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.b2.inclusive-language",
+			"kind": "topic",
+			"parentId": "en.pragmatics.b2",
+			"order": 5,
+			"title": {
+				"pt": "Linguagem inclusiva",
+				"en": "Inclusive language"
+			},
+			"summary": "Pronomes neutros, termos respeitosos e linguagem não discriminatória.",
+			"objectives": [
+				"Usar linguagem inclusiva em textos e falas profissionais."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 75
+			},
+			"hours": {
+				"lo": 1,
+				"hi": 2
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · B2",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.mediation",
+			"kind": "unit",
+			"parentId": "en.pragmatics",
+			"order": 3,
+			"title": {
+				"pt": "Mediação",
+				"en": "Mediation"
+			},
+			"summary": "Repassar, explicar e adaptar informação entre pessoas, textos e línguas (PT↔EN).",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"softPrereqs": [
+				"en.pragmatics.b1"
+			],
+			"hours": {
+				"lo": 9.5,
+				"hi": 15.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediation · B1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pragmatics.mediation.paraphrase",
+			"kind": "topic",
+			"parentId": "en.pragmatics.mediation",
+			"order": 0,
+			"title": {
+				"pt": "Parafrasear e reformular",
+				"en": "Paraphrasing and reformulating"
+			},
+			"summary": "Dizer o mesmo de outro jeito para esclarecer ou simplificar.",
+			"objectives": [
+				"Reformular uma explicação para um interlocutor que não entendeu."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 45
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediating communication · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.mediation.relay-info",
+			"kind": "topic",
+			"parentId": "en.pragmatics.mediation",
+			"order": 1,
+			"title": {
+				"pt": "Repassar informações específicas",
+				"en": "Relaying specific information"
+			},
+			"summary": "Transmitir dados de avisos, e-mails ou reuniões para outra pessoa.",
+			"objectives": [
+				"Repassar com precisão informações de um texto para alguém."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 52
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediating a text · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.mediation.pt-en-mediation",
+			"kind": "topic",
+			"parentId": "en.pragmatics.mediation",
+			"order": 2,
+			"title": {
+				"pt": "Mediar do português para o inglês",
+				"en": "Mediating from Portuguese into English"
+			},
+			"summary": "Resumir ou explicar em inglês um texto ou conversa em português.",
+			"objectives": [
+				"Resumir em inglês um texto técnico escrito em português."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"misconceptions": [
+				"Traduzir palavra por palavra em vez de mediar o sentido."
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B1",
+				"gse": 56
+			},
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediating a text · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.mediation.explain-data",
+			"kind": "topic",
+			"parentId": "en.pragmatics.mediation",
+			"order": 3,
+			"title": {
+				"pt": "Explicar gráficos e dados",
+				"en": "Explaining data"
+			},
+			"summary": "Descrever tendências, comparações e números de gráficos e tabelas.",
+			"objectives": [
+				"Explicar oralmente um gráfico com tendência e comparação."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 62
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediating a text · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.mediation.facilitate-collaboration",
+			"kind": "topic",
+			"parentId": "en.pragmatics.mediation",
+			"order": 4,
+			"title": {
+				"pt": "Facilitar colaboração",
+				"en": "Facilitating collaboration"
+			},
+			"summary": "Organizar turnos, sintetizar opiniões e mover o grupo para decisões.",
+			"objectives": [
+				"Facilitar uma discussão de grupo até uma decisão."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 66
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediating concepts · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.mediation.explain-to-non-experts",
+			"kind": "topic",
+			"parentId": "en.pragmatics.mediation",
+			"order": 5,
+			"title": {
+				"pt": "Explicar conceitos a leigos",
+				"en": "Explaining concepts to non-experts"
+			},
+			"summary": "Adaptar um conceito técnico com analogias e exemplos.",
+			"objectives": [
+				"Explicar um conceito técnico a um leigo usando analogia."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "B2",
+				"gse": 70
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Mediating concepts · B1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.c1",
+			"kind": "unit",
+			"parentId": "en.pragmatics",
+			"order": 4,
+			"title": {
+				"pt": "Pragmática avançada",
+				"en": "Advanced pragmatics"
+			},
+			"summary": "Implicitação, ironia, gestão de face e mudança fluida de registro.",
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"softPrereqs": [
+				"en.pragmatics.b2"
+			],
+			"hours": {
+				"lo": 7.5,
+				"hi": 12.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · C1",
+					"embeddable": false
+				}
+			],
+			"status": "provisional"
+		},
+		{
+			"id": "en.pragmatics.c1.implicature",
+			"kind": "topic",
+			"parentId": "en.pragmatics.c1",
+			"order": 0,
+			"title": {
+				"pt": "Implicaturas",
+				"en": "Implicature"
+			},
+			"summary": "Inferir e produzir sentido implícito em conversas profissionais e sociais.",
+			"objectives": [
+				"Interpretar e produzir respostas indiretas intencionais."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 76
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.c1.irony-sarcasm",
+			"kind": "topic",
+			"parentId": "en.pragmatics.c1",
+			"order": 1,
+			"title": {
+				"pt": "Ironia e sarcasmo",
+				"en": "Irony and sarcasm"
+			},
+			"summary": "Sinais linguísticos e prosódicos de ironia; riscos em texto escrito.",
+			"objectives": [
+				"Reconhecer ironia e sarcasmo e saber quando evitá-los."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 78
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.c1.face-negotiation",
+			"kind": "topic",
+			"parentId": "en.pragmatics.c1",
+			"order": 2,
+			"title": {
+				"pt": "Gestão de face em negociações",
+				"en": "Face-work in negotiation"
+			},
+			"summary": "Preservar a imagem do outro em conflitos e negociações difíceis.",
+			"objectives": [
+				"Conduzir uma conversa difícil preservando a face de ambos."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 80
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.c1.global-teams",
+			"kind": "topic",
+			"parentId": "en.pragmatics.c1",
+			"order": 3,
+			"title": {
+				"pt": "Comunicação em equipes globais",
+				"en": "Communicating in global teams"
+			},
+			"summary": "Inglês como língua franca: clareza, ritmo e checagem de entendimento.",
+			"objectives": [
+				"Adaptar a própria fala para falantes não nativos de várias origens."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 82
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Building on pluricultural repertoire · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		},
+		{
+			"id": "en.pragmatics.c1.register-shifting",
+			"kind": "topic",
+			"parentId": "en.pragmatics.c1",
+			"order": 4,
+			"title": {
+				"pt": "Mudança fluida de registro",
+				"en": "Fluid register shifting"
+			},
+			"summary": "Transitar entre registros na mesma interação conforme a situação muda.",
+			"objectives": [
+				"Ajustar o registro em tempo real numa interação mista."
+			],
+			"assess": [
+				"discourse_completion",
+				"role_play_rubric",
+				"appropriateness_judgement"
+			],
+			"level": {
+				"scheme": "cefr",
+				"cefr": "C1",
+				"gse": 84
+			},
+			"hours": {
+				"lo": 1.5,
+				"hi": 2.5
+			},
+			"anchors": [
+				{
+					"source": "cefr-cv-2020",
+					"ref": "Sociolinguistic appropriateness · C1",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"pragmatics",
+				"can_do"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "en.pragmatics.b2.softening",
+			"to": "en.academic.academic-writing.hedging",
+			"kind": "related"
+		},
+		{
+			"from": "en.pragmatics.mediation.explain-data",
+			"to": "en.academic.paper-reading.figures-tables",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "cefr-cv-2020",
+			"title": "CEFR Companion Volume (Council of Europe, 2020) — escalas de descritores",
+			"url": "https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors",
+			"license": "© Council of Europe; apenas nomes de escalas e níveis (sem texto dos descritores)",
+			"usage": "reference"
+		}
+	]
+}

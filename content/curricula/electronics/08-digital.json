@@ -1,0 +1,3468 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.digital",
+	"items": [
+		{
+			"id": "ee.digital.numbers",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 0,
+			"title": {
+				"pt": "Representação de informação",
+				"en": "Information representation"
+			},
+			"summary": "Sistemas de numeração, inteiros com sinal, códigos, ponto fixo e flutuante e códigos detectores e corretores de erros.",
+			"scope": "Dentro: binário, hexadecimal, complemento de dois, BCD, Gray, ASCII, ponto fixo, IEEE 754, paridade, CRC e Hamming. Fora: aritmética de precisão arbitrária.",
+			"objectives": [
+				"Converter e operar números em diferentes bases e representações",
+				"Escolher representações numéricas adequadas ao hardware"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:from-zero-to-one",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.numbers.number-systems",
+			"kind": "topic",
+			"parentId": "ee.digital.numbers",
+			"order": 0,
+			"title": {
+				"pt": "Sistemas de numeração",
+				"en": "Number systems"
+			},
+			"summary": "Binário, octal e hexadecimal, conversões entre bases e bits, bytes e palavras.",
+			"scope": "Dentro: bases 2, 8, 10 e 16, conversões, prefixos binários. Fora: aritmética com sinal.",
+			"objectives": [
+				"Converter números entre binário, decimal e hexadecimal",
+				"Calcular o intervalo representável com n bits"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"misconceptions": [
+				"Confundir kB (10³) com KiB (2¹⁰)"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 0
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:from-zero-to-one",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.numbers.signed-arith",
+			"kind": "topic",
+			"parentId": "ee.digital.numbers",
+			"order": 1,
+			"title": {
+				"pt": "Inteiros com sinal e complemento de dois",
+				"en": "Signed integers and two's complement"
+			},
+			"summary": "Sinal-magnitude, complemento de dois, soma e subtração binárias, extensão de sinal e overflow.",
+			"scope": "Dentro: complemento de dois, overflow, extensão de sinal, carry versus overflow. Fora: ponto flutuante.",
+			"objectives": [
+				"Somar e subtrair em complemento de dois detectando overflow",
+				"Estender o sinal de um número para mais bits"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"misconceptions": [
+				"Confundir carry de saída com overflow em aritmética com sinal"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.numbers.number-systems"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:from-zero-to-one",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.numbers.codes",
+			"kind": "topic",
+			"parentId": "ee.digital.numbers",
+			"order": 2,
+			"title": {
+				"pt": "Códigos: BCD, Gray, ASCII e paridade",
+				"en": "Codes: BCD, Gray, ASCII and parity"
+			},
+			"summary": "Códigos BCD, Gray, ASCII e UTF-8 e detecção de erros por paridade.",
+			"scope": "Dentro: BCD, Gray, ASCII, UTF-8, paridade. Fora: códigos corretores de erro avançados.",
+			"objectives": [
+				"Converter valores para código Gray e explicar seu uso em encoders",
+				"Calcular o bit de paridade de uma palavra"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.numbers.number-systems"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:from-zero-to-one",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.numbers.fixed-float",
+			"kind": "topic",
+			"parentId": "ee.digital.numbers",
+			"order": 3,
+			"title": {
+				"pt": "Ponto fixo e ponto flutuante",
+				"en": "Fixed point and floating point"
+			},
+			"summary": "Formato Q, escalamento, IEEE 754, precisão, arredondamento e casos especiais.",
+			"scope": "Dentro: formato Q, saturação, IEEE 754 simples e dupla, NaN e infinitos. Fora: unidades de ponto flutuante em hardware.",
+			"objectives": [
+				"Representar valores reais em formato Q com saturação",
+				"Decodificar um número IEEE 754 de 32 bits"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.numbers.signed-arith"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:from-zero-to-one",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.numbers.error-codes",
+			"kind": "topic",
+			"parentId": "ee.digital.numbers",
+			"order": 4,
+			"title": {
+				"pt": "Detecção e correção de erros: paridade, CRC e Hamming",
+				"en": "Error detection and correction: parity, CRC and Hamming"
+			},
+			"summary": "Distância de Hamming, paridade e checksums, CRC como divisão de polinômios sobre GF(2) e código de Hamming com correção de um erro.",
+			"scope": "Dentro: distância de Hamming, paridade, checksum, CRC (divisão polinomial e implementação por tabela), código de Hamming SEC-DED. Fora: códigos convolucionais, LDPC e polares (ver sinais).",
+			"objectives": [
+				"Calcular o CRC de uma mensagem curta e verificar a sua integridade",
+				"Codificar uma palavra e corrigir um erro simples com um código de Hamming"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code"
+			],
+			"misconceptions": [
+				"Achar que um CRC corrige erros, além de detectá-los"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.numbers.codes",
+					"ee.digital.boolean.boolean-algebra"
+				]
+			],
+			"softPrereqs": [
+				"ee.math.discrete.modular-arithmetic"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.boolean",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 1,
+			"title": {
+				"pt": "Álgebra booleana e portas lógicas",
+				"en": "Boolean algebra and logic gates"
+			},
+			"summary": "Álgebra booleana, formas canônicas, minimização e as características elétricas das famílias lógicas.",
+			"scope": "Dentro: postulados e teoremas, SOP e POS, Karnaugh, famílias lógicas, níveis e fan-out. Fora: síntese automática multinível.",
+			"objectives": [
+				"Simplificar funções lógicas",
+				"Interfacear famílias lógicas respeitando níveis e fan-out"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:digital",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.boolean.boolean-algebra",
+			"kind": "topic",
+			"parentId": "ee.digital.boolean",
+			"order": 0,
+			"title": {
+				"pt": "Portas lógicas, tabelas-verdade e teoremas booleanos",
+				"en": "Logic gates, truth tables and Boolean theorems"
+			},
+			"summary": "Portas AND, OR, NOT, NAND, NOR e XOR, tabelas-verdade, teoremas e De Morgan.",
+			"scope": "Dentro: portas, tabelas-verdade, teoremas, De Morgan, universalidade de NAND e NOR. Fora: minimização.",
+			"objectives": [
+				"Simplificar expressões booleanas usando teoremas e De Morgan",
+				"Implementar uma função apenas com portas NAND"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 0
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:digital",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.boolean.canonical-forms",
+			"kind": "topic",
+			"parentId": "ee.digital.boolean",
+			"order": 1,
+			"title": {
+				"pt": "Formas canônicas: SOP, POS e mintermos",
+				"en": "Canonical forms: SOP, POS and minterms"
+			},
+			"summary": "Mintermos, maxtermos, soma de produtos e produto de somas a partir da tabela-verdade.",
+			"scope": "Dentro: mintermos, maxtermos, SOP, POS. Fora: minimização.",
+			"objectives": [
+				"Escrever a forma SOP e POS a partir de uma tabela-verdade",
+				"Converter entre SOP e POS"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.boolean.boolean-algebra"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:digital",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.boolean.kmaps",
+			"kind": "topic",
+			"parentId": "ee.digital.boolean",
+			"order": 2,
+			"title": {
+				"pt": "Mapas de Karnaugh e minimização",
+				"en": "Karnaugh maps and minimization"
+			},
+			"summary": "Minimização com mapas de até 4–5 variáveis, don't cares e implicantes primos.",
+			"scope": "Dentro: Karnaugh, don't cares, implicantes primos essenciais. Fora: Quine-McCluskey e Espresso em detalhe.",
+			"objectives": [
+				"Minimizar funções de até 4 variáveis com mapas de Karnaugh",
+				"Usar don't cares para simplificar a lógica"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.boolean.canonical-forms"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:digital",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.boolean.logic-families",
+			"kind": "topic",
+			"parentId": "ee.digital.boolean",
+			"order": 3,
+			"title": {
+				"pt": "Famílias lógicas, níveis e fan-out",
+				"en": "Logic families, levels and fan-out"
+			},
+			"summary": "TTL e CMOS, níveis V_IH, V_IL, V_OH e V_OL, margens de ruído, fan-out, open-drain e tristate.",
+			"scope": "Dentro: níveis lógicos, margens, fan-out, open-drain, tristate, compatibilidade 3,3 V e 5 V. Fora: projeto de portas CMOS.",
+			"objectives": [
+				"Verificar a compatibilidade de níveis entre duas famílias lógicas",
+				"Explicar o uso de saídas open-drain com pull-up"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.boolean.boolean-algebra",
+					"ee.dc.nonlinear.switches-digital-abstraction"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "13",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:digital",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.comb",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 2,
+			"title": {
+				"pt": "Blocos combinacionais",
+				"en": "Combinational building blocks"
+			},
+			"summary": "Multiplexadores, decodificadores, somadores, ALUs, multiplicadores e temporização combinacional.",
+			"scope": "Dentro: mux, decodificadores, somadores, carry lookahead, comparadores, deslocadores, ALU, multiplicadores, hazards. Fora: microarquitetura.",
+			"objectives": [
+				"Construir datapaths a partir de blocos combinacionais",
+				"Estimar atrasos combinacionais"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-building-blocks",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.comb.mux-decoders",
+			"kind": "topic",
+			"parentId": "ee.digital.comb",
+			"order": 0,
+			"title": {
+				"pt": "Multiplexadores, decodificadores e codificadores",
+				"en": "Multiplexers, decoders and encoders"
+			},
+			"summary": "Mux como seletor e como implementador de funções, decodificadores e codificadores de prioridade.",
+			"scope": "Dentro: mux, demux, decodificadores, codificadores de prioridade. Fora: barramentos tristate.",
+			"objectives": [
+				"Implementar uma função lógica com multiplexador",
+				"Projetar um decodificador de endereços simples"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.boolean.canonical-forms"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-building-blocks",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.comb.adders",
+			"kind": "topic",
+			"parentId": "ee.digital.comb",
+			"order": 1,
+			"title": {
+				"pt": "Somadores e subtratores",
+				"en": "Adders and subtractors"
+			},
+			"summary": "Meio somador, somador completo, ripple-carry, carry lookahead e subtração em complemento de dois.",
+			"scope": "Dentro: half e full adder, ripple, carry lookahead, subtrator. Fora: somadores prefixados avançados.",
+			"objectives": [
+				"Projetar um somador ripple-carry de n bits",
+				"Comparar o atraso de ripple-carry e carry lookahead"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.boolean.canonical-forms",
+					"ee.digital.numbers.signed-arith"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-building-blocks",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.comb.comparators-alu",
+			"kind": "topic",
+			"parentId": "ee.digital.comb",
+			"order": 2,
+			"title": {
+				"pt": "Comparadores, deslocadores e ALU",
+				"en": "Comparators, shifters and ALU"
+			},
+			"summary": "Comparadores de magnitude, deslocadores em barril e unidade lógica e aritmética com flags.",
+			"scope": "Dentro: comparadores, barrel shifter, ALU com flags. Fora: unidades de ponto flutuante.",
+			"objectives": [
+				"Projetar uma ALU simples com flags de zero, sinal e overflow",
+				"Explicar o funcionamento de um barrel shifter"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.comb.adders",
+					"ee.digital.comb.mux-decoders"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-building-blocks",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.comb.multipliers",
+			"kind": "topic",
+			"parentId": "ee.digital.comb",
+			"order": 3,
+			"title": {
+				"pt": "Multiplicadores e divisores em hardware",
+				"en": "Hardware multipliers and dividers"
+			},
+			"summary": "Multiplicação por somas parciais, arranjos, Booth e divisão por restauração.",
+			"scope": "Dentro: array multiplier, Booth, divisão por restauração. Fora: multiplicadores Wallace em detalhe.",
+			"objectives": [
+				"Esboçar um multiplicador em arranjo de 4 bits",
+				"Explicar a recodificação de Booth"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.comb.adders"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-building-blocks",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.comb.hazards",
+			"kind": "topic",
+			"parentId": "ee.digital.comb",
+			"order": 4,
+			"title": {
+				"pt": "Atrasos de propagação e hazards",
+				"en": "Propagation delays and hazards"
+			},
+			"summary": "Atraso de propagação e de contaminação, caminho crítico e glitches por hazards estáticos.",
+			"scope": "Dentro: t_pd, t_cd, caminho crítico, hazards estáticos e sua eliminação. Fora: temporização sequencial.",
+			"objectives": [
+				"Determinar o caminho crítico de um circuito combinacional",
+				"Eliminar um hazard estático com termo de consenso"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.boolean.kmaps"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:combinational-building-blocks",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.seq",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 3,
+			"title": {
+				"pt": "Lógica sequencial e máquinas de estados",
+				"en": "Sequential logic and state machines"
+			},
+			"summary": "Latches, flip-flops, registradores, contadores, máquinas de estados e temporização síncrona.",
+			"scope": "Dentro: latches e flip-flops, registradores, contadores, FSM de Moore e Mealy, setup e hold, metaestabilidade. Fora: verificação formal.",
+			"objectives": [
+				"Projetar máquinas de estados síncronas",
+				"Verificar restrições de temporização de um circuito síncrono"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 17,
+				"hi": 23
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:sequential-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.seq.latches-flipflops",
+			"kind": "topic",
+			"parentId": "ee.digital.seq",
+			"order": 0,
+			"title": {
+				"pt": "Latches e flip-flops",
+				"en": "Latches and flip-flops"
+			},
+			"summary": "Latch SR e D, flip-flop D sensível à borda, JK e T, reset síncrono e assíncrono.",
+			"scope": "Dentro: SR, D latch, flip-flop D, JK, T, resets. Fora: implementação em transistores.",
+			"objectives": [
+				"Explicar a diferença entre latch e flip-flop",
+				"Desenhar diagramas de tempo de flip-flops D"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"misconceptions": [
+				"Confundir latch transparente com flip-flop sensível à borda"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.boolean.boolean-algebra"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:sequential-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.seq.registers-counters",
+			"kind": "topic",
+			"parentId": "ee.digital.seq",
+			"order": 1,
+			"title": {
+				"pt": "Registradores, contadores e registradores de deslocamento",
+				"en": "Registers, counters and shift registers"
+			},
+			"summary": "Registradores com enable, contadores síncronos e assíncronos, divisores de frequência e LFSRs.",
+			"scope": "Dentro: registradores, contadores binários e BCD, ripple versus síncrono, shift registers, LFSR. Fora: FIFOs.",
+			"objectives": [
+				"Projetar um contador síncrono módulo N",
+				"Explicar por que contadores ripple causam glitches"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.seq.latches-flipflops",
+					"ee.digital.comb.adders"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:sequential-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.seq.fsm",
+			"kind": "topic",
+			"parentId": "ee.digital.seq",
+			"order": 2,
+			"title": {
+				"pt": "Máquinas de estados finitos",
+				"en": "Finite state machines"
+			},
+			"summary": "Modelos de Moore e de Mealy, diagramas e tabelas de estados e implementação com flip-flops.",
+			"scope": "Dentro: Moore, Mealy, diagramas de estados, tabelas, implementação. Fora: FSMs em HDL.",
+			"objectives": [
+				"Modelar um controlador como máquina de Moore ou de Mealy",
+				"Implementar uma FSM com flip-flops e lógica"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"misconceptions": [
+				"Confundir saídas de Moore e de Mealy no diagrama de tempo"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.seq.latches-flipflops",
+					"ee.digital.comb.mux-decoders"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:sequential-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.seq.fsm-design",
+			"kind": "topic",
+			"parentId": "ee.digital.seq",
+			"order": 3,
+			"title": {
+				"pt": "Projeto de FSM: codificação e minimização",
+				"en": "FSM design: encoding and minimization"
+			},
+			"summary": "Minimização de estados, codificação binária, one-hot e Gray e seus efeitos em área e velocidade.",
+			"scope": "Dentro: minimização de estados, codificações, compromissos. Fora: síntese automática.",
+			"objectives": [
+				"Minimizar o número de estados de uma FSM",
+				"Comparar codificação binária e one-hot"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.seq.fsm",
+					"ee.digital.boolean.kmaps"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:sequential-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.seq.timing",
+			"kind": "topic",
+			"parentId": "ee.digital.seq",
+			"order": 4,
+			"title": {
+				"pt": "Temporização síncrona: setup, hold e f_max",
+				"en": "Synchronous timing: setup, hold and f_max"
+			},
+			"summary": "Restrições de setup e hold, frequência máxima, skew de clock e correções de violações.",
+			"scope": "Dentro: setup, hold, t_pcq, f_max, skew, violações. Fora: análise estática completa.",
+			"objectives": [
+				"Calcular a frequência máxima de um circuito síncrono",
+				"Identificar e corrigir violações de hold"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.seq.latches-flipflops",
+					"ee.digital.comb.hazards"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:sequential-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.seq.metastability-cdc",
+			"kind": "topic",
+			"parentId": "ee.digital.seq",
+			"order": 5,
+			"title": {
+				"pt": "Metaestabilidade e cruzamento de domínios de clock",
+				"en": "Metastability and clock domain crossing"
+			},
+			"summary": "Metaestabilidade, sincronizadores de dois flip-flops, MTBF e FIFOs assíncronas.",
+			"scope": "Dentro: metaestabilidade, sincronizadores, MTBF, handshake, FIFO assíncrona. Fora: verificação formal de CDC.",
+			"objectives": [
+				"Projetar um sincronizador para um sinal assíncrono",
+				"Explicar por que barramentos multibit não podem ser sincronizados bit a bit"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.seq.timing"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:sequential-logic-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.hdl",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 4,
+			"title": {
+				"pt": "Linguagens de descrição de hardware e FPGA",
+				"en": "Hardware description languages and FPGA"
+			},
+			"summary": "Modelagem em Verilog/SystemVerilog e VHDL, testbenches e fluxo de implementação em FPGA.",
+			"scope": "Dentro: HDL sintetizável, testbenches, simulação, síntese, place and route, restrições. Fora: verificação UVM completa.",
+			"objectives": [
+				"Descrever hardware sintetizável em HDL",
+				"Implementar e temporizar projetos em FPGA"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:hardware-description-languages",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-DIG",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.digital.hdl.verilog-comb",
+			"kind": "topic",
+			"parentId": "ee.digital.hdl",
+			"order": 0,
+			"title": {
+				"pt": "Verilog: modelagem combinacional",
+				"en": "Verilog: combinational modeling"
+			},
+			"summary": "Módulos, portas, assign, always_comb, operadores e armadilhas como latches inferidos.",
+			"scope": "Dentro: módulos, assign, always_comb, case, hierarquia. Fora: lógica sequencial.",
+			"objectives": [
+				"Descrever blocos combinacionais em Verilog",
+				"Evitar a inferência acidental de latches"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.comb.mux-decoders"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:hardware-description-languages",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-DIG",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.digital.hdl.verilog-seq",
+			"kind": "topic",
+			"parentId": "ee.digital.hdl",
+			"order": 1,
+			"title": {
+				"pt": "Verilog: modelagem sequencial e FSMs",
+				"en": "Verilog: sequential modeling and FSMs"
+			},
+			"summary": "always_ff, atribuições bloqueantes e não bloqueantes, resets e FSMs em HDL.",
+			"scope": "Dentro: always_ff, <= versus =, resets, FSMs. Fora: estilo para ASIC.",
+			"objectives": [
+				"Descrever registradores e FSMs em Verilog",
+				"Explicar quando usar atribuição não bloqueante"
+			],
+			"bloom": "understand",
+			"assess": [
+				"code"
+			],
+			"misconceptions": [
+				"Usar atribuições bloqueantes em lógica sequencial"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.verilog-comb",
+					"ee.digital.seq.fsm"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:hardware-description-languages",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-DIG",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.digital.hdl.testbenches",
+			"kind": "topic",
+			"parentId": "ee.digital.hdl",
+			"order": 2,
+			"title": {
+				"pt": "Testbenches e simulação",
+				"en": "Testbenches and simulation"
+			},
+			"summary": "Estímulos, verificação automática com modelos de referência, waveforms e cobertura básica.",
+			"scope": "Dentro: testbench, estímulos, autoverificação, waveforms. Fora: UVM.",
+			"objectives": [
+				"Escrever um testbench autoverificável",
+				"Depurar um projeto pelas formas de onda da simulação"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.verilog-seq"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:hardware-description-languages",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-DIG",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.digital.hdl.fpga-flow",
+			"kind": "topic",
+			"parentId": "ee.digital.hdl",
+			"order": 3,
+			"title": {
+				"pt": "Fluxo FPGA: síntese, implementação e restrições",
+				"en": "FPGA flow: synthesis, implementation and constraints"
+			},
+			"summary": "Arquitetura de FPGA (LUTs, flip-flops, BRAM, DSP), síntese, place and route, restrições de tempo e programação.",
+			"scope": "Dentro: arquitetura de FPGA, síntese, P&R, restrições de clock, relatórios de tempo. Fora: projeto de FPGAs.",
+			"objectives": [
+				"Implementar um projeto em FPGA atendendo às restrições de tempo",
+				"Interpretar um relatório de temporização"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.verilog-seq",
+					"ee.digital.seq.timing"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:hardware-description-languages",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-DIG",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.digital.hdl.vhdl-overview",
+			"kind": "topic",
+			"parentId": "ee.digital.hdl",
+			"order": 4,
+			"title": {
+				"pt": "VHDL",
+				"en": "VHDL"
+			},
+			"summary": "Entidades, arquiteturas, processos, sinais versus variáveis e equivalências com Verilog, comum em cursos brasileiros.",
+			"scope": "Dentro: entity, architecture, process, tipos, sinais e variáveis. Fora: VHDL-AMS.",
+			"objectives": [
+				"Descrever blocos combinacionais e sequenciais em VHDL",
+				"Traduzir um módulo simples entre VHDL e Verilog"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.verilog-comb"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:hardware-description-languages",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-DIG",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.digital.cmos",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 5,
+			"title": {
+				"pt": "CMOS digital e memórias",
+				"en": "Digital CMOS and memories"
+			},
+			"summary": "O inversor CMOS, portas estáticas, atraso e consumo e circuitos de memória.",
+			"scope": "Dentro: inversor, portas estáticas, dimensionamento, atraso, potência, esforço lógico, SRAM, DRAM, Flash. Fora: projeto full-custom avançado.",
+			"objectives": [
+				"Analisar atraso e consumo de portas CMOS",
+				"Explicar o funcionamento de células de memória"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:cmos-digital-logic-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.cmos.cmos-inverter",
+			"kind": "topic",
+			"parentId": "ee.digital.cmos",
+			"order": 0,
+			"title": {
+				"pt": "Inversor CMOS",
+				"en": "CMOS inverter"
+			},
+			"summary": "Característica de transferência, tensão de chaveamento, margens de ruído e corrente de curto-circuito.",
+			"scope": "Dentro: VTC, V_M, margens de ruído, dimensionamento. Fora: atraso.",
+			"objectives": [
+				"Esboçar a VTC de um inversor CMOS e calcular V_M",
+				"Calcular as margens de ruído a partir da VTC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.mos-dc.mos-models-circuit",
+					"ee.digital.boolean.logic-families"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:cmos-digital-logic-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.cmos.cmos-gates",
+			"kind": "topic",
+			"parentId": "ee.digital.cmos",
+			"order": 1,
+			"title": {
+				"pt": "Portas CMOS estáticas",
+				"en": "Static CMOS gates"
+			},
+			"summary": "Redes pull-up e pull-down complementares, portas complexas e dimensionamento equivalente.",
+			"scope": "Dentro: NAND, NOR, portas complexas, dimensionamento. Fora: lógica dinâmica.",
+			"objectives": [
+				"Desenhar o esquemático em transistores de uma porta complexa",
+				"Dimensionar transistores para resistência equivalente ao inversor"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.cmos.cmos-inverter"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:cmos-digital-logic-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.cmos.delay-power",
+			"kind": "topic",
+			"parentId": "ee.digital.cmos",
+			"order": 2,
+			"title": {
+				"pt": "Atraso, potência e esforço lógico",
+				"en": "Delay, power and logical effort"
+			},
+			"summary": "Modelo RC de atraso, esforço lógico, potência dinâmica CV²f, curto-circuito e fuga.",
+			"scope": "Dentro: atraso RC, esforço lógico, potência dinâmica e estática. Fora: técnicas de baixo consumo.",
+			"objectives": [
+				"Estimar o atraso de um caminho pelo esforço lógico",
+				"Calcular a potência dinâmica de um bloco"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.cmos.cmos-gates",
+					"ee.ac.transients1.rc-pulse"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:cmos-digital-logic-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.cmos.memories",
+			"kind": "topic",
+			"parentId": "ee.digital.cmos",
+			"order": 3,
+			"title": {
+				"pt": "Memórias: SRAM, DRAM e Flash",
+				"en": "Memories: SRAM, DRAM and Flash"
+			},
+			"summary": "Célula SRAM 6T, DRAM 1T1C, Flash NOR e NAND, organização em matriz e sense amplifiers.",
+			"scope": "Dentro: células de memória, organização, leitura e escrita. Fora: memórias emergentes.",
+			"objectives": [
+				"Explicar a leitura e a escrita de uma célula SRAM 6T",
+				"Comparar SRAM, DRAM e Flash em densidade e velocidade"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.cmos.cmos-gates",
+					"ee.digital.seq.latches-flipflops"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:cmos-digital-logic-circuits",
+					"embeddable": false
+				},
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.arch",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 6,
+			"title": {
+				"pt": "Arquitetura de computadores",
+				"en": "Computer architecture"
+			},
+			"summary": "ISA RISC-V, assembly, processadores monociclo e com pipeline, hierarquia de memória e E/S.",
+			"scope": "Dentro: RISC-V RV32I, assembly, datapath e controle, pipeline e hazards, caches, memória virtual, interrupções. Fora: arquiteturas superescalares em detalhe.",
+			"objectives": [
+				"Programar em assembly e explicar a execução no hardware",
+				"Projetar um processador simples com pipeline"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 18,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:architecture",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:microarchitecture",
+					"embeddable": false
+				},
+				{
+					"source": "riscv-isa-manual",
+					"ref": "Volume I: Unprivileged ISA",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-CAO",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.arch.isa-riscv",
+			"kind": "topic",
+			"parentId": "ee.digital.arch",
+			"order": 0,
+			"title": {
+				"pt": "Conjunto de instruções RISC-V",
+				"en": "RISC-V instruction set"
+			},
+			"summary": "Registradores, formatos de instrução, modos de endereçamento e codificação RV32I.",
+			"scope": "Dentro: RV32I, formatos R, I, S, B, U, J, codificação. Fora: extensões privilegiadas.",
+			"objectives": [
+				"Codificar e decodificar instruções RV32I",
+				"Explicar as escolhas de projeto de uma ISA RISC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.numbers.signed-arith"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:architecture",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:microarchitecture",
+					"embeddable": false
+				},
+				{
+					"source": "riscv-isa-manual",
+					"ref": "Volume I: Unprivileged ISA",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-CAO",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.arch.assembly",
+			"kind": "topic",
+			"parentId": "ee.digital.arch",
+			"order": 1,
+			"title": {
+				"pt": "Programação assembly RISC-V",
+				"en": "RISC-V assembly programming"
+			},
+			"summary": "Aritmética, desvios, laços, funções, pilha e convenção de chamada.",
+			"scope": "Dentro: instruções, controle de fluxo, chamadas, pilha, ABI. Fora: compiladores.",
+			"objectives": [
+				"Escrever funções em assembly respeitando a convenção de chamada",
+				"Traduzir trechos de C para assembly"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.arch.isa-riscv"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:architecture",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:microarchitecture",
+					"embeddable": false
+				},
+				{
+					"source": "riscv-isa-manual",
+					"ref": "Volume I: Unprivileged ISA",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-CAO",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.arch.single-cycle",
+			"kind": "topic",
+			"parentId": "ee.digital.arch",
+			"order": 2,
+			"title": {
+				"pt": "Processador monociclo",
+				"en": "Single-cycle processor"
+			},
+			"summary": "Datapath e unidade de controle de um processador RISC-V monociclo.",
+			"scope": "Dentro: datapath, controle, execução de instruções tipo R, I, load, store e branch. Fora: multiciclo.",
+			"objectives": [
+				"Traçar a execução de uma instrução no datapath monociclo",
+				"Estender o datapath para uma nova instrução"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.arch.isa-riscv",
+					"ee.digital.comb.comparators-alu",
+					"ee.digital.seq.registers-counters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:architecture",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:microarchitecture",
+					"embeddable": false
+				},
+				{
+					"source": "riscv-isa-manual",
+					"ref": "Volume I: Unprivileged ISA",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-CAO",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.arch.pipelining",
+			"kind": "topic",
+			"parentId": "ee.digital.arch",
+			"order": 3,
+			"title": {
+				"pt": "Pipeline e hazards",
+				"en": "Pipelining and hazards"
+			},
+			"summary": "Pipeline de cinco estágios, hazards de dados e de controle, forwarding, stalls e predição de desvio.",
+			"scope": "Dentro: pipeline de 5 estágios, forwarding, stalls, flush, predição simples. Fora: execução fora de ordem.",
+			"objectives": [
+				"Identificar hazards em uma sequência de instruções",
+				"Calcular o CPI com stalls e forwarding"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.arch.single-cycle",
+					"ee.digital.seq.timing"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:architecture",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:microarchitecture",
+					"embeddable": false
+				},
+				{
+					"source": "riscv-isa-manual",
+					"ref": "Volume I: Unprivileged ISA",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-CAO",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.arch.memory-hierarchy",
+			"kind": "topic",
+			"parentId": "ee.digital.arch",
+			"order": 4,
+			"title": {
+				"pt": "Hierarquia de memória e caches",
+				"en": "Memory hierarchy and caches"
+			},
+			"summary": "Localidade, caches diretas e associativas, políticas de escrita e tempo médio de acesso.",
+			"scope": "Dentro: localidade, organização de caches, substituição, write-back e write-through, AMAT. Fora: coerência multicore.",
+			"objectives": [
+				"Calcular o tempo médio de acesso à memória",
+				"Simular hits e misses em uma cache associativa"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.arch.single-cycle"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:architecture",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:microarchitecture",
+					"embeddable": false
+				},
+				{
+					"source": "riscv-isa-manual",
+					"ref": "Volume I: Unprivileged ISA",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-CAO",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.arch.virtual-memory-io",
+			"kind": "topic",
+			"parentId": "ee.digital.arch",
+			"order": 5,
+			"title": {
+				"pt": "Memória virtual, E/S e interrupções",
+				"en": "Virtual memory, I/O and interrupts"
+			},
+			"summary": "Paginação, TLB, E/S mapeada em memória, interrupções e exceções.",
+			"scope": "Dentro: paginação, TLB, E/S mapeada, interrupções, exceções, DMA. Fora: sistemas operacionais.",
+			"objectives": [
+				"Traduzir endereços virtuais em físicos com tabela de páginas",
+				"Explicar o fluxo de tratamento de uma interrupção"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.arch.memory-hierarchy",
+					"ee.digital.arch.assembly"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:architecture",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:microarchitecture",
+					"embeddable": false
+				},
+				{
+					"source": "riscv-isa-manual",
+					"ref": "Volume I: Unprivileged ISA",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-CAO",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 7,
+			"title": {
+				"pt": "VLSI digital: RTL, temporização e fluxo ASIC",
+				"en": "Digital VLSI: RTL, timing and ASIC flow"
+			},
+			"summary": "Metodologia RTL, análise estática de tempo, fluxo ASIC, baixo consumo e verificação.",
+			"scope": "Dentro: RTL, STA, síntese, P&R, DFT, baixo consumo, verificação funcional. Fora: projeto full-custom analógico.",
+			"objectives": [
+				"Levar um projeto RTL até o layout em fluxo ASIC",
+				"Verificar funcionalidade e temporização de projetos digitais grandes"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi.rtl-methodology",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi",
+			"order": 0,
+			"title": {
+				"pt": "Metodologia RTL: datapath e controle",
+				"en": "RTL methodology: datapath and control"
+			},
+			"summary": "Particionamento em datapath e controle, pipelines, handshakes e interfaces padronizadas.",
+			"scope": "Dentro: datapath e controle, pipelines, valid/ready, interfaces AXI em visão. Fora: síntese de alto nível.",
+			"objectives": [
+				"Particionar um algoritmo em datapath e controle",
+				"Projetar uma interface valid/ready com backpressure"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.testbenches",
+					"ee.digital.arch.pipelining"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi.sta",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi",
+			"order": 1,
+			"title": {
+				"pt": "Análise estática de tempo",
+				"en": "Static timing analysis"
+			},
+			"summary": "Caminhos de tempo, slack, cantos, OCV e restrições SDC.",
+			"scope": "Dentro: caminhos, slack, setup e hold, cantos, SDC. Fora: timing estatístico.",
+			"objectives": [
+				"Escrever restrições SDC básicas",
+				"Interpretar relatórios de STA e fechar violações"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.fpga-flow",
+					"ee.digital.cmos.delay-power"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi.asic-flow",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi",
+			"order": 2,
+			"title": {
+				"pt": "Fluxo ASIC",
+				"en": "ASIC flow"
+			},
+			"summary": "Síntese lógica, floorplan, posicionamento, árvore de clock, roteamento, DFT e signoff.",
+			"scope": "Dentro: síntese, floorplan, CTS, roteamento, scan e ATPG, DRC e LVS. Fora: projeto de bibliotecas de células.",
+			"objectives": [
+				"Descrever as etapas do fluxo RTL até GDSII",
+				"Explicar o papel da inserção de scan"
+			],
+			"bloom": "understand",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.vlsi.sta"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi.low-power-digital",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi",
+			"order": 3,
+			"title": {
+				"pt": "Projeto digital de baixo consumo",
+				"en": "Low-power digital design"
+			},
+			"summary": "Clock gating, power gating, múltiplas tensões, DVFS e redução de atividade.",
+			"scope": "Dentro: clock gating, power gating, DVFS, múltiplos V_T. Fora: circuitos subliminares em detalhe.",
+			"objectives": [
+				"Avaliar técnicas de redução de potência dinâmica e estática",
+				"Aplicar clock gating em um projeto RTL"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.digital.cmos.delay-power",
+					"ee.digital.vlsi.rtl-methodology"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi.verification",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi",
+			"order": 4,
+			"title": {
+				"pt": "Verificação funcional",
+				"en": "Functional verification"
+			},
+			"summary": "Asserções, cobertura funcional, verificação aleatória restrita, UVM em visão geral e verificação formal.",
+			"scope": "Dentro: SVA, cobertura, aleatória restrita, UVM, formal. Fora: emulação.",
+			"objectives": [
+				"Escrever asserções SystemVerilog para um protocolo",
+				"Planejar a cobertura funcional de um bloco"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.testbenches"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi-adv",
+			"kind": "unit",
+			"parentId": "ee.digital",
+			"order": 8,
+			"title": {
+				"pt": "VLSI avançado: projeto físico, memórias e aceleradores",
+				"en": "Advanced VLSI: physical design, memories and accelerators"
+			},
+			"summary": "Projeto físico, distribuição de clock e alimentação, SRAM, testabilidade, aceleradores e arquitetura avançada.",
+			"scope": "Dentro: floorplan, posicionamento, roteamento, árvores de clock, PDN, SRAM, DFT, HLS, superescalar e multicore. Fora: algoritmos de EDA.",
+			"objectives": [
+				"Levar um bloco digital até o layout com fechamento de timing",
+				"Projetar aceleradores e memórias para eficiência energética"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 17,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi-adv.physical-design",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi-adv",
+			"order": 0,
+			"title": {
+				"pt": "Projeto físico: floorplan, posicionamento e roteamento",
+				"en": "Physical design: floorplan, placement and routing"
+			},
+			"summary": "Floorplan, posicionamento, síntese da árvore de clock, roteamento, extração e fechamento de timing.",
+			"scope": "Dentro: floorplan, place-and-route, CTS, extração, ECO, fechamento de timing. Fora: algoritmos internos das ferramentas.",
+			"objectives": [
+				"Executar um fluxo de place-and-route com ferramentas abertas",
+				"Analisar violações de timing após o roteamento"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.vlsi.asic-flow"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi-adv.clock-power-distribution",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi-adv",
+			"order": 1,
+			"title": {
+				"pt": "Distribuição de clock e de alimentação no chip",
+				"en": "On-chip clock and power distribution"
+			},
+			"summary": "Skew e jitter de clock, malhas e árvores, queda IR, ressonância da PDN e capacitores de desacoplamento no chip.",
+			"scope": "Dentro: árvores e malhas de clock, skew, queda IR, eletromigração, desacoplamento no chip. Fora: PDN de placa.",
+			"objectives": [
+				"Estimar a queda IR numa malha de alimentação",
+				"Comparar topologias de distribuição de clock"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.vlsi-adv.physical-design"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi-adv.sram-design",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi-adv",
+			"order": 2,
+			"title": {
+				"pt": "Projeto de SRAM",
+				"en": "SRAM design"
+			},
+			"summary": "Célula 6T, margens de leitura e escrita, amplificadores de leitura, redundância e assistências de baixa tensão.",
+			"scope": "Dentro: célula 6T e 8T, SNM, sense amplifiers, decodificação, redundância. Fora: memórias emergentes.",
+			"objectives": [
+				"Analisar as margens de leitura e escrita de uma célula 6T",
+				"Explicar técnicas de assistência para baixa tensão"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.cmos.memories",
+					"ee.digital.vlsi.low-power-digital"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi-adv.dft",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi-adv",
+			"order": 3,
+			"title": {
+				"pt": "Projeto para testabilidade",
+				"en": "Design for testability"
+			},
+			"summary": "Modelos de falha, cadeias de scan, ATPG, BIST de memória e lógica, JTAG.",
+			"scope": "Dentro: falhas stuck-at e de atraso, scan, ATPG, BIST, boundary scan. Fora: teste analógico.",
+			"objectives": [
+				"Inserir uma cadeia de scan num projeto",
+				"Explicar a cobertura de falhas obtida por ATPG"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.vlsi.rtl-methodology"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi-adv.hw-accelerators",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi-adv",
+			"order": 4,
+			"title": {
+				"pt": "Aceleradores de hardware e síntese de alto nível",
+				"en": "Hardware accelerators and high-level synthesis"
+			},
+			"summary": "Dataflow, arranjos sistólicos, aceleradores para aprendizado de máquina e HLS.",
+			"scope": "Dentro: dataflow, sistólicos, reuso de dados, HLS, métricas de eficiência. Fora: compiladores de ML.",
+			"objectives": [
+				"Projetar um arranjo sistólico para multiplicação de matrizes",
+				"Avaliar um acelerador por energia por operação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.vlsi.rtl-methodology",
+					"ee.digital.arch.memory-hierarchy"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		},
+		{
+			"id": "ee.digital.vlsi-adv.advanced-architecture",
+			"kind": "topic",
+			"parentId": "ee.digital.vlsi-adv",
+			"order": 5,
+			"title": {
+				"pt": "Arquitetura avançada: superescalar e multicore",
+				"en": "Advanced architecture: superscalar and multicore"
+			},
+			"summary": "Execução fora de ordem, previsão de desvios, coerência de cache e consistência de memória.",
+			"scope": "Dentro: superescalar, OoO, previsão de desvios, coerência, consistência. Fora: microarquitetura de produtos específicos.",
+			"objectives": [
+				"Explicar como o renomeamento de registradores remove dependências falsas",
+				"Analisar um protocolo de coerência MESI"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.digital.arch.memory-hierarchy"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "weste-harris-vlsi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / ISSCC / DAC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:digital-ic"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.digital.seq.latches-flipflops",
+			"to": "ee.digital.seq.registers-counters",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "ee.digital.numbers.fixed-float",
+			"to": "ee.signals.dsp.filter-implementation",
+			"kind": "related"
+		},
+		{
+			"from": "ee.digital.boolean.boolean-algebra",
+			"to": "ee.math.discrete.logic-sets-proofs",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "harris-harris-riscv",
+			"title": "Harris & Harris — Digital Design and Computer Architecture: RISC-V Edition",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-acm-ce2016",
+			"title": "IEEE/ACM — Computer Engineering Curricula 2016 (CE2016)",
+			"license": "© ACM/IEEE; só referência (DOI 10.1145/3025098)",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "liec-kuphaldt",
+			"title": "Tony R. Kuphaldt — Lessons in Electric Circuits (vol. I–VI)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/",
+			"license": "Design Science License ou CC BY 4.0 conforme a edição; tratado aqui como só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.004-s17",
+			"title": "MIT OCW 6.004 — Computation Structures (S2017)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.111",
+			"title": "MIT OCW 6.111 — Introductory Digital Systems Laboratory",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.374-f03",
+			"title": "MIT OCW 6.374 — Analysis and Design of Digital Integrated Circuits (F2003)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "riscv-isa-manual",
+			"title": "RISC-V International — The RISC-V Instruction Set Manual",
+			"url": "https://riscv.org/specifications/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "sedra-smith-8e",
+			"title": "Sedra, Smith, Carusone, Gaudet — Microelectronic Circuits, 8ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "weste-harris-vlsi",
+			"title": "Weste & Harris — CMOS VLSI Design",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		}
+	]
+}

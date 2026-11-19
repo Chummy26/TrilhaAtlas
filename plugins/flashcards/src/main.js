@@ -354,10 +354,57 @@ export function activate(ctx) {
     return () => { view.abort(); review.dispose(); tree.dispose(); dashboard.dispose(); root.remove(); };
   }
 
+  // Export/sync settings and actions (Obsidian mirror, AnkiConnect or .apkg, Anki revlog import).
+  function mountSyncSettings(area, signal, showError, clearError) {
+    const status = el('p', 'fc-sync-status'); status.setAttribute('role', 'status');
+    let rows = null;
+    const syncRows = view => {
+      const s = view.settings;
+      const row = (key, label, value, type, extras = {}) => ({ key, label, value, type, ...extras, onChange: async value => {
+        try { const next = await ctx.call('save-sync-settings', { [key]: value }); if (signal.aborted) return; clearError(); rows?.update({ rows: syncRows(next) }); }
+        catch (cause) { showError(cause); throw cause; }
+      } });
+      return [
+        row('obsidianVaultPath', 'Cofre do Obsidian', s.obsidianVaultPath ?? '', 'text', { description: 'Caminho absoluto da pasta do cofre. Espelho só de ida em LearnHarness/<Domínio>/<Região>.md.' }),
+        row('reviewClient', 'Onde revisar os cartões', s.reviewClient, 'dropdown', { options: [{ value: 'app', label: 'No app (FSRS-7)' }, { value: 'anki', label: 'No Anki' }] }),
+        row('ankiConnectUrl', 'Endereço do AnkiConnect', s.ankiConnectUrl, 'text', { description: 'Só endereços locais (127.0.0.1, localhost ou [::1]).' }),
+      ];
+    };
+    const run = async (operation, describe, input = {}) => {
+      try {
+        const result = await ctx.call(operation, input); if (signal.aborted) return; clearError();
+        status.textContent = result?.mode === 'profile-mismatch' ? result.message : describe(result);
+        return result;
+      } catch (cause) { if (!signal.aborted) { status.textContent = ''; showError(cause); } }
+    };
+    const plural = (count, one, many) => `${count} ${count === 1 ? one : many}`;
+    const inAnki = r => r.alreadyInAnki ? ` ${plural(r.alreadyInAnki, 'cartão já está', 'cartões já estão')} no Anki; alterações neles seguem no próximo envio.` : '';
+    const describeAnki = r => r.mode === 'apkg'
+      ? (r.path ? `Anki fechado: pacote .apkg gerado em ${r.path} (${plural(r.notes, 'nota', 'notas')}).${inAnki(r)}` : `Anki fechado: nenhum cartão novo para empacotar.${inAnki(r)}`)
+      : `Anki (API ${r.flavor}): ${r.created} criadas, ${r.updated} atualizadas, ${r.unchanged} sem mudança${r.failed.length ? `, ${r.failed.length} com erro` : ''}.`;
+    // Another Anki profile is open: sync only moves to it after an explicit confirmation (r7 §8.3).
+    const confirmProfileSwitch = mismatch => dialog('Trocar o perfil do Anki?', signal, ({ root, actions, signal: ds, close }) => {
+      root.append(el('p', 'fc-muted', `${mismatch.message} Ao trocar, os próximos envios e importações usam o perfil “${mismatch.active}”.`));
+      button(actions, `Usar “${mismatch.active}” e enviar`, async () => { close(); await run('export-anki', describeAnki, { switchProfile: true }); }, ds, { variant: 'default' });
+    }, 'Cancelar');
+    void ctx.call('get-sync').then(view => {
+      if (signal.aborted || typeof view?.settings?.reviewClient !== 'string') return;
+      const slot = el('div'), actions = el('div', 'fc-actions');
+      area.append(el('h3', 'fc-sync-title', 'Exportação e sincronização'), slot, actions, status);
+      rows = widget(ctx.ui.mountSettingsRows(slot, { rows: syncRows(view) }, { signal }), signal);
+      button(actions, 'Exportar para o Obsidian', () => run('export-obsidian', r => `Obsidian: ${plural(r.cards, 'cartão', 'cartões')}; ${plural(r.written.length, 'nota gravada', 'notas gravadas')}, ${plural(r.unchanged.length, 'sem mudança', 'sem mudança')}.`), signal);
+      button(actions, 'Enviar ao Anki', async () => {
+        const result = await run('export-anki', describeAnki);
+        if (result?.mode === 'profile-mismatch' && !signal.aborted) confirmProfileSwitch(result);
+      }, signal);
+      button(actions, 'Importar revisões do Anki', () => run('anki-import-reviews', r => `${plural(r.imported, 'revisão importada', 'revisões importadas')} do Anki.`), signal);
+    }).catch(cause => { if (!signal.aborted) showError(cause); });
+  }
+
   function mountSettings(container, hostSignal) {
     const scope = lifetime(hostSignal, ctx.signal), signal = scope.signal;
-    const root = el('div', 'fc-root fc-settings'), error = el('p', 'fc-error'), fields = el('div'), modelArea = el('div', 'fc-model-settings');
-    error.setAttribute('role', 'alert'); root.append(fields, modelArea, error); container.append(root);
+    const root = el('div', 'fc-root fc-settings'), error = el('p', 'fc-error'), fields = el('div'), modelArea = el('div', 'fc-model-settings'), syncArea = el('div', 'fc-sync-settings');
+    error.setAttribute('role', 'alert'); root.append(fields, modelArea, syncArea, error); container.append(root);
     let initialized = false, rows, followRows, modelPicker, thinkingPicker, modelPickers, modelRow, thinkingRow, catalog = null;
     let overrideDraft = false, modelBusy = false;
     const followingCheap = settings => !overrideDraft && !settings.modelOverride && settings.thinkingOverride == null;
@@ -399,6 +446,7 @@ export function activate(ctx) {
       modelPicker?.update({ value: model, disabled: following || modelBusy });
       thinkingPicker?.update({ model, value: settings.thinkingOverride ?? (settings.modelOverride ? undefined : catalog?.slots?.cheap?.thinkingLevel), disabled: following || modelBusy || !model });
     };
+    mountSyncSettings(syncArea, signal, showError, () => { error.textContent = ''; });
     observe((state, loadError) => {
       if (signal.aborted) return; if (loadError) { showError(loadError); return; }
       if (!initialized) {

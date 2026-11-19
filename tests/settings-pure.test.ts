@@ -31,7 +31,7 @@ const mocha = BUILTIN_THEMES.find((t) => t.id === "catppuccin-mocha")!;
 describe("resolveAppearance — delta over factory", () => {
 	it("absent everything = the factory view", () => {
 		const a = resolveAppearance(undefined);
-		assert.equal(a.theme, "default");
+		assert.equal(a.theme, "cel-papel"); // owner (estudos-sota): cel shading is the factory look
 		assert.equal(a.background, null);
 		assert.deepEqual(a.colors, {});
 		assert.equal(a.fontFamily, null);

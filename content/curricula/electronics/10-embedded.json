@@ -1,0 +1,3677 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.embedded",
+	"items": [
+		{
+			"id": "ee.embedded.c",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 0,
+			"title": {
+				"pt": "C para sistemas embarcados",
+				"en": "C for embedded systems"
+			},
+			"summary": "A linguagem C com foco em memória, bits, estruturas de dados e na cadeia de compilação para microcontroladores.",
+			"scope": "Dentro: tipos, controle de fluxo, funções, ponteiros, structs, volatile, operações bit a bit, toolchain, organização modular, estruturas de dados com memória estática. Fora: C++ e Rust embarcados.",
+			"objectives": [
+				"Escrever C correto e portável para microcontroladores",
+				"Entender o que o compilador e o linker produzem"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 18,
+				"hi": 25
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.c.c-basics",
+			"kind": "topic",
+			"parentId": "ee.embedded.c",
+			"order": 0,
+			"title": {
+				"pt": "C: tipos, controle de fluxo e funções",
+				"en": "C: types, control flow and functions"
+			},
+			"summary": "Tipos inteiros de largura fixa, operadores, controle de fluxo, funções e escopo.",
+			"scope": "Dentro: tipos de stdint.h, operadores, if, for, while, switch, funções, escopo. Fora: ponteiros.",
+			"objectives": [
+				"Escrever programas em C com funções e controle de fluxo",
+				"Escolher tipos de largura fixa adequados ao hardware"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Supor que int tem sempre 32 bits"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.digital.numbers.signed-arith"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.c.pointers-memory",
+			"kind": "topic",
+			"parentId": "ee.embedded.c",
+			"order": 1,
+			"title": {
+				"pt": "Ponteiros, arrays e modelo de memória",
+				"en": "Pointers, arrays and memory model"
+			},
+			"summary": "Ponteiros, aritmética de ponteiros, arrays, strings, pilha, heap e seções .data, .bss e .text.",
+			"scope": "Dentro: ponteiros, arrays, strings, pilha e heap, seções de memória. Fora: gerenciamento dinâmico avançado.",
+			"objectives": [
+				"Usar ponteiros para manipular arrays e buffers",
+				"Explicar onde ficam variáveis globais, locais e constantes"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Retornar ponteiro para variável local"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.embedded.c.c-basics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.c.bitwise",
+			"kind": "topic",
+			"parentId": "ee.embedded.c",
+			"order": 2,
+			"title": {
+				"pt": "Operações bit a bit e registradores",
+				"en": "Bitwise operations and registers"
+			},
+			"summary": "Máscaras, deslocamentos, set, clear e toggle de bits e acesso a registradores mapeados em memória.",
+			"scope": "Dentro: operadores bit a bit, máscaras, campos de bits, registradores mapeados. Fora: CMSIS completo.",
+			"objectives": [
+				"Ligar, desligar e testar bits de registradores com máscaras",
+				"Ler e escrever campos de bits de um registrador"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.embedded.c.c-basics"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.c.structs-volatile",
+			"kind": "topic",
+			"parentId": "ee.embedded.c",
+			"order": 3,
+			"title": {
+				"pt": "Structs, unions, volatile e const",
+				"en": "Structs, unions, volatile and const"
+			},
+			"summary": "Agrupamento de dados, alinhamento e padding, volatile para hardware e const para ROM.",
+			"scope": "Dentro: structs, unions, alinhamento, volatile, const. Fora: modelos de memória concorrentes.",
+			"objectives": [
+				"Explicar quando volatile é necessário",
+				"Mapear um bloco de registradores com uma struct"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que volatile garante atomicidade"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.embedded.c.pointers-memory",
+					"ee.embedded.c.bitwise"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.c.toolchain",
+			"kind": "topic",
+			"parentId": "ee.embedded.c",
+			"order": 4,
+			"title": {
+				"pt": "Toolchain: compilação, linkagem e startup",
+				"en": "Toolchain: compilation, linking and startup"
+			},
+			"summary": "Pré-processador, compilador, linker script, código de startup, vetor de interrupções e arquivos map.",
+			"scope": "Dentro: etapas de compilação, linker script, startup, map file, otimizações. Fora: compiladores por dentro.",
+			"objectives": [
+				"Interpretar um linker script e um arquivo map",
+				"Explicar o que acontece entre o reset e a main"
+			],
+			"bloom": "understand",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.embedded.c.pointers-memory"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.c.modular-c",
+			"kind": "topic",
+			"parentId": "ee.embedded.c",
+			"order": 5,
+			"title": {
+				"pt": "C modular e boas práticas",
+				"en": "Modular C and good practices"
+			},
+			"summary": "Módulos .c/.h, encapsulamento, camadas de abstração, regras inspiradas em MISRA C e controle de versões.",
+			"scope": "Dentro: organização em módulos, interfaces, regras de codificação, análise estática, controle de versões com git. Fora: certificação MISRA formal.",
+			"objectives": [
+				"Organizar firmware em módulos com interfaces claras",
+				"Aplicar regras de codificação segura"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.embedded.c.structs-volatile"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.c.data-structures",
+			"kind": "topic",
+			"parentId": "ee.embedded.c",
+			"order": 6,
+			"title": {
+				"pt": "Estruturas de dados e algoritmos em C embarcado",
+				"en": "Data structures and algorithms in embedded C"
+			},
+			"summary": "Buffers circulares, filas, pilhas, listas com alocação estática, tabelas de consulta, busca e ordenação e a análise de custo em tempo e memória.",
+			"scope": "Dentro: buffer circular, fila, pilha, lista ligada com memória estática, tabelas de consulta, busca binária, ordenação simples, notação O. Fora: estruturas de dados avançadas e alocação dinâmica em tempo real.",
+			"objectives": [
+				"Implementar um buffer circular seguro entre produtor e consumidor",
+				"Escolher a estrutura de dados e o algoritmo adequados a restrições de tempo e de memória"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que malloc é sempre seguro em firmware de longa execução, ignorando fragmentação e tempo não determinístico"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.c.structs-volatile"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kernighan-ritchie-c",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.mcu",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 1,
+			"title": {
+				"pt": "Arquitetura de microcontroladores",
+				"en": "Microcontroller architecture"
+			},
+			"summary": "Organização de um microcontrolador, núcleo ARM Cortex-M, clocks e reset e ferramentas de desenvolvimento.",
+			"scope": "Dentro: núcleo, barramentos, memórias, periféricos, Cortex-M, clocks, reset, IDE, gravação e depuração. Fora: projeto de microcontroladores.",
+			"objectives": [
+				"Navegar no manual de referência de um microcontrolador",
+				"Configurar o ambiente de desenvolvimento e depuração"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.mcu.mcu-architecture",
+			"kind": "topic",
+			"parentId": "ee.embedded.mcu",
+			"order": 0,
+			"title": {
+				"pt": "Arquitetura de um microcontrolador",
+				"en": "Microcontroller architecture"
+			},
+			"summary": "Núcleo, Flash e RAM, barramentos, periféricos mapeados em memória e leitura de manuais de referência.",
+			"scope": "Dentro: blocos de um MCU, mapa de memória, manual de referência e folha de dados. Fora: microprocessadores de aplicação.",
+			"objectives": [
+				"Localizar periféricos no mapa de memória",
+				"Extrair informações do manual de referência de um MCU"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.arch.isa-riscv",
+					"ee.embedded.c.bitwise"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.mcu.cortex-m",
+			"kind": "topic",
+			"parentId": "ee.embedded.mcu",
+			"order": 1,
+			"title": {
+				"pt": "Núcleo ARM Cortex-M",
+				"en": "ARM Cortex-M core"
+			},
+			"summary": "Registradores, modos de operação, pilhas MSP e PSP, exceções e NVIC em visão geral.",
+			"scope": "Dentro: registradores, modos thread e handler, exceções, SysTick. Fora: Cortex-A.",
+			"objectives": [
+				"Explicar o modelo de exceções do Cortex-M",
+				"Configurar o SysTick como base de tempo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.mcu.mcu-architecture",
+					"ee.digital.arch.assembly"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.mcu.clocks-reset",
+			"kind": "topic",
+			"parentId": "ee.embedded.mcu",
+			"order": 2,
+			"title": {
+				"pt": "Clock, reset e inicialização",
+				"en": "Clock, reset and initialization"
+			},
+			"summary": "Fontes de clock, PLL, árvore de clock, fontes de reset e sequência de inicialização.",
+			"scope": "Dentro: osciladores internos e externos, PLL, prescalers, resets. Fora: projeto de PLLs.",
+			"objectives": [
+				"Configurar a árvore de clock para uma frequência desejada",
+				"Identificar a causa de um reset pelos registradores de status"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.mcu.mcu-architecture"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.mcu.dev-env",
+			"kind": "topic",
+			"parentId": "ee.embedded.mcu",
+			"order": 3,
+			"title": {
+				"pt": "Ambiente de desenvolvimento e depuração",
+				"en": "Development environment and debugging"
+			},
+			"summary": "IDE, gravação via SWD e JTAG, breakpoints, watchpoints, inspeção de registradores e printf por UART ou ITM.",
+			"scope": "Dentro: IDE, gravação, depurador, breakpoints, watchpoints, trace. Fora: depuração de RTOS.",
+			"objectives": [
+				"Gravar e depurar firmware com breakpoints",
+				"Usar watchpoints para encontrar corrupção de memória"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.mcu.mcu-architecture",
+					"ee.embedded.c.toolchain"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.periph",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 2,
+			"title": {
+				"pt": "Periféricos do microcontrolador",
+				"en": "Microcontroller peripherals"
+			},
+			"summary": "GPIO, interrupções, timers e PWM, ADC e DAC, DMA, baixo consumo e watchdog.",
+			"scope": "Dentro: programação de periféricos por registradores e HAL. Fora: periféricos de comunicação (ver barramentos).",
+			"objectives": [
+				"Programar periféricos por registradores e por HAL",
+				"Construir firmware orientado a interrupções"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 21,
+				"hi": 29
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.gpio",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 0,
+			"title": {
+				"pt": "GPIO: entradas, saídas e debouncing",
+				"en": "GPIO: inputs, outputs and debouncing"
+			},
+			"summary": "Modos push-pull e open-drain, pull-ups, leitura de botões e debouncing por software.",
+			"scope": "Dentro: configuração de GPIO, pull-ups, push-pull e open-drain, debouncing. Fora: proteção elétrica de I/O.",
+			"objectives": [
+				"Configurar pinos como entrada e saída por registradores",
+				"Implementar debouncing de botões"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.mcu.dev-env",
+					"ee.embedded.c.structs-volatile"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.interrupts",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 1,
+			"title": {
+				"pt": "Interrupções e NVIC",
+				"en": "Interrupts and the NVIC"
+			},
+			"summary": "Fluxo de interrupção, prioridades, latência, ISRs curtas e compartilhamento seguro de dados.",
+			"scope": "Dentro: NVIC, prioridades, latência, ISRs, seções críticas. Fora: RTOS.",
+			"objectives": [
+				"Configurar interrupções externas com prioridades",
+				"Proteger dados compartilhados entre ISR e laço principal"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Fazer processamento longo dentro da ISR"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.gpio",
+					"ee.embedded.mcu.cortex-m"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.timers-pwm",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 2,
+			"title": {
+				"pt": "Timers, captura e PWM",
+				"en": "Timers, input capture and PWM"
+			},
+			"summary": "Prescaler e auto-reload, interrupções periódicas, captura de entrada e geração de PWM.",
+			"scope": "Dentro: modos de timer, captura, comparação, PWM, tempo morto. Fora: controle de motores.",
+			"objectives": [
+				"Configurar um timer para gerar PWM com frequência e duty cycle dados",
+				"Medir a frequência de um sinal por captura de entrada"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.interrupts"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.adc",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 3,
+			"title": {
+				"pt": "ADC no microcontrolador",
+				"en": "Microcontroller ADC"
+			},
+			"summary": "Amostragem e retenção, tempo de aquisição, referência, resolução efetiva e disparo por timer.",
+			"scope": "Dentro: configuração do ADC, tempo de amostragem, impedância de fonte, referência, ENOB. Fora: projeto de ADCs.",
+			"objectives": [
+				"Configurar o ADC com disparo por timer",
+				"Calcular o tempo de amostragem para uma impedância de fonte"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.gpio",
+					"ee.signals.sampling.quantization",
+					"ee.dc.laws.loading"
+				]
+			],
+			"softPrereqs": [
+				"ee.analog.converters.converter-errors"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.dac-signals",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 4,
+			"title": {
+				"pt": "DAC e geração de sinais",
+				"en": "DAC and signal generation"
+			},
+			"summary": "DAC integrado, geração de formas de onda por tabela e PWM filtrado como DAC.",
+			"scope": "Dentro: DAC, tabelas de onda, PWM filtrado. Fora: arquiteturas de DAC.",
+			"objectives": [
+				"Gerar uma senoide com DAC e tabela",
+				"Dimensionar o filtro de um DAC por PWM"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.timers-pwm",
+					"ee.ac.frequency.passive-filters"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.dma",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 5,
+			"title": {
+				"pt": "DMA",
+				"en": "DMA"
+			},
+			"summary": "Transferências memória-periférico, buffers circulares e ping-pong e interação com caches.",
+			"scope": "Dentro: canais DMA, modos circular e ping-pong, interrupções de meia transferência. Fora: coerência de cache avançada.",
+			"objectives": [
+				"Configurar DMA para aquisição contínua do ADC",
+				"Implementar processamento em buffer ping-pong"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.interrupts",
+					"ee.embedded.periph.adc"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.low-power",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 6,
+			"title": {
+				"pt": "Modos de baixo consumo",
+				"en": "Low-power modes"
+			},
+			"summary": "Modos sleep, stop e standby, fontes de despertar e orçamento de energia para baterias.",
+			"scope": "Dentro: modos de baixo consumo, despertar, medição de corrente, orçamento. Fora: colheita de energia.",
+			"objectives": [
+				"Estimar a autonomia de um dispositivo a partir do perfil de consumo",
+				"Configurar um modo de baixo consumo com despertar por RTC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.timers-pwm",
+					"ee.embedded.mcu.clocks-reset",
+					"ee.dc.practice.batteries"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.periph.watchdog-fault",
+			"kind": "topic",
+			"parentId": "ee.embedded.periph",
+			"order": 7,
+			"title": {
+				"pt": "Watchdog, brown-out e falhas",
+				"en": "Watchdog, brown-out and faults"
+			},
+			"summary": "Watchdog independente e de janela, detecção de brown-out e tratamento de hard faults.",
+			"scope": "Dentro: watchdog, BOR, hard fault, registro de falhas. Fora: segurança funcional.",
+			"objectives": [
+				"Configurar um watchdog sem mascarar falhas",
+				"Diagnosticar um hard fault pelos registradores de falha"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.interrupts"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc:embedded-i-o-systems",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.comms",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 3,
+			"title": {
+				"pt": "Barramentos e comunicação",
+				"en": "Buses and communication"
+			},
+			"summary": "UART, SPI, I²C, CAN, USB, conectividade sem fio, fundamentos de redes e protocolos de IoT.",
+			"scope": "Dentro: protocolos seriais, camada física básica, pilhas sem fio em visão, camadas de rede, TCP/IP, MQTT e TLS. Fora: projeto e administração de redes.",
+			"objectives": [
+				"Interfacear periféricos por barramentos seriais",
+				"Depurar comunicação com analisador lógico"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 23,
+				"hi": 31
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.uart",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 0,
+			"title": {
+				"pt": "UART, RS-232 e RS-485",
+				"en": "UART, RS-232 and RS-485"
+			},
+			"summary": "Quadro assíncrono, baud rate, erros de framing, buffers circulares e camadas físicas RS-232 e RS-485.",
+			"scope": "Dentro: UART, baud, framing, buffers, RS-232, RS-485 multiponto. Fora: Modbus em detalhe.",
+			"objectives": [
+				"Implementar recepção UART com interrupção e buffer circular",
+				"Explicar a vantagem diferencial do RS-485"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.interrupts"
+				]
+			],
+			"softPrereqs": [
+				"ee.embedded.c.data-structures"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.spi",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 1,
+			"title": {
+				"pt": "SPI",
+				"en": "SPI"
+			},
+			"summary": "Mestre e escravo, modos de clock (CPOL e CPHA), chip select e transações com memórias e displays.",
+			"scope": "Dentro: SPI, modos, CS, full-duplex, QSPI em visão. Fora: SPI de alta velocidade em layout.",
+			"objectives": [
+				"Configurar o modo SPI correto a partir da folha de dados de um periférico",
+				"Ler e escrever uma memória SPI"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.gpio"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.i2c",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 2,
+			"title": {
+				"pt": "I²C",
+				"en": "I²C"
+			},
+			"summary": "Endereçamento, start e stop, ACK, pull-ups, clock stretching e recuperação de barramento travado.",
+			"scope": "Dentro: protocolo I²C, pull-ups, velocidades, travamentos. Fora: SMBus e I3C.",
+			"objectives": [
+				"Ler um sensor I²C usando endereço e registradores",
+				"Dimensionar os resistores de pull-up pela capacitância do barramento"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Esquecer os pull-ups em barramento open-drain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.gpio"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.can",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 3,
+			"title": {
+				"pt": "CAN e barramentos automotivos",
+				"en": "CAN and automotive buses"
+			},
+			"summary": "Arbitragem não destrutiva, quadros, filtros de aceitação, camada física diferencial e CAN FD.",
+			"scope": "Dentro: CAN 2.0, CAN FD, arbitragem, erros, transceptores. Fora: LIN e Automotive Ethernet.",
+			"objectives": [
+				"Configurar filtros e transmitir quadros CAN",
+				"Explicar a arbitragem por bits dominantes"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.comms.uart"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.usb",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 4,
+			"title": {
+				"pt": "USB",
+				"en": "USB"
+			},
+			"summary": "Topologia, enumeração, endpoints, classes CDC e HID e alimentação por USB e USB-C.",
+			"scope": "Dentro: enumeração, descritores, endpoints, classes, USB-C em visão. Fora: implementação de host.",
+			"objectives": [
+				"Explicar a enumeração de um dispositivo USB",
+				"Implementar um dispositivo CDC usando uma biblioteca"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.interrupts"
+				]
+			],
+			"softPrereqs": [
+				"ee.embedded.comms.uart",
+				"ee.embedded.periph.dma"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.wireless",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 5,
+			"title": {
+				"pt": "Conectividade sem fio: BLE, Wi-Fi e LoRa",
+				"en": "Wireless connectivity: BLE, Wi-Fi and LoRa"
+			},
+			"summary": "Comparação de tecnologias por alcance, taxa e consumo, módulos certificados e homologação Anatel.",
+			"scope": "Dentro: BLE, Wi-Fi, LoRa e LoRaWAN, módulos, homologação. Fora: projeto de rádio (ver RF).",
+			"objectives": [
+				"Escolher uma tecnologia sem fio para um requisito de alcance e consumo",
+				"Integrar um módulo sem fio ao firmware"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.comms.uart"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.network-fundamentals",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 6,
+			"title": {
+				"pt": "Fundamentos de redes: camadas, Ethernet e TCP/IP",
+				"en": "Networking fundamentals: layers, Ethernet and TCP/IP"
+			},
+			"summary": "Modelo em camadas, enlace e Ethernet, endereçamento IP e roteamento, TCP e UDP, portas, DNS e DHCP, com a detecção de erros em cada camada.",
+			"scope": "Dentro: modelos OSI e TCP/IP, quadros Ethernet, MAC e ARP, IPv4 e IPv6 em visão, sub-redes, roteamento básico, TCP, UDP, DNS, DHCP. Fora: administração de redes e protocolos de roteamento dinâmico.",
+			"objectives": [
+				"Descrever o caminho de um pacote pelas camadas de enlace, rede e transporte",
+				"Calcular sub-redes e escolher entre TCP e UDP para uma aplicação"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que o TCP garante entrega dentro de um prazo, além de entrega confiável e ordenada"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.digital.numbers.error-codes"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.comms.networking-iot",
+			"kind": "topic",
+			"parentId": "ee.embedded.comms",
+			"order": 7,
+			"title": {
+				"pt": "Protocolos de IoT: sockets, MQTT e TLS",
+				"en": "IoT protocols: sockets, MQTT and TLS"
+			},
+			"summary": "Pilhas TCP/IP em microcontroladores, sockets, MQTT e CoAP, segurança de transporte com TLS e provisionamento de dispositivos.",
+			"scope": "Dentro: pilhas TCP/IP embarcadas em visão, sockets, MQTT, CoAP, TLS e certificados em visão, provisionamento. Fora: infraestrutura de nuvem e administração de redes.",
+			"objectives": [
+				"Publicar dados de um sensor via MQTT",
+				"Escolher entre MQTT e CoAP e configurar TLS para um caso de telemetria"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.comms.network-fundamentals",
+					"ee.embedded.periph.interrupts"
+				]
+			],
+			"softPrereqs": [
+				"ee.embedded.comms.wireless"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§14",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-NWK",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded.software",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 4,
+			"title": {
+				"pt": "Arquitetura de software embarcado",
+				"en": "Embedded software architecture"
+			},
+			"summary": "Arquiteturas de firmware, RTOS, drivers, bootloaders, testes e segurança.",
+			"scope": "Dentro: super-loop, FSM, RTOS, sincronização, drivers, bootloader, testes, segurança. Fora: sistemas operacionais de propósito geral.",
+			"objectives": [
+				"Arquitetar firmware escalável e testável",
+				"Usar um RTOS corretamente"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 21,
+				"hi": 28
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.software.superloop-state",
+			"kind": "topic",
+			"parentId": "ee.embedded.software",
+			"order": 0,
+			"title": {
+				"pt": "Super-loop e máquinas de estados",
+				"en": "Super-loop and state machines"
+			},
+			"summary": "Super-loop, máquinas de estados orientadas a eventos e escalonamento cooperativo.",
+			"scope": "Dentro: super-loop, FSM em C, escalonador cooperativo, temporização não bloqueante. Fora: RTOS.",
+			"objectives": [
+				"Implementar uma máquina de estados orientada a eventos em C",
+				"Substituir atrasos bloqueantes por temporização não bloqueante"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.interrupts",
+					"ee.digital.seq.fsm"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.software.rtos-concepts",
+			"kind": "topic",
+			"parentId": "ee.embedded.software",
+			"order": 1,
+			"title": {
+				"pt": "RTOS: tarefas e escalonamento",
+				"en": "RTOS: tasks and scheduling"
+			},
+			"summary": "Tarefas, estados, escalonamento preemptivo por prioridade, tick e uso de pilha.",
+			"scope": "Dentro: tarefas, prioridades, preempção, tick, pilhas, FreeRTOS em exemplo. Fora: análise formal de escalonabilidade.",
+			"objectives": [
+				"Criar tarefas com prioridades adequadas",
+				"Dimensionar a pilha de uma tarefa"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.superloop-state"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.software.rtos-sync",
+			"kind": "topic",
+			"parentId": "ee.embedded.software",
+			"order": 2,
+			"title": {
+				"pt": "Sincronização em RTOS",
+				"en": "RTOS synchronization"
+			},
+			"summary": "Semáforos, mutex, filas, eventos, deadlock e inversão de prioridade.",
+			"scope": "Dentro: semáforos, mutex, filas, notificações, inversão de prioridade, deadlock. Fora: algoritmos lock-free.",
+			"objectives": [
+				"Escolher entre semáforo, mutex e fila para um problema",
+				"Explicar e prevenir a inversão de prioridade"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Usar semáforo binário onde é preciso mutex com herança de prioridade"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.rtos-concepts"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.software.drivers",
+			"kind": "topic",
+			"parentId": "ee.embedded.software",
+			"order": 3,
+			"title": {
+				"pt": "Drivers e camadas de abstração",
+				"en": "Drivers and abstraction layers"
+			},
+			"summary": "Projeto de drivers com interface estável, HAL, BSP e drivers assíncronos com DMA e callbacks.",
+			"scope": "Dentro: drivers, HAL, BSP, assíncrono com callbacks. Fora: drivers de Linux.",
+			"objectives": [
+				"Projetar um driver com API independente do hardware",
+				"Implementar um driver assíncrono com DMA"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.dma",
+					"ee.embedded.c.modular-c"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.software.bootloader-ota",
+			"kind": "topic",
+			"parentId": "ee.embedded.software",
+			"order": 4,
+			"title": {
+				"pt": "Bootloaders e atualização de firmware",
+				"en": "Bootloaders and firmware updates"
+			},
+			"summary": "Partições de Flash, bootloader, verificação de integridade, rollback e atualização remota.",
+			"scope": "Dentro: bootloader, partições, CRC e assinaturas, A/B e rollback, OTA. Fora: boot seguro em detalhe.",
+			"objectives": [
+				"Projetar um esquema de atualização A/B com rollback",
+				"Verificar a integridade da imagem com CRC"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.comms.uart",
+					"ee.digital.numbers.error-codes"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.software.testing-embedded",
+			"kind": "topic",
+			"parentId": "ee.embedded.software",
+			"order": 5,
+			"title": {
+				"pt": "Testes de firmware",
+				"en": "Firmware testing"
+			},
+			"summary": "Testes unitários no host, mocks de hardware, HIL e integração contínua.",
+			"scope": "Dentro: testes unitários, mocks, HIL, CI, cobertura. Fora: certificação de software.",
+			"objectives": [
+				"Escrever testes unitários para um módulo de firmware com mocks",
+				"Planejar testes HIL para um produto"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.drivers"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.software.security-embedded",
+			"kind": "topic",
+			"parentId": "ee.embedded.software",
+			"order": 6,
+			"title": {
+				"pt": "Segurança embarcada",
+				"en": "Embedded security"
+			},
+			"summary": "Modelagem de ameaças, boot seguro e cadeia de confiança, armazenamento de chaves e criptografia aplicada (AES, hashes e assinaturas) em um dispositivo conectado.",
+			"scope": "Dentro: modelagem de ameaças, boot seguro, armazenamento de chaves, AES, SHA e assinaturas em uso, TrustZone em visão, atualização autenticada. Fora: ataques físicos e contramedidas de hardware (ver segurança de hardware) e criptografia teórica.",
+			"objectives": [
+				"Explicar a cadeia de confiança de um boot seguro",
+				"Modelar as ameaças a um dispositivo conectado e priorizar contramedidas"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.bootloader-ota"
+				]
+			],
+			"softPrereqs": [
+				"ee.math.discrete.modular-arithmetic",
+				"ee.embedded.comms.networking-iot"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SWD",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§17",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"computing"
+			]
+		},
+		{
+			"id": "ee.embedded.interfacing",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 5,
+			"title": {
+				"pt": "Interface com o mundo físico",
+				"en": "Physical-world interfacing"
+			},
+			"summary": "Níveis lógicos e proteção, acionamento de cargas e motores, integração de sensores e interfaces homem-máquina.",
+			"scope": "Dentro: level shifting, proteção de I/O, relés, MOSFETs, motores DC, de passo e servos, sensores, displays. Fora: eletrônica de potência de alta potência.",
+			"objectives": [
+				"Interfacear com segurança sinais e cargas reais",
+				"Integrar sensores e atuadores ao firmware"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 13,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.interfacing.level-shifting-protection",
+			"kind": "topic",
+			"parentId": "ee.embedded.interfacing",
+			"order": 0,
+			"title": {
+				"pt": "Níveis lógicos e proteção de I/O",
+				"en": "Logic levels and I/O protection"
+			},
+			"summary": "Conversão 3,3 V e 5 V, divisores e tradutores bidirecionais, resistores série, diodos de grampeamento e TVS.",
+			"scope": "Dentro: level shifting, proteção contra sobretensão e ESD, entradas tolerantes a 5 V. Fora: isolação galvânica.",
+			"objectives": [
+				"Projetar a interface entre lógica de 5 V e 3,3 V",
+				"Proteger uma entrada contra sobretensão"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.gpio",
+					"ee.analog.diodes.special-diodes"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.interfacing.driving-loads",
+			"kind": "topic",
+			"parentId": "ee.embedded.interfacing",
+			"order": 1,
+			"title": {
+				"pt": "Acionamento de cargas",
+				"en": "Driving loads"
+			},
+			"summary": "Relés, MOSFETs low-side e high-side, drivers integrados e cargas indutivas.",
+			"scope": "Dentro: relés, MOSFETs, drivers, roda livre, cargas indutivas e capacitivas. Fora: conversores de potência.",
+			"objectives": [
+				"Projetar o acionamento de uma carga indutiva por MOSFET",
+				"Dimensionar componentes de proteção do acionamento"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.mos-dc.mos-switch",
+					"ee.embedded.periph.gpio"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.interfacing.motors-embedded",
+			"kind": "topic",
+			"parentId": "ee.embedded.interfacing",
+			"order": 2,
+			"title": {
+				"pt": "Acionamento de motores DC, de passo e servos",
+				"en": "Driving DC, stepper and servo motors"
+			},
+			"summary": "Ponte H, PWM, motores de passo com microstepping, servos de hobby e leitura de encoders.",
+			"scope": "Dentro: ponte H, PWM, passo, servos, encoders. Fora: controle vetorial.",
+			"objectives": [
+				"Controlar velocidade e sentido de um motor DC com ponte H",
+				"Acionar um motor de passo com microstepping"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.interfacing.driving-loads",
+					"ee.embedded.periph.timers-pwm"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.interfacing.sensor-integration",
+			"kind": "topic",
+			"parentId": "ee.embedded.interfacing",
+			"order": 3,
+			"title": {
+				"pt": "Integração de sensores",
+				"en": "Sensor integration"
+			},
+			"summary": "Sensores digitais por I²C e SPI, condicionamento para o ADC, calibração e filtragem no firmware.",
+			"scope": "Dentro: sensores digitais e analógicos, calibração, filtros simples em firmware. Fora: fusão de sensores.",
+			"objectives": [
+				"Integrar um sensor digital e um analógico ao firmware",
+				"Aplicar calibração e filtragem a leituras"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.comms.i2c",
+					"ee.embedded.periph.adc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.interfacing.displays-hmi",
+			"kind": "topic",
+			"parentId": "ee.embedded.interfacing",
+			"order": 4,
+			"title": {
+				"pt": "Displays e interface homem-máquina",
+				"en": "Displays and human-machine interface"
+			},
+			"summary": "Displays de caracteres, OLED e TFT, botões, encoders e organização da interface.",
+			"scope": "Dentro: displays, drivers de display, entrada do usuário. Fora: interfaces gráficas complexas.",
+			"objectives": [
+				"Exibir informações em um display por SPI ou I²C",
+				"Organizar menus com botões ou encoder"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.comms.spi"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.embedded.advanced",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 6,
+			"title": {
+				"pt": "Embarcados avançados I: Linux, FPGA SoC, TinyML e tempo real",
+				"en": "Advanced embedded systems I: Linux, FPGA SoC, TinyML and real time"
+			},
+			"summary": "Especialização em embarcados: Linux embarcado, SoC FPGA, TinyML, segurança funcional e análise de tempo real.",
+			"scope": "Dentro: Linux embarcado, device tree, co-projeto HW/SW, TinyML, IEC 61508, ISO 26262, WCET e escalonabilidade. Fora: desenvolvimento de sistemas operacionais.",
+			"objectives": [
+				"Projetar sistemas embarcados complexos e certificáveis",
+				"Comprovar requisitos de tempo real"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Embedded Systems Letters / RTSS",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.advanced.embedded-linux",
+			"kind": "topic",
+			"parentId": "ee.embedded.advanced",
+			"order": 0,
+			"title": {
+				"pt": "Linux embarcado",
+				"en": "Embedded Linux"
+			},
+			"summary": "Sequência de boot de um Linux embarcado, device tree, Buildroot e Yocto em visão e desenvolvimento em espaço de usuário com acesso a periféricos.",
+			"scope": "Dentro: boot (ROM, U-Boot, kernel, init), device tree, sistemas de build, espaço de usuário, acesso a GPIO, I²C e SPI pelas interfaces do kernel. Fora: drivers de kernel (ver drivers de kernel Linux) e desenvolvimento do kernel.",
+			"objectives": [
+				"Construir uma imagem Linux mínima para uma placa",
+				"Acessar periféricos a partir do espaço de usuário"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.drivers",
+					"ee.digital.arch.virtual-memory-io"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Embedded Systems Letters / RTSS",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.advanced.fpga-soc",
+			"kind": "topic",
+			"parentId": "ee.embedded.advanced",
+			"order": 1,
+			"title": {
+				"pt": "SoC FPGA e co-projeto",
+				"en": "FPGA SoC and co-design"
+			},
+			"summary": "Processador mais lógica programável, barramentos AXI, aceleradores e particionamento HW/SW.",
+			"scope": "Dentro: SoC FPGA, AXI, aceleradores, particionamento. Fora: síntese de alto nível avançada.",
+			"objectives": [
+				"Particionar um algoritmo entre software e hardware",
+				"Integrar um acelerador AXI a um processador"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.digital.hdl.fpga-flow",
+					"ee.embedded.software.drivers"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Embedded Systems Letters / RTSS",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.advanced.tinyml",
+			"kind": "topic",
+			"parentId": "ee.embedded.advanced",
+			"order": 2,
+			"title": {
+				"pt": "TinyML",
+				"en": "TinyML"
+			},
+			"summary": "Inferência de redes neurais em microcontroladores, quantização de modelos e restrições de memória.",
+			"scope": "Dentro: quantização int8, runtimes de inferência, medição de latência e memória. Fora: treinamento de modelos.",
+			"objectives": [
+				"Implantar um modelo quantizado em um microcontrolador",
+				"Medir latência e memória de inferência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.dma",
+					"ee.math.linalg.matrices",
+					"ee.digital.numbers.fixed-float"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Embedded Systems Letters / RTSS",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.advanced.functional-safety",
+			"kind": "topic",
+			"parentId": "ee.embedded.advanced",
+			"order": 3,
+			"title": {
+				"pt": "Segurança funcional",
+				"en": "Functional safety"
+			},
+			"summary": "IEC 61508 e ISO 26262, níveis SIL e ASIL, análise de perigos, FMEA e diagnósticos.",
+			"scope": "Dentro: normas, SIL e ASIL, HARA, FMEA, mecanismos de diagnóstico. Fora: certificação formal.",
+			"objectives": [
+				"Classificar um requisito de segurança por ASIL",
+				"Propor mecanismos de diagnóstico para uma falha"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.testing-embedded",
+					"ee.embedded.periph.watchdog-fault"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Embedded Systems Letters / RTSS",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.advanced.realtime-analysis",
+			"kind": "topic",
+			"parentId": "ee.embedded.advanced",
+			"order": 4,
+			"title": {
+				"pt": "Análise de tempo real",
+				"en": "Real-time analysis"
+			},
+			"summary": "WCET, escalonamento RMS e EDF, testes de escalonabilidade e jitter.",
+			"scope": "Dentro: WCET, RMS, EDF, análise de tempo de resposta. Fora: sistemas distribuídos de tempo real.",
+			"objectives": [
+				"Aplicar o teste de escalonabilidade RMS a um conjunto de tarefas",
+				"Estimar o WCET de uma rotina"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.rtos-sync"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Embedded Systems Letters / RTSS",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.projects",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 7,
+			"title": {
+				"pt": "Projetos embarcados",
+				"en": "Embedded projects"
+			},
+			"summary": "Projetos integradores de sistemas embarcados da especificação ao protótipo funcional.",
+			"scope": "Dentro: registrador de dados e nó IoT com RTOS, cada um em duas fases. Fora: produto certificado.",
+			"objectives": [
+				"Integrar hardware e firmware em um produto funcional",
+				"Documentar e testar um sistema embarcado completo"
+			],
+			"assess": [
+				"design",
+				"lab",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.embedded.projects.datalogger-design",
+			"kind": "topic",
+			"parentId": "ee.embedded.projects",
+			"order": 0,
+			"title": {
+				"pt": "Registrador de dados, fase 1: especificação e hardware",
+				"en": "Data logger, phase 1: specification and hardware"
+			},
+			"summary": "Requisitos de autonomia e de amostragem, escolha de sensores, memória e RTC, orçamento de energia e esquemático validado em protoboard.",
+			"scope": "Dentro: requisitos, orçamento de energia, escolha de componentes, esquemático, protótipo em protoboard. Fora: firmware final e testes de autonomia (fase 2).",
+			"objectives": [
+				"Montar o orçamento de energia de um sistema alimentado por bateria",
+				"Validar em protoboard sensores, armazenamento e relógio"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.interfacing.sensor-integration",
+					"ee.embedded.comms.spi",
+					"ee.embedded.periph.low-power"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.embedded.projects.datalogger-project",
+			"kind": "topic",
+			"parentId": "ee.embedded.projects",
+			"order": 1,
+			"title": {
+				"pt": "Registrador de dados, fase 2: firmware e validação",
+				"en": "Data logger, phase 2: firmware and validation"
+			},
+			"summary": "Firmware com máquina de estados, gravação robusta em cartão SD, modos de baixo consumo e testes de autonomia e de integridade dos dados.",
+			"scope": "Dentro: firmware, sistema de arquivos, tratamento de queda de energia, testes de autonomia e de integridade. Fora: caixa e certificação.",
+			"objectives": [
+				"Projetar um registrador de dados alimentado por bateria",
+				"Validar autonomia e integridade dos dados"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.projects.datalogger-design",
+					"ee.embedded.software.superloop-state"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.embedded.projects.rtos-iot-design",
+			"kind": "topic",
+			"parentId": "ee.embedded.projects",
+			"order": 2,
+			"title": {
+				"pt": "Nó IoT, fase 1: arquitetura e tarefas",
+				"en": "IoT node, phase 1: architecture and tasks"
+			},
+			"summary": "Requisitos, arquitetura de tarefas e filas do RTOS, escolha do rádio e do protocolo e protótipo da comunicação de ponta a ponta.",
+			"scope": "Dentro: requisitos, arquitetura de software, tarefas e prioridades, protocolo de telemetria, protótipo de comunicação. Fora: atualização remota e testes de robustez (fase 2).",
+			"objectives": [
+				"Projetar a arquitetura de tarefas e de comunicação de um nó IoT",
+				"Demonstrar a telemetria de ponta a ponta em um protótipo"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.rtos-sync",
+					"ee.embedded.comms.networking-iot",
+					"ee.embedded.comms.wireless"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.embedded.projects.rtos-iot-project",
+			"kind": "topic",
+			"parentId": "ee.embedded.projects",
+			"order": 3,
+			"title": {
+				"pt": "Nó IoT, fase 2: OTA, testes e robustez",
+				"en": "IoT node, phase 2: OTA, testing and robustness"
+			},
+			"summary": "Atualização remota com rollback, testes automatizados, watchdog e recuperação de falhas e medição do consumo e da confiabilidade do enlace.",
+			"scope": "Dentro: OTA, testes, tratamento de falhas, medições de consumo e de taxa de entrega. Fora: infraestrutura de nuvem.",
+			"objectives": [
+				"Implementar atualização remota segura com rollback",
+				"Demonstrar a recuperação do nó após falhas de rede e de energia"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.embedded.projects.rtos-iot-design",
+					"ee.embedded.software.bootloader-ota",
+					"ee.embedded.software.testing-embedded"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.embedded.systems-adv",
+			"kind": "unit",
+			"parentId": "ee.embedded",
+			"order": 8,
+			"title": {
+				"pt": "Embarcados avançados II: kernel, co-projeto, energia e segurança",
+				"en": "Advanced embedded systems II: kernel, co-design, energy and security"
+			},
+			"summary": "Drivers de kernel, co-projeto hardware-software, ultrabaixo consumo, segurança de hardware e métodos formais.",
+			"scope": "Dentro: drivers Linux, co-projeto, coleta de energia, ataques físicos e raiz de confiança, verificação formal de firmware. Fora: sistemas operacionais em profundidade.",
+			"objectives": [
+				"Projetar sistemas embarcados de alta confiabilidade e baixo consumo",
+				"Integrar segurança e verificação ao ciclo de desenvolvimento"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 14,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Computer-Aided Design / EMSOFT",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.systems-adv.linux-drivers",
+			"kind": "topic",
+			"parentId": "ee.embedded.systems-adv",
+			"order": 0,
+			"title": {
+				"pt": "Drivers de kernel Linux",
+				"en": "Linux kernel drivers"
+			},
+			"summary": "Modelo de drivers do kernel, device tree, interrupções, DMA e interfaces com o espaço de usuário.",
+			"scope": "Dentro: modelo de drivers, device tree, IRQ, DMA, sysfs e ioctl. Fora: desenvolvimento do núcleo do kernel.",
+			"objectives": [
+				"Escrever um driver de plataforma com device tree",
+				"Depurar um driver com as ferramentas do kernel"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.embedded.advanced.embedded-linux"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Computer-Aided Design / EMSOFT",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.systems-adv.hw-sw-codesign",
+			"kind": "topic",
+			"parentId": "ee.embedded.systems-adv",
+			"order": 1,
+			"title": {
+				"pt": "Co-projeto hardware-software",
+				"en": "Hardware-software co-design"
+			},
+			"summary": "Particionamento, estimativa de desempenho, interfaces de aceleradores e verificação conjunta.",
+			"scope": "Dentro: particionamento, perfis, interfaces, co-simulação, co-verificação. Fora: síntese de alto nível em detalhe.",
+			"objectives": [
+				"Particionar uma aplicação com base em perfis de execução",
+				"Avaliar o ganho de um acelerador no sistema completo"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"code"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.embedded.advanced.fpga-soc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Computer-Aided Design / EMSOFT",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.systems-adv.energy-harvesting",
+			"kind": "topic",
+			"parentId": "ee.embedded.systems-adv",
+			"order": 2,
+			"title": {
+				"pt": "Ultrabaixo consumo e coleta de energia",
+				"en": "Ultra-low power and energy harvesting"
+			},
+			"summary": "Orçamento de energia, coleta solar, térmica e vibracional, gerenciamento de armazenamento e computação intermitente.",
+			"scope": "Dentro: orçamento de energia, transdutores, conversores de coleta, intermitência. Fora: física dos transdutores.",
+			"objectives": [
+				"Projetar o orçamento de energia de um nó autônomo",
+				"Escolher o armazenamento para um nó com coleta de energia"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.embedded.periph.low-power",
+					"ee.power.dcdc.boost-buckboost"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Computer-Aided Design / EMSOFT",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.systems-adv.hardware-security",
+			"kind": "topic",
+			"parentId": "ee.embedded.systems-adv",
+			"order": 3,
+			"title": {
+				"pt": "Segurança de hardware",
+				"en": "Hardware security"
+			},
+			"summary": "Ataques físicos e contramedidas: canais laterais de consumo e eletromagnéticos, injeção de falhas, raiz de confiança em hardware, aceleradores criptográficos e PUFs.",
+			"scope": "Dentro: análise de consumo (SPA e DPA), emissões eletromagnéticas, glitching de tensão e de clock, raiz de confiança, elementos seguros, PUFs. Fora: criptoanálise matemática e boot seguro básico (ver segurança embarcada).",
+			"objectives": [
+				"Explicar um ataque por análise de consumo e sua mitigação",
+				"Projetar contramedidas contra injeção de falhas em um bootloader"
+			],
+			"bloom": "create",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.embedded.software.security-embedded"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Computer-Aided Design / EMSOFT",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		},
+		{
+			"id": "ee.embedded.systems-adv.formal-firmware",
+			"kind": "topic",
+			"parentId": "ee.embedded.systems-adv",
+			"order": 4,
+			"title": {
+				"pt": "Métodos formais e análise estática de firmware",
+				"en": "Formal methods and static analysis of firmware"
+			},
+			"summary": "Análise estática, MISRA C, verificação de modelos e prova de propriedades de firmware crítico.",
+			"scope": "Dentro: análise estática, MISRA, model checking, verificação dedutiva em visão. Fora: teoria de lógica.",
+			"objectives": [
+				"Aplicar análise estática a um projeto de firmware",
+				"Especificar propriedades verificáveis de um módulo crítico"
+			],
+			"bloom": "apply",
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.embedded.advanced.functional-safety"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Computer-Aided Design / EMSOFT",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:embedded"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.embedded.comms.spi",
+			"to": "ee.embedded.comms.i2c",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "ee.embedded.software.rtos-sync",
+			"to": "ee.embedded.advanced.realtime-analysis",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "harris-harris-riscv",
+			"title": "Harris & Harris — Digital Design and Computer Architecture: RISC-V Edition",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-acm-ce2016",
+			"title": "IEEE/ACM — Computer Engineering Curricula 2016 (CE2016)",
+			"license": "© ACM/IEEE; só referência (DOI 10.1145/3025098)",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "kernighan-ritchie-c",
+			"title": "Kernighan & Ritchie — The C Programming Language, 2ª ed.",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.111",
+			"title": "MIT OCW 6.111 — Introductory Digital Systems Laboratory",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "white-making-embedded",
+			"title": "E. White — Making Embedded Systems, 2ª ed.",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		}
+	]
+}

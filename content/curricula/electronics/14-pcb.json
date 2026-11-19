@@ -1,0 +1,1557 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.pcb",
+	"items": [
+		{
+			"id": "ee.pcb.design",
+			"kind": "unit",
+			"parentId": "ee.pcb",
+			"order": 0,
+			"title": {
+				"pt": "Projeto e fabricação de PCB",
+				"en": "PCB design and manufacturing"
+			},
+			"summary": "Do esquemático à placa fabricada: fluxo EDA, stackup, regras de fabricação, layout e montagem.",
+			"scope": "Dentro: esquemático, footprints, stackup, DFM, posicionamento, roteamento, planos, BOM, montagem SMT. Fora: layout de alta velocidade avançado.",
+			"objectives": [
+				"Produzir arquivos de fabricação corretos",
+				"Aplicar regras de projeto para fabricação e montagem"
+			],
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "Schematic Editor",
+					"embeddable": true
+				},
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.pcb.design.eda-flow",
+			"kind": "topic",
+			"parentId": "ee.pcb.design",
+			"order": 0,
+			"title": {
+				"pt": "Fluxo EDA: esquemático, footprints e netlist",
+				"en": "EDA flow: schematic, footprints and netlist"
+			},
+			"summary": "Captura de esquemático hierárquico, bibliotecas, footprints, ERC e transferência para o layout no KiCad.",
+			"scope": "Dentro: esquemático, símbolos, footprints, ERC, netlist. Fora: simulação integrada.",
+			"objectives": [
+				"Desenhar um esquemático hierárquico com ERC limpo",
+				"Criar um footprint a partir da folha de dados"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.dc.storage.practical-c-l"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "Schematic Editor",
+					"embeddable": true
+				},
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.pcb.design.stackup-fab",
+			"kind": "topic",
+			"parentId": "ee.pcb.design",
+			"order": 1,
+			"title": {
+				"pt": "Stackup, fabricação e DFM",
+				"en": "Stackup, fabrication and DFM"
+			},
+			"summary": "Número de camadas, espessuras, materiais FR-4, larguras e espaçamentos mínimos, vias e acabamento.",
+			"scope": "Dentro: stackup, materiais, regras do fabricante, vias, acabamentos, Gerber e drill. Fora: materiais de RF especiais.",
+			"objectives": [
+				"Escolher um stackup de 4 camadas adequado",
+				"Configurar regras de projeto conforme o fabricante"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.design.eda-flow"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "Schematic Editor",
+					"embeddable": true
+				},
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.pcb.design.layout-basics",
+			"kind": "topic",
+			"parentId": "ee.pcb.design",
+			"order": 2,
+			"title": {
+				"pt": "Layout: posicionamento, roteamento e planos",
+				"en": "Layout: placement, routing and planes"
+			},
+			"summary": "Estratégia de posicionamento, largura de trilhas por corrente, planos de terra e alimentação e vias.",
+			"scope": "Dentro: posicionamento, largura por corrente, planos, vias, DRC. Fora: roteamento de alta velocidade.",
+			"objectives": [
+				"Posicionar componentes seguindo o fluxo de sinal e de potência",
+				"Dimensionar a largura de trilhas pela corrente"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.design.stackup-fab",
+					"ee.dc.practice.wiring-protection"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "Schematic Editor",
+					"embeddable": true
+				},
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.pcb.design.assembly-dfa",
+			"kind": "topic",
+			"parentId": "ee.pcb.design",
+			"order": 3,
+			"title": {
+				"pt": "Montagem, BOM e testabilidade",
+				"en": "Assembly, BOM and testability"
+			},
+			"summary": "Montagem SMT, pasta de solda e refusão, BOM, pontos de teste e inspeção.",
+			"scope": "Dentro: SMT, refusão, BOM, pontos de teste, inspeção óptica. Fora: produção em larga escala.",
+			"objectives": [
+				"Preparar BOM e arquivos de montagem",
+				"Incluir pontos de teste e fiduciais no layout"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.design.layout-basics",
+					"ee.instruments.bench.soldering"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "Schematic Editor",
+					"embeddable": true
+				},
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.pcb.layout",
+			"kind": "unit",
+			"parentId": "ee.pcb",
+			"order": 1,
+			"title": {
+				"pt": "Layout por tipo de circuito",
+				"en": "Layout by circuit type"
+			},
+			"summary": "Caminhos de retorno, aterramento, desacoplamento, layout analógico, de potência e térmico.",
+			"scope": "Dentro: retorno de corrente, aterramento, PDN, layout misto, laços quentes de conversores, gestão térmica. Fora: encapsulamento.",
+			"objectives": [
+				"Controlar caminhos de retorno de corrente",
+				"Fazer layouts específicos para analógico e potência"
+			],
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc:grounding",
+					"embeddable": false
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc:power-distribution-networks",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.layout.grounding",
+			"kind": "topic",
+			"parentId": "ee.pcb.layout",
+			"order": 0,
+			"title": {
+				"pt": "Aterramento e caminhos de retorno",
+				"en": "Grounding and return paths"
+			},
+			"summary": "A corrente sempre retorna: retorno sob a trilha em alta frequência, planos contínuos e mitos de separação de terras.",
+			"scope": "Dentro: retorno de corrente, indutância de laço, planos, separação de terras. Fora: aterramento de sistemas de potência.",
+			"objectives": [
+				"Prever o caminho de retorno da corrente em baixa e alta frequência",
+				"Avaliar quando separar planos de terra"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"misconceptions": [
+				"Achar que 'terra' é um ponto equipotencial ideal"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.design.layout-basics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc:grounding",
+					"embeddable": false
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc:power-distribution-networks",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.layout.decoupling-pdn",
+			"kind": "topic",
+			"parentId": "ee.pcb.layout",
+			"order": 1,
+			"title": {
+				"pt": "Desacoplamento e PDN",
+				"en": "Decoupling and the PDN"
+			},
+			"summary": "Impedância-alvo, capacitores de desacoplamento, ressonâncias e posicionamento.",
+			"scope": "Dentro: impedância-alvo, capacitores em paralelo, antirressonâncias, posicionamento. Fora: simulação de PDN.",
+			"objectives": [
+				"Calcular a impedância-alvo de uma alimentação",
+				"Escolher e posicionar capacitores de desacoplamento"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.layout.grounding",
+					"ee.ac.frequency.resonance"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc:grounding",
+					"embeddable": false
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc:power-distribution-networks",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.layout.mixed-signal-layout",
+			"kind": "topic",
+			"parentId": "ee.pcb.layout",
+			"order": 2,
+			"title": {
+				"pt": "Layout analógico e de sinal misto",
+				"en": "Analog and mixed-signal layout"
+			},
+			"summary": "Particionamento, ADCs, referências, trilhas sensíveis e guard rings em placa.",
+			"scope": "Dentro: particionamento, terra de ADC, guard traces, nós de alta impedância. Fora: layout de CI.",
+			"objectives": [
+				"Fazer o layout de um ADC com referência e entradas",
+				"Proteger nós de alta impedância contra fugas"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.layout.grounding",
+					"ee.analog.opamp.opamp-nonidealities"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc:grounding",
+					"embeddable": false
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc:power-distribution-networks",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.layout.power-layout",
+			"kind": "topic",
+			"parentId": "ee.pcb.layout",
+			"order": 3,
+			"title": {
+				"pt": "Layout de conversores chaveados",
+				"en": "Switching converter layout"
+			},
+			"summary": "Laços de alta di/dt, nós de alta dv/dt, posicionamento de capacitores e de magnéticos.",
+			"scope": "Dentro: laços quentes, nó de chaveamento, capacitores de entrada, sense de corrente. Fora: EMC formal.",
+			"objectives": [
+				"Identificar o laço quente de um buck e minimizá-lo",
+				"Posicionar componentes de um conversor no layout"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.layout.grounding",
+					"ee.power.dcdc.buck"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc:grounding",
+					"embeddable": false
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc:power-distribution-networks",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.layout.thermal-pcb",
+			"kind": "topic",
+			"parentId": "ee.pcb.layout",
+			"order": 4,
+			"title": {
+				"pt": "Gestão térmica na PCB",
+				"en": "PCB thermal management"
+			},
+			"summary": "Cobre como dissipador, vias térmicas, pads expostos e estimativa de temperatura.",
+			"scope": "Dentro: área de cobre, vias térmicas, pads expostos. Fora: simulação térmica 3D.",
+			"objectives": [
+				"Dimensionar área de cobre e vias térmicas para um componente",
+				"Estimar a elevação de temperatura de uma trilha"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.pcb.design.layout-basics",
+					"ee.analog.regulators.thermal"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc:grounding",
+					"embeddable": false
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc:power-distribution-networks",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.si",
+			"kind": "unit",
+			"parentId": "ee.pcb",
+			"order": 2,
+			"title": {
+				"pt": "Integridade de sinal",
+				"en": "Signal integrity"
+			},
+			"summary": "Quando trilhas viram linhas de transmissão: terminações, diafonia, sinalização diferencial e medições.",
+			"scope": "Dentro: tempo de subida e banda, impedância controlada, terminações, crosstalk, pares diferenciais, olho, TDR. Fora: SerDes em nível de CI.",
+			"objectives": [
+				"Projetar interconexões de alta velocidade",
+				"Diagnosticar problemas de integridade de sinal"
+			],
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 17
+			},
+			"anchors": [
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.si.si-basics",
+			"kind": "topic",
+			"parentId": "ee.pcb.si",
+			"order": 0,
+			"title": {
+				"pt": "Fundamentos de integridade de sinal",
+				"en": "Signal integrity fundamentals"
+			},
+			"summary": "Relação tempo de subida e banda, comprimento crítico e impedância controlada.",
+			"scope": "Dentro: t_r e banda, comprimento elétrico, impedância controlada, descontinuidades. Fora: modelagem 3D.",
+			"objectives": [
+				"Decidir quando uma trilha precisa ser tratada como linha",
+				"Especificar impedância controlada ao fabricante"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.tline-transients",
+					"ee.pcb.design.layout-basics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.si.termination",
+			"kind": "topic",
+			"parentId": "ee.pcb.si",
+			"order": 1,
+			"title": {
+				"pt": "Terminações",
+				"en": "Terminations"
+			},
+			"summary": "Terminação série, paralela, Thévenin e AC e seus compromissos de consumo e forma de onda.",
+			"scope": "Dentro: série, paralela, Thévenin, AC, escolha. Fora: equalização.",
+			"objectives": [
+				"Escolher e dimensionar a terminação de uma linha digital",
+				"Prever a forma de onda com e sem terminação"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.si.si-basics"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.si.crosstalk",
+			"kind": "topic",
+			"parentId": "ee.pcb.si",
+			"order": 2,
+			"title": {
+				"pt": "Diafonia",
+				"en": "Crosstalk"
+			},
+			"summary": "Acoplamento capacitivo e indutivo, diafonia próxima e distante e regras de espaçamento.",
+			"scope": "Dentro: NEXT, FEXT, regra 3W, guard traces. Fora: análise de canais acoplados completos.",
+			"objectives": [
+				"Explicar a origem da diafonia próxima e distante",
+				"Aplicar regras de espaçamento para reduzir crosstalk"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.si.si-basics"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.si.differential-signaling",
+			"kind": "topic",
+			"parentId": "ee.pcb.si",
+			"order": 3,
+			"title": {
+				"pt": "Sinalização diferencial",
+				"en": "Differential signaling"
+			},
+			"summary": "Pares diferenciais, impedância diferencial e de modo comum, LVDS, USB e PCIe e casamento de comprimento.",
+			"scope": "Dentro: pares diferenciais, Z_diff, modo comum, padrões, skew. Fora: SerDes.",
+			"objectives": [
+				"Rotear um par diferencial com impedância e skew controlados",
+				"Explicar a imunidade ao ruído de modo comum"
+			],
+			"bloom": "apply",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.si.termination"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.si.high-speed-measurement",
+			"kind": "topic",
+			"parentId": "ee.pcb.si",
+			"order": 4,
+			"title": {
+				"pt": "Medições de alta velocidade",
+				"en": "High-speed measurements"
+			},
+			"summary": "Diagrama de olho, jitter, TDR e escolha de pontas de prova de alta banda.",
+			"scope": "Dentro: diagrama de olho, máscaras, jitter em visão, TDR. Fora: análise de jitter decomposta.",
+			"objectives": [
+				"Interpretar um diagrama de olho",
+				"Localizar uma descontinuidade de impedância com TDR"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.si.differential-signaling",
+					"ee.instruments.bench.probes"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.emc",
+			"kind": "unit",
+			"parentId": "ee.pcb",
+			"order": 3,
+			"title": {
+				"pt": "Compatibilidade eletromagnética",
+				"en": "Electromagnetic compatibility"
+			},
+			"summary": "Fontes, caminhos e vítimas de interferência, emissões conduzidas e irradiadas, imunidade e normas.",
+			"scope": "Dentro: modelo fonte-caminho-vítima, emissões conduzidas e irradiadas, filtros de EMI, blindagem, ESD e surtos, normas e homologação. Fora: projeto de câmaras de ensaio.",
+			"objectives": [
+				"Projetar produtos que passam nos ensaios de EMC",
+				"Diagnosticar e corrigir problemas de EMC"
+			],
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.emc.emc-fundamentals",
+			"kind": "topic",
+			"parentId": "ee.pcb.emc",
+			"order": 0,
+			"title": {
+				"pt": "Fundamentos de EMC",
+				"en": "EMC fundamentals"
+			},
+			"summary": "Modelo fonte-caminho-vítima, modo comum e diferencial e cabos como antenas.",
+			"scope": "Dentro: fonte, caminho e vítima, modos comum e diferencial, cabos como antenas. Fora: ensaios formais.",
+			"objectives": [
+				"Identificar fonte, caminho e vítima em um problema de interferência",
+				"Explicar por que correntes de modo comum dominam a emissão irradiada"
+			],
+			"bloom": "understand",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.layout.grounding",
+					"ee.rf.antennas.antenna-params"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.emc.conducted-emissions",
+			"kind": "topic",
+			"parentId": "ee.pcb.emc",
+			"order": 1,
+			"title": {
+				"pt": "Emissões conduzidas e filtros de EMI",
+				"en": "Conducted emissions and EMI filters"
+			},
+			"summary": "LISN, emissões conduzidas de fontes chaveadas e filtros de modo comum e diferencial.",
+			"scope": "Dentro: LISN, limites, filtros LC, chokes de modo comum. Fora: projeto de filtros otimizado.",
+			"objectives": [
+				"Projetar um filtro de EMI de entrada para um conversor",
+				"Explicar o papel da LISN no ensaio"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.emc.emc-fundamentals",
+					"ee.ac.frequency.passive-filters"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.emc.radiated-shielding",
+			"kind": "topic",
+			"parentId": "ee.pcb.emc",
+			"order": 2,
+			"title": {
+				"pt": "Emissões irradiadas e blindagem",
+				"en": "Radiated emissions and shielding"
+			},
+			"summary": "Fontes de radiação em placas e cabos, eficiência de blindagem, aberturas e ferrites.",
+			"scope": "Dentro: emissão de laços e cabos, blindagem, aberturas, ferrites. Fora: simulação EM de gabinetes.",
+			"objectives": [
+				"Estimar a emissão de um laço de corrente",
+				"Avaliar o efeito de uma abertura na blindagem"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.emc.emc-fundamentals",
+					"ee.rf.em.reflection-skin"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.emc.immunity",
+			"kind": "topic",
+			"parentId": "ee.pcb.emc",
+			"order": 3,
+			"title": {
+				"pt": "Imunidade: ESD, surtos e transientes",
+				"en": "Immunity: ESD, surges and transients"
+			},
+			"summary": "Ensaios de ESD, transientes rápidos e surtos e proteção com TVS, varistores e layout.",
+			"scope": "Dentro: IEC 61000-4-x em visão, TVS, varistores, layout de proteção. Fora: coordenação de isolamento.",
+			"objectives": [
+				"Projetar a proteção de uma interface contra ESD e surtos",
+				"Explicar o caminho da corrente de ESD na placa"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.emc.emc-fundamentals",
+					"ee.instruments.safety.esd",
+					"ee.analog.diodes.special-diodes"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.emc.emc-standards",
+			"kind": "topic",
+			"parentId": "ee.pcb.emc",
+			"order": 4,
+			"title": {
+				"pt": "Normas, ensaios e homologação",
+				"en": "Standards, testing and certification"
+			},
+			"summary": "CISPR, IEC 61000, pré-conformidade em bancada e homologação Anatel e certificação Inmetro.",
+			"scope": "Dentro: normas, pré-conformidade, homologação Anatel, Inmetro. Fora: acreditação de laboratórios.",
+			"objectives": [
+				"Planejar a pré-conformidade de um produto",
+				"Identificar as normas aplicáveis a um equipamento"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.emc.emc-fundamentals"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ott-emc",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb.project",
+			"kind": "unit",
+			"parentId": "ee.pcb",
+			"order": 4,
+			"title": {
+				"pt": "Projeto de placa",
+				"en": "Board project"
+			},
+			"summary": "Projeto integrador de uma placa de sinal misto, do esquemático à placa montada e verificada.",
+			"scope": "Dentro: esquemático, layout, fabricação, montagem, bring-up e medições, em três fases. Fora: certificação de produto.",
+			"objectives": [
+				"Projetar e fabricar uma placa de sinal misto",
+				"Realizar o bring-up e a verificação da placa"
+			],
+			"assess": [
+				"design",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.pcb.project.pcb-capture-placement",
+			"kind": "topic",
+			"parentId": "ee.pcb.project",
+			"order": 0,
+			"title": {
+				"pt": "Placa de sinal misto, fase 1: esquemático, stackup e posicionamento",
+				"en": "Mixed-signal board, phase 1: schematic, stackup and placement"
+			},
+			"summary": "Esquemático revisado, stackup de 4 camadas, footprints, particionamento analógico, digital e de potência e posicionamento dos componentes.",
+			"scope": "Dentro: captura e revisão do esquemático, stackup, regras de projeto, particionamento e posicionamento. Fora: roteamento e fabricação (fase 2).",
+			"objectives": [
+				"Produzir um esquemático revisado e um stackup justificado",
+				"Posicionar componentes respeitando caminhos de retorno e particionamento"
+			],
+			"bloom": "create",
+			"assess": [
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.layout.mixed-signal-layout",
+					"ee.pcb.layout.decoupling-pdn",
+					"ee.pcb.layout.power-layout"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.pcb.project.pcb-routing-review",
+			"kind": "topic",
+			"parentId": "ee.pcb.project",
+			"order": 1,
+			"title": {
+				"pt": "Placa de sinal misto, fase 2: roteamento, revisão e fabricação",
+				"en": "Mixed-signal board, phase 2: routing, review and fabrication"
+			},
+			"summary": "Roteamento com planos e impedância controlada, verificação de regras, revisão por checklist e geração dos arquivos de fabricação e de montagem.",
+			"scope": "Dentro: roteamento, DRC, revisão por pares com checklist, Gerber, BOM e arquivos de montagem. Fora: montagem e bring-up (fase 3).",
+			"objectives": [
+				"Rotear a placa respeitando impedância, caminhos de retorno e desacoplamento",
+				"Gerar e conferir o pacote de fabricação e de montagem"
+			],
+			"bloom": "create",
+			"assess": [
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.project.pcb-capture-placement",
+					"ee.pcb.design.assembly-dfa"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.pcb.project.pcb-project",
+			"kind": "topic",
+			"parentId": "ee.pcb.project",
+			"order": 2,
+			"title": {
+				"pt": "Placa de sinal misto, fase 3: montagem, bring-up e medições",
+				"en": "Mixed-signal board, phase 3: assembly, bring-up and measurements"
+			},
+			"summary": "Montagem, inspeção, energização gradual, bring-up com firmware mínimo e medições de alimentação, ruído e interfaces.",
+			"scope": "Dentro: montagem, inspeção, energização gradual, bring-up, medições e registro de erratas para a próxima revisão. Fora: certificação.",
+			"objectives": [
+				"Executar o bring-up da placa com segurança",
+				"Documentar medições e erratas para a próxima revisão"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.pcb.project.pcb-routing-review",
+					"ee.instruments.bench.probes"
+				]
+			],
+			"hours": {
+				"lo": 4,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project",
+				"lab"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.pcb.si.termination",
+			"to": "ee.rf.tlines.reflections-vswr",
+			"kind": "related"
+		},
+		{
+			"from": "ee.pcb.emc.radiated-shielding",
+			"to": "ee.rf.antennas.antenna-params",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "bogatin-spi",
+			"title": "E. Bogatin — Signal and Power Integrity — Simplified",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "kicad-docs",
+			"title": "KiCad — documentação oficial",
+			"url": "https://docs.kicad.org/",
+			"license": "GPL-3.0-or-later / CC BY 3.0",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.776-s05",
+			"title": "MIT OCW 6.776 — High Speed Communication Circuits (S2005)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "ott-emc",
+			"title": "H. W. Ott — Electromagnetic Compatibility Engineering",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		}
+	]
+}

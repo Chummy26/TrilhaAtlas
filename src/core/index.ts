@@ -109,3 +109,17 @@ export * from "./plugin-submissions.ts";
 export type * from "./plugin-ui.ts";
 export type * from "./plugin-tree.ts";
 export * from "./plugin-agents.ts";
+// ─── estudos-sota modules (docs/research/00-SINTESE.md) ─────────────────────
+// Flat: names are unique across these barrels. Namespaced: curriculum and
+// learner both export `NodeStatus`/`NodeId`-style vocabularies, and memory /
+// resources carry generic helper names (mmr, ids) — keep them qualified.
+export * from "./domains/index.ts";
+export * from "./models/index.ts";
+export * from "./stats/index.ts";
+export * from "./progress/index.ts";
+export * from "./study/index.ts";
+export * as curriculum from "./curriculum/index.ts";
+export * as learner from "./learner/index.ts";
+export * as lesson from "./lesson/index.ts";
+export * as memory from "./memory/index.ts";
+export * as resources from "./resources/index.ts";

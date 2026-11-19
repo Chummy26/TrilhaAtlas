@@ -1,0 +1,1319 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee",
+	"items": [
+		{
+			"id": "ee",
+			"kind": "domain",
+			"parentId": null,
+			"order": 0,
+			"title": {
+				"pt": "Eletrônica",
+				"en": "Electronics"
+			},
+			"summary": "Eletrônica dos princípios ao doutorado: da matemática e da física básicas aos circuitos, dispositivos, sistemas digitais e embarcados, potência, controle, RF, projeto de CIs e pesquisa.",
+			"scope": "Dentro: fundamentos matemáticos e físicos, circuitos, dispositivos, eletrônica analógica e digital, sinais, embarcados, potência, controle, RF, PCB e EMC, projeto de CIs e metodologia de pesquisa. Fora: sistemas elétricos de potência em alta tensão, redes de telecomunicações e ciência da computação fora do hardware.",
+			"objectives": [
+				"Analisar e projetar circuitos e sistemas eletrônicos com fundamentação física e matemática",
+				"Construir, medir e depurar protótipos com segurança",
+				"Ler a literatura técnica e contribuir em pelo menos uma frente de pesquisa"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"explain",
+				"design",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 0
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 1618,
+				"hi": 2214.45
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "Electrical and Computer (17 áreas)",
+					"embeddable": false
+				},
+				{
+					"source": "abet-ee-2025",
+					"ref": "Program Criteria",
+					"embeddable": false
+				},
+				{
+					"source": "cne-ces-2-2019",
+					"ref": "Engenharia Elétrica e Eletrônica",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "índice de módulos",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"root"
+			]
+		},
+		{
+			"id": "ee.math",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 0,
+			"title": {
+				"pt": "Ferramentas matemáticas",
+				"en": "Mathematical tools"
+			},
+			"summary": "Somente a matemática que a eletrônica usa: álgebra, trigonometria, complexos e fasores, cálculo, EDOs, álgebra linear, transformadas e variáveis complexas, probabilidade, computação numérica e matemática discreta.",
+			"scope": "Dentro: ferramentas matemáticas aplicadas a circuitos, sinais, dispositivos e sistemas digitais, incluindo variáveis complexas, lógica, aritmética modular e grafos. Fora: matemática pura sem uso direto em eletrônica.",
+			"objectives": [
+				"Manipular as ferramentas matemáticas exigidas pelas demais áreas",
+				"Traduzir problemas de circuitos e sinais em problemas matemáticos e interpretar o resultado"
+			],
+			"assess": [
+				"numeric",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 0
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 109.75,
+				"hi": 150.45
+			},
+			"anchors": [
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§1",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§2",
+					"embeddable": false
+				},
+				{
+					"source": "abet-ee-2025",
+					"ref": "Program Criteria: mathematics",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.physics",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 1,
+			"title": {
+				"pt": "Física essencial: eletromagnetismo e física moderna",
+				"en": "Essential physics: electromagnetism and modern physics"
+			},
+			"summary": "A física que sustenta a eletrônica: carga, campo, potencial, corrente, magnetismo, indução e ondas eletromagnéticas, mais as noções de física moderna (fótons, quantização e estatística térmica) que a física de semicondutores exige.",
+			"scope": "Dentro: eletrostática, corrente, magnetostática, indução, Maxwell em forma integral, ondas, fótons, níveis de energia, tunelamento em visão e distribuição de Boltzmann. Fora: eletromagnetismo vetorial avançado (ver RF) e o formalismo da mecânica quântica.",
+			"objectives": [
+				"Explicar fisicamente tensão, corrente, capacitância e indutância",
+				"Resolver problemas quantitativos simples de campos e indução",
+				"Usar fótons, níveis de energia e o fator de Boltzmann no nível exigido pela física de semicondutores"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 0
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 45.25,
+				"hi": 63
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-8.02",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "openstax-university-physics-2",
+					"ref": "toc:electricity-and-magnetism",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Magnetic and Electric Fields",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.dc",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 2,
+			"title": {
+				"pt": "Circuitos de corrente contínua",
+				"en": "DC circuits"
+			},
+			"summary": "Análise de circuitos resistivos: leis de Ohm e de Kirchhoff, métodos sistemáticos, teoremas de rede, não linearidades e elementos armazenadores.",
+			"scope": "Dentro: circuitos com fontes constantes, resistores, fontes dependentes, elementos não lineares simples, capacitores e indutores como elementos. Fora: regime senoidal e transientes (ver CA).",
+			"objectives": [
+				"Analisar qualquer circuito resistivo linear por métodos sistemáticos",
+				"Simplificar redes com Thévenin, Norton e superposição"
+			],
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 71,
+				"hi": 101
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Electrical Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Network Analysis",
+					"embeddable": true
+				},
+				{
+					"source": "agarwal-lang",
+					"ref": "toc:circuit-analysis",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ac",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 3,
+			"title": {
+				"pt": "Transientes e corrente alternada",
+				"en": "Transients and AC circuits"
+			},
+			"summary": "Circuitos de 1ª e 2ª ordem no tempo, regime senoidal com fasores, potência CA, resposta em frequência, domínio s, transformadores, sistemas trifásicos e noções do sistema elétrico.",
+			"scope": "Dentro: transientes RC/RL/RLC, fasores, impedância, potência CA, Bode, filtros passivos, Laplace em circuitos, quadripolos, transformadores, trifásico, sistema por unidade. Fora: linhas de transmissão (ver RF), fluxo de carga e proteção de sistemas de potência.",
+			"objectives": [
+				"Calcular respostas transitórias e em regime senoidal de circuitos lineares",
+				"Projetar filtros passivos simples a partir da resposta em frequência"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 96,
+				"hi": 132
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§6",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "AC Fundamentals",
+					"embeddable": true
+				},
+				{
+					"source": "liec-kuphaldt",
+					"ref": "toc:ac",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.instruments",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 4,
+			"title": {
+				"pt": "Laboratório, medição e simulação",
+				"en": "Lab, measurement and simulation"
+			},
+			"summary": "Segurança elétrica, bancada (multímetro, fonte, gerador, osciloscópio), metrologia, simulação SPICE e sensores.",
+			"scope": "Dentro: segurança, instrumentos de bancada, incerteza, simulação de circuitos, sensores e transdutores. Fora: instrumentação industrial de processo e RF (ver RF).",
+			"objectives": [
+				"Trabalhar com segurança em bancada e em rede elétrica",
+				"Medir, simular e reportar resultados com incerteza"
+			],
+			"assess": [
+				"lab",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 55,
+				"hi": 79
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "16",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.semi",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 5,
+			"title": {
+				"pt": "Física de semicondutores e dispositivos",
+				"en": "Semiconductor physics and devices"
+			},
+			"summary": "Do comportamento dos portadores em cristais à junção pn, BJT, MOSFET, dispositivos de potência, optoeletrônica, fabricação e dispositivos avançados.",
+			"scope": "Dentro: física de semicondutores, modelos de dispositivos, fabricação, dispositivos emergentes. Fora: circuitos com dispositivos (ver analógica e digital).",
+			"objectives": [
+				"Explicar o funcionamento de diodos e transistores a partir da física de portadores",
+				"Derivar e usar os modelos I–V dos dispositivos principais"
+			],
+			"assess": [
+				"derivation",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 116,
+				"hi": 159
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§5",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "fonstad-mdc",
+					"ref": "toc:devices",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:semiconductors",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 6,
+			"title": {
+				"pt": "Eletrônica analógica",
+				"en": "Analog electronics"
+			},
+			"summary": "Circuitos com diodos e transistores, amplificadores, op-amps, resposta em frequência, realimentação, osciladores e PLLs, filtros ativos, reguladores, conversores de dados e ruído.",
+			"scope": "Dentro: projeto e análise de circuitos analógicos discretos e blocos de CI em nível de graduação. Fora: projeto de CI analógico em nível de pós (ver CI).",
+			"objectives": [
+				"Analisar e projetar amplificadores com transistores e op-amps",
+				"Garantir estabilidade e desempenho de circuitos realimentados"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 182,
+				"hi": 251
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.digital",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 7,
+			"title": {
+				"pt": "Sistemas digitais e arquitetura de computadores",
+				"en": "Digital systems and computer architecture"
+			},
+			"summary": "Representação de informação, lógica combinacional e sequencial, HDL e FPGA, CMOS digital, arquitetura de processadores e projeto digital avançado.",
+			"scope": "Dentro: projeto lógico, temporização, Verilog/VHDL, CMOS digital, RISC-V, memórias, fluxo ASIC. Fora: ciência da computação teórica e sistemas operacionais.",
+			"objectives": [
+				"Projetar sistemas digitais síncronos corretos e temporizados",
+				"Explicar como um processador executa instruções"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"code",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 127,
+				"hi": 174
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.004-s17",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§15",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "harris-harris-riscv",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-DIG",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Switching Circuits",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.signals",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 8,
+			"title": {
+				"pt": "Sinais e sistemas",
+				"en": "Signals and systems"
+			},
+			"summary": "Sinais e sistemas LTI, Fourier, Laplace e Z, amostragem, processamento digital, sinais aleatórios, comunicações analógicas e digitais e DSP avançado.",
+			"scope": "Dentro: análise de sinais em tempo contínuo e discreto, transformadas, amostragem, filtros digitais, processos aleatórios, modulação, transmissão em banda base e multiplexação. Fora: redes de comunicação e teoria de codificação avançada.",
+			"objectives": [
+				"Analisar sistemas LTI nos domínios do tempo e da frequência",
+				"Projetar filtros digitais e sistemas de amostragem"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"code",
+				"sketch"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 123,
+				"hi": 166
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.003-f11",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "oppenheim-willsky-ss",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§7",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§13",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-SGP",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.embedded",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 9,
+			"title": {
+				"pt": "Sistemas embarcados",
+				"en": "Embedded systems"
+			},
+			"summary": "C e estruturas de dados para embarcados, arquitetura de microcontroladores, periféricos, barramentos e redes, RTOS, interface com o mundo físico e tópicos avançados.",
+			"scope": "Dentro: firmware bare-metal e com RTOS, periféricos, comunicação, acionamento, segurança e testes. Fora: aplicações de alto nível e computação em nuvem.",
+			"objectives": [
+				"Desenvolver firmware confiável para microcontroladores",
+				"Integrar sensores, atuadores e comunicação em sistemas completos"
+			],
+			"assess": [
+				"code",
+				"lab",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 148,
+				"hi": 202
+			},
+			"anchors": [
+				{
+					"source": "model-kuphaldt",
+					"ref": "Programmable Systems",
+					"embeddable": true
+				},
+				{
+					"source": "ieee-acm-ce2016",
+					"ref": "CE-ESY",
+					"embeddable": false
+				},
+				{
+					"source": "white-making-embedded",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§16",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.111",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 10,
+			"title": {
+				"pt": "Eletrônica de potência",
+				"en": "Power electronics"
+			},
+			"summary": "Conversão eficiente de energia: fontes, magnéticos, conversores CC-CC, componentes de potência, controle de conversores, retificação, inversores, amplificadores classe D, máquinas elétricas, acionamentos e tópicos avançados.",
+			"scope": "Dentro: conversores chaveados de baixa e média potência, magnéticos, controle, PFC, inversores, classe D, máquinas elétricas e acionamentos. Fora: sistemas de transmissão de energia em alta tensão e projeto construtivo de máquinas.",
+			"objectives": [
+				"Analisar e projetar conversores chaveados",
+				"Modelar e controlar conversores em malha fechada"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 118,
+				"hi": 160
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Power Systems",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.control",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 11,
+			"title": {
+				"pt": "Sistemas de controle",
+				"en": "Control systems"
+			},
+			"summary": "Modelagem, desempenho, lugar das raízes, projeto na frequência, PID, espaço de estados, controle digital e controle avançado.",
+			"scope": "Dentro: controle linear clássico e moderno, controle digital e introdução a ótimo, robusto, preditivo e não linear. Fora: controle de processos industriais em detalhe.",
+			"objectives": [
+				"Modelar e analisar sistemas realimentados",
+				"Projetar controladores clássicos e por espaço de estados"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 99,
+				"hi": 135
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				},
+				{
+					"source": "astrom-murray-fbs",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "franklin-powell-feedback",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Measurement and Control",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 12,
+			"title": {
+				"pt": "Eletromagnetismo aplicado, RF e micro-ondas",
+				"en": "Applied electromagnetics, RF and microwaves"
+			},
+			"summary": "Eletromagnetismo em forma diferencial, linhas de transmissão, carta de Smith, redes de micro-ondas, antenas, sistemas e circuitos de RF e RF CMOS.",
+			"scope": "Dentro: ondas, linhas, casamento, parâmetros S, antenas, ruído e não linearidade em RF, amplificadores, misturadores, osciladores, PLLs e transceptores. Fora: óptica e fotônica.",
+			"objectives": [
+				"Analisar propagação e casamento em linhas e redes de RF",
+				"Projetar blocos de RF discretos e integrados"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 108,
+				"hi": 146
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Communication",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.pcb",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 13,
+			"title": {
+				"pt": "PCB, integridade de sinal e EMC",
+				"en": "PCB, signal integrity and EMC"
+			},
+			"summary": "Projeto de placas de circuito impresso, layout por tipo de circuito, integridade de sinal e compatibilidade eletromagnética.",
+			"scope": "Dentro: fluxo EDA, fabricação, layout, aterramento, desacoplamento, integridade de sinal, emissões, imunidade e normas. Fora: encapsulamento de CIs.",
+			"objectives": [
+				"Projetar PCBs que funcionam na primeira revisão",
+				"Prevenir problemas de integridade de sinal e de EMC"
+			],
+			"assess": [
+				"design",
+				"explain",
+				"numeric"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 55,
+				"hi": 76
+			},
+			"anchors": [
+				{
+					"source": "bogatin-spi",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ott-emc",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "kicad-docs",
+					"ref": "PCB Editor",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.ic",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 14,
+			"title": {
+				"pt": "Projeto de circuitos integrados analógicos e mistos",
+				"en": "Analog and mixed-signal IC design"
+			},
+			"summary": "Projeto de CIs analógicos em nível de pós-graduação: metodologia gm/ID, amplificadores CMOS, referências, capacitores chaveados, conversores de dados, temporização e fluxo de projeto com PDK aberto.",
+			"scope": "Dentro: projeto em nível de transistor em CMOS, verificação e tapeout. Fora: física de processos e projeto digital de grande porte.",
+			"objectives": [
+				"Projetar blocos analógicos e mistos em CMOS até o layout",
+				"Verificar projetos em cantos de processo e Monte Carlo"
+			],
+			"assess": [
+				"design",
+				"simulate",
+				"derivation"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 94,
+				"hi": 124
+			},
+			"anchors": [
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.331-s02",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.374-f03",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "baker-cmos",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:analog-ic"
+			]
+		},
+		{
+			"id": "ee.research",
+			"kind": "area",
+			"parentId": "ee",
+			"order": 15,
+			"title": {
+				"pt": "Prática profissional e pesquisa",
+				"en": "Professional practice and research"
+			},
+			"summary": "Ética, economia de engenharia, normas, gestão de projetos, metodologia científica, ferramentas avançadas e frentes de pesquisa até a primeira publicação.",
+			"scope": "Dentro: prática profissional, metodologia de pesquisa, escrita científica, frentes de pesquisa e trabalho de tese. Fora: conteúdo técnico das áreas, que fica nas respectivas áreas.",
+			"objectives": [
+				"Exercer a engenharia com ética, normas e gestão",
+				"Conduzir uma pesquisa até uma publicação revisada por pares"
+			],
+			"assess": [
+				"explain",
+				"design"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 71,
+				"hi": 96
+			},
+			"anchors": [
+				{
+					"source": "abet-ee-2025",
+					"ref": "Student Outcomes",
+					"embeddable": false
+				},
+				{
+					"source": "cne-ces-2-2019",
+					"ref": "competências do egresso",
+					"embeddable": false
+				},
+				{
+					"source": "keshav-how-to-read-a-paper",
+					"ref": "método de três passagens",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"spec:research"
+			]
+		}
+	],
+	"edges": [],
+	"sources": [
+		{
+			"id": "abet-ee-2025",
+			"title": "ABET — Program Criteria for Electrical/Electronic(s) Engineering, 2025–2026",
+			"url": "https://www.abet.org/accreditation/accreditation-criteria/criteria-for-accrediting-engineering-programs-2025-2026/",
+			"license": "Documento público; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "agarwal-lang",
+			"title": "Agarwal & Lang — Foundations of Analog and Digital Electronic Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "astrom-murray-fbs",
+			"title": "Åström & Murray — Feedback Systems, 2ª ed.",
+			"license": "Copyright (leitura online gratuita); só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "baker-cmos",
+			"title": "R. J. Baker — CMOS Circuit Design, Layout, and Simulation",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "bogatin-spi",
+			"title": "E. Bogatin — Signal and Power Integrity — Simplified",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "cne-ces-2-2019",
+			"title": "Resolução CNE/CES nº 2/2019 — Diretrizes Curriculares Nacionais de Engenharia",
+			"license": "Ato normativo público; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "ellingson-electromagnetics",
+			"title": "S. W. Ellingson — Electromagnetics, vol. 1–2 (VT Publishing)",
+			"url": "https://doi.org/10.21061/electromagnetics-vol-1",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "erickson-maksimovic",
+			"title": "Erickson & Maksimović — Fundamentals of Power Electronics",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "fonstad-mdc",
+			"title": "C. G. Fonstad — Microelectronic Devices and Circuits (DSpace@MIT)",
+			"license": "Verificar licença no DSpace@MIT; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "franklin-powell-feedback",
+			"title": "Franklin, Powell, Emami-Naeini — Feedback Control of Dynamic Systems",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "gray-hurst-lewis-meyer",
+			"title": "Gray, Hurst, Lewis, Meyer — Analysis and Design of Analog Integrated Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "harris-harris-riscv",
+			"title": "Harris & Harris — Digital Design and Computer Architecture: RISC-V Edition",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-acm-ce2016",
+			"title": "IEEE/ACM — Computer Engineering Curricula 2016 (CE2016)",
+			"license": "© ACM/IEEE; só referência (DOI 10.1145/3025098)",
+			"usage": "reference"
+		},
+		{
+			"id": "keshav-how-to-read-a-paper",
+			"title": "S. Keshav — How to Read a Paper (ACM SIGCOMM CCR, 2007)",
+			"license": "© ACM; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "kicad-docs",
+			"title": "KiCad — documentação oficial",
+			"url": "https://docs.kicad.org/",
+			"license": "GPL-3.0-or-later / CC BY 3.0",
+			"usage": "reference"
+		},
+		{
+			"id": "liec-kuphaldt",
+			"title": "Tony R. Kuphaldt — Lessons in Electric Circuits (vol. I–VI)",
+			"url": "https://www.ibiblio.org/kuphaldt/electricCircuits/",
+			"license": "Design Science License ou CC BY 4.0 conforme a edição; tratado aqui como só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.002-s07",
+			"title": "MIT OCW 6.002 — Circuits and Electronics (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.003-f11",
+			"title": "MIT OCW 6.003 — Signals and Systems (F2011)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.004-s17",
+			"title": "MIT OCW 6.004 — Computation Structures (S2017)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.012-f09",
+			"title": "MIT OCW 6.012 — Microelectronic Devices and Circuits (F2009)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.013-s09",
+			"title": "MIT OCW 6.013 — Electromagnetics and Applications (S2009)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.101",
+			"title": "MIT OCW 6.101 — Introductory Analog Electronics Laboratory",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.111",
+			"title": "MIT OCW 6.111 — Introductory Digital Systems Laboratory",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.301-f10",
+			"title": "MIT OCW 6.301 — Solid-State Circuits (F2010)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.302-s07",
+			"title": "MIT OCW 6.302 — Feedback Systems (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.331-s02",
+			"title": "MIT OCW 6.331 — Advanced Circuit Techniques (S2002)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.334-s07",
+			"title": "MIT OCW 6.334 — Power Electronics (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.374-f03",
+			"title": "MIT OCW 6.374 — Analysis and Design of Digital Integrated Circuits (F2003)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.622-s23",
+			"title": "MIT OCW 6.622 — Power Electronics (S2023)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.776-s05",
+			"title": "MIT OCW 6.776 — High Speed Communication Circuits (S2005)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-8.02",
+			"title": "MIT OCW 8.02 — Physics II: Electricity and Magnetism",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "openstax-university-physics-2",
+			"title": "OpenStax — University Physics, Volume 2",
+			"url": "https://openstax.org/details/books/university-physics-volume-2",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "oppenheim-willsky-ss",
+			"title": "Oppenheim & Willsky — Signals and Systems, 2ª ed.",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "ott-emc",
+			"title": "H. W. Ott — Electromagnetic Compatibility Engineering",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "pozar-microwave",
+			"title": "D. M. Pozar — Microwave Engineering",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "razavi-analog-cmos-2e",
+			"title": "B. Razavi — Design of Analog CMOS Integrated Circuits, 2ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "sedra-smith-8e",
+			"title": "Sedra, Smith, Carusone, Gaudet — Microelectronic Circuits, 8ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "white-making-embedded",
+			"title": "E. White — Making Embedded Systems, 2ª ed.",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		}
+	]
+}

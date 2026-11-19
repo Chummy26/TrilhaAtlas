@@ -1,10 +1,12 @@
 'use strict';
 const { randomUUID, createHash } = require('node:crypto');
+const fs = require('node:fs');
 const path = require('node:path');
 const { openStore } = require('./store.cjs');
-const scheduler = require('./scheduler.cjs');
+const scheduler = require('./scheduling.ts');
 const { statistics } = require('./statistics.cjs');
 const fileGeneration = require('./file-generation.cjs');
+const { createExportService } = require('./export-service.ts');
 
 const { graphInstructions: instructions, graphPromptFor: promptFor } = require('./generation-prompts.cjs');
 const resultSchema = {
@@ -95,6 +97,15 @@ function pack(graph, ids, state) {
   return chunks;
 }
 
+// sql.js WASM for .apkg export: copied next to the bundled backend; in a source checkout
+// it is resolved from the plugin's own node_modules. It must come from the installed
+// sql.js (the JS glue it pairs with), not anki-apkg-export's older bundled copy.
+function sqlWasmPath(directory) {
+  const bundled = path.join(directory, 'sql-wasm.wasm');
+  if (fs.existsSync(bundled)) return bundled;
+  try { return require.resolve('sql.js/dist/sql-wasm.wasm'); } catch { return bundled; }
+}
+
 function activate(ctx) {
   if (!ctx.workers?.register || !ctx.learning?.graph) fail('This app build does not provide the plugin capabilities required by Flashcards.');
   const store = openStore(ctx.dataDirectory);
@@ -123,6 +134,14 @@ function activate(ctx) {
   const deck = (s, id) => s.decks.find(d => d.id === id) ?? fail('Deck not found.');
   const fileSource = (s, id) => Object.hasOwn(s.fileSources ?? {}, id) ? s.fileSources[id] : fail('File source not found.');
   function liveIds(s) { return new Set([...graphNow().propositions.map(p => p.id), ...Object.values(s.propositions).filter(isLocal).map(p => p.id)]); }
+  // Export/sync (Obsidian mirror, AnkiConnect, .apkg) keeps its own sync-cursor.json (created before view() reads it).
+  const sync = createExportService({
+    dataDirectory: ctx.dataDirectory,
+    wasmPath: sqlWasmPath(typeof ctx.directory === 'string' ? ctx.directory : __dirname),
+    getState: () => store.get(),
+    liveIds: () => liveIds(store.get()),
+    changeState: update => change(update),
+  });
   function counts(s, now) {
     const { start, end } = scheduler.dayBounds(now, s.settings.dayStart);
     const result = Object.fromEntries(s.decks.map(d => [d.id, 0]));
@@ -133,7 +152,9 @@ function activate(ctx) {
     alive(); const s = store.get(), live = liveIds(s), now = Date.now();
     const newCounts = counts(s, now);
     const propositions = Object.values(s.propositions).map(p => ({ ...p, memberships: memberships(s, p.id), archived: !live.has(p.id) }));
-    const decks = s.decks.map(d => ({ ...d, newToday: newCounts[d.id], due: propositions.filter(p => !p.archived && d.propositionIds.includes(p.id) && p.cues.some(c => !c.deleted) && p.schedule.state !== 0 && scheduler.isDue(p.schedule, now, s.settings.dayStart)).length }));
+    // Review mode "anki": cards Anki schedules are not due in the app (same rule as next-review).
+    const ankiScheduled = sync.ankiScheduled();
+    const decks = s.decks.map(d => ({ ...d, newToday: newCounts[d.id], due: propositions.filter(p => !p.archived && !ankiScheduled?.has(p.id) && d.propositionIds.includes(p.id) && p.cues.some(c => !c.deleted) && p.schedule.state !== 0 && scheduler.isDue(p.schedule, now, s.settings.dayStart)).length }));
     const b = s.batches.at(-1);
     const batch = b ? { ...b, kind: b.kind ?? 'graph', chunks: b.chunks.map(c => {
       if (applicationErrors.has(c.id)) return { ...c, error: applicationErrors.get(c.id) };
@@ -515,7 +536,9 @@ function activate(ctx) {
   register('next-review', scope => {
     const s = store.get(), live = liveIds(s), now = Date.now();
     const selection = scopeIds(s, scope), used = counts(s, now);
-    const candidates = selection.ids.map(id => s.propositions[id]).filter(p => p && live.has(p.id) && reviewCues(p, scope).length);
+    // Review mode "anki": Anki schedules the propositions it holds; the app queue skips them.
+    const ankiScheduled = sync.ankiScheduled();
+    const candidates = selection.ids.map(id => s.propositions[id]).filter(p => p && live.has(p.id) && !ankiScheduled?.has(p.id) && reviewCues(p, scope).length);
     const ready = candidates.filter(p => p.schedule.state !== 0 && scheduler.isDue(p.schedule, now, s.settings.dayStart));
     ready.sort((a, b) => ((a.schedule.state === 1 || a.schedule.state === 3) ? 0 : 1) - ((b.schedule.state === 1 || b.schedule.state === 3) ? 0 : 1) || a.schedule.due - b.schedule.due);
     let p = ready[0], admittingDeckId = null;
@@ -568,6 +591,15 @@ function activate(ctx) {
     });
     tickets.delete(ticketId); return { ok: true };
   });
+  register('get-sync', () => sync.view());
+  register('save-sync-settings', patch => sync.saveSettings(patch));
+  register('export-obsidian', () => sync.exportObsidian());
+  register('anki-status', () => sync.ankiStatus());
+  register('anki-push', input => sync.pushAnki(input));
+  register('anki-import-reviews', async () => { const result = await sync.importAnkiReviews(); if (result.replayed) notify(); return result; });
+  register('export-apkg', () => sync.exportApkg());
+  register('export-anki', input => sync.exportAnki(input));
+  register('get-revlog', input => sync.revlog(input));
   const cleanup = () => { disposed = true; for (const stop of observers.values()) stop(); observers.clear(); preflights.clear(); tickets.clear(); };
   ctx.cleanup(cleanup);
 }

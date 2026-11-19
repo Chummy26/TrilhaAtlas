@@ -4,7 +4,7 @@
   "name": "Flashcards",
   "version": "0.1.0",
   "minAppVersion": "0.4.1",
-  "description": "Generate fact-recall cues from your knowledge graph and review them with FSRS-6. Generation uses your configured model and may incur cost. Native only; no Anki integration.",
+  "description": "Generate fact-recall cues from your knowledge graph and review them with FSRS-7. Export to Obsidian and Anki (AnkiConnect or .apkg). Generation uses your configured model and may incur cost.",
   "main": "main.js",
   "backend": "backend.cjs",
   "styles": "styles.css"

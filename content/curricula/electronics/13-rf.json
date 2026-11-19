@@ -1,0 +1,2870 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.rf",
+	"items": [
+		{
+			"id": "ee.rf.em",
+			"kind": "unit",
+			"parentId": "ee.rf",
+			"order": 0,
+			"title": {
+				"pt": "Eletromagnetismo para engenharia",
+				"en": "Engineering electromagnetics"
+			},
+			"summary": "Campos com cálculo vetorial, Maxwell em forma diferencial e fasorial, ondas planas, reflexão e guias.",
+			"scope": "Dentro: Maxwell diferencial, condições de contorno, ondas planas, polarização, reflexão, efeito pelicular, guias de onda. Fora: métodos numéricos de EM.",
+			"objectives": [
+				"Resolver problemas de ondas planas e interfaces",
+				"Explicar a propagação guiada e as perdas em condutores"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:electrostatics",
+					"embeddable": true
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:plane-waves-in-lossless-media",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.em.em-vector-fields",
+			"kind": "topic",
+			"parentId": "ee.rf.em",
+			"order": 0,
+			"title": {
+				"pt": "Campos estáticos com cálculo vetorial",
+				"en": "Static fields with vector calculus"
+			},
+			"summary": "Gradiente do potencial, divergência e rotacional dos campos, condições de contorno e capacitância e indutância por campos.",
+			"scope": "Dentro: forma diferencial de Gauss e Ampère, condições de contorno, Laplace e Poisson. Fora: métodos numéricos.",
+			"objectives": [
+				"Aplicar as condições de contorno em interfaces entre materiais",
+				"Calcular capacitância e indutância por unidade de comprimento de linhas coaxiais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.physics.electrostatics.gauss-law",
+					"ee.physics.magnetism.ampere-biot",
+					"ee.math.calc.vector-calc"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:electrostatics",
+					"embeddable": true
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:plane-waves-in-lossless-media",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.em.maxwell-differential",
+			"kind": "topic",
+			"parentId": "ee.rf.em",
+			"order": 1,
+			"title": {
+				"pt": "Maxwell em forma diferencial e fasorial",
+				"en": "Maxwell's equations in differential and phasor form"
+			},
+			"summary": "Equações de Maxwell pontuais, forma fasorial, equação de onda e teorema de Poynting.",
+			"scope": "Dentro: Maxwell diferencial, fasores, equação de Helmholtz, Poynting. Fora: potenciais retardados.",
+			"objectives": [
+				"Derivar a equação de onda a partir das equações de Maxwell",
+				"Aplicar o teorema de Poynting ao fluxo de potência"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.em.em-vector-fields",
+					"ee.physics.waves.maxwell-overview",
+					"ee.math.complex.phasor-math"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:electrostatics",
+					"embeddable": true
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:plane-waves-in-lossless-media",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.em.plane-waves",
+			"kind": "topic",
+			"parentId": "ee.rf.em",
+			"order": 2,
+			"title": {
+				"pt": "Ondas planas e polarização",
+				"en": "Plane waves and polarization"
+			},
+			"summary": "Ondas planas uniformes, impedância intrínseca, constante de propagação em meios com perdas e polarização.",
+			"scope": "Dentro: ondas planas, η, α e β, meios com perdas, polarização linear e circular. Fora: anisotropia.",
+			"objectives": [
+				"Calcular constante de propagação e impedância intrínseca de um meio",
+				"Identificar a polarização de uma onda"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.em.maxwell-differential"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:electrostatics",
+					"embeddable": true
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:plane-waves-in-lossless-media",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.em.reflection-skin",
+			"kind": "topic",
+			"parentId": "ee.rf.em",
+			"order": 3,
+			"title": {
+				"pt": "Reflexão, transmissão e efeito pelicular",
+				"en": "Reflection, transmission and skin effect"
+			},
+			"summary": "Incidência normal e oblíqua, coeficientes de reflexão e o efeito pelicular em condutores.",
+			"scope": "Dentro: incidência normal e oblíqua, Fresnel, profundidade pelicular, blindagem. Fora: metamateriais.",
+			"objectives": [
+				"Calcular coeficientes de reflexão e transmissão em incidência normal",
+				"Calcular a profundidade pelicular em um condutor"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.em.plane-waves"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:electrostatics",
+					"embeddable": true
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:plane-waves-in-lossless-media",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.em.waveguides",
+			"kind": "topic",
+			"parentId": "ee.rf.em",
+			"order": 4,
+			"title": {
+				"pt": "Guias de onda",
+				"en": "Waveguides"
+			},
+			"summary": "Modos TE e TM em guias retangulares, frequência de corte e cavidades ressonantes.",
+			"scope": "Dentro: guias retangulares, modos, corte, dispersão, cavidades. Fora: fibras ópticas.",
+			"objectives": [
+				"Calcular a frequência de corte dos modos de um guia retangular",
+				"Explicar por que o guia não propaga abaixo do corte"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.em.reflection-skin"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:electrostatics",
+					"embeddable": true
+				},
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:plane-waves-in-lossless-media",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.tlines",
+			"kind": "unit",
+			"parentId": "ee.rf",
+			"order": 1,
+			"title": {
+				"pt": "Linhas de transmissão",
+				"en": "Transmission lines"
+			},
+			"summary": "Modelo distribuído, reflexões, ROE, transientes, impedância de entrada, carta de Smith e linhas planares.",
+			"scope": "Dentro: equações do telegrafista, Γ, ROE, treliça, linhas λ/4, carta de Smith, microstrip. Fora: linhas acopladas avançadas.",
+			"objectives": [
+				"Analisar reflexões e impedâncias em linhas",
+				"Usar a carta de Smith com fluência"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 16,
+				"hi": 22
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:transmission-lines",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:transmission-line-theory",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.tlines.tline-model",
+			"kind": "topic",
+			"parentId": "ee.rf.tlines",
+			"order": 0,
+			"title": {
+				"pt": "Modelo distribuído e equações do telegrafista",
+				"en": "Distributed model and telegrapher's equations"
+			},
+			"summary": "Parâmetros R, L, G e C por unidade de comprimento, impedância característica e velocidade de propagação.",
+			"scope": "Dentro: modelo RLGC, Z₀, velocidade de fase, linhas sem perdas e com perdas. Fora: modelos de linhas acopladas.",
+			"objectives": [
+				"Calcular Z₀ e a velocidade de propagação de uma linha",
+				"Explicar quando um fio deve ser tratado como linha"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.phasors.impedance",
+					"ee.physics.waves.em-waves"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:transmission-lines",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:transmission-line-theory",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.tlines.reflections-vswr",
+			"kind": "topic",
+			"parentId": "ee.rf.tlines",
+			"order": 1,
+			"title": {
+				"pt": "Reflexão, coeficiente Γ e ROE",
+				"en": "Reflection, Γ and VSWR"
+			},
+			"summary": "Onda incidente e refletida, coeficiente de reflexão, ondas estacionárias, ROE e perda de retorno.",
+			"scope": "Dentro: Γ, ROE, perda de retorno, potência entregue. Fora: redes de casamento.",
+			"objectives": [
+				"Calcular Γ, ROE e perda de retorno para uma carga",
+				"Calcular a potência entregue a uma carga descasada"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.tline-model"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:transmission-lines",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:transmission-line-theory",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.tlines.tline-transients",
+			"kind": "topic",
+			"parentId": "ee.rf.tlines",
+			"order": 2,
+			"title": {
+				"pt": "Transientes em linhas: diagrama de treliça",
+				"en": "Line transients: lattice diagram"
+			},
+			"summary": "Propagação de degraus, reflexões múltiplas e diagrama de treliça para cargas resistivas.",
+			"scope": "Dentro: degraus em linhas, treliça, cargas resistivas e reativas simples. Fora: TDR quantitativo avançado.",
+			"objectives": [
+				"Construir o diagrama de treliça de uma linha com fonte e carga descasadas",
+				"Prever a forma de onda no receptor"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.reflections-vswr",
+					"ee.ac.transients1.step-response"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:transmission-lines",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:transmission-line-theory",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.tlines.input-impedance",
+			"kind": "topic",
+			"parentId": "ee.rf.tlines",
+			"order": 3,
+			"title": {
+				"pt": "Impedância de entrada e linhas λ/4",
+				"en": "Input impedance and quarter-wave lines"
+			},
+			"summary": "Impedância vista na entrada, linhas em curto e em aberto como reatâncias e transformador de λ/4.",
+			"scope": "Dentro: Z_in, stubs como reatâncias, transformador λ/4. Fora: linhas com perdas.",
+			"objectives": [
+				"Calcular a impedância de entrada de uma linha terminada",
+				"Projetar um transformador de λ/4"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.reflections-vswr"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:transmission-lines",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:transmission-line-theory",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.tlines.smith-chart",
+			"kind": "topic",
+			"parentId": "ee.rf.tlines",
+			"order": 4,
+			"title": {
+				"pt": "Carta de Smith",
+				"en": "Smith chart"
+			},
+			"summary": "Construção da carta, leitura de impedâncias e admitâncias e deslocamento ao longo da linha.",
+			"scope": "Dentro: carta de impedância e de admitância, movimento ao longo da linha, círculos de ROE. Fora: cartas de ruído e estabilidade.",
+			"objectives": [
+				"Localizar impedâncias e admitâncias na carta de Smith",
+				"Calcular a impedância de entrada de uma linha pela carta"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.input-impedance"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:transmission-lines",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:transmission-line-theory",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.tlines.planar-lines",
+			"kind": "topic",
+			"parentId": "ee.rf.tlines",
+			"order": 5,
+			"title": {
+				"pt": "Microstrip, stripline e coplanar",
+				"en": "Microstrip, stripline and coplanar"
+			},
+			"summary": "Geometrias planares, permissividade efetiva, cálculo de largura para 50 Ω e perdas.",
+			"scope": "Dentro: microstrip, stripline, CPW, ε_eff, perdas dielétricas. Fora: linhas diferenciais acopladas.",
+			"objectives": [
+				"Calcular a largura de uma microstrip de 50 Ω",
+				"Comparar microstrip e stripline quanto a dispersão e blindagem"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.tline-model"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:transmission-lines",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:transmission-line-theory",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.networks",
+			"kind": "unit",
+			"parentId": "ee.rf",
+			"order": 2,
+			"title": {
+				"pt": "Redes de micro-ondas e casamento",
+				"en": "Microwave networks and matching"
+			},
+			"summary": "Casamento com elementos concentrados e distribuídos, parâmetros S, medição com VNA e componentes passivos de RF.",
+			"scope": "Dentro: redes L, π e T, stubs, parâmetros S, VNA e calibração, divisores, acopladores, filtros de RF. Fora: síntese de filtros de micro-ondas avançada.",
+			"objectives": [
+				"Projetar redes de casamento",
+				"Caracterizar redes por parâmetros S"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 13,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:impedance-matching-and-tuning",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.networks.matching-lumped",
+			"kind": "topic",
+			"parentId": "ee.rf.networks",
+			"order": 0,
+			"title": {
+				"pt": "Casamento com elementos concentrados",
+				"en": "Lumped-element matching"
+			},
+			"summary": "Redes L, π e T, fator Q da rede e projeto pela carta de Smith.",
+			"scope": "Dentro: redes L, π e T, Q de carga, banda. Fora: casamento de banda larga avançado.",
+			"objectives": [
+				"Projetar uma rede L para casar uma carga a 50 Ω",
+				"Escolher a topologia pela banda desejada"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.smith-chart",
+					"ee.ac.frequency.resonance"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:impedance-matching-and-tuning",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.networks.matching-distributed",
+			"kind": "topic",
+			"parentId": "ee.rf.networks",
+			"order": 1,
+			"title": {
+				"pt": "Casamento com stubs e transformadores",
+				"en": "Stub and transformer matching"
+			},
+			"summary": "Stubs simples e duplos e transformadores de λ/4 em múltiplas seções.",
+			"scope": "Dentro: stub simples e duplo, transformador λ/4 multisseção. Fora: tapers.",
+			"objectives": [
+				"Projetar o casamento com stub simples",
+				"Explicar a banda de um transformador multisseção"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.smith-chart"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:impedance-matching-and-tuning",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.networks.s-parameters",
+			"kind": "topic",
+			"parentId": "ee.rf.networks",
+			"order": 2,
+			"title": {
+				"pt": "Parâmetros S",
+				"en": "S-parameters"
+			},
+			"summary": "Ondas de potência, matriz S, reciprocidade e perdas, conversão para Z e Y e redes em cascata.",
+			"scope": "Dentro: definição, propriedades, conversões, cascata por parâmetros T. Fora: parâmetros S de modo misto.",
+			"objectives": [
+				"Interpretar S11 e S21 de um dispositivo",
+				"Converter parâmetros S em impedância de entrada"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.tlines.reflections-vswr",
+					"ee.ac.sdomain.two-ports"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:impedance-matching-and-tuning",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.networks.vna",
+			"kind": "topic",
+			"parentId": "ee.rf.networks",
+			"order": 3,
+			"title": {
+				"pt": "Analisador vetorial de redes e calibração",
+				"en": "Vector network analyzer and calibration"
+			},
+			"summary": "Arquitetura do VNA, erros sistemáticos e calibração SOLT, de-embedding e boas práticas.",
+			"scope": "Dentro: VNA, modelo de erro, SOLT e TRL em visão, de-embedding. Fora: metrologia de RF.",
+			"objectives": [
+				"Calibrar um VNA por SOLT e medir S11",
+				"Explicar o de-embedding de um dispositivo em placa"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.networks.s-parameters",
+					"ee.instruments.measurement.impedance-measurement"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:impedance-matching-and-tuning",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.networks.rf-passives",
+			"kind": "topic",
+			"parentId": "ee.rf.networks",
+			"order": 4,
+			"title": {
+				"pt": "Divisores, acopladores, circuladores e filtros de RF",
+				"en": "Dividers, couplers, circulators and RF filters"
+			},
+			"summary": "Divisor de Wilkinson, acopladores direcionais e híbridos, circuladores e filtros de elementos distribuídos.",
+			"scope": "Dentro: Wilkinson, acopladores, híbridos, circuladores, filtros de linha acoplada em visão. Fora: síntese de filtros.",
+			"objectives": [
+				"Projetar um divisor de Wilkinson",
+				"Interpretar a diretividade de um acoplador"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.networks.s-parameters",
+					"ee.rf.networks.matching-distributed"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-network-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:impedance-matching-and-tuning",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.antennas",
+			"kind": "unit",
+			"parentId": "ee.rf",
+			"order": 3,
+			"title": {
+				"pt": "Antenas e propagação",
+				"en": "Antennas and propagation"
+			},
+			"summary": "Parâmetros de antenas, dipolos e monopolos, arranjos e patches e orçamento de enlace.",
+			"scope": "Dentro: diagrama, ganho, diretividade, impedância, dipolos, monopolos, patches, arranjos, Friis, propagação. Fora: projeto de antenas por simulação EM.",
+			"objectives": [
+				"Interpretar especificações de antenas",
+				"Calcular o orçamento de um enlace de rádio"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:antennas",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "10",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.antennas.antenna-params",
+			"kind": "topic",
+			"parentId": "ee.rf.antennas",
+			"order": 0,
+			"title": {
+				"pt": "Parâmetros de antenas",
+				"en": "Antenna parameters"
+			},
+			"summary": "Diagrama de radiação, diretividade, ganho, eficiência, impedância, abertura efetiva e campo distante.",
+			"scope": "Dentro: parâmetros de antenas, campo próximo e distante, polarização. Fora: medição em câmara anecoica.",
+			"objectives": [
+				"Interpretar o diagrama e o ganho de uma antena",
+				"Calcular a abertura efetiva a partir do ganho"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.em.plane-waves"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:antennas",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "10",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.antennas.dipoles-monopoles",
+			"kind": "topic",
+			"parentId": "ee.rf.antennas",
+			"order": 1,
+			"title": {
+				"pt": "Dipolos, monopolos e laços",
+				"en": "Dipoles, monopoles and loops"
+			},
+			"summary": "Dipolo curto e de meia onda, monopolo sobre plano de terra, antenas de laço e balun.",
+			"scope": "Dentro: dipolos, monopolos, plano de terra, laços, balun. Fora: antenas de banda larga.",
+			"objectives": [
+				"Calcular o comprimento de um dipolo de meia onda",
+				"Explicar a função de um balun"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.antennas.antenna-params"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:antennas",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "10",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.antennas.arrays-patch",
+			"kind": "topic",
+			"parentId": "ee.rf.antennas",
+			"order": 2,
+			"title": {
+				"pt": "Arranjos e antenas patch",
+				"en": "Arrays and patch antennas"
+			},
+			"summary": "Fator de arranjo, direcionamento de feixe e antenas patch em microstrip.",
+			"scope": "Dentro: fator de arranjo, beam steering, patch retangular. Fora: arranjos em fase de grande porte.",
+			"objectives": [
+				"Calcular o fator de arranjo de um arranjo linear",
+				"Estimar as dimensões de uma antena patch"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.antennas.dipoles-monopoles",
+					"ee.rf.tlines.planar-lines"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:antennas",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "10",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.antennas.link-budget",
+			"kind": "topic",
+			"parentId": "ee.rf.antennas",
+			"order": 3,
+			"title": {
+				"pt": "Propagação e orçamento de enlace",
+				"en": "Propagation and link budget"
+			},
+			"summary": "Equação de Friis, perda no espaço livre, margem de enlace e efeitos de propagação.",
+			"scope": "Dentro: Friis, perda no espaço livre, margem, multipercurso em visão. Fora: modelos de canal estatísticos.",
+			"objectives": [
+				"Calcular o orçamento de enlace de um sistema de rádio",
+				"Estimar o alcance a partir da sensibilidade do receptor"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.rf.antennas.antenna-params",
+					"ee.math.algebra.decibels"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "ellingson-electromagnetics",
+					"ref": "toc:antennas",
+					"embeddable": true
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.013-s09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "10",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§11",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.systems",
+			"kind": "unit",
+			"parentId": "ee.rf",
+			"order": 4,
+			"title": {
+				"pt": "Sistemas de RF",
+				"en": "RF systems"
+			},
+			"summary": "Ruído e não linearidade em RF, arquiteturas de transceptores e medições de RF.",
+			"scope": "Dentro: figura de ruído em cascata, IP3, compressão, faixa dinâmica, arquiteturas de receptor e transmissor, analisador de espectro. Fora: projeto em nível de transistor.",
+			"objectives": [
+				"Fazer o planejamento de nível de um receptor",
+				"Medir ruído e linearidade de blocos de RF"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc:basic-concepts-in-rf-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:noise-and-nonlinear-distortion",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.systems.rf-noise-nf",
+			"kind": "topic",
+			"parentId": "ee.rf.systems",
+			"order": 0,
+			"title": {
+				"pt": "Ruído em RF e figura de ruído em cascata",
+				"en": "RF noise and cascaded noise figure"
+			},
+			"summary": "Temperatura de ruído, figura de ruído, fórmula de Friis para cascatas e sensibilidade do receptor.",
+			"scope": "Dentro: NF, temperatura de ruído, Friis, sensibilidade. Fora: ruído de fase.",
+			"objectives": [
+				"Calcular a NF de uma cascata de blocos",
+				"Calcular a sensibilidade de um receptor"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.analog.noise.noise-analysis",
+					"ee.rf.networks.s-parameters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc:basic-concepts-in-rf-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:noise-and-nonlinear-distortion",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.systems.nonlinearity-rf",
+			"kind": "topic",
+			"parentId": "ee.rf.systems",
+			"order": 1,
+			"title": {
+				"pt": "Não linearidade: compressão e IP3",
+				"en": "Nonlinearity: compression and IP3"
+			},
+			"summary": "Harmônicos, intermodulação, ponto de compressão de 1 dB, IP3, cascata e faixa dinâmica.",
+			"scope": "Dentro: P1dB, IP2 e IP3, intermodulação, cascata, faixa dinâmica livre de espúrios. Fora: modelos de Volterra.",
+			"objectives": [
+				"Calcular o IP3 de entrada a partir de medições de dois tons",
+				"Calcular a faixa dinâmica livre de espúrios"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.math.calc.series-taylor",
+					"ee.rf.networks.s-parameters",
+					"ee.math.trig.identities"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc:basic-concepts-in-rf-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:noise-and-nonlinear-distortion",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.systems.transceiver-architectures",
+			"kind": "topic",
+			"parentId": "ee.rf.systems",
+			"order": 2,
+			"title": {
+				"pt": "Arquiteturas de receptores e transmissores",
+				"en": "Receiver and transmitter architectures"
+			},
+			"summary": "Super-heteródino, conversão direta, baixa FI, frequência imagem e planejamento de frequências.",
+			"scope": "Dentro: super-heteródino, zero-IF, low-IF, imagem, planejamento de níveis. Fora: arquiteturas digitais diretas.",
+			"objectives": [
+				"Escolher a arquitetura de receptor para uma aplicação",
+				"Calcular a frequência imagem e a rejeição necessária"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.systems.rf-noise-nf",
+					"ee.rf.systems.nonlinearity-rf",
+					"ee.signals.comms.digital-modulation"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc:basic-concepts-in-rf-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:noise-and-nonlinear-distortion",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.systems.spectrum-analyzer",
+			"kind": "topic",
+			"parentId": "ee.rf.systems",
+			"order": 3,
+			"title": {
+				"pt": "Analisador de espectro e medições de RF",
+				"en": "Spectrum analyzer and RF measurements"
+			},
+			"summary": "Arquitetura do analisador, RBW, nível de ruído, medições de potência, harmônicos e intermodulação.",
+			"scope": "Dentro: RBW, VBW, DANL, medições de potência e espúrios. Fora: analisadores de sinal vetorial.",
+			"objectives": [
+				"Configurar RBW e span para medir um espúrio fraco",
+				"Medir IP3 com dois tons no analisador"
+			],
+			"bloom": "apply",
+			"assess": [
+				"lab",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.systems.nonlinearity-rf",
+					"ee.instruments.bench.oscilloscope-advanced"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc:basic-concepts-in-rf-design",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:noise-and-nonlinear-distortion",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.rf.circuits",
+			"kind": "unit",
+			"parentId": "ee.rf",
+			"order": 5,
+			"title": {
+				"pt": "Circuitos de RF discretos",
+				"en": "Discrete RF circuits"
+			},
+			"summary": "Especialização em RF: amplificadores com parâmetros S, LNA, misturadores, osciladores e amplificadores de potência discretos.",
+			"scope": "Dentro: estabilidade, ganho, círculos de ruído, misturadores, osciladores de RF, PAs. Fora: projeto integrado (ver RF CMOS).",
+			"objectives": [
+				"Projetar amplificadores de RF a partir de parâmetros S",
+				"Analisar misturadores, osciladores e PAs"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-amplifier-design",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:oscillators-and-mixers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.circuits.rf-amplifier-design",
+			"kind": "topic",
+			"parentId": "ee.rf.circuits",
+			"order": 0,
+			"title": {
+				"pt": "Amplificadores de RF com parâmetros S",
+				"en": "RF amplifiers with S-parameters"
+			},
+			"summary": "Estabilidade (K e µ), ganho de transdutor, casamento conjugado e círculos de ganho.",
+			"scope": "Dentro: estabilidade, ganhos, casamento, círculos de ganho. Fora: amplificadores distribuídos.",
+			"objectives": [
+				"Verificar a estabilidade incondicional de um transistor",
+				"Projetar o casamento para ganho máximo"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.networks.matching-lumped",
+					"ee.rf.networks.s-parameters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-amplifier-design",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:oscillators-and-mixers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.circuits.lna-discrete",
+			"kind": "topic",
+			"parentId": "ee.rf.circuits",
+			"order": 1,
+			"title": {
+				"pt": "LNA e círculos de ruído",
+				"en": "LNA and noise circles"
+			},
+			"summary": "Parâmetros de ruído, círculos de ruído e compromisso entre ganho, ruído e casamento.",
+			"scope": "Dentro: F_min, Γ_opt, R_n, círculos de ruído, compromissos. Fora: LNA CMOS.",
+			"objectives": [
+				"Projetar um LNA discreto usando círculos de ruído",
+				"Avaliar o compromisso entre ruído e ganho"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.circuits.rf-amplifier-design",
+					"ee.rf.systems.rf-noise-nf"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-amplifier-design",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:oscillators-and-mixers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.circuits.mixers-discrete",
+			"kind": "topic",
+			"parentId": "ee.rf.circuits",
+			"order": 2,
+			"title": {
+				"pt": "Misturadores",
+				"en": "Mixers"
+			},
+			"summary": "Mistura como multiplicação, misturadores a diodo simples e balanceados e com transistor, perda de conversão e isolação.",
+			"scope": "Dentro: princípio, misturadores a diodo e transistor, balanceamento, isolação. Fora: misturadores CMOS.",
+			"objectives": [
+				"Calcular as frequências de saída de um misturador",
+				"Explicar a vantagem do misturador duplamente balanceado"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.systems.nonlinearity-rf"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-amplifier-design",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:oscillators-and-mixers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.circuits.rf-oscillators",
+			"kind": "topic",
+			"parentId": "ee.rf.circuits",
+			"order": 3,
+			"title": {
+				"pt": "Osciladores de RF",
+				"en": "RF oscillators"
+			},
+			"summary": "Osciladores com resistência negativa, ressoadores de alto Q e introdução ao ruído de fase.",
+			"scope": "Dentro: resistência negativa, ressoadores, ruído de fase em visão. Fora: VCOs integrados.",
+			"objectives": [
+				"Projetar um oscilador por resistência negativa",
+				"Explicar a relação entre Q do ressoador e ruído de fase"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.analog.oscillators.lc-crystal",
+					"ee.rf.networks.s-parameters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-amplifier-design",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:oscillators-and-mixers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.circuits.power-amps-rf",
+			"kind": "topic",
+			"parentId": "ee.rf.circuits",
+			"order": 4,
+			"title": {
+				"pt": "Amplificadores de potência de RF",
+				"en": "RF power amplifiers"
+			},
+			"summary": "Classes A, B, AB, C, D, E e F, eficiência, linha de carga e linearização em visão.",
+			"scope": "Dentro: classes de PA, eficiência, load-pull em visão, linearização. Fora: PAs de banda larga.",
+			"objectives": [
+				"Comparar classes de PA quanto a eficiência e linearidade",
+				"Determinar a impedância de carga ótima pela linha de carga"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.rf.circuits.rf-amplifier-design",
+					"ee.analog.ic-building.output-stages"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:microwave-amplifier-design",
+					"embeddable": false
+				},
+				{
+					"source": "pozar-microwave",
+					"ref": "toc:oscillators-and-mixers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic",
+			"kind": "unit",
+			"parentId": "ee.rf",
+			"order": 6,
+			"title": {
+				"pt": "Circuitos integrados de RF (CMOS)",
+				"en": "RF integrated circuits (CMOS)"
+			},
+			"summary": "Especialização em RF CMOS: passivos integrados, amplificadores de banda larga, LNAs, misturadores, VCOs, ruído de fase, PLLs, PAs e integração de transceptores.",
+			"scope": "Dentro: projeto de blocos de RF em CMOS e sua integração. Fora: ondas milimétricas e THz em profundidade.",
+			"objectives": [
+				"Projetar blocos de RF em CMOS",
+				"Planejar a integração de um transceptor"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 27,
+				"hi": 36
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.rfic-passives",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 0,
+			"title": {
+				"pt": "Passivos integrados em RF",
+				"en": "Integrated RF passives"
+			},
+			"summary": "Indutores espirais, fator Q, capacitores MIM e MOM, varactores e modelos com parasitas.",
+			"scope": "Dentro: indutores espirais, Q, perdas no substrato, varactores. Fora: simulação EM 3D.",
+			"objectives": [
+				"Estimar o Q de um indutor espiral integrado",
+				"Explicar as perdas pelo substrato"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.fab.passives-ic",
+					"ee.rf.tlines.smith-chart"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.wideband-amps",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 1,
+			"title": {
+				"pt": "Amplificadores de banda larga integrados",
+				"en": "Integrated wideband amplifiers"
+			},
+			"summary": "Peaking indutivo, realimentação resistiva, amplificadores distribuídos e o produto ganho-banda.",
+			"scope": "Dentro: shunt peaking, realimentação, distribuídos, limites de f_T. Fora: TIAs ópticos avançados.",
+			"objectives": [
+				"Projetar um estágio com shunt peaking",
+				"Calcular o ganho e a banda de um amplificador com realimentação resistiva"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.analog.freq.cascode-bandwidth",
+					"ee.rf.rfic.rfic-passives"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.cmos-lna",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 2,
+			"title": {
+				"pt": "LNA CMOS",
+				"en": "CMOS LNA"
+			},
+			"summary": "Degeneração indutiva, casamento de entrada e de ruído simultâneos e LNAs de banda larga.",
+			"scope": "Dentro: degeneração indutiva, ruído de canal, casamento simultâneo, noise cancelling. Fora: LNAs em ondas milimétricas.",
+			"objectives": [
+				"Projetar um LNA com degeneração indutiva",
+				"Calcular a NF de um LNA CMOS"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.rfic.wideband-amps",
+					"ee.rf.circuits.lna-discrete"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.cmos-mixers",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 3,
+			"title": {
+				"pt": "Misturadores CMOS",
+				"en": "CMOS mixers"
+			},
+			"summary": "Célula de Gilbert, misturadores passivos, ganho de conversão, ruído e linearidade.",
+			"scope": "Dentro: Gilbert, passivos, ruído e linearidade, misturadores com rejeição de imagem. Fora: N-path.",
+			"objectives": [
+				"Analisar o ganho de conversão de uma célula de Gilbert",
+				"Comparar misturadores ativos e passivos"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.circuits.mixers-discrete",
+					"ee.analog.ic-building.diff-pair"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.vco",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 4,
+			"title": {
+				"pt": "VCOs LC e em anel",
+				"en": "LC and ring VCOs"
+			},
+			"summary": "VCOs LC com par cruzado, sintonia por varactor, osciladores em anel e faixa de sintonia.",
+			"scope": "Dentro: VCO LC, par cruzado, varactores, anel, K_VCO. Fora: VCOs em quadratura.",
+			"objectives": [
+				"Projetar um VCO LC com par cruzado",
+				"Comparar VCOs LC e em anel"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.circuits.rf-oscillators",
+					"ee.rf.rfic.rfic-passives",
+					"ee.analog.ic-building.diff-pair"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.phase-noise",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 5,
+			"title": {
+				"pt": "Ruído de fase",
+				"en": "Phase noise"
+			},
+			"summary": "Modelos de Leeson e de Hajimiri, conversão de ruído em fase e efeitos no receptor.",
+			"scope": "Dentro: Leeson, função de sensibilidade ao impulso, mistura recíproca, jitter. Fora: métodos numéricos de ruído de fase.",
+			"objectives": [
+				"Estimar o ruído de fase de um VCO pelo modelo de Leeson",
+				"Explicar a mistura recíproca no receptor"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.rfic.vco",
+					"ee.signals.random.psd"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.pll-synth",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 6,
+			"title": {
+				"pt": "PLLs e sintetizadores de frequência",
+				"en": "PLLs and frequency synthesizers"
+			},
+			"summary": "PLL inteiro-N e fracionário-N, divisores, modulação sigma-delta e ruído de fase do sintetizador.",
+			"scope": "Dentro: arquitetura, dinâmica, fracionário-N, espúrios, ruído. Fora: PLLs totalmente digitais.",
+			"objectives": [
+				"Analisar a dinâmica de um PLL de 2ª ordem",
+				"Explicar a origem de espúrios fracionários"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.rfic.phase-noise",
+					"ee.control.freq-design.bode-control",
+					"ee.analog.oscillators.pll-basics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.cmos-pa",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 7,
+			"title": {
+				"pt": "PAs CMOS e linearização",
+				"en": "CMOS PAs and linearization"
+			},
+			"summary": "PAs em CMOS, combinação de potência, polar e outphasing e predistorção digital.",
+			"scope": "Dentro: PAs CMOS, combinação, DPD, arquiteturas polares. Fora: PAs em GaN.",
+			"objectives": [
+				"Comparar técnicas de combinação de potência em CMOS",
+				"Explicar a predistorção digital"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.circuits.power-amps-rf",
+					"ee.rf.rfic.wideband-amps"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		},
+		{
+			"id": "ee.rf.rfic.transceiver-integration",
+			"kind": "topic",
+			"parentId": "ee.rf.rfic",
+			"order": 8,
+			"title": {
+				"pt": "Integração de transceptores",
+				"en": "Transceiver integration"
+			},
+			"summary": "Planejamento de blocos, acoplamentos no substrato, isolamento, calibração e testes de um transceptor integrado.",
+			"scope": "Dentro: planejamento, acoplamentos, calibração, testes. Fora: padrões de comunicação específicos.",
+			"objectives": [
+				"Planejar os blocos e níveis de um transceptor integrado",
+				"Identificar mecanismos de acoplamento indesejado no chip"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.rf.rfic.cmos-lna",
+					"ee.rf.rfic.cmos-mixers",
+					"ee.rf.rfic.pll-synth"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.776-s05",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-rf-2e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "lee-cmos-rf",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE JSSC / RFIC Symposium",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:rf"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.rf.tlines.smith-chart",
+			"to": "ee.rf.networks.matching-lumped",
+			"kind": "related"
+		},
+		{
+			"from": "ee.rf.networks.s-parameters",
+			"to": "ee.ac.sdomain.two-ports",
+			"kind": "confusable_with"
+		}
+	],
+	"sources": [
+		{
+			"id": "ellingson-electromagnetics",
+			"title": "S. W. Ellingson — Electromagnetics, vol. 1–2 (VT Publishing)",
+			"url": "https://doi.org/10.21061/electromagnetics-vol-1",
+			"license": "CC BY-SA 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "lee-cmos-rf",
+			"title": "T. H. Lee — The Design of CMOS Radio-Frequency Integrated Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.013-s09",
+			"title": "MIT OCW 6.013 — Electromagnetics and Applications (S2009)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.776-s05",
+			"title": "MIT OCW 6.776 — High Speed Communication Circuits (S2005)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "pozar-microwave",
+			"title": "D. M. Pozar — Microwave Engineering",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "razavi-rf-2e",
+			"title": "B. Razavi — RF Microelectronics, 2ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		}
+	]
+}

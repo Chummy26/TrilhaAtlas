@@ -28,7 +28,7 @@ describe("FACTORY_SETTINGS (the compiled factory layer)", () => {
 		// with the message anchors (owner, 2026-10-13)
 		assert.deepEqual(FACTORY_SETTINGS.graph, { enabled: true, rendering: true, extractionChunkTokens: 4096 });
 		const a = FACTORY_SETTINGS.appearance;
-		assert.equal(a.theme, "default");
+		assert.equal(a.theme, "cel-papel"); // owner (estudos-sota): cel shading is the factory look
 		assert.equal(a.background, null); // the theme's own background, not a factory hex
 		assert.deepEqual(a.colors, {});
 		assert.equal(a.fontFamily, null); // Source Sans 3

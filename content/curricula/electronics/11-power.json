@@ -1,0 +1,3057 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.power",
+	"items": [
+		{
+			"id": "ee.power.supplies",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 0,
+			"title": {
+				"pt": "Arquiteturas de fontes",
+				"en": "Power supply architectures"
+			},
+			"summary": "Panorama de fontes lineares e chaveadas e o balanço de perdas que define a eficiência.",
+			"scope": "Dentro: linear versus chaveada, especificações de fontes, eficiência e perdas. Fora: topologias em detalhe.",
+			"objectives": [
+				"Escolher a arquitetura de fonte adequada",
+				"Fazer o balanço de perdas de um sistema de alimentação"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 4,
+				"hi": 6
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:voltage-regulation-and-power-conversion",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:introduction",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.supplies.power-supply-arch",
+			"kind": "topic",
+			"parentId": "ee.power.supplies",
+			"order": 0,
+			"title": {
+				"pt": "Fontes lineares versus chaveadas",
+				"en": "Linear versus switching supplies"
+			},
+			"summary": "Princípios, vantagens e limitações das fontes lineares e chaveadas e especificações típicas.",
+			"scope": "Dentro: comparação, especificações (regulação, ripple, transitório), aplicações. Fora: projeto de cada topologia.",
+			"objectives": [
+				"Comparar fontes lineares e chaveadas para uma aplicação",
+				"Interpretar as especificações de uma fonte comercial"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.regulators.linear-regulators"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:voltage-regulation-and-power-conversion",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:introduction",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.supplies.efficiency-losses",
+			"kind": "topic",
+			"parentId": "ee.power.supplies",
+			"order": 1,
+			"title": {
+				"pt": "Eficiência e balanço de perdas",
+				"en": "Efficiency and loss budget"
+			},
+			"summary": "Perdas de condução, chaveamento, magnéticos e controle e sua relação com a eficiência e a temperatura.",
+			"scope": "Dentro: categorias de perda, curva de eficiência, carga leve. Fora: modelagem detalhada de perdas.",
+			"objectives": [
+				"Montar o balanço de perdas de um conversor",
+				"Explicar por que a eficiência cai em carga leve"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.supplies.power-supply-arch",
+					"ee.analog.regulators.thermal"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:voltage-regulation-and-power-conversion",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:introduction",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.magnetics",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 1,
+			"title": {
+				"pt": "Componentes magnéticos",
+				"en": "Magnetic components"
+			},
+			"summary": "Circuitos magnéticos, projeto de indutores e transformadores de alta frequência e suas perdas.",
+			"scope": "Dentro: relutância, entreferro, projeto de indutores e transformadores, perdas no núcleo e no cobre. Fora: simulação magnética por elementos finitos.",
+			"objectives": [
+				"Projetar indutores e transformadores para conversores",
+				"Estimar perdas em magnéticos"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:magnetics",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.magnetics.magnetic-circuits",
+			"kind": "topic",
+			"parentId": "ee.power.magnetics",
+			"order": 0,
+			"title": {
+				"pt": "Circuitos magnéticos",
+				"en": "Magnetic circuits"
+			},
+			"summary": "Força magnetomotriz, relutância, analogia com circuitos elétricos e papel do entreferro.",
+			"scope": "Dentro: fmm, relutância, entreferro, fluxo, analogia elétrica. Fora: campos de franjamento em detalhe.",
+			"objectives": [
+				"Calcular a indutância de um núcleo com entreferro",
+				"Explicar por que o entreferro armazena a maior parte da energia"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.physics.magnetism.magnetic-materials",
+					"ee.dc.laws.kvl"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:magnetics",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.magnetics.inductor-design",
+			"kind": "topic",
+			"parentId": "ee.power.magnetics",
+			"order": 1,
+			"title": {
+				"pt": "Projeto de indutores",
+				"en": "Inductor design"
+			},
+			"summary": "Escolha de núcleo, número de espiras, entreferro, verificação de saturação e de enrolamento.",
+			"scope": "Dentro: método de projeto, saturação, área de janela, bitola. Fora: otimização multiobjetivo.",
+			"objectives": [
+				"Projetar um indutor para corrente e indutância especificadas",
+				"Verificar saturação e ocupação da janela"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.magnetics.magnetic-circuits",
+					"ee.dc.storage.practical-c-l"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:magnetics",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.magnetics.transformer-design",
+			"kind": "topic",
+			"parentId": "ee.power.magnetics",
+			"order": 2,
+			"title": {
+				"pt": "Transformadores de alta frequência",
+				"en": "High-frequency transformers"
+			},
+			"summary": "Projeto de transformadores para conversores isolados, indutância de dispersão e isolação.",
+			"scope": "Dentro: escolha de núcleo e espiras, dispersão, intercalação, isolação. Fora: transformadores planares avançados.",
+			"objectives": [
+				"Projetar um transformador para um flyback ou forward",
+				"Explicar o efeito da dispersão no conversor"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.magnetics.inductor-design",
+					"ee.ac.magnetic.real-transformer"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:magnetics",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.magnetics.magnetic-losses",
+			"kind": "topic",
+			"parentId": "ee.power.magnetics",
+			"order": 3,
+			"title": {
+				"pt": "Perdas no núcleo e no cobre",
+				"en": "Core and copper losses"
+			},
+			"summary": "Equação de Steinmetz, efeito pelicular e de proximidade e fio Litz.",
+			"scope": "Dentro: Steinmetz, perdas por histerese e correntes parasitas, efeito pelicular, proximidade, Litz. Fora: modelos iGSE avançados.",
+			"objectives": [
+				"Estimar as perdas no núcleo pela equação de Steinmetz",
+				"Calcular a profundidade pelicular e escolher a bitola"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.magnetics.inductor-design"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:magnetics",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.dcdc",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 2,
+			"title": {
+				"pt": "Conversores CC-CC",
+				"en": "DC-DC converters"
+			},
+			"summary": "Princípios da conversão chaveada e as topologias buck, boost, buck-boost e isoladas.",
+			"scope": "Dentro: balanço volt-segundo e de carga, buck, boost, buck-boost, DCM, flyback, forward, pontes. Fora: controle.",
+			"objectives": [
+				"Analisar conversores em regime permanente",
+				"Dimensionar componentes de potência"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 16,
+				"hi": 22
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:principles-of-steady-state-converter-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.dcdc.switching-principles",
+			"kind": "topic",
+			"parentId": "ee.power.dcdc",
+			"order": 0,
+			"title": {
+				"pt": "Princípios da conversão chaveada",
+				"en": "Switching conversion principles"
+			},
+			"summary": "Chave e filtro, razão cíclica, balanço volt-segundo no indutor e de carga no capacitor.",
+			"scope": "Dentro: PWM, razão cíclica, volt-segundo, carga-segundo, aproximação de pequeno ripple. Fora: modelos dinâmicos.",
+			"objectives": [
+				"Aplicar o balanço volt-segundo para obter a relação de conversão",
+				"Explicar por que conversores chaveados podem ser muito eficientes"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.mos-dc.mos-switch",
+					"ee.ac.transients1.step-response"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:principles-of-steady-state-converter-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.dcdc.buck",
+			"kind": "topic",
+			"parentId": "ee.power.dcdc",
+			"order": 1,
+			"title": {
+				"pt": "Conversor buck",
+				"en": "Buck converter"
+			},
+			"summary": "Operação, relação de conversão, ondulação de corrente e de tensão e escolha de L e C.",
+			"scope": "Dentro: buck síncrono e assíncrono, ripple, dimensionamento. Fora: controle.",
+			"objectives": [
+				"Dimensionar L e C de um buck para ripple especificado",
+				"Calcular as correntes nos componentes"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.switching-principles"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:principles-of-steady-state-converter-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.dcdc.boost-buckboost",
+			"kind": "topic",
+			"parentId": "ee.power.dcdc",
+			"order": 2,
+			"title": {
+				"pt": "Conversores boost e buck-boost",
+				"en": "Boost and buck-boost converters"
+			},
+			"summary": "Relações de conversão, correntes nos componentes e comparação de topologias não isoladas.",
+			"scope": "Dentro: boost, buck-boost inversor, SEPIC e Ćuk em visão. Fora: conversores multinível.",
+			"objectives": [
+				"Calcular a relação de conversão e as correntes de um boost",
+				"Comparar topologias não isoladas para uma especificação"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.buck"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:principles-of-steady-state-converter-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.dcdc.dcm",
+			"kind": "topic",
+			"parentId": "ee.power.dcdc",
+			"order": 3,
+			"title": {
+				"pt": "Modo de condução descontínua",
+				"en": "Discontinuous conduction mode"
+			},
+			"summary": "Condição de fronteira entre CCM e DCM e relação de conversão em DCM.",
+			"scope": "Dentro: fronteira CCM/DCM, relação de conversão em DCM, implicações. Fora: modelagem dinâmica em DCM.",
+			"objectives": [
+				"Determinar a carga de fronteira entre CCM e DCM",
+				"Calcular a relação de conversão em DCM"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.boost-buckboost"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:principles-of-steady-state-converter-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.dcdc.isolated-converters",
+			"kind": "topic",
+			"parentId": "ee.power.dcdc",
+			"order": 4,
+			"title": {
+				"pt": "Conversores isolados: flyback e forward",
+				"en": "Isolated converters: flyback and forward"
+			},
+			"summary": "Flyback, forward com reset do núcleo, grampeadores e escolha de topologia isolada.",
+			"scope": "Dentro: flyback, forward, reset, grampeadores RCD. Fora: ponte completa com comutação suave.",
+			"objectives": [
+				"Projetar um flyback para uma fonte de baixa potência",
+				"Explicar a necessidade de reset do núcleo no forward"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.boost-buckboost",
+					"ee.power.magnetics.transformer-design"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:principles-of-steady-state-converter-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.dcdc.bridge-converters",
+			"kind": "topic",
+			"parentId": "ee.power.dcdc",
+			"order": 5,
+			"title": {
+				"pt": "Conversores em ponte",
+				"en": "Bridge converters"
+			},
+			"summary": "Meia ponte e ponte completa, PWM bipolar e unipolar como base para inversores.",
+			"scope": "Dentro: meia ponte, ponte H, PWM bipolar e unipolar, tempo morto. Fora: inversores trifásicos.",
+			"objectives": [
+				"Analisar a tensão de saída de uma ponte com PWM unipolar",
+				"Explicar a necessidade de tempo morto"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.buck"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:principles-of-steady-state-converter-analysis",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.components",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 3,
+			"title": {
+				"pt": "Semicondutores e componentes de potência",
+				"en": "Power semiconductors and components"
+			},
+			"summary": "Perdas em chaves, drivers de gate, snubbers, projeto térmico e capacitores para conversores.",
+			"scope": "Dentro: perdas de condução e chaveamento, drivers, bootstrap, snubbers, térmica, capacitores. Fora: projeto de dispositivos.",
+			"objectives": [
+				"Estimar perdas em semicondutores de potência",
+				"Projetar o acionamento e a proteção das chaves"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:switch-realization",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.components.switch-losses",
+			"kind": "topic",
+			"parentId": "ee.power.components",
+			"order": 0,
+			"title": {
+				"pt": "Perdas de condução e chaveamento",
+				"en": "Conduction and switching losses"
+			},
+			"summary": "Formas de onda de comutação, perdas de condução, de chaveamento e de recuperação reversa.",
+			"scope": "Dentro: perdas de condução, de comutação, carga de porta, recuperação reversa. Fora: modelagem de perdas em SiC e GaN.",
+			"objectives": [
+				"Estimar as perdas de chaveamento a partir das formas de onda",
+				"Escolher a frequência de chaveamento pelo compromisso de perdas"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.semi.devices.power-devices",
+					"ee.power.dcdc.buck"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:switch-realization",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.components.gate-drivers",
+			"kind": "topic",
+			"parentId": "ee.power.components",
+			"order": 1,
+			"title": {
+				"pt": "Drivers de gate e bootstrap",
+				"en": "Gate drivers and bootstrap"
+			},
+			"summary": "Corrente de porta, drivers integrados, bootstrap para high-side e isolamento de drivers.",
+			"scope": "Dentro: drivers, resistor de porta, bootstrap, drivers isolados. Fora: drivers de GaN.",
+			"objectives": [
+				"Dimensionar o resistor de porta e o capacitor de bootstrap",
+				"Escolher um driver isolado para meia ponte"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.components.switch-losses"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:switch-realization",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.components.snubbers",
+			"kind": "topic",
+			"parentId": "ee.power.components",
+			"order": 2,
+			"title": {
+				"pt": "Snubbers e comutação suave",
+				"en": "Snubbers and soft switching"
+			},
+			"summary": "Sobretensões por indutâncias parasitas, snubbers RC e RCD e visão geral de ZVS e ZCS.",
+			"scope": "Dentro: snubbers, grampeadores, ZVS e ZCS em visão. Fora: conversores ressonantes.",
+			"objectives": [
+				"Dimensionar um snubber RC para amortecer ringing",
+				"Explicar o princípio da comutação suave"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.components.switch-losses",
+					"ee.ac.transients2.damping"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:switch-realization",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.components.thermal-power",
+			"kind": "topic",
+			"parentId": "ee.power.components",
+			"order": 3,
+			"title": {
+				"pt": "Projeto térmico de conversores",
+				"en": "Thermal design of converters"
+			},
+			"summary": "Distribuição de perdas, dissipadores, placa como dissipador e verificação por termografia.",
+			"scope": "Dentro: circuito térmico de conversor, dissipadores, vias térmicas, termografia. Fora: CFD.",
+			"objectives": [
+				"Verificar a temperatura de junção das chaves de um conversor",
+				"Escolher entre dissipador e cobre na placa"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.components.switch-losses",
+					"ee.analog.regulators.thermal"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:switch-realization",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.components.caps-power",
+			"kind": "topic",
+			"parentId": "ee.power.components",
+			"order": 4,
+			"title": {
+				"pt": "Capacitores em conversores",
+				"en": "Capacitors in converters"
+			},
+			"summary": "Corrente de ripple, ESR, aquecimento e vida útil de eletrolíticos e cerâmicos.",
+			"scope": "Dentro: corrente RMS no capacitor, ESR, vida útil, associação de capacitores. Fora: projeto de capacitores.",
+			"objectives": [
+				"Calcular a corrente RMS no capacitor de saída de um buck",
+				"Estimar a vida útil de um eletrolítico pela temperatura"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.buck",
+					"ee.dc.storage.practical-c-l"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:switch-realization",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.control",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 4,
+			"title": {
+				"pt": "Modelagem e controle de conversores",
+				"en": "Converter modeling and control"
+			},
+			"summary": "Modelo médio de pequenos sinais, controle modo tensão e modo corrente e medição de malha.",
+			"scope": "Dentro: modelo médio, funções de transferência, compensadores tipo II e III, modo corrente, medição de malha. Fora: controle digital.",
+			"objectives": [
+				"Modelar conversores para projeto de controle",
+				"Projetar a compensação de conversores em malha fechada"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 11,
+				"hi": 15
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:converter-dynamics-and-control",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.control.averaged-model",
+			"kind": "topic",
+			"parentId": "ee.power.control",
+			"order": 0,
+			"title": {
+				"pt": "Modelo médio e linearização",
+				"en": "Averaged model and linearization"
+			},
+			"summary": "Modelo médio no espaço de estados, linearização em torno do ponto de operação e funções de transferência.",
+			"scope": "Dentro: modelo médio, pequenos sinais, G_vd(s), zero RHP no boost. Fora: modelos de alta frequência.",
+			"objectives": [
+				"Derivar a função de transferência controle-saída de um buck",
+				"Explicar o zero no semiplano direito do boost"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.boost-buckboost",
+					"ee.ac.sdomain.poles-zeros",
+					"ee.dc.nonlinear.incremental"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:converter-dynamics-and-control",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.control.voltage-mode",
+			"kind": "topic",
+			"parentId": "ee.power.control",
+			"order": 1,
+			"title": {
+				"pt": "Controle modo tensão e compensadores",
+				"en": "Voltage-mode control and compensators"
+			},
+			"summary": "Compensadores tipo II e III com op-amp, frequência de cruzamento e margens.",
+			"scope": "Dentro: modo tensão, tipo II, tipo III, escolha de cruzamento e margens. Fora: controle não linear.",
+			"objectives": [
+				"Projetar um compensador tipo III para um buck",
+				"Verificar margens de fase e de ganho em simulação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.control.averaged-model",
+					"ee.control.freq-design.lead-lag"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:converter-dynamics-and-control",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.control.current-mode",
+			"kind": "topic",
+			"parentId": "ee.power.control",
+			"order": 2,
+			"title": {
+				"pt": "Controle modo corrente",
+				"en": "Current-mode control"
+			},
+			"summary": "Modo corrente de pico e médio, instabilidade subharmônica e compensação de rampa.",
+			"scope": "Dentro: pico e média, oscilação subharmônica, rampa de compensação. Fora: modo corrente digital.",
+			"objectives": [
+				"Explicar a oscilação subharmônica e calcular a rampa de compensação",
+				"Comparar modo corrente e modo tensão"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.control.voltage-mode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:converter-dynamics-and-control",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.control.loop-measurement",
+			"kind": "topic",
+			"parentId": "ee.power.control",
+			"order": 3,
+			"title": {
+				"pt": "Medição de malha e transitórios",
+				"en": "Loop measurement and transients"
+			},
+			"summary": "Injeção de sinal para medir o ganho de malha, resposta a degrau de carga e verificação de estabilidade.",
+			"scope": "Dentro: injeção, analisador de resposta em frequência, degrau de carga. Fora: caracterização automatizada.",
+			"objectives": [
+				"Medir o ganho de malha de um conversor por injeção",
+				"Avaliar a estabilidade pela resposta a degrau de carga"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"lab",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.control.voltage-mode",
+					"ee.instruments.bench.oscilloscope-basics"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:converter-dynamics-and-control",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§12",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.acdc",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 5,
+			"title": {
+				"pt": "Retificação, inversores e qualidade de energia",
+				"en": "Rectification, inverters and power quality"
+			},
+			"summary": "Retificadores controlados, PFC, inversores, amplificadores classe D e harmônicos.",
+			"scope": "Dentro: retificadores controlados, PFC ativo, inversores monofásicos e trifásicos, classe D, harmônicos e qualidade de energia. Fora: FACTS e transmissão em corrente contínua.",
+			"objectives": [
+				"Projetar estágios de entrada CA com alto fator de potência",
+				"Analisar inversores e seus espectros"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 13,
+				"hi": 18
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:pulse-width-modulated-rectifiers",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.acdc.controlled-rectifiers",
+			"kind": "topic",
+			"parentId": "ee.power.acdc",
+			"order": 0,
+			"title": {
+				"pt": "Retificadores controlados",
+				"en": "Controlled rectifiers"
+			},
+			"summary": "Retificadores a tiristor monofásicos e trifásicos, ângulo de disparo e comutação.",
+			"scope": "Dentro: ponte controlada, ângulo de disparo, comutação, aplicações. Fora: HVDC.",
+			"objectives": [
+				"Calcular a tensão média de uma ponte controlada em função do ângulo",
+				"Explicar o efeito da indutância de comutação"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.rectifiers",
+					"ee.semi.devices.power-devices",
+					"ee.ac.threephase.three-phase"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:pulse-width-modulated-rectifiers",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.acdc.pfc",
+			"kind": "topic",
+			"parentId": "ee.power.acdc",
+			"order": 1,
+			"title": {
+				"pt": "Correção ativa do fator de potência",
+				"en": "Active power factor correction"
+			},
+			"summary": "PFC boost em CCM e modo crítico, controle de corrente média e normas de harmônicos.",
+			"scope": "Dentro: PFC boost, controle, IEC 61000-3-2 em visão. Fora: PFC sem ponte.",
+			"objectives": [
+				"Explicar como o PFC boost força corrente senoidal",
+				"Dimensionar o indutor de um PFC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.boost-buckboost",
+					"ee.ac.power.power-factor"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:pulse-width-modulated-rectifiers",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.acdc.inverters",
+			"kind": "topic",
+			"parentId": "ee.power.acdc",
+			"order": 2,
+			"title": {
+				"pt": "Inversores",
+				"en": "Inverters"
+			},
+			"summary": "Inversores monofásicos e trifásicos, modulação senoidal (SPWM) e vetorial (SVM), filtros de saída.",
+			"scope": "Dentro: inversores de ponte, SPWM, SVM, filtros LC, tempo morto. Fora: inversores multinível.",
+			"objectives": [
+				"Analisar a saída de um inversor com SPWM",
+				"Explicar a vantagem da SVM na utilização do barramento"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.bridge-converters",
+					"ee.ac.threephase.three-phase"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:pulse-width-modulated-rectifiers",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.acdc.power-quality",
+			"kind": "topic",
+			"parentId": "ee.power.acdc",
+			"order": 3,
+			"title": {
+				"pt": "Harmônicos e qualidade de energia",
+				"en": "Harmonics and power quality"
+			},
+			"summary": "Distorção harmônica, fator de potência com harmônicos, THD e efeitos em equipamentos.",
+			"scope": "Dentro: THD, fator de distorção, filtros passivos, efeitos. Fora: normas de qualidade de energia em detalhe.",
+			"objectives": [
+				"Calcular a THD e o fator de potência total de uma corrente distorcida",
+				"Explicar os efeitos de harmônicos em transformadores"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.ac.power.power-factor",
+					"ee.math.transforms.fourier-series-math"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc:pulse-width-modulated-rectifiers",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.acdc.class-d",
+			"kind": "topic",
+			"parentId": "ee.power.acdc",
+			"order": 4,
+			"title": {
+				"pt": "Amplificadores classe D",
+				"en": "Class-D amplifiers"
+			},
+			"summary": "Amplificação por chaveamento: modulação PWM, meia ponte e ponte H, filtro LC de saída, tempo morto, distorção, eficiência e EMI.",
+			"scope": "Dentro: princípio, PWM natural e com realimentação, meia ponte e ponte H, filtro de saída, tempo morto, THD, eficiência, EMI. Fora: projeto de CIs de áudio.",
+			"objectives": [
+				"Explicar como a modulação por largura de pulso reproduz o sinal de áudio depois do filtro",
+				"Estimar a eficiência e a distorção causada pelo tempo morto"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"simulate"
+			],
+			"misconceptions": [
+				"Achar que o \"D\" de classe D significa digital"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.bridge-converters",
+					"ee.analog.ic-building.output-stages"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.project",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 6,
+			"title": {
+				"pt": "Projeto de conversor",
+				"en": "Converter project"
+			},
+			"summary": "Projeto integrador de um conversor chaveado em malha fechada, do cálculo ao protótipo medido.",
+			"scope": "Dentro: especificação, projeto, simulação, layout, montagem, medição de eficiência e de malha, em três fases. Fora: certificação de produto.",
+			"objectives": [
+				"Levar um conversor da especificação ao protótipo",
+				"Medir eficiência, ripple e estabilidade"
+			],
+			"assess": [
+				"design",
+				"lab",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.power.project.buck-design",
+			"kind": "topic",
+			"parentId": "ee.power.project",
+			"order": 0,
+			"title": {
+				"pt": "Buck síncrono, fase 1: dimensionamento e simulação",
+				"en": "Synchronous buck, phase 1: sizing and simulation"
+			},
+			"summary": "Especificar tensões, corrente, ripple e transitório, dimensionar indutor, capacitores, chaves e driver, projetar o compensador e simular em malha fechada.",
+			"scope": "Dentro: especificação, dimensionamento de potência, balanço de perdas, projeto do compensador, simulação. Fora: layout e montagem (fase 2).",
+			"objectives": [
+				"Dimensionar os componentes de potência de um buck síncrono",
+				"Projetar e simular o compensador com as margens desejadas"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.control.voltage-mode",
+					"ee.power.components.gate-drivers",
+					"ee.power.components.caps-power",
+					"ee.instruments.sim.spice-basics"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.power.project.buck-build",
+			"kind": "topic",
+			"parentId": "ee.power.project",
+			"order": 1,
+			"title": {
+				"pt": "Buck síncrono, fase 2: layout e montagem",
+				"en": "Synchronous buck, phase 2: layout and assembly"
+			},
+			"summary": "Layout da placa de potência com laço de comutação mínimo, montagem, inspeção e primeira energização com limitação de corrente.",
+			"scope": "Dentro: layout de potência, montagem, inspeção, energização gradual e verificação em malha aberta. Fora: caracterização completa (fase 3).",
+			"objectives": [
+				"Fazer o layout de um conversor minimizando o laço de comutação",
+				"Energizar a placa com segurança e verificar a operação em malha aberta"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.project.buck-design",
+					"ee.pcb.layout.power-layout",
+					"ee.instruments.bench.soldering"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.power.project.buck-project",
+			"kind": "topic",
+			"parentId": "ee.power.project",
+			"order": 2,
+			"title": {
+				"pt": "Buck síncrono, fase 3: caracterização em malha fechada",
+				"en": "Synchronous buck, phase 3: closed-loop characterization"
+			},
+			"summary": "Fechar a malha, medir eficiência, ripple, resposta a degrau de carga e margens de ganho e de fase e comparar com o projeto.",
+			"scope": "Dentro: medição de eficiência, ripple, transitórios e malha, ajuste do compensador, relatório comparando projeto e medição. Fora: EMC formal.",
+			"objectives": [
+				"Medir e justificar eficiência, ripple e margens",
+				"Ajustar o compensador a partir da resposta medida"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.project.buck-build",
+					"ee.power.control.loop-measurement"
+				]
+			],
+			"hours": {
+				"lo": 4,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.334-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.power.machines",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 7,
+			"title": {
+				"pt": "Máquinas elétricas",
+				"en": "Electric machines"
+			},
+			"summary": "Modelos de regime e dinâmicos das máquinas de indução, síncronas e de ímãs permanentes e a representação por vetores espaciais que fundamenta o controle vetorial.",
+			"scope": "Dentro: circuito equivalente e curva torque-velocidade da máquina de indução, máquina síncrona, PMSM e BLDC, partida e controle V/f, vetores espaciais e transformadas de Clarke e Park. Fora: projeto construtivo e máquinas especiais.",
+			"objectives": [
+				"Calcular torque, corrente e rendimento de máquinas de indução e síncronas pelos circuitos equivalentes",
+				"Representar grandezas trifásicas por vetores espaciais em referenciais estacionário e girante"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.685-f13",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "5",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.machines.induction-machine",
+			"kind": "topic",
+			"parentId": "ee.power.machines",
+			"order": 0,
+			"title": {
+				"pt": "Máquina de indução: circuito equivalente e curva torque-velocidade",
+				"en": "Induction machine: equivalent circuit and torque-speed curve"
+			},
+			"summary": "Escorregamento, circuito equivalente por fase, balanço de potências, curva torque-velocidade, métodos de partida e controle escalar V/f.",
+			"scope": "Dentro: escorregamento, circuito equivalente, potência no entreferro, perdas e rendimento, curva torque-velocidade, partida, V/f. Fora: rotor bobinado em detalhe e modelo dinâmico completo.",
+			"objectives": [
+				"Calcular torque e rendimento de um motor de indução pelo circuito equivalente",
+				"Explicar por que o controle V/f mantém o fluxo aproximadamente constante"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation"
+			],
+			"misconceptions": [
+				"Achar que o rotor de um motor de indução gira na velocidade síncrona em operação normal"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.threephase.motors-intro",
+					"ee.ac.magnetic.real-transformer"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.685-f13",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "5",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.machines.synchronous-pm",
+			"kind": "topic",
+			"parentId": "ee.power.machines",
+			"order": 1,
+			"title": {
+				"pt": "Máquinas síncronas e de ímãs permanentes (PMSM e BLDC)",
+				"en": "Synchronous and permanent-magnet machines (PMSM and BLDC)"
+			},
+			"summary": "Máquina síncrona de rotor bobinado e de ímãs permanentes, diagrama fasorial, ângulo de carga e comutação trapezoidal do BLDC versus alimentação senoidal da PMSM.",
+			"scope": "Dentro: força eletromotriz, reatância síncrona, diagrama fasorial, ângulo de potência, PMSM e BLDC, comutação por sensores Hall. Fora: geradores de grande porte e estabilidade de sistemas de potência.",
+			"objectives": [
+				"Traçar o diagrama fasorial de uma máquina síncrona e calcular o ângulo de carga",
+				"Comparar a comutação trapezoidal do BLDC com a alimentação senoidal da PMSM"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que BLDC e PMSM diferem pela construção, quando a diferença principal está na forma da força eletromotriz e no acionamento"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.threephase.motors-intro",
+					"ee.ac.phasors.phasor-diagrams"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.685-f13",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§10",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.machines.space-vectors",
+			"kind": "topic",
+			"parentId": "ee.power.machines",
+			"order": 2,
+			"title": {
+				"pt": "Vetores espaciais e transformadas de Clarke e Park",
+				"en": "Space vectors and the Clarke and Park transforms"
+			},
+			"summary": "Vetor espacial de grandezas trifásicas, transformadas de Clarke e Park, modelo dq das máquinas e a ideia de desacoplar fluxo e torque.",
+			"scope": "Dentro: vetor espacial, transformadas de Clarke e Park, invariância de potência, modelo dq da PMSM e da máquina de indução, desacoplamento. Fora: estimadores de fluxo e controle sem sensor (ver acionamentos).",
+			"objectives": [
+				"Aplicar as transformadas de Clarke e Park a correntes trifásicas",
+				"Escrever o modelo dq de uma PMSM e identificar as componentes de fluxo e de torque"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"simulate"
+			],
+			"misconceptions": [
+				"Achar que as grandezas dq são sinais físicos medidos diretamente, e não uma mudança de referencial"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.power.machines.synchronous-pm",
+					"ee.power.machines.induction-machine",
+					"ee.math.linalg.matrices"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.685-f13",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.power.advanced",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 8,
+			"title": {
+				"pt": "Eletrônica de potência avançada I: ressonantes, GaN/SiC, acionamentos e energia",
+				"en": "Advanced power electronics I: resonant, GaN/SiC, drives and energy"
+			},
+			"summary": "Especialização em potência: ressonantes, GaN e SiC, acionamentos, renováveis, baterias e controle digital.",
+			"scope": "Dentro: LLC, comutação suave, projeto com banda larga, FOC, MPPT e conexão à rede, BMS, controle digital. Fora: modelagem de máquinas (ver máquinas elétricas).",
+			"objectives": [
+				"Projetar conversores de alta densidade e eficiência",
+				"Integrar conversão de potência a sistemas de energia"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 18,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.advanced.resonant-converters",
+			"kind": "topic",
+			"parentId": "ee.power.advanced",
+			"order": 0,
+			"title": {
+				"pt": "Conversores ressonantes e LLC",
+				"en": "Resonant and LLC converters"
+			},
+			"summary": "Tanques ressonantes, análise por primeira harmônica, LLC e operação com ZVS.",
+			"scope": "Dentro: FHA, LLC, ganho versus frequência, ZVS. Fora: conversores ressonantes multiporta.",
+			"objectives": [
+				"Analisar o ganho de um LLC pela aproximação de primeira harmônica",
+				"Escolher o ponto de operação para garantir ZVS"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.isolated-converters",
+					"ee.power.components.snubbers",
+					"ee.ac.frequency.resonance"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.advanced.wbg-design",
+			"kind": "topic",
+			"parentId": "ee.power.advanced",
+			"order": 1,
+			"title": {
+				"pt": "Projeto com GaN e SiC",
+				"en": "Designing with GaN and SiC"
+			},
+			"summary": "Altas velocidades de comutação, layout de baixa indutância, drivers específicos e medições rápidas.",
+			"scope": "Dentro: dv/dt e di/dt elevados, layout, drivers, medição. Fora: física dos dispositivos.",
+			"objectives": [
+				"Projetar o laço de potência de baixa indutância para GaN",
+				"Avaliar o ganho de eficiência ao trocar Si por SiC"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.semi.devices.wide-bandgap",
+					"ee.power.components.gate-drivers",
+					"ee.pcb.layout.power-layout"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.advanced.motor-drives",
+			"kind": "topic",
+			"parentId": "ee.power.advanced",
+			"order": 2,
+			"title": {
+				"pt": "Acionamentos: controle orientado ao campo e SVPWM",
+				"en": "Motor drives: field-oriented control and SVPWM"
+			},
+			"summary": "Controle orientado ao campo (FOC) de PMSM e máquinas de indução: malhas de corrente em dq, modulação vetorial (SVPWM), enfraquecimento de campo e estimação de posição sem sensor.",
+			"scope": "Dentro: FOC, malhas de corrente e de velocidade, SVPWM, enfraquecimento de campo, controle direto de torque em visão, controle sem sensor em visão. Fora: modelagem de máquinas (ver máquinas elétricas).",
+			"objectives": [
+				"Projetar as malhas de corrente em dq de um acionamento FOC",
+				"Explicar a modulação vetorial e o enfraquecimento de campo"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.acdc.inverters",
+					"ee.power.machines.space-vectors",
+					"ee.control.pid.pid-tuning"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.advanced.renewables",
+			"kind": "topic",
+			"parentId": "ee.power.advanced",
+			"order": 3,
+			"title": {
+				"pt": "Conversores para renováveis e conexão à rede",
+				"en": "Renewable converters and grid connection"
+			},
+			"summary": "MPPT para fotovoltaica, inversores conectados à rede, PLL de sincronismo e anti-ilhamento.",
+			"scope": "Dentro: MPPT, inversor grid-tie, sincronismo, anti-ilhamento, normas em visão. Fora: operação do sistema elétrico.",
+			"objectives": [
+				"Implementar um algoritmo MPPT perturba-e-observa",
+				"Explicar os requisitos de conexão de inversores à rede"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.acdc.inverters",
+					"ee.semi.opto.photodiodes"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.advanced.batteries-bms",
+			"kind": "topic",
+			"parentId": "ee.power.advanced",
+			"order": 4,
+			"title": {
+				"pt": "Baterias de lítio, carregadores e BMS",
+				"en": "Lithium batteries, chargers and BMS"
+			},
+			"summary": "Carga CC-CV, balanceamento, estimação de estado de carga e proteções.",
+			"scope": "Dentro: CC-CV, balanceamento passivo e ativo, SoC, proteções. Fora: eletroquímica.",
+			"objectives": [
+				"Projetar o perfil de carga de uma bateria de lítio",
+				"Explicar métodos de estimação de estado de carga"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.dcdc.buck",
+					"ee.dc.practice.batteries"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.advanced.digital-control-power",
+			"kind": "topic",
+			"parentId": "ee.power.advanced",
+			"order": 5,
+			"title": {
+				"pt": "Controle digital de conversores",
+				"en": "Digital control of converters"
+			},
+			"summary": "Amostragem sincronizada com PWM, atrasos, resolução de PWM e compensadores discretos.",
+			"scope": "Dentro: amostragem, atrasos, resolução, compensadores discretos, ciclo limite. Fora: controladores dedicados em hardware.",
+			"objectives": [
+				"Discretizar um compensador de conversor",
+				"Avaliar o efeito do atraso de cálculo na margem de fase"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.control.current-mode",
+					"ee.control.digital.discretization"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.systems-adv",
+			"kind": "unit",
+			"parentId": "ee.power",
+			"order": 9,
+			"title": {
+				"pt": "Eletrônica de potência avançada II: multinível, rede, magnéticos e confiabilidade",
+				"en": "Advanced power electronics II: multilevel, grid, magnetics and reliability"
+			},
+			"summary": "Conversores multinível, conversores conectados à rede, magnéticos de alta frequência, EMI de conversores e confiabilidade.",
+			"scope": "Dentro: multinível e MMC, controle grid-forming e grid-following, magnéticos planares, filtros de EMI, vida útil. Fora: sistemas elétricos de potência.",
+			"objectives": [
+				"Projetar conversores de média tensão e conectados à rede",
+				"Avaliar EMI e confiabilidade de conversores"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.systems-adv.multilevel",
+			"kind": "topic",
+			"parentId": "ee.power.systems-adv",
+			"order": 0,
+			"title": {
+				"pt": "Conversores multinível e modulares",
+				"en": "Multilevel and modular converters"
+			},
+			"summary": "Topologias NPC, capacitor flutuante, ponte H em cascata e MMC, com modulação e balanceamento.",
+			"scope": "Dentro: NPC, flying capacitor, ponte H em cascata, MMC, balanceamento. Fora: HVDC em sistema.",
+			"objectives": [
+				"Comparar topologias multinível em número de componentes e harmônicos",
+				"Explicar o balanceamento de capacitores num MMC"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.acdc.inverters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.systems-adv.grid-converters",
+			"kind": "topic",
+			"parentId": "ee.power.systems-adv",
+			"order": 1,
+			"title": {
+				"pt": "Controle de conversores conectados à rede",
+				"en": "Grid-connected converter control"
+			},
+			"summary": "Sincronização por PLL, controle de corrente em eixos dq, grid-following e grid-forming e requisitos de rede.",
+			"scope": "Dentro: PLL, controle dq, grid-following, grid-forming, droop, estabilidade com a rede. Fora: operação do sistema elétrico.",
+			"objectives": [
+				"Projetar as malhas de corrente em dq de um inversor conectado à rede",
+				"Comparar estratégias grid-following e grid-forming"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.advanced.renewables",
+					"ee.power.advanced.digital-control-power"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.systems-adv.hf-magnetics",
+			"kind": "topic",
+			"parentId": "ee.power.systems-adv",
+			"order": 2,
+			"title": {
+				"pt": "Magnéticos de alta frequência e planares",
+				"en": "High-frequency and planar magnetics"
+			},
+			"summary": "Perdas em enrolamentos por efeito pelicular e de proximidade, Dowell, magnéticos planares e integração.",
+			"scope": "Dentro: efeito pelicular e de proximidade, Dowell, litz, planares, magnéticos integrados. Fora: ciência de materiais magnéticos.",
+			"objectives": [
+				"Estimar as perdas AC de um enrolamento pelo método de Dowell",
+				"Projetar um transformador planar para um LLC"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.magnetics.magnetic-losses",
+					"ee.power.advanced.resonant-converters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.systems-adv.converter-emi",
+			"kind": "topic",
+			"parentId": "ee.power.systems-adv",
+			"order": 3,
+			"title": {
+				"pt": "EMI em conversores e filtros de entrada",
+				"en": "Converter EMI and input filters"
+			},
+			"summary": "Fontes de ruído em modo comum e diferencial, projeto de filtros de entrada e interação com a malha.",
+			"scope": "Dentro: modo comum e diferencial, LISN, filtros, critério de Middlebrook. Fora: ensaios de certificação completos.",
+			"objectives": [
+				"Projetar um filtro de EMI para atender a um limite conduzido",
+				"Verificar a interação do filtro com a malha pelo critério de Middlebrook"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.pcb.emc.conducted-emissions",
+					"ee.power.control.voltage-mode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		},
+		{
+			"id": "ee.power.systems-adv.power-reliability",
+			"kind": "topic",
+			"parentId": "ee.power.systems-adv",
+			"order": 4,
+			"title": {
+				"pt": "Confiabilidade em eletrônica de potência",
+				"en": "Power electronics reliability"
+			},
+			"summary": "Ciclagem térmica, fadiga de soldas e fios, envelhecimento de capacitores e física de falhas.",
+			"scope": "Dentro: perfil de missão, ciclagem térmica, envelhecimento, física de falhas, monitoração. Fora: normas de confiabilidade em detalhe.",
+			"objectives": [
+				"Estimar a vida útil de um módulo a partir do perfil de missão",
+				"Propor monitoração de saúde para um conversor"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 4
+			},
+			"clauses": [
+				[
+					"ee.power.components.thermal-power",
+					"ee.semi.advanced.reliability"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "erickson-maksimovic",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.622-s23",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ieee-xplore-venues",
+					"ref": "IEEE Transactions on Power Electronics / APEC",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"spec:power"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.power.dcdc.buck",
+			"to": "ee.power.dcdc.boost-buckboost",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "ee.power.control.voltage-mode",
+			"to": "ee.analog.feedback.compensation",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "erickson-maksimovic",
+			"title": "Erickson & Maksimović — Fundamentals of Power Electronics",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "ieee-xplore-venues",
+			"title": "IEEE — periódicos e conferências (JSSC, ISSCC, TPEL, TMTT, TAC…)",
+			"url": "https://ieeexplore.ieee.org/",
+			"license": "Copyright dos artigos; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.334-s07",
+			"title": "MIT OCW 6.334 — Power Electronics (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.622-s23",
+			"title": "MIT OCW 6.622 — Power Electronics (S2023)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.685-f13",
+			"title": "MIT OCW 6.685 — Electric Machines (Fall 2013)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		}
+	]
+}

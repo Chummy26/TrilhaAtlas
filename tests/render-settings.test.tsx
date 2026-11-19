@@ -394,9 +394,9 @@ describe("AppearanceSection (thin SSR)", () => {
 		assert.ok(!html.includes("theme-remove-"), "presets cannot be removed");
 	});
 
-	it("absent theme = the Default card pressed", () => {
+	it("absent theme = the factory (Cel Papel) card pressed", () => {
 		const html = renderAppearance(undefined);
-		assert.ok(tagOf(html, "theme-card-default").includes('aria-pressed="true"'));
+		assert.ok(tagOf(html, "theme-card-cel-papel").includes('aria-pressed="true"'));
 	});
 
 	it("an imported theme gets a custom card with a remove button", () => {

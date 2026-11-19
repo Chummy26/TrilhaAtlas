@@ -1,0 +1,5289 @@
+{
+	"schemaVersion": 1,
+	"domainId": "electronics",
+	"areaId": "ee.analog",
+	"items": [
+		{
+			"id": "ee.analog.diodes",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 0,
+			"title": {
+				"pt": "Circuitos com diodos",
+				"en": "Diode circuits"
+			},
+			"summary": "Modelos de diodo e suas aplicações: retificadores, filtros capacitivos, reguladores Zener, ceifadores, grampeadores e diodos especiais.",
+			"scope": "Dentro: modelos ideal, de queda constante e exponencial, retificação, filtragem, Zener, ceifadores, grampeadores. Fora: fontes chaveadas.",
+			"objectives": [
+				"Escolher o modelo de diodo adequado a cada análise",
+				"Projetar retificadores com filtro e reguladores Zener simples"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 17,
+				"hi": 24
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.diodes.diode-models",
+			"kind": "topic",
+			"parentId": "ee.analog.diodes",
+			"order": 0,
+			"title": {
+				"pt": "Modelos do diodo",
+				"en": "Diode models"
+			},
+			"summary": "Modelos ideal, de queda constante, linear por partes e exponencial e quando usar cada um.",
+			"scope": "Dentro: modelos de grande sinal, análise iterativa, escolha de modelo. Fora: física da junção.",
+			"objectives": [
+				"Analisar circuitos com diodos usando o modelo de queda constante",
+				"Resolver iterativamente um circuito com o modelo exponencial"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"misconceptions": [
+				"Supor que o diodo conduz sem verificar a hipótese de estado"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.nonlinear.nonlinear-graphical",
+					"ee.semi.intro.pn-qualitative"
+				]
+			],
+			"softPrereqs": [
+				"ee.semi.pn.pn-iv"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.diodes.rectifiers",
+			"kind": "topic",
+			"parentId": "ee.analog.diodes",
+			"order": 1,
+			"title": {
+				"pt": "Retificadores de meia onda e onda completa",
+				"en": "Half-wave and full-wave rectifiers"
+			},
+			"summary": "Retificador de meia onda, onda completa com center tap e em ponte, tensão de pico inversa.",
+			"scope": "Dentro: meia onda, onda completa, ponte, PIV, correntes nos diodos. Fora: retificadores controlados.",
+			"objectives": [
+				"Calcular tensões de saída e PIV de retificadores",
+				"Comparar topologias de retificação quanto a diodos e transformador"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.diode-models",
+					"ee.ac.phasors.ac-waveforms"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.diodes.filter-capacitor",
+			"kind": "topic",
+			"parentId": "ee.analog.diodes",
+			"order": 2,
+			"title": {
+				"pt": "Filtro capacitivo e ondulação",
+				"en": "Capacitor filter and ripple"
+			},
+			"summary": "Dimensionamento do capacitor de filtro, tensão de ondulação, ângulo de condução e corrente de pico nos diodos.",
+			"scope": "Dentro: ondulação, dimensionamento de C, corrente de surto e de pico. Fora: filtros LC e PFC.",
+			"objectives": [
+				"Dimensionar o capacitor de filtro para uma ondulação especificada",
+				"Estimar a corrente de pico nos diodos"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.rectifiers",
+					"ee.ac.transients1.step-response"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.diodes.zener-regulator",
+			"kind": "topic",
+			"parentId": "ee.analog.diodes",
+			"order": 3,
+			"title": {
+				"pt": "Regulador Zener",
+				"en": "Zener regulator"
+			},
+			"summary": "Regulação com diodo Zener, resistor série, regulação de linha e de carga e limites de potência.",
+			"scope": "Dentro: regulador Zener paralelo, regulação de linha e carga, potência. Fora: referências bandgap.",
+			"objectives": [
+				"Dimensionar o resistor série e o Zener de um regulador",
+				"Calcular a regulação de carga a partir da resistência do Zener"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.diode-models"
+				]
+			],
+			"softPrereqs": [
+				"ee.semi.pn.breakdown"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.diodes.clippers-clampers",
+			"kind": "topic",
+			"parentId": "ee.analog.diodes",
+			"order": 4,
+			"title": {
+				"pt": "Ceifadores, grampeadores e multiplicadores",
+				"en": "Clippers, clampers and voltage multipliers"
+			},
+			"summary": "Limitadores com diodos, restauradores de nível CC e dobradores e multiplicadores de tensão.",
+			"scope": "Dentro: ceifadores, grampeadores, multiplicadores de tensão, proteção de entradas. Fora: circuitos de precisão com op-amp.",
+			"objectives": [
+				"Esboçar a saída de ceifadores e grampeadores",
+				"Projetar um dobrador de tensão"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.diode-models",
+					"ee.ac.transients1.step-response"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.diodes.diode-small-signal",
+			"kind": "topic",
+			"parentId": "ee.analog.diodes",
+			"order": 5,
+			"title": {
+				"pt": "Modelo de pequenos sinais do diodo",
+				"en": "Diode small-signal model"
+			},
+			"summary": "Resistência incremental r_d = nV_T/I_D e aplicações como atenuador controlado.",
+			"scope": "Dentro: r_d, superposição de polarização e sinal. Fora: capacitâncias de alta frequência.",
+			"objectives": [
+				"Calcular r_d no ponto de operação",
+				"Analisar um circuito com diodo pelo modelo de pequenos sinais"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.diode-models",
+					"ee.dc.nonlinear.incremental"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.diodes.special-diodes",
+			"kind": "topic",
+			"parentId": "ee.analog.diodes",
+			"order": 6,
+			"title": {
+				"pt": "LEDs, Schottky, TVS e varicaps em circuitos",
+				"en": "LEDs, Schottky, TVS and varicaps in circuits"
+			},
+			"summary": "Resistor de LED, Schottky em retificação rápida, TVS para proteção e varicaps em sintonia.",
+			"scope": "Dentro: aplicações de diodos especiais, proteção contra transientes. Fora: física desses dispositivos.",
+			"objectives": [
+				"Dimensionar o resistor de um LED",
+				"Selecionar um TVS para proteger uma linha"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.diode-models"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:diodes",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Semiconductors",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 1,
+			"title": {
+				"pt": "Amplificadores operacionais",
+				"en": "Operational amplifiers"
+			},
+			"summary": "Op-amp ideal e configurações clássicas, comparadores e as não idealidades que limitam circuitos reais.",
+			"scope": "Dentro: op-amp ideal, inversor, não inversor, somador, diferencial, instrumentação, integrador, comparadores, não idealidades, alimentação simples. Fora: arquitetura interna.",
+			"objectives": [
+				"Analisar e projetar circuitos com op-amps",
+				"Prever erros causados por não idealidades"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 21,
+				"hi": 30
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.ideal-opamp",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 0,
+			"title": {
+				"pt": "Op-amp ideal e curto-circuito virtual",
+				"en": "Ideal op-amp and virtual short"
+			},
+			"summary": "Modelo do op-amp ideal, realimentação negativa e curto-circuito virtual.",
+			"scope": "Dentro: modelo ideal, curto virtual, condição de realimentação negativa. Fora: não idealidades.",
+			"objectives": [
+				"Aplicar o curto-circuito virtual para analisar circuitos com op-amp",
+				"Explicar por que o curto virtual exige realimentação negativa"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"misconceptions": [
+				"Aplicar o curto virtual a um comparador sem realimentação"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.dc.methods.dependent-sources"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.inverting-noninverting",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 1,
+			"title": {
+				"pt": "Configurações inversora e não inversora",
+				"en": "Inverting and non-inverting configurations"
+			},
+			"summary": "Ganho, impedâncias de entrada e o seguidor de tensão.",
+			"scope": "Dentro: inversor, não inversor, seguidor, impedâncias. Fora: somador e diferencial.",
+			"objectives": [
+				"Projetar amplificadores inversores e não inversores para um ganho",
+				"Calcular a impedância de entrada de cada configuração"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.ideal-opamp"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.summing-difference",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 2,
+			"title": {
+				"pt": "Somador, diferencial e de instrumentação",
+				"en": "Summing, difference and instrumentation amplifiers"
+			},
+			"summary": "Somador inversor, amplificador diferencial, efeito do descasamento e amplificador de instrumentação de três op-amps.",
+			"scope": "Dentro: somador, diferencial, CMRR por descasamento, instrumentação. Fora: amplificadores isolados.",
+			"objectives": [
+				"Projetar um amplificador diferencial e estimar a CMRR",
+				"Analisar o amplificador de instrumentação de três op-amps"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.inverting-noninverting"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.integrator-differentiator",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 3,
+			"title": {
+				"pt": "Integrador e diferenciador",
+				"en": "Integrator and differentiator"
+			},
+			"summary": "Integrador de Miller, resistor de fuga, diferenciador e seus problemas práticos.",
+			"scope": "Dentro: integrador, resistor de fuga, diferenciador prático. Fora: filtros de variáveis de estado.",
+			"objectives": [
+				"Analisar a saída de um integrador para uma entrada degrau ou quadrada",
+				"Explicar por que o diferenciador puro é instável na prática"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.inverting-noninverting",
+					"ee.dc.storage.capacitor-element"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.comparators",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 4,
+			"title": {
+				"pt": "Comparadores e Schmitt trigger",
+				"en": "Comparators and Schmitt trigger"
+			},
+			"summary": "Comparador sem realimentação, histerese com realimentação positiva e comparadores dedicados.",
+			"scope": "Dentro: comparadores, histerese, limiares, saídas open-drain. Fora: comparadores integrados de alta velocidade.",
+			"objectives": [
+				"Projetar um Schmitt trigger para limiares especificados",
+				"Explicar por que a histerese evita oscilações na transição"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.ideal-opamp"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.opamp-nonidealities",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 5,
+			"title": {
+				"pt": "Não idealidades do op-amp",
+				"en": "Op-amp non-idealities"
+			},
+			"summary": "Ganho finito, produto ganho-banda, slew rate, tensão de offset, correntes de polarização e limites de saída.",
+			"scope": "Dentro: A_OL finito, GBW, slew rate, offset, I_B, excursão de saída. Fora: ruído.",
+			"objectives": [
+				"Calcular a banda de um amplificador a partir do GBW",
+				"Estimar o erro de saída devido a offset e correntes de polarização"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"misconceptions": [
+				"Confundir limitação por slew rate com limitação por banda"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.inverting-noninverting",
+					"ee.ac.frequency.bode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.single-supply",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 6,
+			"title": {
+				"pt": "Op-amps com alimentação simples e rail-to-rail",
+				"en": "Single-supply and rail-to-rail op-amps"
+			},
+			"summary": "Polarização em meio de alimentação, faixa de modo comum de entrada e excursão rail-to-rail.",
+			"scope": "Dentro: alimentação simples, terra virtual, faixa de modo comum, rail-to-rail. Fora: arquitetura de entrada complementar.",
+			"objectives": [
+				"Projetar um amplificador CA com alimentação simples",
+				"Verificar a faixa de modo comum na folha de dados"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.opamp-nonidealities"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.precision-circuits",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 7,
+			"title": {
+				"pt": "Retificadores de precisão e amostragem-retenção",
+				"en": "Precision rectifiers and sample-and-hold"
+			},
+			"summary": "Retificador de precisão, detector de pico e circuito amostra-e-retém com op-amp.",
+			"scope": "Dentro: retificador de precisão, detector de pico, S/H discreto. Fora: S/H integrado.",
+			"objectives": [
+				"Analisar um retificador de precisão",
+				"Explicar o droop de um amostra-e-retém"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.inverting-noninverting",
+					"ee.analog.diodes.diode-models"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.opamp.transimpedance",
+			"kind": "topic",
+			"parentId": "ee.analog.opamp",
+			"order": 8,
+			"title": {
+				"pt": "Amplificador de transimpedância",
+				"en": "Transimpedance amplifier"
+			},
+			"summary": "Conversão corrente-tensão para fotodiodos, estabilidade com capacitância de entrada e escolha do capacitor de realimentação.",
+			"scope": "Dentro: TIA, capacitância de entrada, compensação, banda. Fora: TIAs de comunicação óptica.",
+			"objectives": [
+				"Projetar um TIA para um fotodiodo",
+				"Escolher o capacitor de realimentação para evitar oscilação"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.opamp-nonidealities"
+				]
+			],
+			"softPrereqs": [
+				"ee.semi.opto.photodiodes"
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:operational-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.bjt-dc",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 2,
+			"title": {
+				"pt": "BJT: modelos, polarização e chaves",
+				"en": "BJT: models, biasing and switches"
+			},
+			"summary": "Modelos de grande sinal do BJT, uso como chave, polarização estável e fontes de corrente.",
+			"scope": "Dentro: regiões de operação em circuitos, chaves, polarização, estabilidade térmica, fontes de corrente. Fora: pequenos sinais.",
+			"objectives": [
+				"Polarizar um BJT de forma estável",
+				"Usar o BJT como chave saturada"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:bipolar-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.bjt-dc.bjt-models-circuit",
+			"kind": "topic",
+			"parentId": "ee.analog.bjt-dc",
+			"order": 0,
+			"title": {
+				"pt": "BJT em circuitos: modelos e regiões",
+				"en": "BJT in circuits: models and regions"
+			},
+			"summary": "Modelo de grande sinal com V_BE ≈ 0,7 V e I_C = βI_B; verificação de região ativa, corte e saturação.",
+			"scope": "Dentro: análise DC com modelo simplificado, verificação de hipóteses. Fora: física interna.",
+			"objectives": [
+				"Calcular correntes e tensões DC em circuitos com BJT",
+				"Verificar a região de operação assumida"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.semi.intro.transistor-qualitative",
+					"ee.analog.diodes.diode-models"
+				]
+			],
+			"softPrereqs": [
+				"ee.semi.bjt.ebers-moll"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:bipolar-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.bjt-dc.bjt-switch",
+			"kind": "topic",
+			"parentId": "ee.analog.bjt-dc",
+			"order": 1,
+			"title": {
+				"pt": "BJT como chave",
+				"en": "BJT as a switch"
+			},
+			"summary": "Saturação forçada, cálculo do resistor de base, cargas indutivas e diodo de roda livre.",
+			"scope": "Dentro: chave saturada, β forçado, diodo de roda livre, tempo de comutação. Fora: drivers de potência.",
+			"objectives": [
+				"Dimensionar o resistor de base para saturar um BJT",
+				"Explicar a necessidade do diodo de roda livre com relés"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.bjt-dc.bjt-models-circuit"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:bipolar-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.bjt-dc.bjt-bias",
+			"kind": "topic",
+			"parentId": "ee.analog.bjt-dc",
+			"order": 2,
+			"title": {
+				"pt": "Polarização do BJT e estabilidade do ponto Q",
+				"en": "BJT biasing and Q-point stability"
+			},
+			"summary": "Divisor de base com resistor de emissor, sensibilidade a β e à temperatura e projeto do ponto Q.",
+			"scope": "Dentro: polarização por divisor, realimentação de emissor, estabilidade com β e T. Fora: polarização em CIs.",
+			"objectives": [
+				"Projetar a polarização por divisor para um ponto Q desejado",
+				"Avaliar a sensibilidade do ponto Q à variação de β"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.bjt-dc.bjt-models-circuit"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:bipolar-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.bjt-dc.bjt-current-source",
+			"kind": "topic",
+			"parentId": "ee.analog.bjt-dc",
+			"order": 3,
+			"title": {
+				"pt": "Fontes de corrente com BJT",
+				"en": "BJT current sources"
+			},
+			"summary": "Fontes de corrente simples com BJT e Zener ou diodos, e sua resistência de saída.",
+			"scope": "Dentro: fonte de corrente discreta, conformidade, resistência de saída. Fora: espelhos de corrente.",
+			"objectives": [
+				"Projetar uma fonte de corrente com BJT",
+				"Calcular a faixa de conformidade da fonte"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.bjt-dc.bjt-bias"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:bipolar-junction-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:bipolar-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "neets",
+					"ref": "7",
+					"embeddable": true
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.mos-dc",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 3,
+			"title": {
+				"pt": "MOSFET: modelos, polarização e chaves",
+				"en": "MOSFET: models, biasing and switches"
+			},
+			"summary": "Modelos de grande sinal do MOSFET em circuitos, uso como chave e polarização.",
+			"scope": "Dentro: análise DC com MOSFET, chave de carga, polarização discreta. Fora: pequenos sinais.",
+			"objectives": [
+				"Determinar a região de operação de MOSFETs em circuitos",
+				"Usar MOSFETs como chaves de carga"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 8,
+				"hi": 11
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.mos-dc.mos-models-circuit",
+			"kind": "topic",
+			"parentId": "ee.analog.mos-dc",
+			"order": 0,
+			"title": {
+				"pt": "MOSFET em circuitos: regiões e modelos",
+				"en": "MOSFET in circuits: regions and models"
+			},
+			"summary": "Análise DC com o modelo quadrático e com o modelo chave-resistor; verificação de região.",
+			"scope": "Dentro: análise DC com modelo quadrático, modelo chave-resistor. Fora: modelos de canal curto.",
+			"objectives": [
+				"Calcular o ponto de operação de circuitos com MOSFET",
+				"Escolher entre modelo quadrático e chave-resistor"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.semi.intro.transistor-qualitative",
+					"ee.dc.nonlinear.nonlinear-graphical"
+				]
+			],
+			"softPrereqs": [
+				"ee.semi.mos.mosfet-iv"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.mos-dc.mos-switch",
+			"kind": "topic",
+			"parentId": "ee.analog.mos-dc",
+			"order": 1,
+			"title": {
+				"pt": "MOSFET como chave e driver de carga",
+				"en": "MOSFET as a switch and load driver"
+			},
+			"summary": "MOSFETs de nível lógico, R_DS(on), chaves low-side e high-side e carga de porta.",
+			"scope": "Dentro: low-side, high-side, nível lógico, R_DS(on), carga de porta. Fora: drivers de gate de potência.",
+			"objectives": [
+				"Selecionar um MOSFET de nível lógico para acionar uma carga",
+				"Calcular a dissipação em condução"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.mos-dc.mos-models-circuit"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.mos-dc.mos-bias",
+			"kind": "topic",
+			"parentId": "ee.analog.mos-dc",
+			"order": 2,
+			"title": {
+				"pt": "Polarização do MOSFET",
+				"en": "MOSFET biasing"
+			},
+			"summary": "Polarização por divisor com resistor de fonte e sensibilidade a V_T.",
+			"scope": "Dentro: polarização discreta, realimentação de fonte, variação de V_T. Fora: polarização em CIs.",
+			"objectives": [
+				"Projetar a polarização de um MOSFET para um ponto Q",
+				"Avaliar a sensibilidade à variação de V_T"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 1
+			},
+			"clauses": [
+				[
+					"ee.analog.mos-dc.mos-models-circuit"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:mos-field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:field-effect-transistors",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 4,
+			"title": {
+				"pt": "Amplificadores de um transistor",
+				"en": "Single-transistor amplifiers"
+			},
+			"summary": "Modelos de pequenos sinais e as configurações básicas com BJT e MOSFET, acoplamento e amplificadores multiestágio.",
+			"scope": "Dentro: híbrido-π, T, configurações EC, BC, CC, FC, PC, DC, acoplamento, cascode, multiestágio. Fora: resposta em frequência.",
+			"objectives": [
+				"Calcular ganho e impedâncias das configurações básicas",
+				"Combinar estágios para atingir especificações"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 26,
+				"hi": 35
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.amp-concepts",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 0,
+			"title": {
+				"pt": "Conceitos de amplificador",
+				"en": "Amplifier concepts"
+			},
+			"summary": "Modelos de amplificador de tensão, corrente, transcondutância e transresistência, ganho, impedâncias e efeito de carga.",
+			"scope": "Dentro: quatro modelos de amplificador, ganho, impedâncias de entrada e saída, cascata. Fora: realimentação.",
+			"objectives": [
+				"Modelar um amplificador por fonte controlada e impedâncias",
+				"Calcular o ganho global de amplificadores em cascata com carga"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.dc.theorems.thevenin-dependent"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.bjt-small-signal",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 1,
+			"title": {
+				"pt": "Modelos híbrido-π e T do BJT",
+				"en": "BJT hybrid-π and T models"
+			},
+			"summary": "g_m = I_C/V_T, r_π, r_e e r_o e a equivalência entre os modelos.",
+			"scope": "Dentro: g_m, r_π, r_e, r_o, modelos π e T. Fora: modelos de alta frequência.",
+			"objectives": [
+				"Calcular os parâmetros de pequenos sinais a partir do ponto Q",
+				"Escolher entre o modelo π e o T para simplificar a análise"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"misconceptions": [
+				"Confundir r_π com r_e"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.bjt-dc.bjt-bias",
+					"ee.analog.small-signal.amp-concepts",
+					"ee.dc.nonlinear.incremental"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.mos-small-signal",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 2,
+			"title": {
+				"pt": "Modelo de pequenos sinais do MOSFET",
+				"en": "MOSFET small-signal model"
+			},
+			"summary": "g_m em função de I_D e da tensão de overdrive, r_o e efeito de corpo g_mb.",
+			"scope": "Dentro: g_m, r_o, g_mb, ganho intrínseco. Fora: modelos de alta frequência.",
+			"objectives": [
+				"Calcular g_m e r_o no ponto de operação",
+				"Explicar a dependência de g_m com I_D e com a tensão de overdrive"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.mos-dc.mos-bias",
+					"ee.analog.small-signal.amp-concepts",
+					"ee.dc.nonlinear.incremental"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.common-emitter",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 3,
+			"title": {
+				"pt": "Amplificador emissor comum",
+				"en": "Common-emitter amplifier"
+			},
+			"summary": "Ganho, impedâncias e o efeito da degeneração de emissor sobre ganho, linearidade e estabilidade.",
+			"scope": "Dentro: EC com e sem degeneração, ganho, R_in, R_out, excursão de saída. Fora: resposta em frequência.",
+			"objectives": [
+				"Calcular ganho e impedâncias de um EC degenerado",
+				"Explicar o compromisso entre ganho e linearidade da degeneração"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.bjt-small-signal"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.common-base-collector",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 4,
+			"title": {
+				"pt": "Base comum e coletor comum",
+				"en": "Common-base and common-collector"
+			},
+			"summary": "Base comum como buffer de corrente e seguidor de emissor como buffer de tensão.",
+			"scope": "Dentro: BC, CC, ganhos e impedâncias, aplicações como buffer. Fora: estágios de saída de potência.",
+			"objectives": [
+				"Calcular ganho e impedâncias de BC e CC",
+				"Escolher a configuração adequada para um buffer"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.bjt-small-signal"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.common-source",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 5,
+			"title": {
+				"pt": "Amplificador fonte comum",
+				"en": "Common-source amplifier"
+			},
+			"summary": "Fonte comum com carga resistiva, com degeneração e ganho intrínseco g_m·r_o.",
+			"scope": "Dentro: FC com e sem degeneração, ganho, impedâncias. Fora: cargas ativas.",
+			"objectives": [
+				"Calcular ganho e impedâncias de um fonte comum",
+				"Explicar o limite de ganho intrínseco g_m·r_o"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.mos-small-signal"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.cg-cd",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 6,
+			"title": {
+				"pt": "Porta comum e dreno comum",
+				"en": "Common-gate and common-drain"
+			},
+			"summary": "Porta comum de baixa impedância de entrada e seguidor de fonte, com efeito de corpo.",
+			"scope": "Dentro: PC, DC, ganhos, impedâncias, efeito de corpo. Fora: estágios de saída.",
+			"objectives": [
+				"Calcular ganho e impedâncias de PC e DC",
+				"Explicar por que o ganho do seguidor de fonte é menor que 1"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.mos-small-signal"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.coupling-bypass",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 7,
+			"title": {
+				"pt": "Acoplamento, desvio e polarização em amplificadores discretos",
+				"en": "Coupling, bypass and biasing in discrete amplifiers"
+			},
+			"summary": "Capacitores de acoplamento e de desvio, polos de baixa frequência e escolha de valores.",
+			"scope": "Dentro: capacitores de acoplamento e desvio, polos de baixa frequência. Fora: resposta em alta frequência.",
+			"objectives": [
+				"Dimensionar capacitores de acoplamento e desvio para uma frequência mínima",
+				"Identificar o polo dominante de baixa frequência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.common-emitter",
+					"ee.ac.frequency.passive-filters"
+				],
+				[
+					"ee.analog.small-signal.common-source",
+					"ee.ac.frequency.passive-filters"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.small-signal.multistage",
+			"kind": "topic",
+			"parentId": "ee.analog.small-signal",
+			"order": 8,
+			"title": {
+				"pt": "Amplificadores multiestágio e cascode",
+				"en": "Multistage and cascode amplifiers"
+			},
+			"summary": "Cascata de estágios, efeito de carga entre estágios e a configuração cascode.",
+			"scope": "Dentro: cascata, carga entre estágios, cascode BJT e MOS, Darlington. Fora: par diferencial.",
+			"objectives": [
+				"Calcular o ganho de um amplificador de dois estágios com carga entre estágios",
+				"Explicar como o cascode aumenta a resistência de saída"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.common-emitter",
+					"ee.analog.small-signal.common-base-collector"
+				],
+				[
+					"ee.analog.small-signal.common-source",
+					"ee.analog.small-signal.cg-cd"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:transistor-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.002-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:amplifier-basics",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.ic-building",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 5,
+			"title": {
+				"pt": "Blocos de amplificadores integrados",
+				"en": "IC amplifier building blocks"
+			},
+			"summary": "Espelhos de corrente, cargas ativas, par diferencial, estágios de saída e a arquitetura interna do op-amp.",
+			"scope": "Dentro: espelhos, cargas ativas, par diferencial, CMRR e offset, classes A, B e AB, op-amp de dois estágios. Fora: projeto em PDK (ver CI).",
+			"objectives": [
+				"Analisar o par diferencial com carga ativa",
+				"Explicar a arquitetura interna de um op-amp"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 16,
+				"hi": 22
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:building-blocks-of-ic-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:differential-and-multistage-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.ic-building.current-mirrors",
+			"kind": "topic",
+			"parentId": "ee.analog.ic-building",
+			"order": 0,
+			"title": {
+				"pt": "Espelhos de corrente",
+				"en": "Current mirrors"
+			},
+			"summary": "Espelhos simples, cascode e Wilson com BJT e MOSFET, erros de cópia e resistência de saída.",
+			"scope": "Dentro: espelho simples, cascode, Wilson, Widlar, erros. Fora: espelhos de baixa tensão avançados.",
+			"objectives": [
+				"Calcular a corrente de saída e a resistência de saída de um espelho",
+				"Comparar espelhos simples e cascode"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.bjt-small-signal"
+				],
+				[
+					"ee.analog.small-signal.mos-small-signal"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:building-blocks-of-ic-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:differential-and-multistage-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.ic-building.active-loads",
+			"kind": "topic",
+			"parentId": "ee.analog.ic-building",
+			"order": 1,
+			"title": {
+				"pt": "Cargas ativas",
+				"en": "Active loads"
+			},
+			"summary": "Fonte de corrente como carga para obter alto ganho em um único estágio.",
+			"scope": "Dentro: carga ativa, ganho com r_o, sensibilidade à polarização. Fora: CMFB.",
+			"objectives": [
+				"Calcular o ganho de um estágio com carga ativa",
+				"Explicar por que a carga ativa exige realimentação de modo comum em saídas diferenciais"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.ic-building.current-mirrors",
+					"ee.analog.small-signal.common-emitter"
+				],
+				[
+					"ee.analog.ic-building.current-mirrors",
+					"ee.analog.small-signal.common-source"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:building-blocks-of-ic-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:differential-and-multistage-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.ic-building.diff-pair",
+			"kind": "topic",
+			"parentId": "ee.analog.ic-building",
+			"order": 2,
+			"title": {
+				"pt": "Par diferencial",
+				"en": "Differential pair"
+			},
+			"summary": "Operação em grande sinal, ganho diferencial e de modo comum e análise por meio-circuito.",
+			"scope": "Dentro: par diferencial BJT e MOS, grande sinal, meio-circuito, carga ativa. Fora: amplificadores totalmente diferenciais.",
+			"objectives": [
+				"Calcular o ganho diferencial e de modo comum de um par diferencial",
+				"Esboçar a característica de transferência de grande sinal"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.ic-building.current-mirrors",
+					"ee.analog.small-signal.common-emitter"
+				],
+				[
+					"ee.analog.ic-building.current-mirrors",
+					"ee.analog.small-signal.common-source"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:building-blocks-of-ic-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:differential-and-multistage-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.ic-building.cmrr-offset",
+			"kind": "topic",
+			"parentId": "ee.analog.ic-building",
+			"order": 3,
+			"title": {
+				"pt": "CMRR, offset e descasamento",
+				"en": "CMRR, offset and mismatch"
+			},
+			"summary": "Rejeição de modo comum e offset de entrada causados por descasamento de dispositivos.",
+			"scope": "Dentro: CMRR, offset sistemático e aleatório, descasamento. Fora: técnicas de layout.",
+			"objectives": [
+				"Calcular a CMRR de um par diferencial",
+				"Estimar o offset devido ao descasamento de resistores e transistores"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.ic-building.diff-pair"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:building-blocks-of-ic-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:differential-and-multistage-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.ic-building.output-stages",
+			"kind": "topic",
+			"parentId": "ee.analog.ic-building",
+			"order": 4,
+			"title": {
+				"pt": "Estágios de saída: classes A, B e AB",
+				"en": "Output stages: classes A, B and AB"
+			},
+			"summary": "Seguidor classe A, push-pull classe B, distorção de crossover, classe AB, eficiência e proteção.",
+			"scope": "Dentro: classes A, B e AB, eficiência, distorção de crossover, proteção térmica. Fora: amplificadores classe D (ver eletrônica de potência).",
+			"objectives": [
+				"Calcular a eficiência de estágios classe A e B",
+				"Projetar a polarização de um estágio classe AB"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.common-base-collector"
+				],
+				[
+					"ee.analog.small-signal.cg-cd"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:building-blocks-of-ic-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:differential-and-multistage-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.ic-building.opamp-internals",
+			"kind": "topic",
+			"parentId": "ee.analog.ic-building",
+			"order": 5,
+			"title": {
+				"pt": "Op-amp por dentro: arquitetura de dois estágios",
+				"en": "Op-amp internals: two-stage architecture"
+			},
+			"summary": "Par diferencial de entrada, estágio de ganho, compensação e estágio de saída de um op-amp clássico.",
+			"scope": "Dentro: arquitetura de dois e três estágios, 741 e CMOS de dois estágios, polo dominante. Fora: projeto em transistor de op-amp CMOS.",
+			"objectives": [
+				"Identificar os estágios em um esquemático de op-amp",
+				"Explicar a origem do ganho e do slew rate a partir da arquitetura"
+			],
+			"bloom": "understand",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.ic-building.diff-pair",
+					"ee.analog.ic-building.active-loads",
+					"ee.analog.ic-building.output-stages"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:building-blocks-of-ic-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:differential-and-multistage-amplifiers",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.freq",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 6,
+			"title": {
+				"pt": "Resposta em frequência de amplificadores",
+				"en": "Amplifier frequency response"
+			},
+			"summary": "Modelos de alta frequência, efeito Miller, constantes de tempo e técnicas de banda larga.",
+			"scope": "Dentro: polos de baixa e alta frequência, Miller, OCTC e SCTC, cascode. Fora: técnicas de RF.",
+			"objectives": [
+				"Estimar a banda de amplificadores com transistores",
+				"Aplicar técnicas para aumentar a banda"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:frequency-response",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.freq.amp-freq-response",
+			"kind": "topic",
+			"parentId": "ee.analog.freq",
+			"order": 0,
+			"title": {
+				"pt": "Resposta em baixas e altas frequências",
+				"en": "Low- and high-frequency response"
+			},
+			"summary": "Modelos de alta frequência dos transistores e a resposta completa de um amplificador.",
+			"scope": "Dentro: modelos de alta frequência, polos, banda de passagem. Fora: Miller.",
+			"objectives": [
+				"Identificar polos de baixa e alta frequência de um amplificador",
+				"Esboçar o Bode completo de um amplificador EC ou FC"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.small-signal.coupling-bypass",
+					"ee.ac.frequency.bode"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:frequency-response",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.freq.miller",
+			"kind": "topic",
+			"parentId": "ee.analog.freq",
+			"order": 1,
+			"title": {
+				"pt": "Efeito Miller",
+				"en": "Miller effect"
+			},
+			"summary": "Multiplicação da capacitância de realimentação pelo ganho e sua consequência na banda.",
+			"scope": "Dentro: teorema de Miller, capacitância de Miller, divisão de polos. Fora: compensação.",
+			"objectives": [
+				"Calcular a capacitância de Miller e o polo de entrada",
+				"Explicar por que o cascode atenua o efeito Miller"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.freq.amp-freq-response",
+					"ee.semi.bjt.bjt-hf"
+				],
+				[
+					"ee.analog.freq.amp-freq-response",
+					"ee.semi.mos.mosfet-capacitances"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:frequency-response",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.freq.octc-zvtc",
+			"kind": "topic",
+			"parentId": "ee.analog.freq",
+			"order": 2,
+			"title": {
+				"pt": "Constantes de tempo em circuito aberto e em curto",
+				"en": "Open- and short-circuit time constants"
+			},
+			"summary": "Estimativa de banda pelo método das constantes de tempo (OCTC/SCTC) em circuitos complexos.",
+			"scope": "Dentro: OCTC, SCTC, estimativa de polo dominante. Fora: análise exata com várias constantes.",
+			"objectives": [
+				"Estimar a frequência de corte superior pelo método OCTC",
+				"Identificar qual capacitância domina a banda"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.analog.freq.miller"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:frequency-response",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.freq.cascode-bandwidth",
+			"kind": "topic",
+			"parentId": "ee.analog.freq",
+			"order": 3,
+			"title": {
+				"pt": "Técnicas de banda larga",
+				"en": "Bandwidth extension techniques"
+			},
+			"summary": "Cascode, estágios com baixa impedância e compromissos ganho-banda.",
+			"scope": "Dentro: cascode, buffers, ganho × banda. Fora: peaking indutivo em RF.",
+			"objectives": [
+				"Projetar um cascode para estender a banda",
+				"Avaliar o compromisso ganho-banda de uma configuração"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.freq.miller",
+					"ee.analog.small-signal.multistage"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:frequency-response",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.012-f09",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.feedback",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 7,
+			"title": {
+				"pt": "Realimentação e estabilidade",
+				"en": "Feedback and stability"
+			},
+			"summary": "Propriedades da realimentação negativa, topologias, margens de estabilidade e compensação em frequência.",
+			"scope": "Dentro: ganho de malha, dessensibilização, topologias, margens de ganho e fase, compensação. Fora: controle geral (ver controle).",
+			"objectives": [
+				"Analisar amplificadores realimentados pelo ganho de malha",
+				"Compensar amplificadores para margens adequadas"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 12,
+				"hi": 16
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:feedback",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:feedback",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.feedback.feedback-concepts",
+			"kind": "topic",
+			"parentId": "ee.analog.feedback",
+			"order": 0,
+			"title": {
+				"pt": "Realimentação negativa e ganho de malha",
+				"en": "Negative feedback and loop gain"
+			},
+			"summary": "Ganho em malha fechada, ganho de malha, dessensibilização, extensão de banda e redução de distorção.",
+			"scope": "Dentro: A/(1+Aβ), ganho de malha, dessensibilização, banda, distorção. Fora: topologias.",
+			"objectives": [
+				"Calcular o ganho em malha fechada e o ganho de malha",
+				"Explicar como a realimentação reduz distorção e sensibilidade"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.inverting-noninverting",
+					"ee.analog.small-signal.amp-concepts"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:feedback",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:feedback",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.feedback.feedback-topologies",
+			"kind": "topic",
+			"parentId": "ee.analog.feedback",
+			"order": 1,
+			"title": {
+				"pt": "Topologias de realimentação",
+				"en": "Feedback topologies"
+			},
+			"summary": "Amostragem de tensão e de corrente, mistura série e paralela e efeito sobre impedâncias.",
+			"scope": "Dentro: quatro topologias, impedâncias de entrada e saída, método da razão de retorno. Fora: análise de duas portas exata.",
+			"objectives": [
+				"Identificar a topologia de realimentação de um circuito",
+				"Calcular as impedâncias em malha fechada"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.feedback.feedback-concepts"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:feedback",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:feedback",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.feedback.stability-margins",
+			"kind": "topic",
+			"parentId": "ee.analog.feedback",
+			"order": 2,
+			"title": {
+				"pt": "Estabilidade e margens de ganho e fase",
+				"en": "Stability and gain and phase margins"
+			},
+			"summary": "Critério de estabilidade pelo ganho de malha, margens e relação com overshoot.",
+			"scope": "Dentro: polos em malha fechada, margens de ganho e fase, relação com overshoot. Fora: Nyquist completo.",
+			"objectives": [
+				"Determinar margens de ganho e fase a partir do Bode do ganho de malha",
+				"Relacionar margem de fase a overshoot e ringing"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.feedback.feedback-concepts",
+					"ee.analog.freq.amp-freq-response"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:feedback",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:feedback",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.feedback.compensation",
+			"kind": "topic",
+			"parentId": "ee.analog.feedback",
+			"order": 3,
+			"title": {
+				"pt": "Compensação em frequência",
+				"en": "Frequency compensation"
+			},
+			"summary": "Polo dominante, compensação Miller com divisão de polos e zero no semiplano direito.",
+			"scope": "Dentro: polo dominante, Miller, divisão de polos, zero RHP, resistor de anulação. Fora: compensações avançadas.",
+			"objectives": [
+				"Projetar a compensação por polo dominante",
+				"Explicar a divisão de polos da compensação Miller"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.feedback.stability-margins",
+					"ee.analog.freq.miller"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:feedback",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.302-s07",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:feedback",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.oscillators",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 8,
+			"title": {
+				"pt": "Osciladores, geradores de forma de onda e PLLs",
+				"en": "Oscillators, waveform generators and PLLs"
+			},
+			"summary": "Critério de Barkhausen, osciladores RC, LC e a cristal, multivibradores, o 555 e a malha de captura de fase.",
+			"scope": "Dentro: Barkhausen, ponte de Wien, deslocamento de fase, Colpitts, Hartley, Pierce, relaxação, 555, PLL discreto. Fora: VCOs integrados e ruído de fase (ver RF).",
+			"objectives": [
+				"Projetar osciladores senoidais e de relaxação",
+				"Explicar o controle de amplitude em osciladores"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 14,
+				"hi": 19
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:oscillators",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:oscillators-and-timers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "9",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.oscillators.barkhausen",
+			"kind": "topic",
+			"parentId": "ee.analog.oscillators",
+			"order": 0,
+			"title": {
+				"pt": "Critério de Barkhausen",
+				"en": "Barkhausen criterion"
+			},
+			"summary": "Condições de ganho e fase para oscilação e o papel da não linearidade na amplitude.",
+			"scope": "Dentro: condições de oscilação, partida e limitação de amplitude. Fora: teoria de osciladores não lineares.",
+			"objectives": [
+				"Aplicar o critério de Barkhausen para obter frequência e ganho necessários",
+				"Explicar como a amplitude se estabiliza"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.feedback.feedback-concepts"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:oscillators",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:oscillators-and-timers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "9",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.oscillators.rc-oscillators",
+			"kind": "topic",
+			"parentId": "ee.analog.oscillators",
+			"order": 1,
+			"title": {
+				"pt": "Osciladores RC",
+				"en": "RC oscillators"
+			},
+			"summary": "Oscilador em ponte de Wien e por deslocamento de fase, com controle de amplitude.",
+			"scope": "Dentro: ponte de Wien, deslocamento de fase, controle de amplitude. Fora: osciladores em quadratura.",
+			"objectives": [
+				"Projetar um oscilador em ponte de Wien para uma frequência",
+				"Explicar a estabilização de amplitude com elemento não linear"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.oscillators.barkhausen",
+					"ee.ac.frequency.bandpass-notch"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:oscillators",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:oscillators-and-timers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "9",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.oscillators.lc-crystal",
+			"kind": "topic",
+			"parentId": "ee.analog.oscillators",
+			"order": 2,
+			"title": {
+				"pt": "Osciladores LC e a cristal",
+				"en": "LC and crystal oscillators"
+			},
+			"summary": "Colpitts, Hartley, modelo do cristal de quartzo e oscilador Pierce de microcontroladores.",
+			"scope": "Dentro: Colpitts, Hartley, modelo elétrico do cristal, Pierce, capacitâncias de carga. Fora: VCOs integrados.",
+			"objectives": [
+				"Calcular a frequência de um oscilador Colpitts",
+				"Escolher capacitores de carga para um cristal"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.oscillators.barkhausen",
+					"ee.ac.frequency.resonance"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:oscillators",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:oscillators-and-timers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "9",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.oscillators.relaxation-555",
+			"kind": "topic",
+			"parentId": "ee.analog.oscillators",
+			"order": 3,
+			"title": {
+				"pt": "Osciladores de relaxação e o 555",
+				"en": "Relaxation oscillators and the 555"
+			},
+			"summary": "Multivibrador astável com comparador, 555 astável e monoestável e geradores de onda triangular.",
+			"scope": "Dentro: relaxação com comparador, 555, gerador triangular-quadrada. Fora: VCOs.",
+			"objectives": [
+				"Projetar um astável com 555 para frequência e duty cycle dados",
+				"Analisar um gerador de onda triangular e quadrada"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.comparators",
+					"ee.ac.transients1.step-response"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:oscillators",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:oscillators-and-timers",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				},
+				{
+					"source": "neets",
+					"ref": "9",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.oscillators.pll-basics",
+			"kind": "topic",
+			"parentId": "ee.analog.oscillators",
+			"order": 4,
+			"title": {
+				"pt": "PLL: detector de fase, VCO e aplicações",
+				"en": "PLL basics: phase detector, VCO and applications"
+			},
+			"summary": "Malha de captura de fase com detector de fase, filtro de malha e VCO, faixas de captura e de travamento, síntese de frequência e demodulação com PLLs discretos.",
+			"scope": "Dentro: diagrama de blocos, detectores de fase XOR e PFD, VCO, filtro de malha de 1ª e 2ª ordem, travamento, síntese N·f_ref, demodulação FM. Fora: PLL integrado, ruído de fase e fracionário-N (ver RF e CI).",
+			"objectives": [
+				"Explicar como a malha leva o VCO a travar em fase com a referência",
+				"Dimensionar um sintetizador inteiro-N simples com divisor de frequência"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design",
+				"sketch"
+			],
+			"misconceptions": [
+				"Achar que um PLL travado mantém um erro de frequência constante não nulo"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.oscillators.relaxation-555",
+					"ee.analog.feedback.stability-margins"
+				]
+			],
+			"softPrereqs": [
+				"ee.digital.seq.registers-counters"
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.filters",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 9,
+			"title": {
+				"pt": "Filtros ativos",
+				"en": "Active filters"
+			},
+			"summary": "Aproximações de filtros, topologias com op-amp, filtros de ordem superior e biquads.",
+			"scope": "Dentro: Butterworth, Chebyshev, Bessel, Sallen-Key, MFB, cascata, variáveis de estado. Fora: filtros digitais e a capacitores chaveados.",
+			"objectives": [
+				"Especificar filtros a partir de requisitos",
+				"Projetar filtros ativos de ordem superior"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 10,
+				"hi": 14
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:filters",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:active-filters",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.filters.filter-specs",
+			"kind": "topic",
+			"parentId": "ee.analog.filters",
+			"order": 0,
+			"title": {
+				"pt": "Especificações e aproximações de filtros",
+				"en": "Filter specifications and approximations"
+			},
+			"summary": "Máscara de especificação, ordem, Butterworth, Chebyshev, Bessel e elíptico e seus compromissos.",
+			"scope": "Dentro: máscara, ordem, aproximações clássicas, atraso de grupo. Fora: síntese de redes passivas.",
+			"objectives": [
+				"Determinar a ordem de um filtro a partir da máscara",
+				"Escolher a aproximação adequada para uma aplicação"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.ac.frequency.bode",
+					"ee.ac.sdomain.poles-zeros"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:filters",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:active-filters",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.filters.sallen-key-mfb",
+			"kind": "topic",
+			"parentId": "ee.analog.filters",
+			"order": 1,
+			"title": {
+				"pt": "Topologias Sallen-Key e MFB",
+				"en": "Sallen-Key and MFB topologies"
+			},
+			"summary": "Seções de 2ª ordem com op-amp e o cálculo de componentes para f₀ e Q.",
+			"scope": "Dentro: Sallen-Key, MFB, cálculo de componentes, limites do op-amp. Fora: sensibilidade detalhada.",
+			"objectives": [
+				"Projetar uma seção Sallen-Key passa-baixas para f₀ e Q",
+				"Comparar Sallen-Key e MFB"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.filters.filter-specs",
+					"ee.analog.opamp.inverting-noninverting"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:filters",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:active-filters",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.filters.higher-order-filters",
+			"kind": "topic",
+			"parentId": "ee.analog.filters",
+			"order": 2,
+			"title": {
+				"pt": "Filtros de ordem superior e sensibilidade",
+				"en": "Higher-order filters and sensitivity"
+			},
+			"summary": "Cascata de seções de 2ª ordem, ordenação, tolerâncias e sensibilidade a componentes.",
+			"scope": "Dentro: cascata, ordenação de seções, sensibilidade, tolerâncias. Fora: otimização numérica de filtros.",
+			"objectives": [
+				"Projetar um filtro de 4ª ordem em cascata",
+				"Avaliar a sensibilidade do Q à tolerância dos componentes"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.filters.sallen-key-mfb"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:filters",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:active-filters",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.filters.state-variable-filters",
+			"kind": "topic",
+			"parentId": "ee.analog.filters",
+			"order": 3,
+			"title": {
+				"pt": "Filtros de variáveis de estado e biquads",
+				"en": "State-variable filters and biquads"
+			},
+			"summary": "Filtros KHN e Tow-Thomas com saídas simultâneas e ajuste independente de f₀ e Q.",
+			"scope": "Dentro: KHN, Tow-Thomas, ajuste de parâmetros. Fora: filtros gm-C.",
+			"objectives": [
+				"Analisar um filtro de variáveis de estado",
+				"Ajustar f₀ e Q independentemente em um biquad"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.filters.sallen-key-mfb",
+					"ee.analog.opamp.integrator-differentiator"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:filters",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:active-filters",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.regulators",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 10,
+			"title": {
+				"pt": "Referências, reguladores lineares e térmica",
+				"en": "References, linear regulators and thermal design"
+			},
+			"summary": "Referências de tensão, reguladores lineares e LDOs e o projeto térmico de componentes.",
+			"scope": "Dentro: Zener e bandgap, regulador série, LDO, estabilidade, dissipação e dissipadores. Fora: fontes chaveadas (ver potência).",
+			"objectives": [
+				"Selecionar e aplicar reguladores lineares",
+				"Projetar a dissipação térmica de componentes"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 7,
+				"hi": 10
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:voltage-regulation-and-power-conversion",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:output-stages",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.regulators.references",
+			"kind": "topic",
+			"parentId": "ee.analog.regulators",
+			"order": 0,
+			"title": {
+				"pt": "Referências de tensão",
+				"en": "Voltage references"
+			},
+			"summary": "Referências Zener e bandgap, coeficiente de temperatura e ruído.",
+			"scope": "Dentro: Zener compensado, princípio bandgap, especificações. Fora: projeto de bandgap integrado.",
+			"objectives": [
+				"Explicar o princípio da referência bandgap",
+				"Comparar referências quanto a deriva térmica e ruído"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.diodes.zener-regulator",
+					"ee.analog.bjt-dc.bjt-bias"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:voltage-regulation-and-power-conversion",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:output-stages",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.regulators.linear-regulators",
+			"kind": "topic",
+			"parentId": "ee.analog.regulators",
+			"order": 1,
+			"title": {
+				"pt": "Reguladores lineares e LDOs",
+				"en": "Linear regulators and LDOs"
+			},
+			"summary": "Regulador série com op-amp, LDO, dropout, PSRR e estabilidade com capacitor de saída.",
+			"scope": "Dentro: regulador série, LDO, dropout, PSRR, ESR e estabilidade, proteção. Fora: LDO integrado.",
+			"objectives": [
+				"Calcular a dissipação e a eficiência de um regulador linear",
+				"Escolher o capacitor de saída de um LDO para estabilidade"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.regulators.references",
+					"ee.analog.feedback.feedback-concepts"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:voltage-regulation-and-power-conversion",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:output-stages",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.regulators.thermal",
+			"kind": "topic",
+			"parentId": "ee.analog.regulators",
+			"order": 2,
+			"title": {
+				"pt": "Dissipação térmica e dissipadores",
+				"en": "Thermal dissipation and heatsinks"
+			},
+			"summary": "Resistência térmica, circuito térmico equivalente, temperatura de junção e escolha de dissipador.",
+			"scope": "Dentro: θ_JC, θ_CA, temperatura de junção, dissipadores, derating. Fora: simulação térmica 3D.",
+			"objectives": [
+				"Calcular a temperatura de junção a partir do circuito térmico",
+				"Selecionar um dissipador para uma dissipação dada"
+			],
+			"bloom": "evaluate",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.dc.basics.power-energy-dc"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:voltage-regulation-and-power-conversion",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc:output-stages",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§9",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.converters",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 11,
+			"title": {
+				"pt": "Conversores de dados: DAC e ADC",
+				"en": "Data converters: DACs and ADCs"
+			},
+			"summary": "Conversão digital-analógica e analógica-digital em nível de circuito: redes R-2R, ADCs de rampa, SAR, flash e sigma-delta, e as métricas de erro de um conversor.",
+			"scope": "Dentro: DAC ponderado e R-2R, DAC por PWM, amostra-e-retém, ADCs de rampa dupla, SAR, flash e sigma-delta em visão, offset, ganho, DNL, INL, SNR e ENOB. Fora: projeto de conversores integrados (ver CI).",
+			"objectives": [
+				"Analisar arquiteturas de DAC e ADC em nível de blocos e de circuito",
+				"Especificar um conversor a partir de resolução, taxa e erros admissíveis"
+			],
+			"assess": [
+				"numeric",
+				"design",
+				"explain"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 7,
+				"hi": 10
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.converters.dac-circuits",
+			"kind": "topic",
+			"parentId": "ee.analog.converters",
+			"order": 0,
+			"title": {
+				"pt": "Circuitos de DAC: ponderado, R-2R e PWM",
+				"en": "DAC circuits: weighted, R-2R and PWM"
+			},
+			"summary": "DACs de resistores ponderados e de escada R-2R com op-amp, DAC por PWM filtrado e as fontes de erro de cada um.",
+			"scope": "Dentro: resistores ponderados, escada R-2R em tensão e em corrente, DAC por PWM com filtro, glitches, monotonicidade. Fora: DACs segmentados integrados (ver CI) e configuração do DAC do microcontrolador (ver embarcados).",
+			"objectives": [
+				"Calcular a saída de um DAC R-2R para um código digital",
+				"Dimensionar o filtro de um DAC por PWM para um ripple especificado"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"design"
+			],
+			"misconceptions": [
+				"Achar que um DAC de N bits atinge a tensão de referência no código máximo, esquecendo o 1 LSB que falta"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.opamp.summing-difference",
+					"ee.digital.numbers.number-systems"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.converters.adc-architectures",
+			"kind": "topic",
+			"parentId": "ee.analog.converters",
+			"order": 1,
+			"title": {
+				"pt": "Arquiteturas de ADC: rampa, SAR, flash e sigma-delta",
+				"en": "ADC architectures: ramp, SAR, flash and sigma-delta"
+			},
+			"summary": "Amostra-e-retém, ADC de rampa dupla, aproximações sucessivas, flash e a ideia do sigma-delta, com a troca entre resolução, velocidade e consumo.",
+			"scope": "Dentro: amostragem e retenção, rampa dupla, SAR, flash, pipeline em visão, sigma-delta em visão, escolha de arquitetura. Fora: projeto em nível de transistor (ver CI).",
+			"objectives": [
+				"Seguir passo a passo uma conversão por aproximações sucessivas",
+				"Escolher a arquitetura de ADC adequada a uma especificação de taxa e de resolução"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"design",
+				"explain"
+			],
+			"misconceptions": [
+				"Achar que mais bits de resolução garantem mais exatidão"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.converters.dac-circuits",
+					"ee.analog.opamp.comparators",
+					"ee.analog.opamp.precision-circuits",
+					"ee.analog.opamp.integrator-differentiator",
+					"ee.digital.seq.registers-counters"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "sedra-smith-8e",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.converters.converter-errors",
+			"kind": "topic",
+			"parentId": "ee.analog.converters",
+			"order": 2,
+			"title": {
+				"pt": "Erros e especificações de conversores",
+				"en": "Converter errors and specifications"
+			},
+			"summary": "Offset, erro de ganho, DNL, INL, códigos ausentes, ruído de quantização, SNR, SINAD e ENOB, e a leitura da folha de dados de um conversor.",
+			"scope": "Dentro: erros estáticos, DNL e INL, monotonicidade, SNR ideal 6,02N + 1,76 dB, SINAD, ENOB, jitter de amostragem em visão, folhas de dados. Fora: testes de produção e figuras de mérito de projeto de CI (ver CI).",
+			"objectives": [
+				"Calcular DNL, INL e ENOB a partir de medições",
+				"Escolher um conversor comercial pelas especificações da folha de dados"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"numeric",
+				"explain"
+			],
+			"misconceptions": [
+				"Confundir a resolução nominal em bits com o ENOB, que inclui ruído e distorção"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.converters.adc-architectures",
+					"ee.signals.sampling.quantization"
+				]
+			],
+			"hours": {
+				"lo": 2,
+				"hi": 3
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:digital-meets-analog",
+					"embeddable": false
+				},
+				{
+					"source": "ncees-fe-ec",
+					"ref": "§8",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.noise",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 12,
+			"title": {
+				"pt": "Ruído em circuitos analógicos",
+				"en": "Noise in analog circuits"
+			},
+			"summary": "Fontes de ruído em circuitos, ruído referido à entrada, figura de ruído e projeto de baixo ruído.",
+			"scope": "Dentro: modelos de ruído de circuitos, e_n e i_n, NF, projeto de baixo ruído. Fora: ruído em RF e de fase.",
+			"objectives": [
+				"Calcular o ruído total de um circuito",
+				"Projetar front-ends de baixo ruído"
+			],
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 9,
+				"hi": 12
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:low-noise-techniques",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:noise",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc:noise-in-integrated-circuits",
+					"embeddable": false
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.noise.noise-sources-circuits",
+			"kind": "topic",
+			"parentId": "ee.analog.noise",
+			"order": 0,
+			"title": {
+				"pt": "Fontes de ruído em circuitos",
+				"en": "Noise sources in circuits"
+			},
+			"summary": "Modelos de ruído de resistores e transistores, soma de fontes não correlacionadas e banda equivalente de ruído.",
+			"scope": "Dentro: fontes de ruído em circuito, soma quadrática, banda de ruído. Fora: física do ruído.",
+			"objectives": [
+				"Somar fontes de ruído não correlacionadas",
+				"Calcular o ruído RMS integrado em uma banda"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.semi.devices.noise-devices",
+					"ee.signals.random.lti-random"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:low-noise-techniques",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:noise",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc:noise-in-integrated-circuits",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.noise.noise-analysis",
+			"kind": "topic",
+			"parentId": "ee.analog.noise",
+			"order": 1,
+			"title": {
+				"pt": "Ruído referido à entrada e figura de ruído",
+				"en": "Input-referred noise and noise figure"
+			},
+			"summary": "Ruído referido à entrada (e_n, i_n), ruído de op-amps e figura de ruído.",
+			"scope": "Dentro: e_n e i_n, ruído de op-amps, NF, resistência ótima de fonte. Fora: casamento de ruído em RF.",
+			"objectives": [
+				"Calcular o ruído de saída de um circuito com op-amp",
+				"Calcular a figura de ruído de um amplificador"
+			],
+			"bloom": "apply",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.analog.noise.noise-sources-circuits",
+					"ee.analog.opamp.opamp-nonidealities"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:low-noise-techniques",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:noise",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc:noise-in-integrated-circuits",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.noise.low-noise-design",
+			"kind": "topic",
+			"parentId": "ee.analog.noise",
+			"order": 2,
+			"title": {
+				"pt": "Projeto de baixo ruído",
+				"en": "Low-noise design"
+			},
+			"summary": "Escolha de dispositivos, impedâncias e topologias para minimizar ruído, incluindo blindagem e aterramento.",
+			"scope": "Dentro: escolha de op-amp e transistor, casamento de ruído, layout e blindagem. Fora: LNA de RF.",
+			"objectives": [
+				"Selecionar um op-amp pelo critério de ruído para uma fonte dada",
+				"Projetar um pré-amplificador de baixo ruído"
+			],
+			"bloom": "create",
+			"assess": [
+				"numeric",
+				"derivation",
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 3
+			},
+			"clauses": [
+				[
+					"ee.analog.noise.noise-analysis"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc:low-noise-techniques",
+					"embeddable": false
+				},
+				{
+					"source": "razavi-analog-cmos-2e",
+					"ref": "toc:noise",
+					"embeddable": false
+				},
+				{
+					"source": "mit-ocw-6.301-f10",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "gray-hurst-lewis-meyer",
+					"ref": "toc:noise-in-integrated-circuits",
+					"embeddable": false
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core"
+			]
+		},
+		{
+			"id": "ee.analog.design",
+			"kind": "unit",
+			"parentId": "ee.analog",
+			"order": 13,
+			"title": {
+				"pt": "Projeto analógico na bancada",
+				"en": "Analog design at the bench"
+			},
+			"summary": "Projetos integradores de eletrônica analógica e técnicas de depuração em bancada.",
+			"scope": "Dentro: projetos de amplificador e de front-end de sensor em duas fases cada (projeto e simulação; montagem e medição) e depuração. Fora: projeto de produto completo.",
+			"objectives": [
+				"Levar um circuito da especificação ao protótipo medido",
+				"Depurar circuitos analógicos sistematicamente"
+			],
+			"assess": [
+				"design",
+				"lab",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [],
+			"hours": {
+				"lo": 15,
+				"hi": 20
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				}
+			],
+			"status": "provisional",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.analog.design.discrete-amp-design",
+			"kind": "topic",
+			"parentId": "ee.analog.design",
+			"order": 0,
+			"title": {
+				"pt": "Amplificador de áudio, fase 1: especificação e simulação",
+				"en": "Audio amplifier, phase 1: specification and simulation"
+			},
+			"summary": "Especificar ganho, banda, potência e distorção, escolher a topologia com realimentação, dimensionar componentes e verificar tudo em simulação.",
+			"scope": "Dentro: especificação, escolha de topologia, cálculo de polarização e de realimentação, simulação AC, transiente e de distorção. Fora: montagem e medição (fase 2).",
+			"objectives": [
+				"Traduzir uma especificação de áudio em topologia e valores de componentes",
+				"Verificar ganho, banda, estabilidade e distorção em simulação"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.ic-building.output-stages",
+					"ee.analog.feedback.stability-margins",
+					"ee.instruments.sim.spice-ac-models"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.analog.design.discrete-amp-project",
+			"kind": "topic",
+			"parentId": "ee.analog.design",
+			"order": 1,
+			"title": {
+				"pt": "Amplificador de áudio, fase 2: montagem e medição",
+				"en": "Audio amplifier, phase 2: build and measurement"
+			},
+			"summary": "Montar o amplificador projetado, ajustar a polarização, medir ganho, resposta em frequência, potência e distorção e comparar com a simulação.",
+			"scope": "Dentro: montagem, ajuste de polarização, medição de ganho, banda, potência e distorção, relatório comparando medição e simulação. Fora: certificação de produto.",
+			"objectives": [
+				"Montar e ajustar com segurança um amplificador de potência discreto",
+				"Medir ganho, banda e distorção e explicar as diferenças em relação à simulação"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.design.discrete-amp-design",
+					"ee.instruments.bench.oscilloscope-advanced"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.analog.design.sensor-frontend-design",
+			"kind": "topic",
+			"parentId": "ee.analog.design",
+			"order": 2,
+			"title": {
+				"pt": "Front-end de sensor, fase 1: especificação e simulação",
+				"en": "Sensor front-end, phase 1: specification and simulation"
+			},
+			"summary": "Partir do sensor e do ADC de destino, definir ganho, banda e orçamento de erro, escolher o amplificador de instrumentação e o filtro antialiasing e simular a cadeia.",
+			"scope": "Dentro: especificação, orçamento de erro e de ruído, escolha de componentes, escalonamento para a faixa do ADC, simulação da cadeia. Fora: montagem (fase 2) e firmware de aquisição.",
+			"objectives": [
+				"Montar o orçamento de erro de uma cadeia de medição",
+				"Projetar ganho, filtro e escalonamento para a faixa do ADC"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.filters.sallen-key-mfb",
+					"ee.instruments.sensors.temperature-sensors",
+					"ee.analog.converters.converter-errors"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project"
+			]
+		},
+		{
+			"id": "ee.analog.design.sensor-frontend-project",
+			"kind": "topic",
+			"parentId": "ee.analog.design",
+			"order": 3,
+			"title": {
+				"pt": "Front-end de sensor, fase 2: montagem e validação",
+				"en": "Sensor front-end, phase 2: build and validation"
+			},
+			"summary": "Montar o front-end, calibrar, medir ruído, linearidade e exatidão da cadeia completa e estimar a incerteza do resultado.",
+			"scope": "Dentro: montagem, calibração, medição de ruído, linearidade e exatidão, incerteza da cadeia. Fora: firmware de aquisição.",
+			"objectives": [
+				"Calibrar a cadeia de medição contra uma referência",
+				"Validar a cadeia de medição com incerteza estimada"
+			],
+			"bloom": "create",
+			"assess": [
+				"design",
+				"lab",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.analog.design.sensor-frontend-design",
+					"ee.instruments.measurement.uncertainty"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project",
+				"lab"
+			]
+		},
+		{
+			"id": "ee.analog.design.analog-troubleshooting",
+			"kind": "topic",
+			"parentId": "ee.analog.design",
+			"order": 4,
+			"title": {
+				"pt": "Depuração de circuitos analógicos",
+				"en": "Analog troubleshooting"
+			},
+			"summary": "Estratégias de depuração: verificar alimentação, polarização, sinais estágio por estágio e oscilações parasitas.",
+			"scope": "Dentro: metodologia de depuração, oscilações parasitas, medições estágio por estágio. Fora: depuração de RF.",
+			"objectives": [
+				"Diagnosticar falhas comuns em circuitos analógicos",
+				"Localizar e eliminar uma oscilação parasita"
+			],
+			"bloom": "analyze",
+			"assess": [
+				"design",
+				"lab",
+				"simulate"
+			],
+			"level": {
+				"scheme": "ee",
+				"band": 2
+			},
+			"clauses": [
+				[
+					"ee.instruments.bench.probes",
+					"ee.analog.opamp.opamp-nonidealities",
+					"ee.analog.small-signal.coupling-bypass"
+				]
+			],
+			"hours": {
+				"lo": 3,
+				"hi": 4
+			},
+			"anchors": [
+				{
+					"source": "mit-ocw-6.101",
+					"ref": "syllabus",
+					"embeddable": false
+				},
+				{
+					"source": "horowitz-hill-aoe3",
+					"ref": "toc",
+					"embeddable": false
+				},
+				{
+					"source": "model-kuphaldt",
+					"ref": "Amplification",
+					"embeddable": true
+				}
+			],
+			"status": "stub",
+			"tags": [
+				"core",
+				"design-project",
+				"lab"
+			]
+		}
+	],
+	"edges": [
+		{
+			"from": "ee.analog.small-signal.bjt-small-signal",
+			"to": "ee.analog.small-signal.mos-small-signal",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "ee.analog.oscillators.barkhausen",
+			"to": "ee.analog.feedback.stability-margins",
+			"kind": "related"
+		},
+		{
+			"from": "ee.analog.feedback.stability-margins",
+			"to": "ee.control.freq-design",
+			"kind": "also_in"
+		},
+		{
+			"from": "ee.analog.opamp.comparators",
+			"to": "ee.analog.opamp.ideal-opamp",
+			"kind": "confusable_with"
+		},
+		{
+			"from": "ee.analog.converters.adc-architectures",
+			"to": "ee.ic.data-converters.sar-adc",
+			"kind": "related"
+		},
+		{
+			"from": "ee.analog.oscillators.pll-basics",
+			"to": "ee.rf.rfic.pll-synth",
+			"kind": "related"
+		}
+	],
+	"sources": [
+		{
+			"id": "gray-hurst-lewis-meyer",
+			"title": "Gray, Hurst, Lewis, Meyer — Analysis and Design of Analog Integrated Circuits",
+			"license": "Copyright; só referência",
+			"usage": "reference"
+		},
+		{
+			"id": "horowitz-hill-aoe3",
+			"title": "Horowitz & Hill — The Art of Electronics, 3ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.002-s07",
+			"title": "MIT OCW 6.002 — Circuits and Electronics (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.012-f09",
+			"title": "MIT OCW 6.012 — Microelectronic Devices and Circuits (F2009)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.101",
+			"title": "MIT OCW 6.101 — Introductory Analog Electronics Laboratory",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.301-f10",
+			"title": "MIT OCW 6.301 — Solid-State Circuits (F2010)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "mit-ocw-6.302-s07",
+			"title": "MIT OCW 6.302 — Feedback Systems (S2007)",
+			"url": "https://ocw.mit.edu/",
+			"license": "CC BY-NC-SA 4.0 (só referência a títulos e estrutura)",
+			"usage": "reference"
+		},
+		{
+			"id": "model-kuphaldt",
+			"title": "Tony R. Kuphaldt — Modular Electronics Learning (ModEL)",
+			"url": "https://www.ibiblio.org/kuphaldt/socratic/model/",
+			"license": "CC BY 4.0",
+			"usage": "reference"
+		},
+		{
+			"id": "ncees-fe-ec",
+			"title": "NCEES FE Electrical and Computer — CBT exam specifications (jul./2020)",
+			"url": "https://ncees.org/wp-content/uploads/2022/09/FE-Electrical-and-Computer-CBT-specs.pdf",
+			"license": "© NCEES; especificação pública. Só referência a números/títulos de seção.",
+			"usage": "reference"
+		},
+		{
+			"id": "neets",
+			"title": "U.S. Navy — Navy Electricity and Electronics Training Series (NEETS)",
+			"license": "Domínio público (obra do governo dos EUA)",
+			"usage": "reference"
+		},
+		{
+			"id": "razavi-analog-cmos-2e",
+			"title": "B. Razavi — Design of Analog CMOS Integrated Circuits, 2ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		},
+		{
+			"id": "sedra-smith-8e",
+			"title": "Sedra, Smith, Carusone, Gaudet — Microelectronic Circuits, 8ª ed.",
+			"license": "Copyright; só sumário como âncora de região",
+			"usage": "reference"
+		}
+	]
+}
