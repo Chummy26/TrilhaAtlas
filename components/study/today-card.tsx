@@ -16,6 +16,7 @@ import type { StudyNodeBrief, StudyToday } from "@/src/core";
 
 export interface LessonStart {
 	domainId: string;
+	exploratory?: boolean;
 	minutes: number;
 	title: string;
 	/** Rides the chat creation as graphContext (the curriculum node as session context). */

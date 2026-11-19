@@ -31,7 +31,7 @@ const videos: StudyMaterial[] = [
 	{ kind: "video", title: "Let’s Learn English · VOA", part: "Lesson 1 · Welcome!", url: "https://www.youtube.com/watch?v=WR9_nsLyaEY", lang: "en", nodes: ["en.speaking.a1.greetings"] },
 ];
 
-function current(domain: string, id: string) {
+function current(domain: string, id: string, overview = false) {
 	if (!domain || domain !== activeDomainId()) throw new StudyError(409, "O domínio ativo mudou.");
 	const manifest = studyDomains().readManifest(domain);
 	const cur = manifest && loadCurriculum(domain, manifest);
@@ -39,7 +39,7 @@ function current(domain: string, id: string) {
 	if (!item || !cur || !manifest) throw new StudyError(404, "Nó desconhecido neste domínio.");
 	let region = item;
 	while (region.kind !== "unit" && region.parentId) region = cur.snapshot.items[region.parentId]!;
-	if (region.kind !== "unit") throw new StudyError(400, "Selecione uma região ou um de seus nós.");
+	if (!overview && region.kind !== "unit") throw new StudyError(400, "Selecione uma região ou um de seus nós.");
 	return { ...cur, manifest, item, region };
 }
 
@@ -278,19 +278,21 @@ async function excerptFor(domain: string, material: StudyMaterial): Promise<stri
 }
 
 export async function studyMapLesson(domain: string, id: string, withReading = false) {
-	const { item, snapshot, view } = current(domain, id);
+	const { item, region, snapshot, view } = current(domain, id, true);
 	const node = view.nodes.get(item.id)!;
 	const brief = nodeBrief(snapshot, id)!;
 	const { minNewMinutes, maxNewMinutes } = LEARNER_CONSTANTS.planner;
 	const minutes = Math.round(Math.min(maxNewMinutes, Math.max(minNewMinutes, node.hoursMid * 60)));
 	const events = readStudyEvents(domain);
-	const previous = events.slice().reverse().find(e => e.kind === "exposure" && e.source === "ai_lesson" && e.nodeId === id && e.sessionId && getChat(e.sessionId));
-	const regionMaterials = await readRegionMaterials(domain, id);
+	const previous = (exploratory: boolean) => events.findLast(e => e.kind === "exposure" && !!e.exploratory === exploratory && e.source === "ai_lesson" && e.nodeId === id && e.sessionId && getChat(e.sessionId));
+	const main = previous(false);
+	const side = previous(true);
+	const regionMaterials: RegionMaterials = region.kind === "unit" ? await readRegionMaterials(domain, id) : { region: id, materials: [], references: [], videoSearch: false };
 	const materials = regionMaterials.materials.filter(m => m.nodes.includes(id)).sort((a,b) => Number(!!a.suggested)-Number(!!b.suggested));
 	let excerpt = "";
 	const book = materials.find(m => m.kind === "book");
 	if (withReading && book) excerpt = await excerptFor(domain, book).catch(() => "");
 	if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
-	const route = withReading ? lessonRoute(domain,view,events,id) : [];
-	return { brief, minutes, sessionId: previous?.kind === "exposure" ? previous.sessionId : undefined, regionMaterials, materials, excerpt, route };
+	const { route, missing } = node.isLeaf ? lessonRoute(domain,view,events,id) : { route: [], missing: [] };
+	return { brief, minutes, sessionId: main?.kind === "exposure" ? main.sessionId : undefined, explorationId: side?.kind === "exposure" ? side.sessionId : undefined, regionMaterials, materials, excerpt, route, missing };
 }

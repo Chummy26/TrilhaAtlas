@@ -16,7 +16,8 @@ const { runningTurn } = await import("../src/server/turn-runs.ts");
 const { createTeacherAgent } = await import("../src/agent/teacher-agent.ts");
 const { handleChatRequest } = await import("../src/server/chat-handler.ts");
 const { chatStore } = await import("../src/store/chats.ts");
-const { switchStudyDomain, studyToday, studyProfile, recordStudyEvent } = await import("../src/server/study.ts");
+const { switchStudyDomain, studyToday, studyProfile, studyMap, recordStudyEvent } = await import("../src/server/study.ts");
+const { studyMapLesson } = await import("../src/server/study-materials.ts");
 const { createMemoryService, HashEmbedder } = await import("../src/server/memory/index.ts");
 const memory = createMemoryService({ dataRoot: root, embedder: new HashEmbedder() });
 after(async () => {
@@ -29,9 +30,9 @@ function log(domain: string): LearnerEvent[] {
 	return fs.existsSync(file) ? fs.readFileSync(file, "utf8").trim().split("\n").map(line => JSON.parse(line)) : [];
 }
 
-async function lesson(domainId: string, nodeId: string, minutes: number) {
+async function lesson(domainId: string, nodeId: string, minutes: number, exploratory = false) {
 	return create(new Request("http://local/api/chats", { method: "POST", body: JSON.stringify({
-		title: "Aula", studyLesson: { domainId, minutes },
+		title: "Aula", studyLesson: { domainId, minutes, exploratory },
 		graphContext: { propositions: [{ id: nodeId, name: "Tema", statement: "Aula" }] },
 	}) }));
 }
@@ -116,4 +117,42 @@ it("binds checks to their own lesson, recovers an interrupted append and credits
 	switchStudyDomain(null);
 	assert.equal((await lesson("electronics", nodeId, 20)).ok, false);
 	assert.equal(fs.existsSync(path.join(root, "learner")), false);
+});
+
+it("keeps exploratory chats separate and accepts evidence only from an answered skill quiz", async () => {
+	switchStudyDomain("electronics");
+	const before = studyToday();
+	const position = studyMap().position;
+	const node = "ee.digital.boolean.boolean-algebra";
+	const region = "ee.digital.boolean";
+	const domain = "electronics";
+	const side = await (await lesson(domain,node,15,true)).json();
+	const tour = await (await lesson(domain,region,15,true)).json();
+	assert.ok(side.id && tour.id);
+	assert.equal((await studyMapLesson(domain,node)).explorationId,side.id);
+	assert.equal((await studyMapLesson(domain,region)).explorationId,tour.id);
+	assert.ok((await studyMapLesson(domain,node)).missing.some(m => m.id.endsWith("number-systems")));
+	assert.equal(studyMap().position,position);
+	assert.deepEqual(studyToday().next,before.next);
+	assert.deepEqual(studyToday().pendingCheck,before.pendingCheck);
+	assert.deepEqual(studyToday().progress,before.progress);
+	const evidenceCount = () => log(domain).filter(e => e.kind === "evidence").length;
+	const initial = evidenceCount();
+	for (const [id,expected] of [[tour.id,initial],[side.id,initial+1]] as const) {
+		chatStore.saveSettings(id, {model:{provider:"openrouter",id:"z-ai/glm-5.3-flash"}});
+		const chat = chatStore.getChat(id)!;
+		const input = { type: "check", nodeId: "local", question: "Q?", options: [{ label: "A" }, { label: "B" }], correctAnswer: "B", explanation: "B." };
+		const call = fauxAssistantMessage([fauxToolCall("quiz",input,{id:"q-side"})], {stopReason:"toolUse"});
+		chatStore.saveMessages(id,[...chat.messages,{...call,id:"test-side"}]);
+		const faux = createFauxCore({});
+		faux.setResponses([fauxAssistantMessage("Feedback.")]);
+		const result = await handleChatRequest(new Request("http://local/api/chat", {method:"POST",body:JSON.stringify({
+			chatId:id,input:{type:"answer",toolCallId:"q-side",answer:{kind:"quiz",dontKnow:true,answers:[]}},
+		})}), opts => createTeacherAgent(undefined, {messages:opts.messages,engine:{model:faux.getModel(),streamFn:faux.streamSimple}}),
+		undefined, async domainId => { await memory.open(domainId); return memory.get(domainId)!; });
+		assert.equal(result.status,200);
+		const turn = runningTurn(id);
+		if (turn) await new Response(turn.subscribe()).text();
+		assert.equal(evidenceCount(),expected);
+	}
 });

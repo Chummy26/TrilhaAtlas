@@ -44,6 +44,10 @@ The region groups materials by title and links to precise chapters or published 
 
 The regional bibliography reuses the curriculum's textbook, course and learner-reference anchors. It displays the cited scope and publisher link when available. Only materials linked to the selected node are included in its lesson. Other sections stay accessible under “Outros trechos da região”.
 
+Opening an exploration saves a separate conversation and time spent. It preserves the main lesson position, exposure-driven learning estimates and the pending check on Hoje. An explicitly answered graded leaf quiz can provide evidence in the same domain. Panoramic sessions on regions do not grade the whole region. The map's position button centers the last main lesson, or the recommended starting point for a new learner.
+
+Hoje uses the saved goal to choose a route. If an overdue prerequisite on that route also shows repeated errors, its existing review slot becomes a reinforcement before the next new skill.
+
 ## Next steps (not connected yet)
 - **End-of-session flashcards.** `plugins/flashcards` already has `export-service` (AnkiConnect, Obsidian, `.apkg`). It still needs the end-of-session trigger with the domain id.
 - **Model registry.** `src/core/models` (RoleSpec, resolve) is not used by the existing engines yet. Today the strong/cheap/vision slots still decide.

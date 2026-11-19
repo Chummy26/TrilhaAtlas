@@ -13,7 +13,7 @@ const SIDE_GUTTER = 16;
 type Pixel = { x: number; y: number };
 type Viewport = { width: number; height: number; ratio: number };
 type Camera = Pixel & { zoom: number };
-type MapControls = { scale: (factor: number) => void; reset: () => void; reveal: (id: string) => void };
+type MapControls = { scale: (factor: number) => void; reset: () => void; reveal: (id: string, focus?: boolean) => void };
 
 function tint(color: number) {
 	return PALETTE[color % PALETTE.length]!;
@@ -229,12 +229,13 @@ function drawAtlas(
 	return visibleCount;
 }
 
-export function SkillCanvas({ map, selected, onPick }: { map: SkillMap; selected: string; onPick: (id: string) => void }) {
+export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; selected: string; locate: number; onPick: (id: string) => void }) {
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const controls = useRef<MapControls>(null);
 	const camera = useRef<Camera | undefined>(undefined);
 	const atOverview = useRef(true);
 	const previousDomain = useRef("");
+	const lastLocate = useRef(locate);
 	const active = useRef(selected);
 	const pick = useRef(onPick);
 	const hintId = useId();
@@ -319,10 +320,14 @@ export function SkillCanvas({ map, selected, onPick }: { map: SkillMap; selected
 		controls.current = {
 			reset: overview,
 			scale,
-			reveal(id) {
+			reveal(id, focus) {
 				const point = layout.points.get(id);
 				const current = camera.current;
-				if (point && current && !atOverview.current) {
+				if (point && current && focus) {
+					const zoom = Math.max(current.zoom, fitZoom(layout, view) * 4);
+					camera.current = { x: view.width / 2 - point.x * zoom, y: view.height / 2 - point.y * zoom, zoom };
+					atOverview.current = false;
+				} else if (point && current && !atOverview.current) {
 					const x = current.x + point.x * current.zoom;
 					const y = current.y + point.y * current.zoom;
 					if (x < 12 || x > view.width - 12 || y < 12 || y > view.height - 12) {
@@ -449,8 +454,9 @@ export function SkillCanvas({ map, selected, onPick }: { map: SkillMap; selected
 
 	useEffect(() => {
 		active.current = selected;
-		controls.current?.reveal(selected);
-	}, [selected]);
+		controls.current?.reveal(selected, locate !== lastLocate.current);
+		lastLocate.current = locate;
+	}, [selected, locate]);
 
 	return (
 		<div className="relative overflow-hidden rounded-2xl border-2 border-[#29243c] bg-[#f8f2df] shadow-[3px_4px_0_#282433]"

@@ -432,7 +432,7 @@ function projectAround(work: Work, graph: LearnerGraphView, params: LearnerParam
 }
 
 function applyExposure(work: Work, ev: Extract<LearnerEvent, { kind: "exposure" }>, graph: LearnerGraphView, params: LearnerParams): void {
-	if (!graph.nodes.has(ev.nodeId)) return;
+	if (ev.exploratory || !graph.nodes.has(ev.nodeId)) return;
 	const s = stateOf(work, graph, params, ev.nodeId);
 	const lastExposureAt = s.lastExposureAt && toMs(s.lastExposureAt) > toMs(ev.at) ? s.lastExposureAt : ev.at;
 	put(work, { ...s, pL: learningTransition(s.pL, lessonTransition(params, work.speed)), lastExposureAt });

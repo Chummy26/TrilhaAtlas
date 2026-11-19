@@ -231,23 +231,24 @@ export function curriculumSources(id: DomainId) {
 // ─── learner log ─────────────────────────────────────────────────────────────
 
 type Exposure = Extract<LearnerEvent, { kind: "exposure" }>;
-type StudyLesson = { domainId: string; nodeId: string; minutes: number };
+type StudyLesson = { domainId: string; nodeId: string; minutes: number; exploratory?: boolean };
 
 export function validateStudyLesson(raw: unknown, nodeId: string | undefined): StudyLesson {
 	const { id, manifest } = requireActive();
-	const lesson = raw as { domainId?: unknown; minutes?: unknown } | null;
+	const lesson = raw as { domainId?: unknown; minutes?: unknown; exploratory?: unknown } | null;
 	if (lesson?.domainId !== id) throw new StudyError(409, "O domínio da aula mudou.");
-	if (!nodeId || !loadCurriculum(id, manifest)?.view.nodes.get(nodeId)?.isLeaf) throw new StudyError(400, "Nó de aula inválido.");
+	const node = nodeId && loadCurriculum(id, manifest)?.view.nodes.get(nodeId);
+	if (!nodeId || !node || (!node.isLeaf && lesson.exploratory !== true)) throw new StudyError(400, "Nó de aula inválido.");
 	const minutes = lesson.minutes;
 	if (typeof minutes !== "number" || !Number.isInteger(minutes) || minutes < 1) throw new StudyError(400, "Duração da aula inválida.");
-	return { domainId: id, nodeId, minutes: Math.min(240, minutes) };
+	return { domainId: id, nodeId, minutes: Math.min(240, minutes), ...(lesson.exploratory === true && { exploratory: true }) };
 }
 
 export function saveStudyLesson(lesson: StudyLesson, chatId: string, marker: LhMessage, save: () => void) {
 	const { domainId, nodeId, minutes } = lesson;
 	const seq = nextStudySeq(readStudyEvents(domainId));
 	const event: Exposure = { kind: "exposure", id: "lesson-" + chatId, seq, at: new Date(marker.timestamp).toISOString(),
-		domainId, sessionId: chatId, nodeId, source: "ai_lesson", minutes };
+		domainId, sessionId: chatId, nodeId, source: "ai_lesson", minutes, ...(lesson.exploratory && { exploratory: true }) };
 	persistChatEvent(domainId, { chatId, messageId: marker.id, event }, save);
 }
 
@@ -272,6 +273,10 @@ export function saveStudyAnswer(chatId: string, previous: LhMessage[], result: L
 	const exposure = bound ?? exposures.findLast(e => e.sessionId === "hoje" && Date.parse(e.at) <= marker.timestamp &&
 		picks?.[0]?.statement?.endsWith(`Aula de ~${e.minutes} min do curr\u00edculo do dom\u00ednio; ensine em pt-BR.`));
 	if (!exposure) return save();
+	if (exposure.exploratory) {
+		const manifest = studyDomains().readManifest(domainId);
+		if (!manifest || !loadCurriculum(domainId, manifest)?.view.nodes.get(nodeId)?.isLeaf) return save();
+	}
 	const itemId = JSON.stringify([chatId, call.messageId, call.contentIndex]);
 	const id = "quiz-" + itemId;
 	if (events.some(e => e.kind === "evidence" && e.evidence.id === id)) return save();
@@ -330,14 +335,16 @@ function learnerSnapshotOf(id: DomainId, view: LearnerGraphView, events: readonl
 }
 
 /** Find a prerequisite route the student can actually take, including inherited alternatives. */
-export function lessonRoute(id: DomainId, view: LearnerGraphView, events: LearnerEvent[], nodeId: string): string[] {
+export function lessonRoute(id: DomainId, view: LearnerGraphView, events: LearnerEvent[], nodeId: string) {
 	const clauses = view.nodes.get(nodeId)?.clauses ?? [];
-	if (!clauses.length) return [];
+	if (!clauses.length) return { route: [], missing: [] };
 	const learner = learnerSnapshotOf(id, view, events, new Date().toISOString());
 	const { known } = structuralState(learner, view);
-	const accessible = clauses.filter(clause => clause.every(key => known.has(key)));
-	const route = accessible.sort((a,b) => a.length-b.length)[0] ?? [];
-	return route.map(key => view.nodes.get(key)!.title);
+	const alternatives = clauses.map(clause => ({
+		route: clause.filter(key => known.has(key)).map(key => view.nodes.get(key)!.title),
+		missing: clause.filter(key => !known.has(key)).map(key => ({ id: key, title: view.nodes.get(key)!.title })),
+	}));
+	return alternatives.sort((a,b) => a.missing.length-b.missing.length || a.route.length-b.route.length)[0]!;
 }
 
 export function studyLearnerPrompt(domainId: string) {
@@ -392,7 +399,7 @@ export function recordStudyEvent(input: NewEvent): StudyToday {
 	} else {
 		const lastExposure = [...events]
 			.reverse()
-			.find((ev): ev is Extract<LearnerEvent, { kind: "exposure" }> => ev.kind === "exposure" && ev.nodeId === input.nodeId && (!input.exposureId || ev.id === input.exposureId) && (!input.sessionId || ev.sessionId === input.sessionId));
+			.find((ev): ev is Extract<LearnerEvent, { kind: "exposure" }> => ev.kind === "exposure" && !ev.exploratory && ev.nodeId === input.nodeId && (!input.exposureId || ev.id === input.exposureId) && (!input.sessionId || ev.sessionId === input.sessionId));
 		if ((input.exposureId || input.sessionId) && !lastExposure) throw new StudyError(409, "Esta aula não está pendente.");
 		if (lastExposure && ratedLessons(events).get(lastExposure.id)?.rating) return studyToday();
 		const minutesSinceExposure = lastExposure ? Math.max(0, (Date.parse(at) - Date.parse(lastExposure.at)) / 60_000) : 100_000;
@@ -426,9 +433,14 @@ export function studyMap() {
 	const { id, manifest } = requireActive();
 	const cur = loadCurriculum(id, manifest);
 	if (!cur) throw new StudyError(404, "Currículo indisponível.");
-	const learner = learnerSnapshotOf(id, cur.view, readStudyEvents(id), new Date().toISOString());
+	const events = readStudyEvents(id);
+	const learner = learnerSnapshotOf(id, cur.view, events, new Date().toISOString());
 	const map = skillMap(cur.snapshot, cur.view, learner, manifest.title.pt);
-	map.next = studyToday().next?.nodeId;
+	const next = studyToday().next;
+	map.next = next?.nodeId;
+	if (next?.kind === "remediate") map.reinforcement = next.reason;
+	const latest = events.findLast((e): e is Exposure => e.kind === "exposure" && !e.exploratory && e.source === "ai_lesson" && cur.view.nodes.has(e.nodeId));
+	map.position = latest?.nodeId;
 	return map;
 }
 
@@ -436,7 +448,7 @@ export function studyToday(): StudyToday {
 	const { id, manifest, profile } = requireActive();
 	const domain = { id, title: manifest.title.pt, accent: manifest.accent, icon: manifest.icon };
 	const budgetMin = profile?.dailyBudgetMin ?? 180;
-	const cur = loadCurriculum(id, manifest);
+	const cur = loadCurriculum(id, manifest, profile?.goal.targetNodeIds);
 	if (!cur) {
 		return {
 			domain,
@@ -455,13 +467,13 @@ export function studyToday(): StudyToday {
 	// its consolidation comes from tomorrow's delayed check (an immediate
 	// self-check is weak evidence by design), so "Hoje" moves on.
 	const recent = new Set<string>();
-	for (const ev of events) if (ev.kind === "exposure" && Date.parse(at) - Date.parse(ev.at) < 20 * 3_600_000) recent.add(ev.nodeId);
+	for (const ev of events) if (ev.kind === "exposure" && !ev.exploratory && Date.parse(at) - Date.parse(ev.at) < 20 * 3_600_000) recent.add(ev.nodeId);
 	const pick = [plan.next, ...plan.items].find((it): it is PlanItem => !!it && !(it.kind === "new" && recent.has(it.nodeId))) ?? null;
 	const next = pick ? { ...pick, brief: nodeBrief(cur.snapshot, pick.nodeId) as StudyNodeBrief } : null;
 
 	let pendingCheck: StudyToday["pendingCheck"] = null;
 	const lessons = [...ratedLessons(events).values()];
-	const pending = lessons.reverse().find(({ exposure, rating }) => !rating &&
+	const pending = lessons.reverse().find(({ exposure, rating }) => !exposure.exploratory && !rating &&
 		Date.parse(at) - Date.parse(exposure.at) <= 3 * 86_400_000 && cur.view.nodes.has(exposure.nodeId));
 	if (pending) {
 		const { id: exposureId, nodeId, sessionId, at } = pending.exposure;

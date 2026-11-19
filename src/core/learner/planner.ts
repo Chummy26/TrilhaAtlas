@@ -426,9 +426,20 @@ export function planDay(snapshot: LearnerSnapshot, graph: LearnerGraphView, para
 		}
 	}
 
+	// A due review already occupies budget. If the next lesson depends on that
+	// weak skill, bring its existing slot forward just as for a fresh warm-up.
+	const firstLesson = freshItems[0];
+	const prerequisites = firstLesson ? routeTo(firstLesson.nodeId, graph, sig) : [];
+	const duePrerequisite = mandatory.find(item => item.kind === "review" && prerequisites.includes(item.nodeId)
+		&& isWeak(snapshot.nodes[item.nodeId], get(item.nodeId)));
+	if (duePrerequisite && firstLesson) {
+		duePrerequisite.kind = "remediate";
+		duePrerequisite.reason = weakReason(get(duePrerequisite.nodeId)) + ` (pré-requisito de "${titleOf(graph, firstLesson.nodeId)}")`;
+	}
 	const items = [...mandatory, ...warmups, ...freshItems, ...compression, ...tail];
 	const next =
 		warmups.find((i) => i.kind === "remediate") ??
+		duePrerequisite ??
 		freshItems[0] ??
 		tail.find((i) => i.kind === "remediate") ??
 		mandatory[0] ??

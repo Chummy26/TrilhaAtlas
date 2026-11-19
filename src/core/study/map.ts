@@ -24,6 +24,8 @@ export interface SkillMap {
 	title: string;
 	nodes: SkillNode[];
 	next?: string;
+	position?: string;
+	reinforcement?: string;
 }
 
 export interface StudyMaterial {

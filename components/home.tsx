@@ -172,7 +172,7 @@ export function Home({
 				title: t,
 				...(mode === "practice" && !lesson ? { kind: "practice" } : {}),
 				...(lesson
-					? { graphContext: { propositions: [lesson.context] }, studyLesson: { domainId: lesson.domainId, minutes: lesson.minutes } }
+					? { graphContext: { propositions: [lesson.context] }, studyLesson: { domainId: lesson.domainId, minutes: lesson.minutes, exploratory: lesson.exploratory } }
 					: practiceProps.length > 0
 						? { graphContext: { propositions: practiceProps } }
 						: {}),

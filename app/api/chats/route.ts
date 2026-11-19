@@ -50,6 +50,8 @@ export async function POST(req: Request) {
 			lesson = validateStudyLesson(body.studyLesson, !kind && picks.length === 1 ? picks[0]?.id : undefined);
 			const reading = await studyMapLesson(lesson.domainId, lesson.nodeId, true);
 			if (reading.brief.scope && reading.brief.scope !== reading.brief.summary) picks[0]!.statement += "\nEscopo da aula: " + reading.brief.scope;
+			if (lesson.exploratory) picks[0]!.statement += "\nExploração avulsa. Comece com um exemplo acessível, introduza a base que faltar e mantenha a meta principal do aluno. Em uma região, dê uma visão de conjunto e proponha uma habilidade específica para praticar.";
+			if (lesson.exploratory && reading.missing.length) picks[0]!.statement += "\nBase a introduzir ou sondar: " + reading.missing.map(m => m.title).join(", ") + ".";
 			if (reading.route.length) picks[0]!.statement += "\nParta deste caminho de pré-requisitos disponível para o aluno: " + reading.route.join(" + ") + ".";
 			const sources = reading.materials.slice(0, 6).map(m => `${m.suggested ? "Sugestão" : "Referência"} · ${m.title} · ${m.part} (${m.url})`);
 			if (sources.length) picks[0]!.statement += "\nMateriais deste nó:\n" + sources.join("\n");
