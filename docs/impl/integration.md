@@ -4,13 +4,18 @@ This document records how the pure modules (curriculum, learner, lesson, progres
 
 ## What is live
 
+Every installed curriculum has a guided campaign on the home screen. Generated and imported trees use their levels, units and effective prerequisites. A single-level tree uses its units as chapters. Each chapter links to real skills on the map and ends with an observable task. Explicit personal targets can redirect the daily plan. Completing a chapter preserves the learner’s review history. The English domain retains its six authored CEFR chapters. The map supports independent exploration, and lessons expose optional reading and video alongside the tutor. [Campanha de inglês e percurso de teste](campanha-ingles.md)
+
+Campaign authoring now validates stage continuity, budgets distributed practice and reserves delayed application checks. The teacher can prepare reviews for existing curriculum lessons and open editable circuit laboratories. [Campanhas, evidência e benchmarks](campanhas-e-retencao.md)
+
 The home domain menu opens `/dominios/novo`. Its creation request runs against the selected foreground model and reports progress while the learner can keep studying. The installer validates the complete curriculum, writes its sources and ledger together, and leaves the active domain selected until the learner opens the new map. [Domain authoring](../authoring-domains.md)
 
 The teacher receives domain history, recent graded mistakes when relevant, and passages retrieved from books linked to the current region. [Tutor behavior and research](memoria-pedagogia.md) · [Public retrieval evaluation](memory.md#retrieval-check-on-public-conversation-histories)
 
 | Piece | Where | Behavior |
 |---|---|---|
-| Cel theme | `app/layout.tsx`, `components/settings/appearance.tsx`, `electron/appearance-chrome.cjs` | `data-theme-family` is set on `<html>` in SSR and on live theme changes. The factory default theme is `cel-papel`; `cel-noite` is in the picker. |
+| Cel theme | `app/layout.tsx`, `components/settings/appearance.tsx`, `electron/appearance-chrome.cjs` | The graphite `cel-noite` palette is the factory setting on first paint and in the picker. Saved theme IDs and overrides take precedence. |
+| Interactive lessons | [Activities, authoring and sources](aulas-interativas.md) | Selected skills open a native activity in the lesson. The teacher can also choose a circuit, timeline, comparison, sequence or diagram in a free conversation. |
 | Domain accent | `app/layout.tsx` | `data-domain=<active>` is set on `<html>`, so `--cel-accent` follows the active world (volt for Electronics, coral for English). |
 | Study worlds | `config.ts`, `src/server/study.ts`, `app/api/domains` | `PATHS.chats`, `PATHS.graph`, `PATHS.jobs`, `LEDGER_FILES` and `GRAPH_FILES` are getters that resolve the active domain on every call (`<data>/domains/<id>/…`). The choice is cached on `globalThis` and persisted in `profile/active-domain.json`. |
 | "Geral" | (no active domain) | The original learnharness world, byte-for-byte the old paths. Nothing is migrated or moved. The tests run in this world. |
@@ -29,7 +34,9 @@ The teacher receives domain history, recent graded mistakes when relevant, and p
 
 ## Integration decisions (all can be revisited)
 
-1. **Self-check is weak evidence.** It is recorded with `format: "explain"`, `graderConfidence: 0.5`, `weight: 0.5` and its own item family (`#self`). It can attain a node but never master it alone, because mastery needs at least 2 distinct families and a delayed success.
+The teacher now retrieves evidence within the session and selected curriculum branch. Its compact activities, source selection, scope checks and marathon results are documented in the [teaching evaluation](avaliacao-do-professor.md).
+
+1. **Self-check is weak evidence.** The `#self` event updates the proficiency estimate at weight 0.5. Only externally graded evidence can supply a correct family or delayed success toward mastery. Mastery also requires full independent production after a measured interval.
 2. **"Já domino" is a diagnostic placement with p = 0.9.** The node unlocks its dependents but stays `inferred`, and the planner probes it later.
 3. **Spacing.** A node taught in the last 20 h is not suggested again as "new". Its consolidation comes from the delayed check the next day.
 4. **XP** uses the first graded quiz check per lesson. An exact answer earns grade 3 and full lesson credit. A wrong answer or “não sei” earns grade 0 and effort credit. Later checks update the learner. A lesson without a graded check can earn credit through its self-check. XP uses the lesson's planned minutes.
@@ -38,13 +45,17 @@ The teacher receives domain history, recent graded mistakes when relevant, and p
 
 ## Skill tree and regional materials
 
-The Canvas shows the full active domain from the first frame. Node coordinates are independent of selection and progress. The overview summarizes prerequisite links between groups and the detailed view draws individual dependencies. Untouched skills are gray. A ring locates the current lesson, a dashed outline marks work in progress, and completed skills take their area color. Columns follow the authored curriculum, with neighboring areas and units grouped by prerequisite depth. Topic branches and their skills stay together within each unit. Diagnostic placement unlocks the route without awarding a completion marker. A region completes when every core leaf completes.
+The Canvas shows the full active domain from the first frame. Node coordinates are independent of selection and progress. The overview summarizes prerequisite links between groups and the detailed view draws individual dependencies. Untouched skills are gray. A teal double ring and the “Você está aqui” label locate the current lesson or the first recommended skill, a dashed outline marks work in progress, and completed skills take their area color. Columns follow the authored curriculum, with neighboring areas and units grouped by prerequisite depth. Topic branches and their skills stay together within each unit. Diagnostic placement unlocks the route without awarding a completion marker. A region completes when every core leaf completes.
 
 The electronics release updates existing seeded curricula through their ledger. It preserves node IDs, learner evidence and local field edits. See the [pedagogical review and migration limits](auditoria-eletronica/README.md).
 
 Hoje opens `/mapa`. Each curriculum unit owns a region. The view uses the learner's effective prerequisites and frontier, with clickable links to other regions. Starting a leaf uses the same model setup, lesson marker and evidence path as Hoje. “Continuar aula” reopens the most recent existing lesson for that leaf.
 
 The region groups materials by title and links to precise chapters or published video timestamps. Curated links live in `content/resources/sections.json` and the study material service. Catalog-title and search matches are provisional. A YouTube key enables additional video discovery. A Wikibooks lookup searches section titles. Both run on request. Matches with specific sections or timestamps can appear in other regions of that domain. Opening a lesson includes its sources and a short book excerpt when available. Saving an available publisher PDF imports it into the existing local library.
+
+Generated domains look up missing readings and video lessons when a region or one of its skills opens. Regional results are shared by its skills. The public YouTube results page provides a fallback when a Data API key is unavailable. Bibliographic queries retry with shorter subjects. Verified cartography chapters cover scale, contour lines, profiles and gradients. Catalog matches carry a suggestion label.
+
+Regional PDF retrieval indexes the text of each physical page. Existing linked PDFs rebuild their search passages from the original file on first use. The tutor can request a page image to examine figures. Clicking a PDF citation in a lesson opens that page in a side panel. The panel also provides selectable extracted text and closes with Escape.
 
 The regional bibliography reuses the curriculum's textbook, course and learner-reference anchors. It displays the cited scope and publisher link when available. Only materials linked to the selected node are included in its lesson. Other sections stay accessible under “Outros trechos da região”.
 
