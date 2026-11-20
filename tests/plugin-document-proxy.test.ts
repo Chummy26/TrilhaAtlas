@@ -46,7 +46,7 @@ it("Proxy retains API roots, siblings, endpoint lookalikes and all other API rou
 
 /** Use installed Next's real clone/finalize implementation, not a mock of its
  * truncation. Holding a cloneable-body wrapper alone must leave the stream intact. */
-async function uploadThroughNext(path: string, oversized: boolean, forceClone = proxyMatches(path), declaredLength?: string) {
+async function uploadThroughNext(path: string, oversized: boolean, declaredLength?: string) {
 	const form = new FormData();
 	form.append("file", new File([result.markdown], result.name));
 	const sample = new Request(new URL(path, origin), { method: "POST", body: form });
@@ -56,7 +56,8 @@ async function uploadThroughNext(path: string, oversized: boolean, forceClone = 
 	const actualBytes = chunks.reduce((sum, bytes) => sum + bytes.byteLength, 0);
 	const raw = Object.assign(Readable.from(chunks), { url: path }) as IncomingMessage;
 	const holder = getCloneableBody(raw, MAX_DOCUMENT_BODY_BYTES);
-	if (forceClone) {
+	const cloned = proxyMatches(path);
+	if (cloned) {
 		holder.cloneBodyStream().resume();
 		await holder.finalize();
 	}
@@ -64,21 +65,22 @@ async function uploadThroughNext(path: string, oversized: boolean, forceClone = 
 	const request = new Request(sample.url, {
 		method: "POST", headers: sample.headers, body: raw, duplex: "half",
 	} as unknown as RequestInit);
-	return { request, cloned: forceClone, actualBytes };
+	return { request, cloned, actualBytes };
 }
 
-it("installed Next forced-clone control demonstrates the previous oversized-epilogue acceptance", async t => {
-	const warning = t.mock.method(console, "warn", () => {});
-	const { request, actualBytes } = await uploadThroughNext(documentPath, true, true);
-	assert.ok(actualBytes > MAX_DOCUMENT_BODY_BYTES);
-	assert.equal(request.headers.has("content-length"), false);
-	assert.deepEqual(await createPluginDocumentConverter().convert(request, new AbortController().signal), result);
-	assert.equal(warning.mock.callCount(), 1, "Next warns and silently shortens rather than refusing the body");
+it("rejects an incomplete document on the streamed route", async () => {
+	const { request, cloned } = await uploadThroughNext(documentPath, false);
+	assert.equal(cloned, false);
+	const truncated = new Request(request.url, {
+		method: "POST", headers: request.headers, body: (await request.arrayBuffer()).slice(0, 12),
+	});
+	await assert.rejects(createPluginDocumentConverter().convert(truncated, new AbortController().signal),
+		(error: unknown) => (error as { status?: number }).status === 400);
 });
 
 for (const declaredLength of [undefined, "1"]) it(`current Proxy config preserves actual-byte rejection with ${declaredLength ? "lying" : "no"} Content-Length`, async t => {
 	t.mock.method(console, "warn", () => {});
-	const { request, actualBytes, cloned } = await uploadThroughNext(`${documentPath}/?request=1`, true, undefined, declaredLength);
+	const { request, actualBytes, cloned } = await uploadThroughNext(`${documentPath}/?request=1`, true, declaredLength);
 	assert.ok(actualBytes > MAX_DOCUMENT_BODY_BYTES);
 	assert.equal(request.headers.get("content-length"), declaredLength ?? null);
 	await assert.rejects(createPluginDocumentConverter().convert(request, new AbortController().signal), (error: unknown) => {

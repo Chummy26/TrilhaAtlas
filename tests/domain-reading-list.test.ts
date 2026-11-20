@@ -19,14 +19,14 @@ it("links catalog titles to their own region, keeps a region usable offline and 
 	seed.sources = [];
 	for (const item of seed.items) item.anchors = [];
 	const unit = seed.items.find(item => item.kind === "unit")!;
-	const region = { id: unit.id, title: "Curvas de nível", bookQuery: "topographic maps", videoQuery: "topographic maps", youtubeId: "abcdefghijk" };
+	const region = { id: unit.id, title: "Curvas de nível", bookQuery: "topographic maps", videoQuery: "topographic maps" };
 	const signal = new AbortController().signal;
 	await attachRegionalSources(seed, [region], signal, undefined, async () => { throw new Error("offline"); });
 	assert.equal(seed.sources.length, 0);
 	await attachRegionalSources(seed, [region], signal, undefined, async url => {
 		if (url.startsWith("https://openlibrary.org/search.json?")) return Response.json({ docs: [{ key: "/works/OL22W", title: "Topographic maps" }] });
 		if (url.startsWith("https://openlibrary.org/works/OL22W/editions.json")) return Response.json({ entries: [{ table_of_contents: [{ title: "Reading topographic maps", pagenum: "17" }] }] });
-		if (url.startsWith("https://www.youtube.com/oembed?")) return Response.json({ title: "Topographic maps for hikers" });
+		if (url.startsWith("https://www.youtube.com/results?")) return new Response('<script>var ytInitialData = {"contents":{"videoRenderer":{"videoId":"abcdefghijk","title":{"runs":[{"text":"Topographic maps for hikers"}]}}}};</script>');
 		throw new Error("Unexpected URL");
 	});
 	assert.deepEqual(seed.sources.map(s => s.kind), ["book", "video"]);
@@ -38,4 +38,24 @@ it("links catalog titles to their own region, keeps a region usable offline and 
 	const lesson = await studyMapLesson(seed.domainId, "mp.terrain.contours.height", true);
 	assert.equal(lesson.materials.length, 2);
 	assert.equal(lesson.excerpt, "");
+});
+
+it("distinguishes contour intervals, map scale and elevation profiles on a previously empty regional shelf", async () => {
+	const { findRegionalSource } = await import("../src/server/domain-reading-list.ts");
+	const signal = new AbortController().signal;
+	const offline = async () => { throw new Error("offline"); };
+	for (const [title, expected] of [
+		["Curvas de nível e equidistância", "Contour Lines"], ["Escala e distância", "Map Scale"],
+		["Perfis e pontos críticos do percurso", "Topographic Profiles"],
+	] as const) {
+		const region = { id: "region", title, bookQuery: title, videoQuery: title };
+		const book = await findRegionalSource("subject", region, "book", signal, offline, "Topographic maps");
+		const video = await findRegionalSource("subject", region, "video", signal, offline, "Topographic maps");
+		assert.equal(book?.ref, expected);
+		assert.match(video?.source.url ?? "", /^https:\/\/www\.youtube\.com\/watch\?v=/u);
+	}
+	const measurement = { id: "measurement", title: "Medição de trechos na carta", objective: "Usar a escala para medir trechos.",
+		bookQuery: "medição de trechos", videoQuery: "medição de trechos" };
+	const section = await findRegionalSource("subject", measurement, "book", signal, offline, "Topographic maps");
+	assert.equal(section?.ref, "Map Scale");
 });

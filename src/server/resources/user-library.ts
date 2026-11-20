@@ -53,6 +53,7 @@ import { guessLanguage, rankByMatch } from "../../core/resources/match.ts";
 import { buildToc, normalizeTocTitle, pageWindowToc, tocBreadcrumb, tocUnits, type RawTocNode } from "../../core/resources/toc.ts";
 import { ResourceError, type ContentChunk, type License, type ProviderStatus, type RateSpec, type Resource, type ResourceProvider, type ResourceQuery, type Span, type TocEntry, type TocSource } from "../../core/resources/types.ts";
 import { writeFileAtomicSync } from "../../store/atomic-write.ts";
+import { createBookPageCache } from "./book-page-cache.ts";
 import { firstByLocalName, elementsByLocalName, htmlToMarkdown, parseXml } from "./html.ts";
 import { normalizeIsbn } from "./openlibrary.ts";
 import { idFor } from "./provider-kit.ts";
@@ -222,6 +223,7 @@ function removeTreeSync(target: string): void {
 }
 
 interface Extracted {
+	physicalPages?: Map<number, string>;
 	title?: string;
 	creators: string[];
 	lang: string;
@@ -401,6 +403,7 @@ async function extractPdf(bytes: Uint8Array, signal?: AbortSignal): Promise<Extr
 			...(title ? { title } : {}),
 			creators: splitCreators(typeof info.Author === "string" ? info.Author : undefined),
 			lang: guessLanguage(allText),
+			physicalPages: textOf,
 			numPages,
 			...(isbn ? { isbn } : {}),
 			toc,
@@ -556,6 +559,68 @@ function extractEpub(bytes: Uint8Array): Extracted {
 	}
 }
 
+/** Older library items have the original but no page-level search text. */
+export async function physicalPdfPages(root: string, sha: string): Promise<[number, string][]> {
+	const dir = libraryItemDir(root, sha);
+	const file = path.join(dir, "physical-pages.json");
+	if (fs.existsSync(file)) return JSON.parse(await fs.promises.readFile(file, "utf8"));
+	const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+	const bytes = await fs.promises.readFile(path.join(dir, "original.pdf"));
+	const task = pdfjs.getDocument({ data: new Uint8Array(bytes), standardFontDataUrl: pdfStandardFontsDir(), verbosity: 0 });
+	try {
+		const pages = [...await pageTexts(await task.promise)];
+		writeFileAtomicSync(file, JSON.stringify(pages));
+		return pages;
+	} finally { await task.destroy(); }
+}
+
+/** Read from the original, since retrieval chunks can overlap and span pages. */
+export async function readBookUnit(root: string, sha: string, unit: number, withLayout = false) {
+	const item = readLibraryItem(root, sha);
+	if (!item || !Number.isSafeInteger(unit) || unit < 1) return;
+	const dir = libraryItemDir(root, sha);
+	const { meta, toc } = item;
+	if (meta.format === "epub") {
+		const book = extractEpub(await fs.promises.readFile(path.join(dir, "original.epub")));
+		const section = book.sections[unit - 1];
+		if (!section) return;
+		return { title: meta.title, format: meta.format, unit, total: book.sections.length,
+			heading: section.entry?.title ?? "Abertura", text: section.text };
+	}
+	if (unit > (meta.numPages ?? 0)) return;
+	const file = path.join(dir, "original.pdf");
+	const page = await cachedPdfText(file, unit, () => extractPdfPage(file, unit));
+	const section = toc.findLast(e => (e.pageFrom ?? Infinity) <= unit && (e.pageTo ?? Infinity) >= unit);
+	return { title: meta.title, format: meta.format, unit, total: page.total, heading: section?.title ?? "",
+		text: page.text, layout: withLayout ? structuredClone(page.layout) : undefined };
+}
+
+const cachedPdfText = createBookPageCache<Awaited<ReturnType<typeof extractPdfPage>>>(4 * 1024 * 1024, page =>
+	2 * page.text.length + page.layout.lines.reduce((bytes, line) => bytes + 96 + 2 * (line.text.length + line.transform.length), 0));
+
+async function extractPdfPage(file: string, unit: number) {
+	const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+	const bytes = await fs.promises.readFile(file);
+	const task = pdfjs.getDocument({ data: new Uint8Array(bytes), standardFontDataUrl: pdfStandardFontsDir(), verbosity: 0 });
+	try {
+		const doc = await task.promise;
+		const page = await doc.getPage(unit);
+		const content = await page.getTextContent();
+		const text = textFromItems(content.items as TextItemLike[]);
+		const viewport = page.getViewport({ scale: 1 });
+		const layout = { width: viewport.width, height: viewport.height,
+			lines: content.items.flatMap(item => {
+				if (!("str" in item) || !item.str.trim()) return [];
+				const [a, b, c, d, x, y] = pdfjs.Util.transform(viewport.transform, item.transform) as [number, number, number, number, number, number];
+				const advance = Math.hypot(a, b);
+				if (!advance) return [];
+				return [{ text: item.str, transform: `matrix(${a} ${b} ${-c} ${-d} ${x} ${y})`, width: item.width / advance }];
+			}),
+		};
+		return { text, total: doc.numPages, layout };
+	} finally { await task.destroy(); }
+}
+
 // ---------------------------------------------------------------- store
 
 function readJson<T>(file: string): T | undefined {
@@ -670,6 +735,7 @@ export async function importBookFile(input: ImportBookInput): Promise<ImportedBo
 
 	fs.mkdirSync(dir, { recursive: true });
 	writeBinaryAtomic(path.join(dir, file), bytes);
+	if (extracted.physicalPages) writeFileAtomicSync(path.join(dir, "physical-pages.json"), JSON.stringify([...extracted.physicalPages]));
 	writeFileAtomicSync(path.join(dir, "toc.json"), JSON.stringify({ source: extracted.tocSource, entries: extracted.toc }, null, "\t"));
 	writeFileAtomicSync(path.join(dir, "chunks.jsonl"), chunks.map((c) => JSON.stringify(c)).join("\n") + (chunks.length ? "\n" : ""));
 	writeFileAtomicSync(path.join(dir, "meta.json"), JSON.stringify(meta, null, "\t"));

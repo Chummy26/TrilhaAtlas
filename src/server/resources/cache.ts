@@ -112,7 +112,7 @@ export class FileTtlCache implements TtlCache {
 	}
 
 	/** Cached discoveries are shared by all matching nodes in a domain. */
-	async valuesWithPrefix<T>(prefix: string, maxAgeMs: number): Promise<T[]> {
+	async valuesWithPrefix<T>(prefix: string, maxAgeMs: number, accept?: (key: string) => boolean): Promise<T[]> {
 		let files: string[];
 		try { files = await fs.promises.readdir(this.dir); }
 		catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return []; throw error; }
@@ -121,7 +121,7 @@ export class FileTtlCache implements TtlCache {
 			let entry: { key: string; storedAt: number; value: T };
 			try { entry = JSON.parse(await fs.promises.readFile(path.join(this.dir,file), "utf8")); }
 			catch { continue; }
-			if (this.now() - entry.storedAt <= maxAgeMs && entry.key.startsWith(prefix)) result.push(entry.value);
+			if (this.now() - entry.storedAt <= maxAgeMs && entry.key.startsWith(prefix) && (!accept || accept(entry.key))) result.push(entry.value);
 		}
 		return result;
 	}

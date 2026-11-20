@@ -14,7 +14,7 @@ import { crc32, deflateRawSync } from "node:zlib";
 
 import { ResourceError } from "../src/core/resources/types.ts";
 import { createResourceFetch, type FetchLike } from "../src/server/resources/safe-fetch.ts";
-import { createUserLibraryProvider, detectFormat, extractIsbn, importBookFile, importFromUrl, listLibrary, readLibraryChunks, removeLibraryItem, sha256Hex, textFromItems, writeBinaryAtomic } from "../src/server/resources/user-library.ts";
+import { createUserLibraryProvider, detectFormat, extractIsbn, importBookFile, importFromUrl, listLibrary, readBookUnit, readLibraryChunks, removeLibraryItem, sha256Hex, textFromItems, writeBinaryAtomic } from "../src/server/resources/user-library.ts";
 import { ZipReader, resolveZipPath } from "../src/server/resources/zip.ts";
 import { tinyPdf } from "./helpers/tiny-pdf.ts";
 
@@ -149,6 +149,22 @@ function outlinedPdf(): Uint8Array {
 
 // ─── tests ───────────────────────────────────────────────────────────────────
 
+test("the reader isolates physical PDF pages and follows EPUB section boundaries", async () => {
+	const root = tempLibrary();
+	const pdf = await importBookFile({ bytes: outlinedPdf(), fileName: "livro.pdf", libraryRoot: root, now: NOW });
+	const physical = await readBookUnit(root, pdf.meta.sha256, 3, true);
+	assert.ok(physical?.layout?.width && physical.layout.lines.some(line => line.text.includes("lei de Ohm")));
+	assert.equal(physical?.total, 4);
+	assert.equal(physical.text, "Capitulo 2 texto sobre a lei de Ohm");
+	assert.equal(await readBookUnit(root, pdf.meta.sha256, 5), undefined);
+	const epub = await importBookFile({ bytes: sampleEpub(), fileName: "livro.epub", libraryRoot: root, now: NOW });
+	const section = await readBookUnit(root, epub.meta.sha256, 2);
+	assert.equal(section?.total, 2);
+	assert.match(section.text, /Continuação do capítulo 2/);
+	assert.doesNotMatch(section.text, /propriedade da matéria/);
+	assert.equal(await readBookUnit(root, epub.meta.sha256, 0), undefined);
+});
+
 test("PDF import with an outline: destinations → physical pages, mid-page start shared, page labels, front matter kept", async () => {
 	const root = tempLibrary();
 	const { meta, toc } = await importBookFile({ bytes: outlinedPdf(), fileName: "outlined.pdf", libraryRoot: root, now: NOW });
@@ -200,7 +216,7 @@ test("PDF import: <library>/<sha256>/ with original, meta.json, toc.json, chunks
 	assert.equal(imported.meta.sha256, sha);
 	assert.equal(imported.deduplicated, false);
 	const dir = path.join(root, sha);
-	assert.deepEqual(fs.readdirSync(dir).sort(), ["chunks.jsonl", "meta.json", "original.pdf", "toc.json"]);
+	assert.deepEqual(fs.readdirSync(dir).sort(), ["chunks.jsonl", "meta.json", "original.pdf", "physical-pages.json", "toc.json"]);
 	assert.deepEqual(new Uint8Array(fs.readFileSync(path.join(dir, "original.pdf"))), bytes, "the file is stored byte-for-byte");
 	const meta = JSON.parse(fs.readFileSync(path.join(dir, "meta.json"), "utf-8"));
 	assert.equal(meta.format, "pdf");

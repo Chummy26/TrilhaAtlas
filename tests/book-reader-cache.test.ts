@@ -1,0 +1,71 @@
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { it } from "node:test";
+import { fileURLToPath } from "node:url";
+import { tinyPdf } from "./helpers/tiny-pdf.ts";
+import { createBookPageCache } from "../src/server/resources/book-page-cache.ts";
+
+it("reuses original page work across reader and tutor, while checking the file and regional link on every read", async t => {
+	const root = await fs.mkdtemp(path.join(os.tmpdir(), "lh-book-page-cache-"));
+	process.env.LH_DATA_DIR = root;
+	process.env.LH_AUTH_FILE = path.join(root, "auth.json");
+	t.after(() => fs.rm(root, { recursive: true, force: true }));
+	const { setActiveDomainId } = await import("../config.ts");
+	const { libraryDir, resourcesDir } = await import("../src/core/domains/paths.ts");
+	const { headlessOverride, getHeadless } = await import("../src/agent/subagents/headless.ts");
+	const { regionalBookImage, regionalBookUnit } = await import("../src/server/book-reader.ts");
+	const { importBookFile, libraryItemDir } = await import("../src/server/resources/user-library.ts");
+	const { linkRegionalReading, unlinkRegionalReading } = await import("../src/server/resources/region-readings.ts");
+	const doc = (text: string) => tinyPdf([{ runs: [{ x: 72, y: 720, text }] }]);
+	const domain = "test-books", region = "region";
+	setActiveDomainId(domain);
+	t.after(() => { setActiveDomainId(null); headlessOverride.current = undefined; });
+	await fs.mkdir(resourcesDir(root, domain), { recursive: true });
+	const { meta } = await importBookFile({ libraryRoot: libraryDir(root), bytes: doc("Radar"), fileName: "figuras.pdf" });
+	const args = [domain, region, meta.sha256, 1] as const;
+	linkRegionalReading(domain, region, meta);
+	let renders = 0;
+	headlessOverride.current = { ...getHeadless(), renderPdfPages: async () => {
+		renders++;
+		return [{ page: 1, png: Buffer.from([renders, 2, 3]) }];
+	} };
+	const [reader, tutor] = await Promise.all([regionalBookImage(...args), regionalBookImage(...args)]);
+	assert.equal(renders, 1);
+	reader.fill(0);
+	assert.deepEqual(tutor, Buffer.from([1, 2, 3]));
+	assert.deepEqual(await regionalBookImage(...args), tutor);
+	const page = await regionalBookUnit(...args, true);
+	assert.ok(page.layout);
+	page.layout.lines.length = 0;
+	assert.equal((await regionalBookUnit(...args, true)).layout?.lines[0]?.text, "Radar");
+	assert.equal((await regionalBookUnit(...args)).layout, undefined);
+
+	await assert.rejects(regionalBookImage(domain, "another-region", meta.sha256, 1), /indisponível/);
+	unlinkRegionalReading(domain, region, meta.sha256);
+	await assert.rejects(regionalBookImage(...args), /indisponível/);
+	linkRegionalReading(domain, region, meta);
+	const file = path.join(libraryItemDir(libraryDir(root), meta.sha256), "original.pdf");
+	await fs.writeFile(file + ".replacement", doc("Radio"));
+	await fs.rename(file + ".replacement", file);
+	assert.equal((await regionalBookUnit(...args)).text, "Radio");
+	assert.deepEqual(await regionalBookImage(...args), Buffer.from([2, 2, 3]));
+	await fs.unlink(file);
+	await assert.rejects(regionalBookImage(...args), { code: "ENOENT" });
+	await assert.rejects(regionalBookUnit(...args), { code: "ENOENT" });
+});
+
+it("evicts least-recently-used pages by budget and retries failed page work", async () => {
+	const read = createBookPageCache<Buffer>(6, b => b.length);
+	const file = fileURLToPath(import.meta.url);
+	let loads = 0;
+	const get = (page: number, size = 3) => read(file, page, async () => Buffer.alloc(size, ++loads));
+	await get(1); await get(2); await get(1); await get(3);
+	assert.equal((await get(1))[0], 1);
+	assert.equal((await get(2))[0], 4);
+	await get(4, 7); await get(4, 7);
+	assert.equal(loads, 6);
+	await assert.rejects(read(file, 7, async () => { throw new Error("read failed"); }));
+	assert.equal((await get(7))[0], 7);
+});
