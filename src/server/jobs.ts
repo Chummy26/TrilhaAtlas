@@ -71,6 +71,7 @@ import { hasUnresolvedQuestion, endsInDismissal, endsInQuestionRecovery, newUser
 import { prepareSubmissionImages, submissionImagePolicyKey } from "./submission-images.ts";
 import { fireJobAbort, isJobLive } from "../agent/subagents/aborts.ts";
 import { stores, effectiveSettings } from "./stores.ts";
+import { unsettledJobsByChat } from "../store/jobs.ts";
 import { resolveConversationSpec } from "../core/settings-resolution.ts";
 import { connectionBackgroundAllowed, isSubscriptionProvider, onSubscriptionChange } from "../agent/subscription-connections.ts";
 import { isTurnRunning } from "./turn-liveness.ts";
@@ -761,8 +762,10 @@ export function recoverStaleJobs(): void {
 	if (now - s.lastSweepAt < SWEEP_THROTTLE_MS) return;
 	s.lastSweepAt = now;
 	try {
+		const groups = unsettledJobsByChat();
+		if (!groups.size) return;
 		for (const chat of stores.chatStore.listChats()) {
-			for (const job of stores.jobStore.listJobs(chat.id)) {
+			for (const job of groups.get(chat.id) ?? []) {
 				if (isJobLive(job.id)) continue; // never re-run beside live computation
 				if (!stores.chatStore.getChat(job.chatId)) continue;
 				if (isTurnRunning(job.chatId)) continue;

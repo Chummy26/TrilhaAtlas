@@ -26,17 +26,33 @@ export function toggleSourceEntries(directory: SourceDirectory, selected: Source
 	const apply = (set: Set<string>, ids: string[]) => { for (const id of ids) { if (checked) set.add(id); else set.delete(id); } };
 	if (kind === "source") apply(sources, [id]);
 	else { const entries = folderEntries(directory, id); apply(sources, entries.sources); apply(folders, entries.folders); }
-	const depth = (id: string) => {
-		let depth = 0, parent = directory.organization.folders.find((f) => f.id === id)?.parentId;
+	// Aggregate each direct child once. A child folder contributes its final
+	// selection when processed, so parents still roll up from deepest to root.
+	const parents = new Map(directory.organization.folders.map(folder => [folder.id, folder.parentId]));
+	const childFolders = new Map<string, string[]>();
+	const hasSources = new Set<string>();
+	const unselectedSources = new Set<string>();
+	for (const source of directory.sources) {
+		const parent = placementOf(directory.organization, source.id)?.folderId;
+		if (parent == null) continue;
+		hasSources.add(parent);
+		if (!sources.has(source.id)) unselectedSources.add(parent);
+	}
+	const ordered = directory.organization.folders.map(folder => {
+		if (folder.parentId !== null) {
+			const siblings = childFolders.get(folder.parentId);
+			if (siblings) siblings.push(folder.id);
+			else childFolders.set(folder.parentId, [folder.id]);
+		}
 		const seen = new Set<string>();
-		while (parent && !seen.has(parent)) { seen.add(parent); depth++; parent = directory.organization.folders.find((f) => f.id === parent)?.parentId; }
-		return depth;
-	};
-	for (const folder of [...directory.organization.folders].sort((a, b) => depth(b.id) - depth(a.id))) {
-		const childFolders = directory.organization.folders.filter((f) => f.parentId === folder.id);
-		const childSources = directory.sources.filter((s) => placementOf(directory.organization, s.id)?.folderId === folder.id);
-		if (!childFolders.length && !childSources.length) continue; // empty folders are real selectable entries
-		if (childFolders.every((f) => folders.has(f.id)) && childSources.every((s) => sources.has(s.id))) folders.add(folder.id);
+		let parent = folder.parentId;
+		while (parent && !seen.has(parent)) { seen.add(parent); parent = parents.get(parent) ?? null; }
+		return { folder, depth: seen.size };
+	}).sort((a, b) => b.depth - a.depth);
+	for (const { folder } of ordered) {
+		const children = childFolders.get(folder.id);
+		if (!children && !hasSources.has(folder.id)) continue;
+		if (!unselectedSources.has(folder.id) && (!children || children.every(child => folders.has(child)))) folders.add(folder.id);
 		else folders.delete(folder.id);
 	}
 	return { sources, folders };

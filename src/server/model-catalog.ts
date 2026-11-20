@@ -25,9 +25,16 @@ import { chatGPTConnected, chatGPTModel, chatGPTModels, chatGPTReportedLimits, r
 import { NATIVE_SUBSCRIPTIONS } from "../core/contracts/subscriptions.ts";
 import { nativeSubscriptionId, nativeSubscriptionConnected, nativeSubscriptionModel, nativeSubscriptionModels, refreshSubscriptionModels } from "../agent/subscription-bridge.ts";
 
+// The home picker and the first tutor turn often mount together. Both must
+// await the same discovery before resolving their selected engine.
+let chatCatalogRequest: Promise<void> | undefined;
+function refreshTutorCatalog() {
+	return chatCatalogRequest ??= refreshChatGPTModels(piModels().getModels("openai").filter((m): m is Model<"openai-responses"> => m.api === "openai-responses"))
+		.finally(() => { chatCatalogRequest = undefined; });
+}
 export async function refreshConnectionCatalog(provider?: string): Promise<void> {
 	await Promise.all([
-		!provider || provider === "chatgpt" ? refreshChatGPTModels(piModels().getModels("openai").filter((m): m is Model<"openai-responses"> => m.api === "openai-responses")) : Promise.resolve(),
+		!provider || provider === "chatgpt" ? refreshTutorCatalog() : Promise.resolve(),
 		!provider || nativeSubscriptionId(provider) ? refreshSubscriptionModels() : Promise.resolve(),
 	]);
 }
@@ -38,7 +45,7 @@ function connectionModel(provider: string, id: string): Model<Api> | undefined {
 function connectionProviderIds(): string[] { return [...piModels().getProviders().map((p) => p.id), "chatgpt", ...NATIVE_SUBSCRIPTIONS.map((p) => p.logicalId)]; }
 import { settingsStore } from "../store/settings.ts";
 import { effectiveSettings } from "./stores.ts";
-import { keyValue } from "./keys.ts";
+import { presentProviderKeys } from "./keys.ts";
 import type { ChatSettings } from "../core/contracts/chat.ts";
 import type {
 	CatalogDefaults,
@@ -126,8 +133,7 @@ export function catalogRolePins(): RolePins {
  *  verbatim: the same resolution the engine wiring uses, so the Models
  *  settings page's captions cannot drift from what actually runs. NULL
  *  per tier that holds no model. */
-export function catalogSlots(): SlotPins {
-	const slots = effectiveSettings().models;
+export function catalogSlots(slots = effectiveSettings().models): SlotPins {
 	const pins = {} as SlotPins;
 	for (const name of ["strong", "cheap", "vision"] as const) {
 		const slot: EffectiveSlot | null = slots[name];
@@ -146,19 +152,20 @@ export function catalogSlots(): SlotPins {
  *  plain-key model provider (core/auth-keys.ts's pi-ai-derived table),
  *  with keyPresent read env-wins through the keys seam, fresh per call —
  *  saving a key immediately federates the provider into the picker. */
-export function catalogProviders(): CatalogProvider[] {
+export function catalogProviders(settings = effectiveSettings()): CatalogProvider[] {
 	piModels();
+	const present = presentProviderKeys();
 	return AUTH_PROVIDER_KEYS.map((p) => ({
 		id: p.id,
 		envVar: p.envVar,
-		keyPresent: keyValue(p.envVar) !== undefined,
+		keyPresent: present.has(p.id),
 	})).concat([
 		{ id: "chatgpt", envVar: "", keyPresent: chatGPTConnected() },
 		{ id: CLAUDE_CODE_PROVIDER, envVar: "", keyPresent: claudeCodeAvailable() },
 		...NATIVE_SUBSCRIPTIONS.map((p) => ({ id: p.logicalId, envVar: "", keyPresent: nativeSubscriptionConnected(p.providerId) })),
 		// The custom endpoint: a row only when usable (base URL set). keyPresent
 		// reflects usability, not key presence (keyless local servers are allowed).
-		...(customProviderUsable(effectiveSettings().customProvider)
+		...(customProviderUsable(settings.customProvider)
 			? [{ id: CUSTOM_PROVIDER.id, envVar: CUSTOM_PROVIDER.envVar, keyPresent: customProviderAvailable() }]
 			: []),
 	]).sort((a, b) => a.id.localeCompare(b.id));
@@ -167,8 +174,8 @@ export function catalogProviders(): CatalogProvider[] {
 /** The providers whose key is present — the picker federates exactly
  *  these (a keyless provider's models are unreachable by design; the
  *  Keys page is the discovery surface, same discipline as search). */
-function keyedProviderIds(): Set<string> {
-	return new Set(catalogProviders().filter((p) => p.keyPresent).map((p) => p.id));
+function keyedProviderIds(providers = catalogProviders()): Set<string> {
+	return new Set(providers.filter((p) => p.keyPresent).map((p) => p.id));
 }
 
 /** Project one catalog model to the client DTO. */
@@ -221,7 +228,9 @@ export function catalogContextLimits(): Map<string, number> {
  *  defaults a settings-less chat runs + the background roles' resolved
  *  pins (the settings UI's per-role default captions). */
 export function modelCatalog(): ModelCatalogResponse {
-	const keyed = keyedProviderIds();
+	const settings = effectiveSettings();
+	const providers = catalogProviders(settings);
+	const keyed = keyedProviderIds(providers);
 	const models = piModels()
 		.getProviders()
 		.filter((p) => keyed.has(p.id))
@@ -231,10 +240,10 @@ export function modelCatalog(): ModelCatalogResponse {
 		.concat([...chatGPTModels(), ...nativeSubscriptionModels()].map(toModelDto));
 	return {
 		models,
-		defaults: catalogDefaults(),
-		rolePins: catalogRolePins(),
-		slots: catalogSlots(),
-		providers: catalogProviders(),
+		defaults: catalogDefaultsFor(settings.models.strong),
+		rolePins: rolePinsFor(settings.agent.models),
+		slots: catalogSlots(settings.models),
+		providers,
 	};
 }
 

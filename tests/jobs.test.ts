@@ -69,7 +69,7 @@ import { isJobLive, registerJobAbort, unregisterJobAbort } from "../src/agent/su
 import { beginTurn, endTurn, isTurnRunning } from "../src/server/turn-liveness.ts";
 import { persistTurn } from "../src/server/turn-service.ts";
 import { chatStore } from "../src/store/chats.ts";
-import { jobStore } from "../src/store/jobs.ts";
+import { jobStore, unsettledJobsByChat } from "../src/store/jobs.ts";
 import { createJobRunner, pdfModelOverride, researchModelOverride } from "../src/agent/subagents/runner.ts";
 import { providerKeyMissing, type ModelSlotName } from "../src/core/settings.ts";
 import type { PiEngine } from "../src/agent/models.ts";
@@ -253,6 +253,26 @@ function waitFor(cond: () => boolean, timeoutMs = 30_000, what = "condition"): P
 // ─── 1. job store CRUD ───────────────────────────────────────────────────────
 
 describe("job store", () => {
+	it("observes external replacements, deleted jobs and changed delivery obligations after a scan", () => {
+		const chatId = "chat_external_" + crypto.randomUUID();
+		const moved = chatId + "_other";
+		const job = jobStore.createJob({ kind: "research", chatId, toolCallId: "index-test" });
+		trackJob(job.id);
+		const file = path.join(PATHS.jobs, job.id + ".json");
+		assert.equal(unsettledJobsByChat().get(chatId)?.[0]?.id, job.id);
+		jobStore.updateJob(job.id, { status: "done" });
+		assert.ok(!unsettledJobsByChat().has(chatId));
+		const pending = { ...job, chatId: moved, status: "done", delivery: { kind: "result", status: "pending" } };
+		fs.writeFileSync(file, JSON.stringify(pending));
+		assert.deepEqual(jobStore.listJobs(chatId), []);
+		assert.deepEqual(unsettledJobsByChat().get(moved), [pending]);
+		const copy = jobStore.listJobs(moved);
+		copy[0]!.activity = "edited by caller";
+		assert.deepEqual(jobStore.listJobs(moved), [pending]);
+		fs.unlinkSync(file);
+		assert.ok(!unsettledJobsByChat().has(moved));
+	});
+
 	it("create → get → update → list round-trips", () => {
 		const job = jobStore.createJob({ kind: "research", chatId: "chat_storetest", toolCallId: "call-store" });
 		trackJob(job.id);

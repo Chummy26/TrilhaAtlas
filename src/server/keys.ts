@@ -181,13 +181,21 @@ export function keyStatuses(): AuthKeyStatus[] {
  *  read for consumers that don't live behind the @/src/server barrel (the
  *  STT route was the one cold-boot hole: a first-ever request to it would
  *  otherwise read env before any fill-gap ran). */
-export function keyValue(id: string): string | undefined {
+export function keyValue(id: string, readFileVars = authStore.authVars): string | undefined {
 	if (id === CUSTOM_AUTH_BINDING) return undefined;
 	// The fresh-user switch: ONLY the file store counts (belt-and-
 	// suspenders — the boot deletion already emptied the env; this guards
 	// any env key reintroduced after boot).
-	if (envKeysIgnored()) return authStore.authVars()[id];
-	return process.env[id] ?? authStore.authVars()[id];
+	if (envKeysIgnored()) return readFileVars()[id];
+	return process.env[id] ?? readFileVars()[id];
+}
+
+/** A catalog request inspects every provider. Use the same precedence as
+ * single-provider admission while reading the file once for the whole list. */
+export function presentProviderKeys(): Set<string> {
+	const vars = authStore.authVars();
+	const readVars = () => vars;
+	return new Set(AUTH_PROVIDER_KEYS.filter(p => keyValue(p.envVar, readVars) !== undefined).map(p => p.id));
 }
 
 /** The key-presence truth for one model provider (provider-key interlude,

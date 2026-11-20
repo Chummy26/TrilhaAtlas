@@ -34,6 +34,7 @@ function jobFile(id: string): string {
  * cannot grant plugin-kind jobs permission to fall back in place. */
 function writeJob(record: JobRecord): void {
 	const strict = record.kind === "plugin" || record.plugin !== undefined;
+	jobIndex.delete(record.id + ".json");
 	writeFileAtomicSync(jobFile(record.id), JSON.stringify(record, null, "\t"), {
 		allowInPlaceFallback: !strict,
 		...(strict ? { mode: 0o600 } : {}),
@@ -91,19 +92,66 @@ function updateJob(id: string, patch: JobPatch): JobRecord | null {
 	return next;
 }
 
-/** All jobs for a chat, newest activity first. */
-function listJobs(chatId: string): JobRecord[] {
+// Keep only routing metadata across requests. Results may contain entire PDFs,
+// drawings or generated HTML. Matching records are always read fresh.
+type JobIndexEntry = { stamp: string; chatId: string; unsettled: boolean };
+let indexDirectory = "";
+let jobIndex = new Map<string, JobIndexEntry>();
+
+function selectJobs(matches: (entry: JobIndexEntry) => boolean): JobRecord[] {
+	const directory = jobsDir();
+	if (indexDirectory !== directory) {
+		jobIndex.clear();
+		indexDirectory = directory;
+	}
 	try {
-		fs.mkdirSync(jobsDir(), { recursive: true });
-		return fs
-			.readdirSync(/* turbopackIgnore: true */ jobsDir())
-			.filter((f) => f.endsWith(".json"))
-			.map((f) => getJob(f.slice(0, -5)))
-			.filter((j): j is JobRecord => j !== null && j.chatId === chatId)
-			.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+		fs.mkdirSync(directory, { recursive: true });
+		const next = new Map<string, JobIndexEntry>();
+		const jobs: JobRecord[] = [];
+		for (const name of fs.readdirSync(/* turbopackIgnore: true */ directory)) {
+			if (!/^[A-Za-z0-9_-]+\.json$/.test(name)) continue;
+			const file = path.join(directory, name);
+			try {
+				const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true });
+				const stamp = [stat.dev, stat.ino, stat.ctimeNs, stat.mtimeNs, stat.size].join("/");
+				const cached = jobIndex.get(name);
+				if (cached?.stamp === stamp && !matches(cached)) {
+					next.set(name, cached);
+					continue;
+				}
+				const record = JSON.parse(fs.readFileSync(/* turbopackIgnore: true */ file, "utf8")) as JobRecord;
+				const entry = { stamp, chatId: record.chatId, unsettled: record.status === "running" || record.delivery?.status === "pending" };
+				next.set(name, entry);
+				if (matches(entry)) jobs.push(record);
+			} catch { /* Missing or unreadable files are isolated and retried on the next scan. */ }
+		}
+		jobIndex = next;
+		return jobs;
 	} catch {
 		return [];
 	}
+}
+
+function newestJobsFirst(jobs: JobRecord[]): JobRecord[] {
+	try { return jobs.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)); }
+	catch { return []; } // A malformed timestamp must not break another chat's listing.
+}
+
+/** All jobs for one chat, newest activity first. */
+function listJobs(chatId: string): JobRecord[] {
+	return newestJobsFirst(selectJobs(entry => entry.chatId === chatId));
+}
+
+/** One scan serves every chat in the activity feed and crash-recovery sweep. */
+export function unsettledJobsByChat(): Map<string, JobRecord[]> {
+	const byChat = new Map<string, JobRecord[]>();
+	for (const job of selectJobs(entry => entry.unsettled)) {
+		const group = byChat.get(job.chatId);
+		if (group) group.push(job);
+		else byChat.set(job.chatId, [job]);
+	}
+	for (const [id, group] of byChat) byChat.set(id, newestJobsFirst(group));
+	return byChat;
 }
 
 /** The job fulfilling a given tool part, if any (spawn-hook dedup). */

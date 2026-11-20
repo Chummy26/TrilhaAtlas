@@ -23,7 +23,8 @@ import { extractionStatuses, type ExtractionPhase } from "../agent/subagents/ext
 import { chatStore } from "../store/chats.ts";
 import { graphRevision } from "./graph.ts";
 import { catalogContextLimits } from "./model-catalog.ts";
-import { listJobs } from "./jobs.ts";
+import { recoverStaleJobs } from "./jobs.ts";
+import { unsettledJobsByChat } from "../store/jobs.ts";
 import { jobCost } from "./pricing.ts";
 import { pluginWorkerActivities, type PluginWorkerActivity } from "./plugin-worker-activity.ts";
 import type { JobRecord } from "../core/contracts.ts";
@@ -79,17 +80,20 @@ export function activityFeed(): {
 	extractions: ActivityExtraction[];
 	graphRevision: number;
 } {
-	const chats = chatStore.listChats();
-	const limits = catalogContextLimits();
+	if (process.env.NODE_ENV !== "test") recoverStaleJobs();
+	const groups = unsettledJobsByChat();
+	const chats = groups.size ? chatStore.listChats() : [];
+	let limits: ReturnType<typeof catalogContextLimits> | undefined;
+	const contextLimit = (model: string) => (limits ??= catalogContextLimits()).get(model) ?? null;
 	const jobs: ActivityJob[] = [];
 	for (const chat of chats) {
-		for (const job of listJobs(chat.id)) {
+		for (const job of groups.get(chat.id) ?? []) {
 			if (job.status === "running") {
 				jobs.push({
 					...job,
 					costUsd: jobCost(job),
 					title: chat.title ?? chat.id,
-					contextLimit: job.usage ? (limits.get(job.usage.model) ?? null) : null,
+					contextLimit: job.usage ? contextLimit(job.usage.model) : null,
 				});
 			}
 		}
@@ -115,7 +119,7 @@ export function activityFeed(): {
 	const pluginWorkers: ActivityPluginWorker[] = pluginWorkerActivities()
 		.filter(task => !linked.has(task.id))
 		.map(task => ({ ...task, costUsd: jobCost(task),
-			contextLimit: task.usage ? (limits.get(task.usage.model) ?? null) : null }))
+			contextLimit: task.usage ? contextLimit(task.usage.model) : null }))
 		.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 	// oldest-first on last activity: the stable blob order (ISO strings sort chronologically)
 	jobs.sort((a, b) => a.updatedAt.localeCompare(b.updatedAt));

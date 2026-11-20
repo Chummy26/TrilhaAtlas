@@ -656,6 +656,7 @@ export class GraphCanvasRenderer {
 	private shaftsPath: Path2D = new Path2D();
 	private headsPath: Path2D = new Path2D();
 	private regionCanvas: HTMLCanvasElement | null = null;
+	private edgesByCluster: CanvasEdge[][] = [];
 	/** World rect the bitmap covers (drawImage target coords). */
 	private regionRect: { minX: number; minY: number; w: number; h: number } | null = null;
 	/** Region labels: cluster centroid + hue, computed at splat build. */
@@ -667,6 +668,7 @@ export class GraphCanvasRenderer {
 	private regionBuiltVersion = -1;
 	private frameCount = 0; // draw counter for the live-sim splat throttle
 	private labelLines = new Map<string, string[]>();
+	private wrappedLabels = new Map<string, string[]>();
 	private worldLabelFont = "";
 	private world: WorldSizes = { nodeR: 0, glowOuter: 0, labelSize: 0, labelGap: 0 };
 
@@ -684,6 +686,8 @@ export class GraphCanvasRenderer {
 		if (!ctx) throw new Error("2d context unavailable");
 		this.ctx = ctx;
 		this.callbacks = callbacks;
+		document.fonts?.addEventListener("loadingdone", this.onFontsChanged);
+		document.fonts?.addEventListener("loadingerror", this.onFontsChanged);
 
 		// d3-zoom owns pan / wheel zoom-to-cursor / touch pinch; every
 		// transform change just marks dirty (draws happen in OUR loop).
@@ -767,6 +771,16 @@ export class GraphCanvasRenderer {
 
 	setData(data: CanvasData): void {
 		this.data = data;
+		this.wrappedLabels.clear();
+		const clusterOf = new Map<string, number>();
+		this.edgesByCluster = data.clusters.map((cluster, index) => {
+			for (const id of cluster.members) clusterOf.set(id, index);
+			return [];
+		});
+		for (const edge of data.edges) {
+			const index = clusterOf.get(edge.from);
+			if (index !== undefined && clusterOf.get(edge.to) === index) this.edgesByCluster[index]!.push(edge);
+		}
 		this.nodeById = new Map(data.nodes.map((n) => [n.id, n]));
 		let minX = Infinity;
 		let minY = Infinity;
@@ -910,6 +924,8 @@ export class GraphCanvasRenderer {
 	}
 
 	destroy(): void {
+		document.fonts?.removeEventListener("loadingdone", this.onFontsChanged);
+		document.fonts?.removeEventListener("loadingerror", this.onFontsChanged);
 		if (this.frameId !== null) cancelAnimationFrame(this.frameId);
 		if (this.commitTimer) clearTimeout(this.commitTimer);
 		this.sim = null;
@@ -927,6 +943,12 @@ export class GraphCanvasRenderer {
 	}
 
 	// ── Event handlers (state mutation only — never draw) ──
+
+	private onFontsChanged = () => {
+		this.wrappedLabels.clear();
+		this.geoVersion++;
+		this.markDirty();
+	};
 
 	/** Wheel: accumulate the zoom target; the camera GLIDES toward it in the
 	 *  tick loop (cursor-anchored). Sensitivity formula is d3-zoom's own. */
@@ -1242,7 +1264,9 @@ export class GraphCanvasRenderer {
 		if (!data || !settings) return;
 
 		const nodeR = settings.nodeSize;
-		this.worldLabelFont = `${LABEL_WEIGHT} ${settings.labelSize}px ${data.fontFamily}`;
+		const font = `${LABEL_WEIGHT} ${settings.labelSize}px ${data.fontFamily}`;
+		if (font !== this.worldLabelFont) this.wrappedLabels.clear();
+		this.worldLabelFont = font;
 		this.world = {
 			nodeR,
 			glowOuter: nodeR * GLOW_SCALE,
@@ -1302,16 +1326,20 @@ export class GraphCanvasRenderer {
 		// low-res bitmap (see buildRegions), on their own rebuild schedule
 		// (live-sim frames skip 2 of 3 rebuilds and blit the last bitmap).
 
-		// Label wrapping: measureText once per node per geometry build,
-		// never per frame. Wrap width keeps the bigger-label/bigger-wrap
-		// behavior from the sigma era.
+		// Position changes during a drag leave text metrics unchanged.
 		this.labelLines = new Map();
 		const ctx = this.ctx;
 		const prevFont = ctx.font;
 		ctx.font = this.worldLabelFont;
 		const maxW = LABEL_MAX_WIDTH * (settings.labelSize / LABEL_SIZE);
 		for (const n of data.nodes) {
-			if (isVisible(n.id) && !isImpNodeId(n.id)) this.labelLines.set(n.id, wrapLabel(ctx, n.label, maxW));
+			if (!isVisible(n.id) || isImpNodeId(n.id)) continue;
+			let lines = this.wrappedLabels.get(n.id);
+			if (!lines) {
+				lines = wrapLabel(ctx, n.label, maxW);
+				this.wrappedLabels.set(n.id, lines);
+			}
+			this.labelLines.set(n.id, lines);
 		}
 		ctx.font = prevFont;
 	}
@@ -1400,12 +1428,6 @@ export class GraphCanvasRenderer {
 			this.regionMeta = [];
 			return;
 		}
-
-		// Which cluster is a node in (for intra-cluster edges)?
-		const clusterOf = new Map<string, number>();
-		data.clusters.forEach((c, i) => {
-			for (const id of c.members) clusterOf.set(id, i);
-		});
 
 		// Label anchors ALWAYS compute (cheap — a centroid pass, no canvas):
 		// cluster labels follow their own `clusterLabels` setting and must
@@ -1525,9 +1547,7 @@ export class GraphCanvasRenderer {
 			rctx.beginPath();
 			// Endpoints actually covered by a stroke's round caps.
 			const touched = new Set<string>();
-			for (const e of data.edges) {
-				if (clusterOf.get(e.from) !== ci) continue;
-				if (clusterOf.get(e.to) !== ci) continue;
+			for (const e of this.edgesByCluster[ci]!) {
 				// Search filter: stroke only fully-visible edges. Invisible-node
 				// segments still stroked into the (visible-only) bitmap cut
 				// diagonal hue streaks across other clusters' regions (user-
