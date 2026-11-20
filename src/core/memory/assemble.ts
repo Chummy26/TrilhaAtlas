@@ -141,7 +141,7 @@ export function assembleContext(parts: ContextParts, budgets: ContextBudgets = C
 	const stable = stableParts.map((s) => s.text).join("\n\n");
 	const dynamicSection = sections.get("recall") as AssembledSection;
 	const dynamic = dynamicSection.text;
-	const text = [stable, CACHE_BOUNDARY, dynamic].filter((s) => s.length > 0).join("\n\n");
+	const text = [stable, budgets.total >= boundaryTokens ? CACHE_BOUNDARY : "", dynamic].filter((s) => s.length > 0).join("\n\n");
 	return {
 		stable,
 		stableTokens: stableParts.reduce((n, s) => n + s.tokens, 0),

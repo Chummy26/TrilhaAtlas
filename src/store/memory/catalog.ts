@@ -40,6 +40,7 @@ export interface ItemMeta {
 }
 
 export interface EligibilityOptions {
+	lessonNodes?: ReadonlySet<string>;
 	now: number;
 	historical: boolean;
 	sessionOnly: boolean;
@@ -92,6 +93,9 @@ export class MemoryCatalog {
 		if (meta.status === "forgotten") return false;
 		if (meta.status === "archived" && !o.historical) return false;
 		if (o.sessionOnly && meta.sessionId !== o.sessionId) return false;
+		const nodes = o.lessonNodes;
+		if (nodes && meta.sessionId !== o.sessionId &&
+			(meta.scope === "session" || !meta.nodeIds.some(id => nodes.has(id)))) return false;
 		if (!o.historical) {
 			if (meta.kind === "fact" && meta.scope === "session" && meta.sessionId !== o.sessionId) return false;
 			if (meta.kind === "fact" && !isCurrentFact({ status: meta.status, expiredAt: meta.expiredAt, validTo: meta.validTo }, o.now)) return false;

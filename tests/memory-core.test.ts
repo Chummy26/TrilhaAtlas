@@ -217,6 +217,13 @@ const msgs: SourceMessage[] = [
 	{ id: "msg_2", seq: 2, role: "assistant", ts: NOW - 30_000, text: "A tensão se divide proporcionalmente às resistências; você prefere ver um desenho?", nodeIds: ["divisor"] },
 ];
 
+test("a tiny assembly budget also bounds the internal cache separator", () => {
+	for (const total of [0, 1, 4]) {
+		const context = assembleContext({ profile: "Aluno iniciante", recall: "Exemplo anterior" }, { ...CONTEXT_BUDGETS, total });
+		assert.ok(estimateTokens(context.text) <= total);
+	}
+});
+
 test("extraction: a quote absent from the source is discarded; a verbatim quote (accent/case-insensitive) is kept", () => {
 	const out = validateExtraction(
 		{
@@ -232,6 +239,7 @@ test("extraction: a quote absent from the source is discarded; a verbatim quote 
 		{ domainId: "electronics", sessionId: "s1", messages: msgs },
 	);
 	assert.deepEqual(out.facts.map((f) => f.kind), ["misconception"]);
+	assert.deepEqual(out.facts[0]?.nodeIds, ["divisor"], "a missing model tag inherits the grounded lesson");
 	assert.equal(out.rejected.filter((r) => r.kind === "fact").length, 2, "invented quote and learner-voice fact quoting the tutor are both rejected");
 	assert.equal(out.evidence.length, 1);
 	assert.ok((out.evidence[0]?.graderConfidence ?? 1) <= MAX_DIALOGUE_CONFIDENCE);

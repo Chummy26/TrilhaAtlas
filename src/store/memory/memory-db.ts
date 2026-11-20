@@ -48,7 +48,7 @@ import {
 	resolveSupersession,
 	type SupersessionCandidate,
 } from "../../core/memory/supersede.ts";
-import { formatDay, parseTimeRange } from "../../core/memory/temporal.ts";
+import { formatDay, parseTimeRange, type TimeRange } from "../../core/memory/temporal.ts";
 import { estimateTokens } from "../../core/memory/tokens.ts";
 import {
 	MENTAL_MODEL_SECTIONS,
@@ -126,6 +126,7 @@ export interface FlashcardCandidateRecord {
 
 interface LoadedItem extends RenderableItem {
 	key: string;
+	evidenceFactIds?: string[];
 	sessionId: string | null;
 	nodeIds: string[];
 	sourceMsgIds: string[];
@@ -156,6 +157,22 @@ const MAX_DIARY_LINE_CHARS = 240;
 
 function placeholders(n: number): string {
 	return Array.from({ length: n }, () => "?").join(",");
+}
+
+/** Contradictions and duplicate proofs are comparable only within the same study scope. */
+function factPartition(scope: string | undefined, session: string | null, nodes: readonly string[]): string {
+	return JSON.stringify([scope ?? "domain", scope === "session" ? session : null, [...new Set(nodes)].sort()]);
+}
+
+function partitionFacts<T extends Pick<ItemMeta, "scope" | "sessionId" | "nodeIds">>(facts: readonly T[]): Map<string, T[]> {
+	const groups = new Map<string, T[]>();
+	for (const fact of facts) {
+		const key = factPartition(fact.scope, fact.sessionId, fact.nodeIds);
+		const group = groups.get(key);
+		if (group) group.push(fact);
+		else groups.set(key, [fact]);
+	}
+	return groups;
 }
 
 function chunk<T>(xs: readonly T[], size: number): T[][] {
@@ -558,10 +575,12 @@ export class MemoryDb implements DomainMemory {
 		const done = (skipped: string): RecallResult => ({ items: [], rendered: "", tokens: 0, ms: performance.now() - t0, skipped });
 		const mode = ctx.mode ?? "auto";
 		if (mode === "skip") return done("mode=skip");
-		if (isTrivialUtterance(ctx.query)) return done("fala sem conteúdo para recuperar");
+		const resume = !!ctx.lessonNodes?.size && /^(?:continua|continue|retomar|resume|de onde paramos|continue de onde parei)[.!?]*$/u.test(foldText(ctx.query))
+			&& !this.hasSession(ctx.sessionId);
+		if (!resume && isTrivialUtterance(ctx.query)) return done("fala sem conteúdo para recuperar");
 		const now = Number.isFinite(ctx.now) ? ctx.now : this.now();
 		const budget = ctx.budgetTokens ?? (mode === "deep" ? this.settings.deepBudgetTokens : this.settings.recallBudgetTokens);
-		const elig: EligibilityOptions = { now, historical: mode === "historical", sessionOnly: ctx.sessionOnly === true, sessionId: ctx.sessionId };
+		const elig: EligibilityOptions = { now, historical: mode === "historical", sessionOnly: ctx.sessionOnly === true, sessionId: ctx.sessionId, lessonNodes: ctx.lessonNodes };
 		const focus = Array.isArray(ctx.focusNodes) ? ctx.focusNodes.filter((n) => typeof n === "string") : [];
 
 		const lists: RankedList[] = [];
@@ -570,12 +589,25 @@ export class MemoryDb implements DomainMemory {
 			if (ranked.length > 0) lists.push({ channel, ids: ranked.map((r) => r.item), scores: ranked.map((r) => r.score), weight: weights[channel] });
 		};
 
-		const vec = await this.vecChannel(ctx.query, elig);
-		push("vec", vec);
-		push("fts", this.ftsChannel(ctx.query, elig));
-		push("graph", await this.graphChannel(ctx.query, focus, vec, elig));
-		push("time", this.timeChannel(ctx.query, now, elig));
-		push("learner", await this.learnerChannel(focus, elig));
+		const corroborated = new Set<string>();
+		if (resume) {
+			push("time", this.resumeChannel(focus, elig));
+		} else {
+			const vec = await this.vecChannel(ctx.query, elig);
+			const lexical = this.ftsChannel(ctx.query, elig);
+			const range = parseTimeRange(ctx.query, now);
+			push("vec", vec);
+			push("fts", lexical);
+			push("graph", await this.graphChannel(ctx.query, focus, vec, elig));
+			push("time", this.timeChannel(range, elig));
+			push("learner", await this.learnerChannel(focus, elig));
+			// An explicit time interval keeps its time prior. Otherwise, agreement
+			// on the leading results can preserve a specific older measurement.
+			if (ctx.lessonNodes && !range) {
+				const lexicalLeaders = new Set(lexical.slice(0, 3).map(hit => hit.item));
+				for (const hit of vec.slice(0, 3)) if (lexicalLeaders.has(hit.item)) corroborated.add(hit.item);
+			}
+		}
 		if (lists.length === 0) return { items: [], rendered: "", tokens: 0, ms: performance.now() - t0 };
 
 		// Channels awaited ports (embedder, curriculum, learner); a forget/consolidation on the
@@ -592,7 +624,7 @@ export class MemoryDb implements DomainMemory {
 					kind: meta.kind,
 					...(meta.factKind ? { factKind: meta.factKind } : {}),
 					importance: meta.importance,
-					at: meta.at,
+					at: corroborated.has(f.id) ? now : meta.at,
 					now,
 					sameSession: meta.sessionId === ctx.sessionId,
 				};
@@ -609,6 +641,7 @@ export class MemoryDb implements DomainMemory {
 			.filter((p) => kept.has(p.key))
 			.sort((a, b) => b.score - a.score || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
 		const loaded = this.loadItems(candidates.map((c) => c.key), now);
+		if (ctx.lessonNodes) this.filterLessonSources(loaded, elig);
 		const channelsOf = new Map(candidates.map((c) => [c.key, c]));
 		const ordered = mmrRerank(
 			candidates
@@ -667,6 +700,30 @@ export class MemoryDb implements DomainMemory {
 		return !!meta && this.catalog.isEligible(meta, elig);
 	}
 
+	/** Tags proposed by the extractor are search hints. Verify the original
+	 * message ownership too, including proofs merged in older databases. */
+	private filterLessonSources(loaded: Map<string, LoadedItem>, elig: EligibilityOptions): void {
+		const factKeys = new Set<string>();
+		for (const item of loaded.values()) {
+			for (const id of item.evidenceFactIds ?? []) factKeys.add(itemKey("fact", id));
+		}
+		const facts = new Map(loaded);
+		for (const batch of chunk([...factKeys].filter(key => !facts.has(key)), 400)) {
+			for (const [key, fact] of this.loadItems(batch, elig.now)) facts.set(key, fact);
+		}
+		const grounded = (item: LoadedItem) => item.sourceMsgIds.length > 0 &&
+			item.sourceMsgIds.every(id => this.eligibleKey(itemKey("message", id), elig));
+		for (const [key, item] of loaded) {
+			if (item.kind === "observation") {
+				const valid = item.evidenceFactIds?.length && item.evidenceFactIds.every(id => {
+					const fact = facts.get(itemKey("fact", id));
+					return fact && this.eligibleKey(fact.key, elig) && grounded(fact);
+				});
+				if (!valid) loaded.delete(key);
+			} else if (!grounded(item)) loaded.delete(key);
+		}
+	}
+
 	private async vecChannel(query: string, elig: EligibilityOptions): Promise<Scored<string>[]> {
 		if (this.catalog.vectors.size === 0) return [];
 		const q = await this.tryEmbed([query], "query");
@@ -678,9 +735,11 @@ export class MemoryDb implements DomainMemory {
 	private ftsChannel(query: string, elig: EligibilityOptions): Scored<string>[] {
 		const match = buildFtsQuery(query);
 		if (!match) return [];
-		const rows = this.db
-			.prepare("SELECT kind, ref_id, bm25(fts) AS score FROM fts WHERE fts MATCH ? ORDER BY score LIMIT ?")
-			.all(match, this.settings.channelTopK * 4);
+		// Apply the lesson boundary before top-k. Identically worded lectures
+		// in another branch can occupy every slot in a global shortlist.
+		const ranked = "SELECT kind, ref_id, bm25(fts) AS score FROM fts WHERE fts MATCH ? ORDER BY score";
+		const rows = elig.lessonNodes || elig.sessionOnly ? this.db.prepare(ranked).iterate(match)
+			: this.db.prepare(ranked + " LIMIT ?").all(match, this.settings.channelTopK * 4);
 		const out: Scored<string>[] = [];
 		for (const r of rows) {
 			const key = itemKey(rowString(r, "kind") as MemoryItemKind, rowString(r, "ref_id") as string);
@@ -691,8 +750,7 @@ export class MemoryDb implements DomainMemory {
 		return out;
 	}
 
-	private timeChannel(query: string, now: number, elig: EligibilityOptions): Scored<string>[] {
-		const range = parseTimeRange(query, now);
+	private timeChannel(range: TimeRange | null, elig: EligibilityOptions): Scored<string>[] {
 		if (!range) return [];
 		const scored: { key: string; score: number; at: number }[] = [];
 		for (const meta of this.catalog.items.values()) {
@@ -702,6 +760,15 @@ export class MemoryDb implements DomainMemory {
 		}
 		scored.sort((a, b) => b.score - a.score || b.at - a.at || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
 		return scored.slice(0, this.settings.channelTopK).map((s) => ({ item: s.key, score: s.score }));
+	}
+
+	private resumeChannel(focus: readonly string[], elig: EligibilityOptions): Scored<string>[] {
+		const exact = new Set(focus);
+		const history = [...this.catalog.items.values()].filter(m => m.kind === "message" && this.catalog.isEligible(m, elig))
+			.sort((a, b) => b.at - a.at || b.key.localeCompare(a.key));
+		const last = history.find(m => m.nodeIds.some(id => exact.has(id))) ?? history[0];
+		if (!last) return [];
+		return history.filter(m => m.sessionId === last.sessionId).slice(0, 4).map((m, i) => ({ item: m.key, score: 1 / (i + 1) }));
 	}
 
 	private async learnerChannel(focus: readonly string[], elig: EligibilityOptions): Promise<Scored<string>[]> {
@@ -866,6 +933,7 @@ export class MemoryDb implements DomainMemory {
 						...(o.endedAt !== null ? { superseded: true, supersededAt: o.endedAt } : {}),
 						confidence: o.confidence,
 						sessionId: null,
+						evidenceFactIds: o.evidenceFactIds,
 						nodeIds: o.subjectType === "node" ? [o.subjectId] : [],
 						sourceMsgIds: [],
 						importance: 0.6,
@@ -878,7 +946,7 @@ export class MemoryDb implements DomainMemory {
 
 	// ─── stable prefix ───────────────────────────────────────────────────────
 
-	private async stableParts(sessionId: string, focusOverride?: readonly string[]): Promise<{ profile: string; mentalModels: string; learner: string; observationLog: string }> {
+	private async stableParts(sessionId: string, focusOverride?: readonly string[], scoped = false): Promise<{ profile: string; mentalModels: string; learner: string; observationLog: string }> {
 		const now = this.now();
 		let profile = "";
 		try {
@@ -886,9 +954,9 @@ export class MemoryDb implements DomainMemory {
 		} catch (error) {
 			this.report("profile", error);
 		}
-		const diary = this.latestDiary(sessionId);
 		const titleTokens = estimateTokens("## Modelo do aluno neste domínio");
-		const mentalModels = composeMentalModelSection(diary, this.mentalModel(), now, CONTEXT_BUDGETS.mentalModels - titleTokens);
+		// These summaries can combine several branches and have no per-sentence provenance.
+		const mentalModels = scoped ? "" : composeMentalModelSection(this.latestDiary(sessionId), this.mentalModel(), now, CONTEXT_BUDGETS.mentalModels - titleTokens);
 		const focus = focusOverride && focusOverride.length > 0 ? [...focusOverride] : this.focusOf(sessionId);
 		let learner = "";
 		if (this.learner) {
@@ -908,11 +976,11 @@ export class MemoryDb implements DomainMemory {
 	}
 
 	/** Full per-turn memory context: stable prefix + cache boundary + recall (≤ 12k tokens). */
-	async buildContext(ctx: RecallContext): Promise<{ context: AssembledContext; recall: RecallResult }> {
+	async buildContext(ctx: RecallContext, totalTokens = CONTEXT_BUDGETS.total): Promise<{ context: AssembledContext; recall: RecallResult }> {
 		this.assertOpen();
-		const parts = await this.stableParts(ctx.sessionId, ctx.focusNodes);
+		const parts = await this.stableParts(ctx.sessionId, ctx.focusNodes, ctx.lessonNodes !== undefined || ctx.sessionOnly);
 		const recall = await this.recall(ctx);
-		const budgets = { ...CONTEXT_BUDGETS, recall: Math.max(CONTEXT_BUDGETS.recall, recall.tokens) };
+		const budgets = { ...CONTEXT_BUDGETS, total: Math.min(CONTEXT_BUDGETS.total, totalTokens), recall: Math.max(CONTEXT_BUDGETS.recall, recall.tokens) };
 		return { context: assembleContext({ ...parts, recall: recall.rendered }, budgets), recall };
 	}
 
@@ -1013,7 +1081,7 @@ export class MemoryDb implements DomainMemory {
 		const factIds = v.facts.map(() => newId("fact", now));
 		const vectors = await this.tryEmbed(v.facts.map((f) => factPassage(f.text, f.validFrom)), "passage");
 		const entityNodes = await this.resolveEntityNodes(v.facts);
-		const plans = await this.planSupersession(v.facts, factIds, vectors, now);
+		const plans = await this.planSupersession(sessionId, v.facts, factIds, vectors, now);
 		const seqOf = new Map(batch.map((m) => [m.id, m.seq]));
 		const newEpisodeKeys: string[] = [];
 		const insertedFacts: string[] = [];
@@ -1204,13 +1272,14 @@ export class MemoryDb implements DomainMemory {
 	 * one batched judge call (r4 §7.6.2-4). Without vectors or a judge the
 	 * batch is ADD-only (r4 fallback; consolidation dedups later).
 	 */
-	private async planSupersession(facts: readonly GroundedFact[], ids: readonly string[], vectors: Float32Array[] | null, now: number): Promise<SupersessionPlan[]> {
+	private async planSupersession(sessionId: string, facts: readonly GroundedFact[], ids: readonly string[], vectors: Float32Array[] | null, now: number): Promise<SupersessionPlan[]> {
 		const plans: SupersessionPlan[] = facts.map(() => ({ duplicateOf: null, closes: [], refines: [], semantic: [] }));
 		if (!vectors || facts.length === 0) return plans;
 		const currentFacts = [...this.catalog.items.values()].filter(
 			(m) => m.kind === "fact" && isCurrentFact({ status: m.status, expiredAt: m.expiredAt, validTo: m.validTo }, now) && this.catalog.vectors.has(m.key),
 		);
 		const records = new Map<string, FactRecord>();
+		const partitions = partitionFacts(currentFacts);
 		const recordOf = (id: string) => {
 			let r = records.get(id);
 			if (!r) {
@@ -1222,7 +1291,8 @@ export class MemoryDb implements DomainMemory {
 		const pairs: { pairId: string; i: number; old: FactRecord }[] = [];
 		facts.forEach((f, i) => {
 			const vec = vectors[i] as Float32Array;
-			const sims = currentFacts.map((m) => ({ meta: m, cos: cosine(vec, this.catalog.vectors.get(m.key) as Float32Array) }));
+			const comparable = partitions.get(factPartition(f.scope, sessionId, f.nodeIds)) ?? [];
+			const sims = comparable.map((m) => ({ meta: m, cos: cosine(vec, this.catalog.vectors.get(m.key) as Float32Array) }));
 			const plan = plans[i] as SupersessionPlan;
 			plan.semantic = sims
 				.filter((s) => s.cos >= this.settings.semanticEdgeMinCosine)
@@ -1545,9 +1615,10 @@ export class MemoryDb implements DomainMemory {
 		const state = new Map(current.map((f) => [f.id, f]));
 		const merges: { winner: string; loser: string }[] = [];
 		const merged = new Set<string>();
+		const partitions = partitionFacts(current);
 		const byKey = new Map<string, string>();
 		for (const f of current) {
-			const key = `${f.kind}|${foldText(f.text)}`;
+			const key = JSON.stringify([factPartition(f.scope, f.sessionId, f.nodeIds), f.kind, foldText(f.text)]);
 			const w = byKey.get(key);
 			if (w) {
 				merges.push({ winner: w, loser: f.id });
@@ -1567,7 +1638,7 @@ export class MemoryDb implements DomainMemory {
 			if (f.consolidated || merged.has(f.id)) continue;
 			const vf = this.catalog.vectors.get(itemKey("fact", f.id));
 			if (!vf) continue;
-			for (const g of current) {
+			for (const g of partitions.get(factPartition(f.scope, f.sessionId, f.nodeIds))!) {
 				if (g.id === f.id || g.kind !== f.kind || merged.has(g.id) || compareForWinner(g, f) >= 0) continue;
 				const vg = this.catalog.vectors.get(itemKey("fact", g.id));
 				if (!vg || cosine(vf, vg) < this.settings.dedupMinCosine || jaccard(toks(f), toks(g)) < 0.8) continue;

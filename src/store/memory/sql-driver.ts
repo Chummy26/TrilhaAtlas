@@ -29,6 +29,7 @@ export interface SqlStatement {
 	run(...params: SqlValue[]): SqlRunResult;
 	get(...params: SqlValue[]): SqlRow | undefined;
 	all(...params: SqlValue[]): SqlRow[];
+	iterate(...params: SqlValue[]): Iterable<SqlRow>;
 }
 
 export interface SqlDriver {
@@ -97,6 +98,10 @@ class NodeSqliteStatement implements SqlStatement {
 
 	all(...params: SqlValue[]): SqlRow[] {
 		return this.stmt.all(...params) as SqlRow[];
+	}
+
+	iterate(...params: SqlValue[]): Iterable<SqlRow> {
+		return this.stmt.iterate(...params) as Iterable<SqlRow>;
 	}
 }
 

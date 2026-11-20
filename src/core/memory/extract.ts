@@ -251,8 +251,10 @@ export function validateExtraction(output: ExtractionOutput, ctx: ExtractionCont
 		const validFrom = parseInstant(f.validFrom) ?? sourceTs;
 		let validTo = parseInstant(f.validTo);
 		if (validTo !== null && validTo < validFrom) validTo = null;
-		const nodeIds = cleanIds(f.nodeIds);
-		const aboutNode = typeof f.aboutNode === "string" && f.aboutNode.trim() ? f.aboutNode.trim() : (nodeIds[0] ?? null);
+		const sourceNodes = cleanIds(sources.flatMap(m => m.nodeIds));
+		const nodeIds = sourceNodes.length ? sourceNodes : cleanIds(f.nodeIds);
+		const proposed = typeof f.aboutNode === "string" ? f.aboutNode.trim() : "";
+		const aboutNode = proposed && (!sourceNodes.length || sourceNodes.includes(proposed)) ? proposed : (nodeIds[0] ?? null);
 		if (aboutNode && !nodeIds.includes(aboutNode)) nodeIds.unshift(aboutNode);
 		const scope: FactScope = f.scope === "global" || f.scope === "session" ? f.scope : "domain";
 		facts.push({

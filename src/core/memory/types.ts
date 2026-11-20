@@ -59,6 +59,9 @@ export interface RecallContext {
 	/** historical = superseded facts included (labelled). */
 	mode?: RecallMode;
 	sessionOnly?: boolean;
+	/** Teaching context: allow the current session plus items linked to these curriculum nodes.
+	 * An empty set limits a free conversation to its own history. */
+	lessonNodes?: ReadonlySet<string>;
 }
 
 export interface MemoryItem {

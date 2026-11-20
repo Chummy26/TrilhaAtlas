@@ -116,6 +116,32 @@ function ctx(domainId: string, query: string, now: number, extra: Record<string,
 
 // ─── isolation ──────────────────────────────────────────────────────────────
 
+test("a lesson resumes its branch and its own untagged notes, including after reopening", async () => {
+	const dir = tmpDir();
+	const clock = new Clock();
+	let db = open(dir, clock);
+	try {
+		const query = "Qual foi a medição do sensor de pressão?";
+		turn(db, clock, "previous", "user", query + " Valor azul.", ["sensor"]);
+		turn(db, clock, "current", "user", query + " Valor verde.");
+		turn(db, clock, "unrelated", "user", query + " Valor vermelho.", ["radio"]);
+		await db.endSession("unrelated");
+		await db.close();
+		db = open(dir, clock);
+		const read = (nodes: string[]) => db.buildContext({
+			...ctx("electronics", query, clock.t), sessionId: "current", lessonNodes: new Set(nodes),
+		});
+		const branch = await read(["sensor"]);
+		assert.deepEqual(new Set(branch.recall.items.map(i => i.sessionId)), new Set(["previous", "current"]));
+		assert.doesNotMatch(branch.context.text, /vermelho|Última sessão/);
+		const free = await read([]);
+		assert.deepEqual(free.recall.items.map(i => i.sessionId), ["current"]);
+	} finally {
+		await db.close();
+		fs.rmSync(dir, { recursive: true, force: true });
+	}
+});
+
 test("isolation: two domains are two files and recall never crosses them", async () => {
 	const root = tmpDir();
 	const clock = new Clock();
@@ -180,6 +206,65 @@ test("recall finds a fact by an accent-less paraphrase through FTS (\"tensao\" �
 
 // ─── supersession ───────────────────────────────────────────────────────────
 
+test("a generic resume opens the most recent lesson on the exact skill before newer sibling lessons", async () => {
+	const dir = tmpDir();
+	const clock = new Clock();
+	const db = open(dir, clock);
+	try {
+		turn(db, clock, "last-lesson", "user", "Parei antes de converter miliampères.", ["prefix"]);
+		turn(db, clock, "last-lesson", "assistant", "Obtivemos dois miliampères.", ["prefix"]);
+		turn(db, clock, "sibling", "user", "Estudei expoentes.", ["powers"]);
+		await db.flush();
+		const base = { ...ctx("electronics", "Continua", clock.t), focusNodes: ["prefix"], lessonNodes: new Set(["prefix", "powers"]) };
+		const resumed = await db.recall(base);
+		assert.deepEqual(resumed.items.map(i => i.sessionId), ["last-lesson", "last-lesson"]);
+		assert.equal((await db.recall({ ...base, query: "obrigado" })).items.length, 0);
+	} finally {
+		await db.close();
+		fs.rmSync(dir, { recursive: true, force: true });
+	}
+});
+
+test("a generated node tag cannot move a quotation or an observation out of its source lesson", async () => {
+	const dir = tmpDir();
+	const clock = new Clock();
+	const extractor = new FakeExtractor({
+		facts: input => input.messages.map(m => ({ kind: "learner", text: m.text, quote: m.text, nodeIds: ["radio"], sourceMsgIds: [m.id] })),
+		consolidate: input => ({ mentalModelOps: [], observations: [{ op: "create", subjectType: "node", subjectId: "radio",
+			text: "Medição roxa exclusiva.", evidenceFactIds: input.facts.map(f => f.id) }] }),
+	});
+	const db = open(dir, clock, { extractor });
+	try {
+		turn(db, clock, "audio-chat", "user", "Medição roxa exclusiva no circuito.", ["audio"]);
+		await db.endSession("audio-chat");
+		assert.ok(db.allFacts().length && db.observations().length);
+		assert.deepEqual(db.allFacts()[0]?.nodeIds, ["audio"], "the extractor cannot reassign a lesson");
+		const read = await db.buildContext({ ...ctx("electronics", "Qual medição roxa fiz no circuito?", clock.t), lessonNodes: new Set(["radio"]) });
+		assert.doesNotMatch(read.context.text, /roxa/);
+	} finally {
+		await db.close();
+		fs.rmSync(dir, { recursive: true, force: true });
+	}
+});
+
+test("a specific measurement remains retrievable a year later alongside recent notes on the same node", async () => {
+	const dir = tmpDir();
+	const clock = new Clock();
+	const db = open(dir, clock);
+	try {
+		const old = turn(db, clock, "calibration", "user", "Na calibração do sensor registrei a referência âmbar.", ["sensor"]);
+		clock.advance(360 * DAY);
+		turn(db, clock, "recent", "user", "Ainda quero fazer a calibração do equipamento.", ["sensor"]);
+		await db.flush();
+		const r = await db.recall({ ...ctx("electronics", "Qual referência registrei na calibração do sensor?", clock.t),
+			lessonNodes: new Set(["sensor"]) });
+		assert.ok(r.items.some(i => i.id === old));
+	} finally {
+		await db.close();
+		fs.rmSync(dir, { recursive: true, force: true });
+	}
+});
+
 /**
  * The first `n` whole words of a message. Grounding accepts only whole-word
  * quotes, so a fixture that cuts a message mid-word (`text.slice(0, 24)`)
@@ -193,6 +278,28 @@ const userFacts: FactPlan = (input) =>
 	input.messages
 		.filter((m) => m.role === "user")
 		.map((m) => ({ kind: "learner", text: `O aluno disse: ${m.text}`, quote: leadingWords(m.text, 4), sourceMsgIds: [m.id] }));
+
+test("identical exercises in separate branches and session-only notes retain independent evidence", async () => {
+	const dir = tmpDir();
+	const clock = new Clock();
+	const extractor = new FakeExtractor({ verdict: "DUPLICATE", facts: input => input.messages.map(m => ({
+		kind: "learner", text: m.text, quote: m.text, nodeIds: m.nodeIds, sourceMsgIds: [m.id],
+		scope: input.sessionId.startsWith("private") ? "session" : "domain",
+	})) });
+	const db = open(dir, clock, { extractor });
+	try {
+		for (const [chat, node] of [["a", "radio"], ["b", "audio"], ["private1", "radio"], ["private2", "radio"]] as const) {
+			turn(db, clock, chat, "user", "Inverto a ordem das operações na medição.", [node]);
+			await db.endSession(chat);
+		}
+		const facts = db.listFacts();
+		assert.equal(facts.length, 4);
+		assert.ok(facts.every(f => f.sourceMsgIds.length === 1));
+	} finally {
+		await db.close();
+		fs.rmSync(dir, { recursive: true, force: true });
+	}
+});
 
 test("bitemporal supersession: the judge's UPDATES closes the old fact with valid_to; nothing is overwritten", async () => {
 	const dir = tmpDir();

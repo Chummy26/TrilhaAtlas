@@ -36,7 +36,7 @@ after(async () => {
 	release();
 	await service.close();
 	delete state[key];
-	fs.rmSync(root, { recursive: true, force: true });
+	fs.rmSync(root, { recursive: true, force: true, maxRetries: 4 });
 });
 
 const bulk = (sourceIds: string[], deleteSessions: boolean) => DELETE(new Request("http://local/api/graph/sources", {
