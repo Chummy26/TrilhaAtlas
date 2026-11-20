@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { MenuShell } from "@/components/menu-shell";
 import { DeleteSessionDialog } from "@/components/delete-session-dialog";
-import type { ChatDeleteMode, ThemeMode } from "@/src/core";
-import { DumbbellIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, PlusIcon, SearchIcon, SettingsIcon } from "lucide-react";
+import type { ChatDeleteMode, ThemeMode, UserSettings } from "@/src/core";
+import { DumbbellIcon, NetworkIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, PlusIcon, SearchIcon, SettingsIcon } from "lucide-react";
 import { ActivitySection } from "@/components/activity-dock";
 import { CoverageMenuBlock } from "@/components/extraction-coverage";
 import { LhMark } from "@/components/lh-mark";
@@ -115,7 +115,10 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 	// mismatch); the stored value is applied after mount.
 	const [open, setOpen] = useState(false);
 	const [narrow, setNarrow] = useState(false);
-	const [mounted, setMounted] = useState(false);
+	const [mobile, setMobile] = useState(false);
+	const [mobileOpen, setMobileOpen] = useState(false);
+	const pathname = usePathname();
+	useEffect(() => { setMobileOpen(false); }, [pathname]);
 
 	useEffect(() => {
 		// Electron shell detection (merged chrome, 2026-09-17): keys the
@@ -141,7 +144,6 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 		const stored = localStorage.getItem(STORAGE_KEY);
 		// Default: open (first run introduces the sidebar).
 		setOpen(stored === null ? true : stored === "1");
-		setMounted(true);
 		return () => off?.();
 	}, []);
 
@@ -150,14 +152,17 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 	// Both this and the mount effect land before the first paint, so a
 	// narrow window never flashes the open sidebar on load.
 	useEffect(() => {
-		if (!IS_ELECTRON) return; // plain-browser tabs open freely
-		const onResize = () => setNarrow(window.innerWidth < SIDEBAR_AUTOCLOSE);
+		const onResize = () => {
+			setNarrow(IS_ELECTRON && window.innerWidth < SIDEBAR_AUTOCLOSE);
+			setMobile(!IS_ELECTRON && window.innerWidth < 640);
+		};
 		onResize();
 		window.addEventListener("resize", onResize);
 		return () => window.removeEventListener("resize", onResize);
 	}, []);
 
 	const toggle = useCallback(() => {
+		if (mobile) { setMobileOpen(value => !value); return; }
 		// Opening while narrow (auto-closed, or the user's own closed-at-
 		// narrow): ask the shell to widen to the threshold — the resize
 		// listener flips `narrow` and the sidebar appears. The preference
@@ -173,7 +178,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 			localStorage.setItem(STORAGE_KEY, v ? "0" : "1");
 			return !v;
 		});
-	}, [narrow, open]);
+	}, [mobile, narrow, open]);
 
 	// ⌘B: the global shortcut dispatches kbdEventForAction("toggle-sidebar")
 	// and the context answers on exactly that name — the shared spelling
@@ -189,31 +194,25 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 	}, [toggle]);
 
 	return (
-		<SidebarContext.Provider value={{ open: open && !narrow, toggle }}>
-			{/* transitions gated on mount: no slide-in flash on page load */}
-			<div className={cn("flex h-dvh", mounted && "[&_.sidebar-motion]:transition-[width,margin,opacity]")}>{children}</div>
+		<SidebarContext.Provider value={{ open: mobile ? mobileOpen : open && !narrow, toggle }}>
+			<div className="flex h-dvh">
+				{mobile && mobileOpen && <button className="fixed inset-0 z-30 bg-black/50" aria-label="Fechar navegação" onClick={toggle} />}
+				{children}
+			</div>
 		</SidebarContext.Provider>
 	);
 }
 
 /** Hamburger for page headers — only visible when the sidebar is closed.
  *
- *  Owner, round 6c: the toggle is ALWAYS MOUNTED, owning a slot whose
- *  width+margin animate in LOCKSTEP with the sidebar's own width
- *  transition (same duration-200, same easing, both gated on mount) —
- *  before, it mounted/unmounted in one frame, so its 48px footprint
- *  (button + gap) popped and dragged the title and chips sideways while
- *  the sidebar was still mid-slide. When open the slot is exactly zero
- *  (w-0 -mr-3: width 0, the negative margin cancels the header's gap-3),
- *  so resting layouts are pixel-identical to the old conditional render.
- *  The icon fades with the slot and is clipped by it as it collapses —
- *  no popping in either direction. */
+ *  The mounted slot and the sidebar switch widths together in one layout.
+ *  Interpolating those widths reflows the whole lesson on every frame. */
 export function SidebarToggle() {
 	const { open, toggle } = useSidebar();
 	return (
 		<span
 			className={cn(
-				"sidebar-motion lh-no-drag relative flex h-9 shrink-0 overflow-hidden duration-200",
+				"sidebar-motion lh-no-drag relative flex h-9 shrink-0 overflow-hidden",
 				open ? "w-0 -mr-3" : "w-9 mr-0 lh-closed-toggle",
 			)}
 		>
@@ -225,7 +224,7 @@ export function SidebarToggle() {
 				aria-hidden={open}
 				tabIndex={open ? -1 : 0}
 				onClick={toggle}
-				className={cn("sidebar-motion duration-200", open ? "pointer-events-none opacity-0" : "opacity-100")}
+				className={cn("motion-safe:transition-opacity motion-safe:duration-100", open ? "pointer-events-none opacity-0" : "opacity-100")}
 			>
 				{/* Owner, round 6: size-4, SAME as the close glyph — the toggle
 				    must not grow when the sidebar is closed (it did: size-5 here).
@@ -309,13 +308,18 @@ export function SessionRow({
 	 *  visually distinct from the active session, which stays filled. */
 	kbdSelected?: boolean;
 	/** Right-click opens the context menu (wave 6: Rename / Delete). */
-	onContextMenu?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+	onContextMenu?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }) {
+	const [intent, setIntent] = useState(false);
 	return (
-		<button
-			type="button"
-			onClick={onOpen}
+		<Link
+			href={`/chat/${chat.id}`}
+			prefetch={intent ? null : false}
+			onMouseEnter={() => setIntent(true)}
+			onFocus={() => setIntent(true)}
+			onNavigate={onOpen}
 			onContextMenu={onContextMenu}
+			aria-current={active ? "page" : undefined}
 			data-testid={kbdSelected ? "session-row-kbd" : "session-row"}
 			className={cn(
 				"relative mb-0.5 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-accent",
@@ -339,7 +343,7 @@ export function SessionRow({
 			{(chat.kind ?? "teach") === "practice" && (
 				<DumbbellIcon className="size-3.5 shrink-0 text-muted-foreground/70" aria-label="Practice session" />
 			)}
-		</button>
+		</Link>
 	);
 }
 
@@ -402,7 +406,7 @@ export function RenameRow({ chat, onCommit, onCancel }: { chat: ChatListItem; on
 export type SessionKindFilter = "teach" | "all" | "practice";
 const KIND_FILTER_KEY = "lh:session-kind-filter";
 
-function SessionsSidebar() {
+function SessionsSidebar({ domain }: { domain: string | null }) {
 	const interactions = useInteractionLayers();
 	const { open, toggle } = useSidebar();
 	const [chats, setChats] = useState<ChatListItem[] | null>(null);
@@ -565,7 +569,7 @@ function SessionsSidebar() {
 	const [renamingId, setRenamingId] = useState<string | null>(null);
 	const [deleting, setDeleting] = useState<ChatListItem | null>(null);
 
-	const openContext = (e: React.MouseEvent<HTMLButtonElement>, chat: ChatListItem) => {
+	const openContext = (e: React.MouseEvent<HTMLAnchorElement>, chat: ChatListItem) => {
 		e.preventDefault(); // suppress the native menu
 		ctxAnchorRef.current = e.currentTarget;
 		setCtxChatId(chat.id);
@@ -637,11 +641,10 @@ function SessionsSidebar() {
 		return () => window.removeEventListener("lh:kbd-sessions-search", onFocusSearch);
 	}, [open, toggle, interactions]);
 
-	// Keep the kbd-selected row in view (the rows are the container's only
-	// buttons, so the index matches).
+	// Keep the keyboard-selected session in view when walking the list.
 	useEffect(() => {
 		if (kbdIndex === null) return;
-		listRef.current?.querySelectorAll("button")[kbdIndex]?.scrollIntoView({ block: "nearest" });
+		listRef.current?.querySelector('[data-testid="session-row-kbd"]')?.scrollIntoView({ block: "nearest" });
 	}, [kbdIndex]);
 
 	useEffect(() => {
@@ -653,7 +656,7 @@ function SessionsSidebar() {
 
 	return (
 		<aside
-			className={cn("sidebar-motion shrink-0 overflow-hidden duration-200", open ? "w-72" : "w-0")}
+			className={cn("sidebar-motion shrink-0 overflow-hidden", open ? "w-72" : "w-0")}
 			aria-hidden={!open}
 		>
 			<div className="flex h-full w-72 flex-col border-r bg-background">
@@ -703,30 +706,39 @@ function SessionsSidebar() {
 					<button
 						type="button"
 						data-testid="new-session"
-						title="Teaching"
+						title="Estudar"
 						onClick={() => void newSession()}
-						className="flex min-w-0 w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
-						<PlusIcon className="size-3 shrink-0" />
-						<span className="min-w-0 truncate">Teaching</span>
-						<span className="sr-only">create a new teaching session</span>
+						<PlusIcon className="size-4 shrink-0" />
+						<span className="min-w-0 truncate">Estudar</span>
+						<span className="sr-only">criar uma sessão de estudo</span>
 					</button>
 					<button
 						type="button"
 						data-testid="new-session-practice"
-						title="Practice"
+						title="Praticar"
 						onClick={() => router.push("/chat/new?mode=practice")}
-						className="flex min-w-0 w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
-						<DumbbellIcon className="size-3 shrink-0" />
-						<span className="min-w-0 truncate">Practice</span>
-						<span className="sr-only">create a new practice session</span>
+						<DumbbellIcon className="size-4 shrink-0" />
+						<span className="min-w-0 truncate">Praticar</span>
+						<span className="sr-only">criar uma sessão de prática</span>
 					</button>
+					{domain && <Link
+						href={{ pathname: "/mapa", query: { dominio: domain } }}
+						prefetch={false}
+						aria-current={pathname === "/mapa" ? "page" : undefined}
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
+					>
+						<NetworkIcon aria-hidden="true" className="size-4 shrink-0" />
+						<span className="min-w-0 truncate">Árvore</span>
+					</Link>}
 				</PluginSidebarActions>
 
 				<div className="mx-3 mb-2 flex items-center gap-2">
-					<span className="text-xs uppercase tracking-widest text-muted-foreground/70">Sessions</span>
-					<Hint label="Search sessions" action="sessions-search" side="bottom">
+					<span className="text-xs uppercase tracking-widest text-muted-foreground/70">Sessões</span>
+					<Hint label="Pesquisar sessões" action="sessions-search" side="bottom">
 					<span className="relative flex-1">
 						<Input
 							ref={searchRef}
@@ -778,8 +790,8 @@ function SessionsSidebar() {
 									e.currentTarget.blur();
 								}
 							}}
-							placeholder="Search…"
-							aria-label="Search sessions"
+							placeholder="Pesquisar…"
+							aria-label="Pesquisar sessões"
 							className="h-6 rounded-sm border-border bg-background pl-6 text-xs placeholder:text-muted-foreground/60"
 						/>
 						<SearchIcon className="pointer-events-none absolute left-1.5 top-1/2 size-3 -translate-y-1/2 text-muted-foreground/70" />
@@ -802,13 +814,13 @@ function SessionsSidebar() {
 							data-testid={`kind-filter-${f}`}
 							onClick={() => setFilter(f)}
 							className={cn(
-								"flex-1 rounded-sm px-2 py-1 text-[11px] uppercase tracking-wider transition-colors",
+								"flex-1 rounded-sm px-2 py-1 text-sm font-medium transition-colors",
 								kindFilter === f
 									? "bg-accent text-foreground"
 									: "text-muted-foreground hover:text-foreground",
 							)}
 						>
-							{f === "teach" ? "Teaching" : f === "all" ? "All" : "Practice"}
+							{f === "teach" ? "Aulas" : f === "all" ? "Todas" : "Prática"}
 						</button>
 					))}
 				</div>
@@ -818,7 +830,7 @@ function SessionsSidebar() {
 						<div className="px-2 py-4 text-xs text-muted-foreground">Loading…</div>
 					) : shown.length === 0 ? (
 						<div className="px-2 py-4 text-xs text-muted-foreground">
-							{query.trim() ? "No sessions match." : "No sessions yet."}
+							{query.trim() ? "Nenhuma sessão encontrada." : "Ainda não há sessões."}
 						</div>
 					) : (
 						shown.map((c, i) =>
@@ -835,10 +847,7 @@ function SessionsSidebar() {
 									chat={c}
 									active={pathname === `/chat/${c.id}`}
 									kbdSelected={i === kbdIndex}
-									onOpen={() => {
-										setKbdIndex(null);
-										router.push(`/chat/${c.id}`);
-									}}
+									onOpen={() => setKbdIndex(null)}
 									onContextMenu={(e) => openContext(e, c)}
 								/>
 							),
@@ -856,16 +865,18 @@ function SessionsSidebar() {
 					{/* Settings entry (settings-app wave): same row language as
 					    New session — quiet, bottom-pinned, opens the centered
 					    dialog (also mod+, in the keyboard registry). */}
-					<div className="px-3 pb-3 pt-1">
-						<Hint label="Settings" action="open-settings" side="right">
+					{/* The development overlay can still show an Insight when its idle indicator is disabled. */}
+					<div className={cn("px-3 pt-1", process.env.NODE_ENV === "development" ? "pb-16" : "pb-3")}>
+						<Link href="/profile" className="lh-no-drag flex min-h-11 items-center gap-2.5 rounded-md px-3 text-base font-semibold hover:bg-accent">Perfil e XP</Link>
+						<Hint label="Configurações" action="open-settings" side="right">
 							<button
 								type="button"
-								onClick={() => openSettings()}
+								onClick={() => openSettings("appearance")}
 								data-testid="settings-entry"
-								className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+								className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 							>
-								<SettingsIcon className="size-3" />
-								Settings
+								<SettingsIcon className="size-5" />
+								Configurações
 							</button>
 						</Hint>
 					</div>
@@ -950,15 +961,15 @@ function SessionsSidebar() {
 }
 
 /** The app frame: sidebar inline + content. Rendered once in the root layout. */
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, initialSettings, domain = null }: { children: React.ReactNode; initialSettings?: UserSettings | null; domain?: string | null }) {
 	const [contentRoot, setContentRoot] = useState<HTMLElement | null>(null);
 	const pathname = usePathname();
 	return (
 		<HostRouteLifetimeProvider pathname={pathname}>
 		<HostContentRootContext.Provider value={contentRoot}>
-			<InteractionLayersProvider><SettingsDialogProvider>
-				<SessionsSidebar />
-				<FilePathDropZone className="relative isolate min-w-0 flex-1" onContentRoot={setContentRoot}>{children}</FilePathDropZone>
+			<InteractionLayersProvider><SettingsDialogProvider initialSettings={initialSettings}>
+				<SessionsSidebar domain={domain} />
+				<FilePathDropZone className="study-frame relative isolate min-w-0 flex-1" onContentRoot={setContentRoot}>{children}</FilePathDropZone>
 				{/* The single document-level keydown listener (keyboard wave A) —
 				    after the content in the tree, but it's window-level so order only
 				    matters for the events it dispatches, never for DOM priority. */}

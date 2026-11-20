@@ -1,4 +1,11 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@import "./study.css";
+@source ".";
+@source "../components";
+@source "../lib";
+@source "../src";
+@source "../core-plugins";
+@source "../plugins";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -28,7 +35,7 @@
 }
 
 /* Palette (owner's hexes): main #141414, raised #1C1C1C, edges #434343.
-   Mono chrome = JetBrains Mono; prose = Source Sans 3; titles = CMU Serif.
+   Interface and prose = Source Sans 3; code = JetBrains Mono; titles = CMU Serif.
    Dark is the default variant (:root) and the `.dark` class on <html>.
    THEMES (theme wave, 2026-11-04): the active theme's colors land as
    inline variables on <html> (app/layout.tsx first paint, then the
@@ -71,13 +78,9 @@
 	--lh-error: #ef4444;
 	--lh-success: #22c55e;
 	--lh-warning: #f59e0b;
-	/* THE READING SIZE = the ladder's 16px rung (--text-lg). Can't be
-	   var()-linked: @theme inline inlines literals into utilities without
-	   emitting runtime vars — so this is the one documented duplication:
-	   change one, change both. (owner, typography round 4: snapped from
-	   the reskin's hand-tuned 16.5 to the ladder's 16.) */
-	--lh-prose-size: 16px;
-	--lh-prose-leading: 1.5;
+	/* First-paint fallback for the configurable reading size in Appearance. */
+	--lh-prose-size: 18px;
+	--lh-prose-leading: 1.65;
 	/* Markdown heading weight (appearance settings; 900 = the Black cut). */
 	--lh-heading-weight: 900;
 }
@@ -100,36 +103,22 @@
 }
 
 @theme inline {
-	/* Chrome/code = JetBrains Mono; sans surfaces follow the reading font
-	   (Source Sans 3 by default). The loading-face variables attach in
-	   app/layout.tsx. Keep the sans alias pointed at the RUNTIME prose token,
-	   not the loading face, so font-sans also honors Appearance changes. */
-	--font-ui: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 	--font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 	--font-sans: var(--font-prose);
-	/* The modular type ladder — each size carries its own line-height.
-	   Component sizes must pull from this ladder. (owner, typography
-	   round 4: the 10px rung is merged into 11 — one pixel apart was a
-	   distinction with no visible difference, and 10px sits at the mono
-	   legibility floor; quiet labels get their quiet from color +
-	   tracking, not a notch of size. Reading prose = the 16px rung via
-	   --lh-prose-size.) */
-	/* --font-prose and --font-title live in the NON-inline @theme below:
-	   their utilities must read the runtime variables, not bake in the
-	   defaults and bypass the Appearance reading-font/serif overrides. */
-	--text-xs: 11px;
+	/* Shared ladder for labels, controls, reading and display. */
+	--text-xs: .8125rem;
 	--text-xs--line-height: 1.4;
-	--text-sm: 12.5px;
+	--text-sm: .875rem;
 	--text-sm--line-height: 1.4;
-	--text-base: 14px;
+	--text-base: 1rem;
 	--text-base--line-height: 1.45;
-	--text-lg: 16px;
+	--text-lg: 1.125rem;
 	--text-lg--line-height: 1.45;
-	--text-xl: 20px;
+	--text-xl: 1.375rem;
 	--text-xl--line-height: 1.4;
-	--text-2xl: 25px;
+	--text-2xl: 1.75rem;
 	--text-2xl--line-height: 1.3;
-	--text-3xl: 32px;
+	--text-3xl: 2.25rem;
 	--text-3xl--line-height: 1.25;
 	/* Radii ladder — 4/8/12/16 multiples of the 4px base. */
 	--radius-sm: 4px;
@@ -180,6 +169,8 @@ body {
 	line-height: var(--lh-prose-leading);
 }
 
+.lh-prose :where(p, ul, ol) { max-inline-size: 65ch; }
+
 /* Session-name weight (owner, fix wave round 3): with the serif toggle
    OFF, --font-title resolves to the prose font — Source Sans 3 is loaded
    as a VARIABLE font, and without an explicit weight the titles render at
@@ -219,13 +210,44 @@ body {
 	font-weight: var(--lh-heading-weight, 900);
 }
 
-/* lh-input (owner, typography round 2): lh-prose's 1.5 READING leading
-   makes typing carets tower over the glyphs — the caret fills the line
-   box (24px at 16px text, ~2× the glyph height). Inputs are not
-   paragraphs: a tighter 1.25 leading brings the caret to the font-metric
-   floor (~20px, as close to the glyphs as Chromium will draw it) while
-   wrapped lines in growing textareas still read fine. Rendered prose keeps
-   1.5 — the two share family and size, they differ only in leading. */
+/* The tutor's answer reads as a column. Tables, math and diagrams keep the
+   available width. Emphasis follows the surrounding ink in both themes. */
+.tutor-prose {
+	color: var(--foreground);
+	padding-block: .25em;
+}
+.tutor-prose :where(p, ul, ol, blockquote) {
+	max-inline-size: 65ch;
+	overflow-wrap: break-word;
+}
+.tutor-prose p { margin-block: .8em; }
+.tutor-prose :where(h1, h2, h3, h4, h5, h6) {
+	max-inline-size: 48ch;
+	margin-block: 1.35em .45em;
+	color: var(--foreground);
+	line-height: 1.24;
+	letter-spacing: -.015em;
+	text-wrap: balance;
+}
+.tutor-prose :where(h1, h2) { font-size: 1.38em; }
+.tutor-prose :where(h3, h4) { font-size: 1.16em; }
+.tutor-prose :where(strong, b) { font-weight: 750; }
+.tutor-prose :where(strong, b, em, i) { color: inherit; }
+.tutor-prose :where(ul, ol) { list-style-position: outside; padding-inline-start: 1.55em; }
+.tutor-prose li + li { margin-block-start: .35em; }
+.tutor-prose li::marker { color: var(--lh-ink-strong); font-weight: 700; }
+.tutor-prose blockquote {
+	color: var(--foreground);
+	border-inline-start: 3px solid var(--lh-ink-italic);
+	background: color-mix(in srgb, var(--lh-ink-italic) 6%, var(--background));
+	padding: .35em 1em;
+}
+.tutor-prose blockquote > p { margin-block: .3em; }
+.tutor-prose a[href] { text-decoration: underline; text-underline-offset: .17em; }
+.tutor-prose [data-streamdown="inline-code"] { font-size: .91em; background: var(--muted); }
+.tutor-prose :is(p, li) > a[href] { overflow-wrap: anywhere; }
+
+/* Compact leading keeps the caret close to the glyphs while composing. */
 .lh-input {
 	font-family: var(--font-prose);
 	font-size: var(--lh-prose-size);
@@ -595,6 +617,7 @@ body {
    independently, whether titles use serif or the reading family. Non-inline
    utilities read these vars; Source Sans 3 remains the default/loading face. */
 @theme {
+	--font-ui: var(--font-sans3), ui-sans-serif, system-ui, sans-serif;
 	--font-prose: var(--font-sans3), ui-sans-serif, system-ui, sans-serif;
 	--font-title: "lh-cmu", serif;
 }
@@ -716,22 +739,22 @@ body {
 	--c-ruby-shade: #cf2962;
 	--c-ruby-hl: #fca9b1;
 	/* Neutrals + semantic roles (night). */
-	--cel-bg: #16161f;
-	--cel-bg-shade: #0c0c15;
-	--cel-surface-1: #22222f;
-	--cel-surface-1-shade: #181724;
-	--cel-surface-1-rim: #3b3b49;
-	--cel-surface-2: #1b1b26;
-	--cel-surface-2-shade: #11111b;
-	--cel-surface-3: #2c2c3c;
-	--cel-surface-3-rim: #464657;
-	--cel-text: #e9e4d6;
-	--cel-text-muted: #a9a5ba;
-	--cel-text-faint: #77738a;
+	--cel-bg: #101419;
+	--cel-bg-shade: #0b0e12;
+	--cel-surface-1: #1b2128;
+	--cel-surface-1-shade: #161b21;
+	--cel-surface-1-rim: #363f47;
+	--cel-surface-2: #171c22;
+	--cel-surface-2-shade: #11161b;
+	--cel-surface-3: #262d34;
+	--cel-surface-3-rim: #424a52;
+	--cel-text: #f1ebdf;
+	--cel-text-muted: #b1b5b8;
+	--cel-text-faint: #879098;
 	--cel-line: #07070b;
-	--cel-line-object: #e9e4d6;
+	--cel-line-object: #f1ebdf;
 	--cel-line-soft: rgb(233 228 214 / 0.2);
-	--cel-edge: #8c88a6;
+	--cel-edge: #77818a;
 	--cel-shadow-color: #000000;
 	--cel-on-fill: #07070b;
 	--cel-focus: #ffd23f;
@@ -1040,3 +1063,33 @@ body {
 	}
 }
 /* ═══ /CEL ═══ */
+
+.pdf-citation {
+	color: light-dark(#00656b, #75e1db);
+	background: light-dark(#ddf3ef, #163b3d);
+	border-radius: .35em;
+	padding: 0 .3em;
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: .15em;
+	cursor: pointer;
+}
+.pdf-citation-panel[open] {
+	position: fixed;
+	inset: 0 0 0 auto;
+	margin: 0;
+	width: min(42rem, 100vw);
+	max-width: 100vw;
+	height: 100dvh;
+	max-height: 100dvh;
+	overflow-y: auto;
+	background: var(--background);
+	color: var(--foreground);
+	padding: 1.25rem;
+	border-inline-start: 1px solid var(--border);
+}
+.pdf-citation-panel::backdrop { background: rgb(0 0 0 / .32); }
+.pdf-citation-panel header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.pdf-citation-panel h2 { font-size: 1.3rem; font-weight: 650; }
+.pdf-citation-panel img { width: 100%; height: auto; background: white; }
+.pdf-citation-panel details { margin-top: 1rem; }

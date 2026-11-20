@@ -9,20 +9,41 @@ type Reply<T> = { value: T; browserAction?: string; error?: string };
 const PATH = "/api/subscriptions";
 const headers = { "Content-Type": "application/json", "x-learnharness-subscriptions": "1" };
 
-async function status() {
+let statusRequest: ReturnType<typeof readStatus> | undefined;
+function status() {
+	if (statusRequest) return statusRequest;
+	const request = readStatus().finally(() => { if (statusRequest === request) statusRequest = undefined; });
+	statusRequest = request;
+	return request;
+}
+async function readStatus() {
 	const response = await fetch(PATH, { headers, cache: "no-store" });
 	if (!response.ok) throw new Error("Subscription status is unavailable.");
 	return response.json() as Promise<{ chatgpt: ChatGPTStatus; native: NativeSubscriptionStatus[] }>;
 }
 async function control<T>(providerId: string, op: string, fields: Record<string, unknown> = {}): Promise<Reply<T>> {
+	statusRequest = undefined;
 	const response = await fetch(PATH, { method: "POST", headers, body: JSON.stringify({ providerId, op, ...fields }) });
 	if (!response.ok) throw new Error("The subscription connection could not be changed.");
 	return response.json() as Promise<Reply<T>>;
 }
+const statusListeners = new WeakMap<NonNullable<Hub>, { listeners: Set<() => void>; close: () => void }>();
 function onChange(hub: Hub, listener: () => void): () => void {
-	const offEvent = hub?.subscribe("subscriptions-changed", listener);
-	const offResync = hub?.onResync(listener);
-	return () => { offEvent?.(); offResync?.(); };
+	if (!hub) return () => {};
+	let group = statusListeners.get(hub);
+	if (!group) {
+		const listeners = new Set<() => void>();
+		const refresh = () => { statusRequest = undefined; for (const notify of listeners) notify(); };
+		const offEvent = hub.subscribe("subscriptions-changed", refresh);
+		const offResync = hub.onResync(refresh);
+		group = { listeners, close: () => { offEvent(); offResync(); } };
+		statusListeners.set(hub, group);
+	}
+	group.listeners.add(listener);
+	return () => {
+		group.listeners.delete(listener);
+		if (group.listeners.size === 0) { group.close(); statusListeners.delete(hub); }
+	};
 }
 /** Reserve the new tab synchronously in the click gesture. Only a one-use
  * same-origin action URL enters app JS; provider URLs remain in the owner.

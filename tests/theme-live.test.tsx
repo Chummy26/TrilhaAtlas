@@ -94,8 +94,9 @@ it("same-mode theme/override changes feed new paint to the mounted graph without
 
 it("a server palette refresh cannot overwrite newer live colors or mode; typography resets still clear inline overrides", async () => {
 	const dom = parseHTML("<html><body><div id='root'></div></body></html>");
+	let catalogReads = 0;
 	const globals = { window: dom.window, document: dom.document, IS_REACT_ACT_ENVIRONMENT: true,
-		fetch: async () => Response.json({ themes: BUILTIN_THEMES }) };
+		fetch: async () => { catalogReads++; return Response.json({ themes: BUILTIN_THEMES }); } };
 	const saved = new Map(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
 	for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { configurable: true, writable: true, value });
 	const { createRoot } = await import("react-dom/client");
@@ -108,6 +109,12 @@ it("a server palette refresh cannot overwrite newer live colors or mode; typogra
 	);
 	try {
 		await act(async () => render({}));
+		assert.equal(catalogReads, 0, "the server supplied the active palette for this page");
+		await act(async () => { await Promise.all([live.refreshThemes("if-needed"), live.refreshThemes("if-needed")]); });
+		await live.refreshThemes("if-needed");
+		assert.equal(catalogReads, 1, "opening the picker reuses its catalog even across consumers");
+		await act(async () => { await live.refreshThemes(); });
+		assert.equal(catalogReads, 2, "an import or removal refreshes the catalog");
 		await act(async () => live.onAppearanceChange({ theme: dawn.id, colors: { text: "#123456" }, fontFamily: "Georgia", sessionNameSerif: false }));
 		assert.equal(document.documentElement.style.getPropertyValue("--foreground"), "#123456");
 		// Simulate <html> rewritten by a refreshed layout before provider effects.

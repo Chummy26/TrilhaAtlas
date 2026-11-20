@@ -18,7 +18,7 @@ const PRESET_APPEARANCE = {
 	pastel: { mode: "light", background: "#f2f0e8" },
 	"nvchad-onedark": { mode: "dark", background: "#1e222a" },
 	"cel-papel": { mode: "light", background: "#fbf7ee" },
-	"cel-noite": { mode: "dark", background: "#16161f" },
+	"cel-noite": { mode: "dark", background: "#101419" },
 };
 const HEX = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
 const COLOR_KEYS = ["background", "surface", "border", "text", "textMuted", "accent", "bold", "italic", "code", "error", "success", "warning"];
@@ -47,7 +47,7 @@ function readAppearance(dataDir) {
 	let a;
 	try { a = JSON.parse(fs.readFileSync(path.join(dataDir, "settings.json"), "utf8"))?.appearance; }
 	catch { /* absent/corrupt record = factory */ }
-	const id = typeof a?.theme === "string" ? a.theme : undefined;
+	const id = typeof a?.theme === "string" ? a.theme : "cel-noite";
 	let theme = Object.hasOwn(PRESET_APPEARANCE, id) ? PRESET_APPEARANCE[id] : PRESET_APPEARANCE.default;
 	if (typeof id === "string" && id.length <= 64 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) && !Object.hasOwn(PRESET_APPEARANCE, id)) {
 		try {

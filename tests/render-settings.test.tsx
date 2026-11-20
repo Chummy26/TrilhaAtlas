@@ -98,7 +98,7 @@ describe("SettingsDialog (the designed surface, SSR)", () => {
 		assert.ok(html.indexOf('data-testid="settings-nav-keys"') < html.indexOf('data-testid="settings-nav-general"'));
 		assert.ok(tagOf(html, "settings-nav-keyboard").includes('aria-current="false"'));
 		// Fetches don't run under SSR — the loading state IS the SSR state.
-		assert.ok(html.includes("Loading settings…"));
+		assert.ok(html.includes("Carregando configurações…"));
 		// Modal-only doctrine: no link back to /settings anywhere in it.
 		assert.ok(!html.includes('href="/settings"'));
 	});
@@ -143,10 +143,11 @@ describe("Providers settings-label typography", () => {
 		const setup = renderToStaticMarkup(<SubscriptionConnections setup />);
 		for (const label of ["ChatGPT", "GitHub Copilot", "Grok"]) {
 			assert.ok(settings.includes(`<span class="font-prose text-(length:--lh-prose-size) text-foreground">${label}</span>`), `${label}: settings sans label`);
-			assert.ok(setup.includes(`<span class="font-ui text-xs text-foreground">${label}</span>`), `${label}: unchanged setup label`);
+			if (label === "ChatGPT") assert.ok(setup.includes("Continue with ChatGPT"));
+			else assert.ok(setup.includes(`<span class="font-ui text-xs text-foreground">${label}</span>`), `${label}: compact setup label`);
 		}
 		assert.equal((settings.match(/>Connect<\/button>/g) ?? []).length, 3);
-		assert.equal((setup.match(/>Connect<\/button>/g) ?? []).length, 3);
+		assert.equal((setup.match(/>Connect<\/button>/g) ?? []).length, 2);
 	});
 });
 
@@ -394,9 +395,9 @@ describe("AppearanceSection (thin SSR)", () => {
 		assert.ok(!html.includes("theme-remove-"), "presets cannot be removed");
 	});
 
-	it("absent theme = the factory (Cel Papel) card pressed", () => {
+	it("absent theme = the factory (Cel Noite) card pressed", () => {
 		const html = renderAppearance(undefined);
-		assert.ok(tagOf(html, "theme-card-cel-papel").includes('aria-pressed="true"'));
+		assert.ok(tagOf(html, "theme-card-cel-noite").includes('aria-pressed="true"'));
 	});
 
 	it("an imported theme gets a custom card with a remove button", () => {
@@ -432,7 +433,7 @@ describe("AppearanceSection (thin SSR)", () => {
 		assert.ok(html.includes('data-testid="font-trigger"'));
 		assert.ok(html.includes('data-testid="row-prose-size"'));
 		assert.ok(html.includes('data-testid="row-heading-weight"'));
-		assert.ok(html.includes("16px"));
+		assert.ok(html.includes("18px"));
 		assert.ok(!html.includes('data-testid="row-mode"'), "the mode row is gone — the theme declares it");
 	});
 });

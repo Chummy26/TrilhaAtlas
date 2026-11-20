@@ -3,10 +3,19 @@ import {
 	effectiveSettings,
 	getChat,
 	parseSettingsBody,
+	readSettingsRecord,
 	stores,
 	validateChatSettings,
 } from "@/src/server";
 import type { ChatSettings } from "@/src/core";
+
+/** The picker needs only the per-field overrides and their Strong fallback. */
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const { id } = await params;
+	const chat = getChat(id);
+	if (!chat) return Response.json({ error: "Not found" }, { status: 404 });
+	return Response.json({ settings: chat.settings, strong: readSettingsRecord()?.models?.strong });
+}
 
 /**
  * The per-chat model control (model-control wave): replace-whole settings —

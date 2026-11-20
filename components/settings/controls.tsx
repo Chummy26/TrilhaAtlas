@@ -217,7 +217,7 @@ export function SettingsSlider({ label, min, max, step, value, display, onChange
 	disabled?: boolean;
 }) {
 	return <label className={`flex flex-col gap-1${disabled ? " opacity-40" : ""}`}>
-		<span className="flex items-center justify-between text-[11px] text-muted-foreground">
+		<span className="flex items-center justify-between text-xs text-muted-foreground">
 			{showLabel && label}<span className="tabular-nums">{display ?? value}</span>
 		</span>
 		<input type="range" aria-label={label} min={min} max={max} step={step} value={value} disabled={disabled}

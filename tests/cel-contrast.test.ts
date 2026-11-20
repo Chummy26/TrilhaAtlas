@@ -259,6 +259,10 @@ describe("cel contrast — WCAG AA in Cel Papel and Cel Noite", () => {
 			assert.equal(theme.mode, mode);
 			assert.equal(themeFamily(theme), "cel");
 			const c = theme.colors;
+			for (const ink of [c.text, c.bold, c.italic, c.code]) {
+				assert.ok(Math.min(wcagContrast(ink, c.background), wcagContrast(ink, c.surface)) >= 7,
+					`${id}: tutor prose and its emphasis must remain legible on the page and in activities`);
+			}
 			for (const key of ["text", "textMuted", "bold", "italic", "code", "error", "success", "warning"] as const) {
 				for (const ground of [c.background, c.surface]) {
 					const ratio = wcagContrast(c[key], ground);

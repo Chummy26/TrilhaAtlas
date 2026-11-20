@@ -34,6 +34,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
 	EXTRACTION_CHUNK_TOKENS_FLOOR,
+	FACTORY_SETTINGS,
 	resolveSettings,
 	THEME_COLOR_KEYS,
 	type AppearanceSettings,
@@ -197,7 +198,22 @@ export function AppearanceSection({
 	/** PUT the whole appearance section; the page re-applies on success. */
 	onSectionChange: (next: AppearanceSettings) => boolean | Promise<boolean>;
 }) {
-	const { appearance: resolved, activeTheme, colors, themes, refreshThemes } = useAppearance();
+	const { appearance: resolved, activeTheme, colors, themes, refreshThemes, onAppearanceChange } = useAppearance();
+	// The server already supplied the active palette. Other imported palettes
+	// are needed only while the picker is visible.
+	useEffect(() => { void refreshThemes("if-needed"); }, [refreshThemes]);
+	const [savingTheme, setSavingTheme] = useState(false);
+	const themeInFlight = useRef(false);
+	async function selectTheme(id: string) {
+		if (themeInFlight.current || id === activeTheme.id) return;
+		themeInFlight.current = true;
+		setSavingTheme(true);
+		const next = { ...appearance, theme: id };
+		onAppearanceChange(next);
+		try { if (!await onSectionChange(next)) onAppearanceChange(appearance); }
+		catch { onAppearanceChange(appearance); }
+		finally { themeInFlight.current = false; setSavingTheme(false); }
+	}
 	const md = appearance?.mdRendering;
 
 	// The font dropdown's open state + its enumeration cache. undefined =
@@ -286,7 +302,8 @@ export function AppearanceSection({
 				themes={themes}
 				active={activeTheme}
 				appearance={appearance}
-				onSelect={(id) => onSectionChange({ ...appearance, theme: id })}
+				selecting={savingTheme}
+				onSelect={id => void selectTheme(id)}
 				onImported={() => void refreshThemes()}
 				onRemoved={(removed) => {
 					void refreshThemes();
@@ -295,6 +312,8 @@ export function AppearanceSection({
 					if (removed.id === activeTheme.id) onSectionChange({ ...appearance, theme: "default" });
 				}}
 			/>
+			{activeTheme.id !== FACTORY_SETTINGS.appearance.theme && <button type="button" className="cel-button mt-3" disabled={savingTheme}
+				onClick={() => void selectTheme(FACTORY_SETTINGS.appearance.theme)}>Usar tema padrão · Cel Noite</button>}
 			<div data-testid="group-colors" className="mt-5 flex flex-col gap-2">
 				<div className="flex items-end justify-between gap-4">
 					<p className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -387,7 +406,7 @@ export function AppearanceSection({
 				<CommitInput
 					type="number"
 					value={String(appearance?.proseFontSize ?? "")}
-					placeholder="16"
+					placeholder={String(FACTORY_SETTINGS.appearance.proseFontSize)}
 					ariaLabel="prose font size"
 					testid="input-prose-size"
 					onCommit={(v) => {

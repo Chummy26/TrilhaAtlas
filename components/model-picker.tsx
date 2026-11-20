@@ -5,7 +5,7 @@ import type { ChatSettings, ModelCatalogEntry, ModelCatalogResponse, ModelsSetti
 import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
 import { prettyModel } from "@/components/usage-format";
 import { ModelMenuList, ThinkingMenuList } from "@/components/settings/model-menu";
-import { composeSlotModel } from "@/components/settings/agent-section";
+import { composeSlotModel } from "./settings/compose-slot-model.ts";
 import { MenuShell } from "@/components/menu-shell";
 import { useInteractionLayers } from "@/components/interaction-layers";
 import { isInputShortcutScopeEligible } from "@/components/plugin-input-focus";
@@ -27,7 +27,7 @@ export function catalogLimits(catalog: Pick<ModelCatalogResponse, "models">): Ma
 /**
  * THE CONVERSATION MODEL CONTROL — dual-bound (owner, per-session models,
  * 2026-09-28). WITH a chatId (the in-session stats bar): the pills bind
- * THE SESSION'S OWN record — reads GET /api/chats/:id (its settings field;
+ * THE SESSION'S OWN record — reads GET /api/chats/:id/settings (its settings field;
  * a legacy unstamped record falls back to the strong slot's display,
  * exactly what the engine resolves), writes PUT /api/chats/:id/settings
  * (validated + level-clamped server-side). The session owns its model +
@@ -45,7 +45,8 @@ export function ModelControl({ chatId, onModelChange }: { chatId?: string; onMod
 	const [models, setModels] = useState<ModelsSettings | undefined>();
 	// A successful read with no settings is a legacy session; undefined
 	// means no session record is known yet, not permission to inherit Strong.
-	const [session, setSession] = useState<{ settings?: ChatSettings }>();
+	const [session, setSession] = useState<{ id: string; settings?: ChatSettings; strong?: ModelsSettings["strong"] }>();
+	const readVersion = useRef(0);
 	const [open, setOpen] = useState<"model" | "thinking" | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -54,31 +55,28 @@ export function ModelControl({ chatId, onModelChange }: { chatId?: string; onMod
 	// The record read — BOTH mount and the cross-surface signal land
 	// here (fix wave: another surface's models write re-reads into the
 	// pill live; own writes also notify, and the refetch is idempotent).
-	// Dual-bound: chat mode reads BOTH the session record (the source of
-	// truth) and the models section (the display fallback for a legacy
-	// unstamped session — exactly what the engine resolves); draft mode
-	// reads the models section alone.
-	const readRecord = useCallback(() => {
-		if (chatId) {
-			fetch(`/api/chats/${chatId}`)
-				.then((r) => { if (!r.ok) throw new Error(`session read failed: ${r.status}`); return r.json() as Promise<{ settings?: ChatSettings }>; })
-				.then((body) => setSession({ settings: body.settings }))
-				.catch(() => {
-					/* same read-only posture as a models-section failure */
-				});
-		}
-		fetch("/api/settings")
-			.then((r) => r.json() as Promise<{ settings: { models?: ModelsSettings } | null }>)
-			.then((body) => setModels(body.settings?.models ?? undefined))
-			.catch(() => {
-				/* the record fetch failing leaves the control read-only
-				   ("—" triggers, closed menus) — same posture as a
-				   catalog failure */
-			});
+	// A session's projection includes the fallback for older partial pins.
+	// Ignore a late refresh if a newer read or acknowledged write overtook it.
+	const readRecord = useCallback(async () => {
+		const version = ++readVersion.current;
+		try {
+			if (chatId) {
+				const response = await fetch(`/api/chats/${chatId}/settings`);
+				if (!response.ok) return;
+				const body = await response.json() as { settings?: ChatSettings; strong?: ModelsSettings["strong"] };
+				if (version === readVersion.current) setSession({ id: chatId, settings: body.settings, strong: body.strong });
+			} else {
+				const response = await fetch("/api/settings");
+				if (!response.ok) return;
+				const body = await response.json() as { settings: { models?: ModelsSettings } | null };
+				if (version === readVersion.current) setModels(body.settings?.models);
+			}
+		} catch { /* Leave the last confirmed choice in place until the next read. */ }
 	}, [chatId]);
 
 	useEffect(() => {
-		readRecord();
+		void readRecord();
+		return () => { readVersion.current++; };
 	}, [readRecord]);
 
 	useSettingsSaved((section) => {
@@ -91,11 +89,12 @@ export function ModelControl({ chatId, onModelChange }: { chatId?: string; onMod
 	// failed record read must not report a provisional global preference as
 	// this session's identity (including to the Send guard). Draft mode is
 	// the strong slot itself.
-	const strong = models?.strong;
+	const currentSession = session?.id === chatId ? session : undefined;
+	const strong = chatId ? currentSession?.strong : models?.strong;
 	const override: ChatSettings | undefined = chatId
-		? session ? {
-				model: session.settings?.model ?? strong?.model,
-				thinkingLevel: session.settings?.thinkingLevel ?? strong?.thinkingLevel,
+		? currentSession ? {
+				model: currentSession.settings?.model ?? strong?.model,
+				thinkingLevel: currentSession.settings?.thinkingLevel ?? strong?.thinkingLevel,
 			} : undefined
 		: strong;
 	const effectiveId = override?.model?.id;
@@ -192,7 +191,10 @@ export function ModelControl({ chatId, onModelChange }: { chatId?: string; onMod
 					return;
 				}
 				const stored = (await res.json().catch(() => null)) as { settings?: ChatSettings } | null;
-				setSession({ settings: stored?.settings ?? next });
+				if (chatId) {
+					setSession(current => ({ id: chatId, settings: stored?.settings ?? next, strong: current?.id === chatId ? current.strong : undefined }));
+					readVersion.current++;
+				}
 				setOpen(null);
 			} catch {
 				setError("Could not reach the server — try again.");

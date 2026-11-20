@@ -6,6 +6,7 @@ import { MAX_BOOK_BODY_BYTES } from "./lib/book-import-limits.ts";
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string; homepage: string };
 
 const nextConfig: NextConfig = {
+	devIndicators: false,
 	// Public build metadata only; no new runtime Electron version API.
 	env: { LH_VERSION: pkg.version, LH_HOMEPAGE: pkg.homepage },
 	// Leave multipart headroom for notes and regional books. This is a

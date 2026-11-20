@@ -225,8 +225,7 @@ test("blocked session recovery opens its ordinary picker, never changes Strong o
 	const session = { model: { provider: a.provider, id: a.id }, thinkingLevel: "xhigh" };
 	const requestsOnly = globalThis.fetch; const sessionWrites: unknown[] = [];
 	globalThis.fetch = async (input, init) => {
-		if (input === "/api/settings") return Response.json({ settings: { models: globals } });
-		if (input === "/api/chats/fixture") return Response.json({ settings: session });
+		if (input === "/api/chats/fixture/settings" && !init?.method) return Response.json({ settings: session, strong: globals.strong });
 		if (input === "/api/chats/fixture/settings") { const next = JSON.parse(String(init?.body)); sessionWrites.push(next); return Response.json({ settings: next }); }
 		return requestsOnly(input, init);
 	};
@@ -247,15 +246,14 @@ for (const result of ["override", "legacy", "http-failure", "network-failure"] a
 	installFetch(); const available = { ...b, provider: "other" }; const body = catalog();
 	body.models = [available]; body.providers = [{ id: "other", envVar: "OTHER_KEY", keyPresent: true }];
 	// Global Strong is unavailable, but this existing session owns a valid
-	// model. Resolve global settings first while keeping its record pending.
+	// model. The small projection supplies the fallback with the session.
 	const globals: ModelsSettings = { strong: { model: { provider: a.provider, id: a.id }, thinkingLevel: "xhigh" } };
 	let resolveSession!: (response: Response) => void;
 	let rejectSession!: (reason: Error) => void;
 	const sessionRead = new Promise<Response>((resolve, reject) => { resolveSession = resolve; rejectSession = reject; });
 	const requestsOnly = globalThis.fetch;
 	globalThis.fetch = async (input, init) => {
-		if (input === "/api/settings") return Response.json({ settings: { models: globals } });
-		if (input === "/api/chats/fixture") return sessionRead;
+		if (input === "/api/chats/fixture/settings") return sessionRead;
 		return requestsOnly(input, init);
 	};
 	await warm(body); const identities: Array<string | undefined> = [];
@@ -267,13 +265,35 @@ for (const result of ["override", "legacy", "http-failure", "network-failure"] a
 	await act(async () => {
 		if (result === "network-failure") rejectSession(new Error("fixture connection failure"));
 		else if (result === "http-failure") resolveSession(Response.json({ error: "fixture unavailable" }, { status: 503 }));
-		else resolveSession(Response.json(result === "legacy" ? {} : { settings: { model: { provider: available.provider, id: available.id }, thinkingLevel: "medium" } }));
+		else resolveSession(Response.json({ strong: globals.strong, ...(result !== "legacy" && { settings: { model: { provider: available.provider, id: available.id }, thinkingLevel: "medium" } }) }));
 	});
 	const expected = result === "legacy" ? `${a.provider}:${a.id}` : result === "override" ? `other:${b.id}` : undefined;
 	assert.equal(identities.at(-1), expected);
 	assert.equal(selectedModelUnavailable(snapshot.catalog, identities.at(-1)), result === "legacy", "only a confirmed legacy record may inherit the unavailable Strong pin");
 	assert.equal(document.querySelector('[data-testid="model-menu"]'), null);
 	assert.deepEqual(writes, []);
+});
+
+test("rapid picker refreshes keep the newest session identity and only fetch its projection", async () => {
+	installFetch();
+	const requestsOnly = globalThis.fetch;
+	const paths: string[] = [];
+	const reads: ReturnType<typeof deferred<Response>>[] = [];
+	globalThis.fetch = (input, init) => {
+		if (input === "/api/models") return requestsOnly(input, init);
+		paths.push(String(input));
+		const read = deferred<Response>();
+		reads.push(read);
+		return read.promise;
+	};
+	await warm(catalog());
+	let selected: string | undefined;
+	await render(<><Reader /><StatsBar turns={[]} chatId="fixture" onModelChange={id => { selected = id; }} /></>);
+	await act(async () => notifySettingsSaved("models"));
+	assert.deepEqual(paths, ["/api/chats/fixture/settings", "/api/chats/fixture/settings"]);
+	await act(async () => reads[1]!.resolve(Response.json({ settings: { model: { provider: b.provider, id: b.id } } })));
+	await act(async () => reads[0]!.resolve(Response.json({ strong: { model: { provider: a.provider, id: a.id } } })));
+	assert.equal(selected, b.provider + ":" + b.id);
 });
 
 test("availability and setup completeness never conflate missing metadata, disconnected providers or saved identities", () => {

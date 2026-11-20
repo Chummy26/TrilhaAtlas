@@ -33,6 +33,7 @@ import {
 	type ReactNode,
 	type RefObject,
 } from "react";
+import dynamic from "next/dynamic";
 import { BotIcon, KeyIcon, KeyboardIcon, PaletteIcon, PlugIcon, PuzzleIcon, SettingsIcon, WaypointsIcon, type LucideIcon } from "lucide-react";
 import { HostDialog } from "@/components/host-dialog";
 import { useInteractionLayers, type CloseOutcome } from "@/components/interaction-layers";
@@ -47,15 +48,15 @@ import {
 import { useAppearance } from "./appearance.tsx";
 import { SettingsSection } from "./controls.tsx";
 import { UpdateSettings } from "./update-settings.tsx";
-import { AgentSection } from "./agent-section.tsx";
+
 import type { ModelsSettings } from "@/src/core";
 import { MENU_CLOSE_EVENT, MENU_OPEN_EVENT } from "@/components/menu-shell";
 import { notifySettingsSaved } from "@/components/settings-signal";
 import { KeysSection } from "./keys-section.tsx";
 import { Hint } from "@/components/ui/hint";
 import { AppearanceSection, GraphSection } from "./appearance-section.tsx";
-import { KeyboardSection } from "./keyboard-section.tsx";
-import { PluginsSection } from "./plugins-section.tsx";
+
+
 import { PluginSettingsPage } from "./plugin-settings-page.tsx";
 import { usePlugins } from "@/components/plugins";
 import { ChatGPTUIProvider } from "./chatgpt-connection.tsx";
@@ -64,6 +65,11 @@ import { NativeSubscriptionUIProvider } from "./subscription-connections.tsx";
 /** Owner (2026-09-20): hints earn their place — mechanics-explaining
  *  prose is out; only the keyboard note stays (storage location is a
  *  real question users ask). */
+// These panels are opened on demand. Keep them off the shell's first load.
+const AgentSection = dynamic(() => import("./agent-section.tsx").then(module => module.AgentSection));
+const KeyboardSection = dynamic(() => import("./keyboard-section.tsx").then(module => module.KeyboardSection));
+const PluginsSection = dynamic(() => import("./plugins-section.tsx").then(module => module.PluginsSection));
+
 const SECTIONS = [
 	{ id: "keys", label: "Providers", icon: KeyIcon },
 	{ id: "agent", label: "Agent", icon: BotIcon },
@@ -95,13 +101,13 @@ const WriteOrderContext = createContext<RefObject<SettingsWriteOrder> | null>(nu
  *  `open(section)` lands the dialog on a specific section (the first-run
  *  setup flow deep-links to Keys when no provider key exists yet). */
 export function SettingsDialogProvider({
-	children,
+	children, initialSettings,
 }: {
-	children: React.ReactNode;
+	children: React.ReactNode; initialSettings?: UserSettings | null;
 }) {
 	const interactions = useInteractionLayers();
 	const layerId = useId();
-	const writeOrder = useRef<SettingsWriteOrder>({ issued: 0, acknowledged: 0, listeners: new Set() });
+	const writeOrder = useRef<SettingsWriteOrder>({ issued: 0, acknowledged: 0, listeners: new Set(), record: initialSettings === null ? { version: CURRENT_SETTINGS_VERSION } : initialSettings });
 	const [show, setShow] = useState(false);
 	const [landOn, setLandOn] = useState<SectionId>("keys");
 	const [landOnRow, setLandOnRow] = useState<string | null>(null);
@@ -191,7 +197,7 @@ export function SettingsDialogBody({
 	const writeOrder = inheritedWriteOrder ?? standaloneWriteOrder;
 	const { snapshot } = usePlugins();
 	const [record, setRecord] = useState<UserSettings | null | undefined>(
-		undefined,
+		writeOrder.current.record,
 	);
 	const [error, setError] = useState<string | null>(null);
 	const [fileAccessError, setFileAccessError] = useState<string | null>(null);
@@ -276,7 +282,8 @@ export function SettingsDialogBody({
 		const applyLoaded = (loaded: UserSettings | null, fileAccessError: string | null = null) => {
 			if (!alive) return;
 			const unchanged = authority.acknowledged === acknowledgedAtRead;
-			setRecord(unchanged ? loaded : authority.record ?? loaded);
+			if (unchanged && loaded) authority.record = loaded;
+			setRecord(authority.record ?? loaded);
 			setFileAccessError(unchanged ? fileAccessError : authority.fileAccessError ?? null);
 		};
 		fetch("/api/settings")
@@ -435,7 +442,7 @@ export function SettingsDialogBody({
 							: activePluginId !== null ? <p role="status" className="px-6 py-5 text-xs text-muted-foreground">Loading plugins…</p>
 								: record === undefined ? (
 						<p className="px-6 py-5 text-xs text-muted-foreground/70">
-							Loading settings…
+							Carregando configurações…
 						</p>
 					) : record === null ? (
 						<p className="px-6 py-5 text-xs text-muted-foreground/70">

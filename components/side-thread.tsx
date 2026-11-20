@@ -130,13 +130,13 @@ export function SideThreadBody({ state, chatId, draft, readDraft, dictation, onD
 				{state.messages.map((message) => (
 					<div key={message.id} data-testid={message.role === "user" ? "side-learner-message" : "side-helper-message"} className={message.role === "user" ? "ml-auto flex w-fit max-w-[70%] flex-col gap-1.5 rounded-xl bg-muted px-3 py-2 text-sm [overflow-wrap:anywhere]" : "flex flex-col gap-1.5 text-sm"}>
 						{message.quotes?.map((quote, index) => <Passage key={index} text={quote} citation={collectCitations(message.quoteCitations?.[index] ?? "")[0]?.citation} />)}
-						{message.role === "user" ? <p className="whitespace-pre-wrap font-medium">{message.text}</p> : <MessageResponse>{message.text}</MessageResponse>}
+						{message.role === "user" ? <p className="whitespace-pre-wrap font-medium">{message.text}</p> : <MessageResponse className="tutor-prose">{message.text}</MessageResponse>}
 						{message.stopped && <span className="font-ui text-xs text-muted-foreground">Stopped</span>}
 						{message.error && <span role="alert" className="text-xs text-destructive">{message.error}</span>}
 					</div>
 				))}
 				{state.answering && <div data-testid="side-streaming-answer" className="text-sm">
-					{state.streamText ? <MessageResponse>{state.streamText}</MessageResponse> : <BrailleSpinner label="Answering" />}
+					{state.streamText ? <MessageResponse className="tutor-prose">{state.streamText}</MessageResponse> : <BrailleSpinner label="Answering" />}
 				</div>}
 				{state.error && <p role="alert" className="text-xs text-destructive">{state.error}</p>}
 				{!state.answering && (last?.role === "user" || (last?.role === "assistant" && last.error !== undefined)) && (

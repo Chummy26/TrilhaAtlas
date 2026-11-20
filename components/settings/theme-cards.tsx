@@ -69,7 +69,7 @@ export function ThemeCards({
 	themes,
 	active,
 	appearance,
-	onSelect,
+	onSelect, selecting = false,
 	onRemoved,
 	onImported,
 }: {
@@ -80,6 +80,7 @@ export function ThemeCards({
 	/** The record delta — the export applies its overrides. */
 	appearance: AppearanceSettings | undefined;
 	onSelect: (id: string) => void;
+	selecting?: boolean;
 	/** After a successful DELETE (the catalog must be re-read). */
 	onRemoved: (theme: Theme) => void;
 	/** After a successful import (the catalog must be re-read). */
@@ -150,6 +151,7 @@ export function ThemeCards({
 							<button
 								type="button"
 								data-testid={`theme-card-${theme.id}`}
+								disabled={selecting}
 								aria-pressed={selected}
 								onClick={() => onSelect(theme.id)}
 								className={cn(

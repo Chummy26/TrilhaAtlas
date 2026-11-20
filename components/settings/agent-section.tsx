@@ -79,6 +79,8 @@ import { prettyModel } from "@/components/usage-format";
 import { cn } from "@/lib/utils";
 import { SettingsGroup, SettingsRow, SettingsMenuTrigger, Toggle, CommitInput } from "./controls.tsx";
 import { ModelMenuList, ThinkingMenuList } from "./model-menu";
+import { composeSlotModel } from "./compose-slot-model.ts";
+export { composeSlotModel } from "./compose-slot-model.ts";
 import { ChatGPTBackgroundAccess } from "./chatgpt-connection";
 import { NativeSubscriptionBackgroundAccess } from "./subscription-connections";
 
@@ -184,31 +186,6 @@ export function composeQuizMechanics(agent: AgentSettings | undefined, mechanics
  *  explicit-off record stays visible as stored. Pure — exported for tests. */
 export function composeGraphTools(agent: AgentSettings | undefined, on: boolean): AgentSettings {
 	return { ...agent, graphTools: { enabled: on } };
-}
-
-/** Compose: one slot's model/thinking override. Empty model = absent
- *  override (Default — falls to the factory pin); empty thinking = the
- *  tier keeps its resolved thinking budget. Per-field independence, same
- *  as the schema's ModelSlot. Pure — exported for tests. */
-export function composeSlotModel(
-	models: ModelsSettings | undefined,
-	slot: ModelSlotName,
-	provider: string,
-	id: string,
-	thinking: string,
-): ModelsSettings {
-	const prev = models?.[slot];
-	const next = { ...models };
-	if (!provider && !id && !thinking) {
-		delete next[slot];
-		return next;
-	}
-	next[slot] = {
-		...(prev?.cacheRetention !== undefined ? { cacheRetention: prev.cacheRetention } : {}),
-		...(provider && id ? { model: { provider, id } } : prev?.model ? { model: prev.model } : {}),
-		...(thinking ? { thinkingLevel: thinking as ThinkingLevel } : {}),
-	};
-	return next;
 }
 
 /** Retention is slot-only; selecting Pi default removes the field entirely. */

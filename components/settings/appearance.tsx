@@ -123,13 +123,13 @@ interface AppearanceContextValue {
 	colors: ThemeColors;
 	/** Presets, then imported customs. */
 	themes: Theme[];
-	/** Re-read the catalog after an import or a removal. */
-	refreshThemes: () => Promise<void>;
+	/** Load on first use, or refresh after an import or removal. */
+	refreshThemes: (mode?: "if-needed") => Promise<void>;
 	/** Called by the settings page after a successful section PUT. */
 	onAppearanceChange: (delta: AppearanceSettings | undefined) => void;
 }
 
-const DEFAULT_CONTEXT_THEME = resolveTheme(undefined);
+const DEFAULT_CONTEXT_THEME = resolveTheme(FACTORY_SETTINGS.appearance.theme);
 
 const AppearanceContext = createContext<AppearanceContextValue>({
 	appearance: resolveAppearance(undefined),
@@ -215,21 +215,23 @@ export function AppearanceProvider({
 		window.lh?.setAppearance?.({ mode, background });
 	}, [mode, background]);
 
-	const refreshThemes = useCallback(async () => {
-		try {
-			const res = await fetch("/api/themes");
-			if (!res.ok) return;
-			const body = (await res.json()) as { themes?: Theme[] };
-			if (Array.isArray(body.themes)) setThemes(body.themes);
-		} catch {
-			/* the presets stay — not worth a crash */
-		}
+	const themeRequest = useRef<Promise<void> | null>(null);
+	const refreshThemes = useCallback((mode?: "if-needed") => {
+		if (mode === "if-needed" && themeRequest.current) return themeRequest.current;
+		const request: Promise<void> = fetch("/api/themes")
+			.then(async res => {
+				if (!res.ok) throw new Error("Theme catalog unavailable");
+				const body = (await res.json()) as { themes?: Theme[] };
+				if (!Array.isArray(body.themes)) throw new Error("Invalid theme catalog");
+				if (themeRequest.current === request) setThemes(body.themes);
+			})
+			.catch(() => {
+				// Keep the current palette and allow the next opening to retry.
+				if (themeRequest.current === request) themeRequest.current = null;
+			});
+		themeRequest.current = request;
+		return request;
 	}, []);
-
-	// One catalog read per app load (the imported customs).
-	useEffect(() => {
-		void refreshThemes();
-	}, [refreshThemes]);
 
 	const onAppearanceChange = useCallback((next: AppearanceSettings | undefined) => {
 		// There is no startup settings GET to race this save: the layout

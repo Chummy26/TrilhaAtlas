@@ -208,6 +208,8 @@ describe("export reflects what I see", () => {
 		assert.equal(res.status, 201);
 		const { theme } = (await res.json()) as { theme: Theme };
 		assert.equal(theme.id, "catppuccin-mocha-2", "the preset's id stays reserved");
-		assert.deepEqual(themeVars(effectiveColors(theme, undefined), theme.mode), readThemeBoot().vars);
+		const { "--lh-prose-size": proseSize, ...palette } = readThemeBoot().vars;
+		assert.equal(proseSize, "18px");
+		assert.deepEqual(themeVars(effectiveColors(theme, undefined), theme.mode), palette);
 	});
 });

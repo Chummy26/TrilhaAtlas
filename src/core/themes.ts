@@ -21,10 +21,10 @@
  * compiler bakes them as fallbacks and tests/cel-contrast.test.ts pins the
  * CSS block equal to celTokens() and every pairing to WCAG 2.2 AA.
  * Deviation from r9 §10.4, measured: Cel Noite's `border` is the field
- * edge #8c88a6 (5.29:1), not the panel keyline #07070b (1.12:1) — every
+ * edge #77818a, not the panel keyline #07070b (1.12:1) — every
  * existing input and divider reads `--border`, and the keyline would make
  * them vanish (fails WCAG 1.4.11); the keyline lives on as --cel-line.
- * Its `text` is the chalk #e9e4d6 (SÍNTESE palette), so icon ink
+ * Its `text` is the chalk #f1ebdf (SÍNTESE palette), so icon ink
  * (currentColor) and object outlines share one chalk, as Papel shares one
  * ink.
  */
@@ -237,12 +237,12 @@ export const BUILTIN_THEMES: readonly Theme[] = [
 	// domain accents (volt, coral) and XP (grape) are cel tokens, not here.
 	builtin("Cel Papel", "light", {
 		background: "#fbf7ee", surface: "#ffffff", border: "#1e1b2e", text: "#1e1b2e", textMuted: "#5e5870",
-		accent: "#0b6db3", bold: "#7759bf", italic: "#c22f5b", code: "#bc4335",
+		accent: "#0b6db3", bold: "#563794", italic: "#85274c", code: "#903727",
 		error: "#c22f5b", success: "#027957", warning: "#995d04",
 	}, "cel"),
 	builtin("Cel Noite", "dark", {
-		background: "#16161f", surface: "#22222f", border: "#8c88a6", text: "#e9e4d6", textMuted: "#a9a5ba",
-		accent: "#ffd23f", bold: "#a98bff", italic: "#fd667f", code: "#ffb020",
+		background: "#101419", surface: "#1b2128", border: "#77818a", text: "#f1ebdf", textMuted: "#b1b5b8",
+		accent: "#ffd23f", bold: "#ffe1a1", italic: "#e6c9ac", code: "#f7ca78",
 		error: "#fd667f", success: "#3dd68c", warning: "#ffb020",
 	}, "cel"),
 ];
@@ -457,12 +457,12 @@ export const CEL_NEUTRALS: Readonly<Record<ThemeMode, CelNeutrals>> = {
 		hl: "#ffffff", rim: "rgb(255 255 255 / 0.55)", shade: "rgb(30 27 46 / 0.1)", scrim: "rgb(30 27 46 / 0.45)",
 	},
 	dark: {
-		bg: "#16161f", bgShade: "#0c0c15",
-		surface1: "#22222f", surface1Shade: "#181724", surface1Rim: "#3b3b49",
-		surface2: "#1b1b26", surface2Shade: "#11111b",
-		surface3: "#2c2c3c", surface3Rim: "#464657",
-		text: "#e9e4d6", textMuted: "#a9a5ba", textFaint: "#77738a",
-		line: "#07070b", lineObject: "#e9e4d6", lineSoft: "rgb(233 228 214 / 0.2)", edge: "#8c88a6",
+		bg: "#101419", bgShade: "#0b0e12",
+		surface1: "#1b2128", surface1Shade: "#161b21", surface1Rim: "#363f47",
+		surface2: "#171c22", surface2Shade: "#11161b",
+		surface3: "#262d34", surface3Rim: "#424a52",
+		text: "#f1ebdf", textMuted: "#b1b5b8", textFaint: "#879098",
+		line: "#07070b", lineObject: "#f1ebdf", lineSoft: "rgb(233 228 214 / 0.2)", edge: "#77818a",
 		shadowColor: "#000000", onFill: "#07070b",
 		focus: "#ffd23f", link: "#7cc4ff",
 		hl: "rgb(255 255 255 / 0.85)", rim: "rgb(255 255 255 / 0.14)", shade: "rgb(0 0 0 / 0.3)", scrim: "rgb(0 0 0 / 0.55)",

@@ -7,12 +7,13 @@
  * first, so this never bakes into a prerender).
  */
 
-import { effectiveColors, isBuiltinThemeId, resolveTheme, themeVars, type AppearanceSettings, type Theme } from "../core";
+import { FACTORY_SETTINGS, effectiveColors, isBuiltinThemeId, resolveTheme, themeVars, type AppearanceSettings, type Theme } from "../core/index.ts";
 import { themeStore } from "../store/themes.ts";
 import { readSettings } from "../store/settings.ts";
 
 /** Everything the layout needs for a flash-free first paint. */
 export interface ThemeBoot {
+	settings: ReturnType<typeof readSettings>;
 	appearance: AppearanceSettings | undefined;
 	theme: Theme;
 	/** The CSS variables for <html style>. */
@@ -21,9 +22,10 @@ export interface ThemeBoot {
 
 /** Read the record and selected custom file; resolve the active theme and its vars. */
 export function readThemeBoot(): ThemeBoot {
-	const appearance = readSettings()?.appearance;
-	const id = appearance?.theme;
+	const settings = readSettings();
+	const appearance = settings?.appearance;
+	const id = appearance?.theme ?? FACTORY_SETTINGS.appearance.theme;
 	const custom = id && !isBuiltinThemeId(id) ? themeStore.readTheme(id) : null;
 	const theme = resolveTheme(id, custom ? [custom] : []);
-	return { appearance, theme, vars: themeVars(effectiveColors(theme, appearance), theme.mode) };
+	return { settings, appearance, theme, vars: { ...themeVars(effectiveColors(theme, appearance), theme.mode), "--lh-prose-size": (appearance?.proseFontSize ?? FACTORY_SETTINGS.appearance.proseFontSize) + "px" } };
 }

@@ -28,6 +28,16 @@ function rules(selector: string): string[] {
 	return [...css.matchAll(new RegExp(`(?:^|\\n)\\s*${escaped}\\s*\\{([^}]+)\\}`, "g"))].map(match => match[1]!);
 }
 
+it("the measured circuit result uses the learner's reading size and foreground", () => {
+	const output = rules(".lab-reading output").join("\n");
+	assert.match(output, /font-size:\s*var\(--lh-prose-size\)/);
+	assert.match(output, /color:\s*var\(--foreground\)/);
+});
+
+it("emphasis in the teacher's answer keeps the surrounding text color", () => {
+	assert.match(rules(".tutor-prose :where(strong, b, em, i)").join("\n"), /color:\s*inherit/);
+});
+
 it("reading utilities consume the live appearance variable, not a baked Source Sans 3 stack", () => {
 	for (const selector of [".font-prose", ".font-sans"]) {
 		assert.equal(rules(selector).length, 1, selector);
@@ -41,10 +51,9 @@ it("no compiled font-family declaration bypasses the reading setting via the loa
 	assert.doesNotMatch(css, /(?:^|[;{])\s*font-family:[^;{}]*var\(--font-sans3\)/m);
 });
 
-it("mono chrome/code and the independent serif title remain separate font contracts", () => {
-	for (const selector of [".font-ui", ".font-mono"]) {
-		assert.match(rules(selector)[0]!, /font-family:\s*var\(--font-jetbrains\), ui-monospace, SFMono-Regular, monospace;/);
-	}
+it("UI, monospace code and serif titles remain separate font contracts", () => {
+	assert.match(rules(".font-ui")[0]!, /font-family:\s*var\(--font-ui\);/);
+	assert.match(rules(".font-mono")[0]!, /font-family:\s*var\(--font-jetbrains\), ui-monospace, SFMono-Regular, monospace;/);
 	assert.match(rules("body")[0]!, /font-family:\s*var\(--font-ui\);/);
 	assert.match(rules(".font-title").join("\n"), /font-family:\s*var\(--font-title\);/);
 	assert.match(css, /--font-title:\s*"lh-cmu", serif;/);

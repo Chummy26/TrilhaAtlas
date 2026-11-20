@@ -12,8 +12,8 @@ import { PluginsProvider } from "@/components/plugins";
 import { activeDomainId, readThemeBoot } from "@/src/server";
 import { themeRootAttributes } from "@/src/core";
 
-// Chrome = JetBrains Mono, teaching prose = Source Sans 3, titles = CMU
-// Serif (the bundled lh-cmu @font-face in globals.css — no CDN).
+// Source Sans 3 serves UI and prose, JetBrains Mono serves code, and the
+// bundled CMU Serif face is available for session titles.
 const ui = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
 const prose = Source_Sans_3({ subsets: ["latin"], variable: "--font-sans3" });
 
@@ -28,12 +28,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	// record and the theme files are per-machine disk state — without it a
 	// prerendered route (settings) would bake the BUILD machine's record.
 	await connection();
-	const { appearance, theme, vars } = readThemeBoot();
+	const { settings, appearance, theme, vars } = readThemeBoot();
+	const domain = activeDomainId();
 	return (
 		<html
 			lang="pt-BR"
 			{...themeRootAttributes(theme)}
-			data-domain={activeDomainId() ?? undefined}
+			data-domain={domain ?? undefined}
 			className={`${theme.mode} ${ui.variable} ${prose.variable}`}
 			style={vars as React.CSSProperties}
 			suppressHydrationWarning
@@ -46,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 					<AppearanceProvider initialAppearance={appearance} initialTheme={theme}>
 						<SidebarProvider>
 							<ActivityProvider>
-								<AppShell>{children}</AppShell>
+								<AppShell initialSettings={settings} domain={domain}>{children}</AppShell>
 							</ActivityProvider>
 						</SidebarProvider>
 					</AppearanceProvider>

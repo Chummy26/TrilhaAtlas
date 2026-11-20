@@ -59,11 +59,11 @@ describe("first paint follows the theme", () => {
 		assert.match(out, /--lh-warning:#123456/);
 	});
 
-	it("no record = the Default dark theme", () => {
+	it("no record uses the graphite factory palette", () => {
 		fs.rmSync(path.join(TMP_DATA, "settings.json"), { force: true });
 		const out = html();
 		assert.match(out, /<html class="dark"/);
-		assert.match(out, /--background:#141414/);
+		assert.match(out, /--background:#101419/);
 	});
 });
 

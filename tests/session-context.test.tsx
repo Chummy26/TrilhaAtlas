@@ -27,6 +27,7 @@ describe("SessionRow — the right-click seam", () => {
 	it("rows carry the session-row testid (context menu anchors to it)", () => {
 		const html = renderToStaticMarkup(<SessionRow chat={chat} active={false} onOpen={() => {}} />);
 		assert.ok(html.includes('data-testid="session-row"'));
+		assert.match(html, /<a\b[^>]*href="\/chat\/c1"/, "the session is navigable before hydration");
 	});
 });
 
