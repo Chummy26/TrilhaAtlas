@@ -73,6 +73,27 @@ export function learnerViewOf(snapshot: CurriculumSnapshot, goalIds: readonly st
 	return projected;
 }
 
+/** Nodes in the selected units, or in the selected area for a panoramic lesson. */
+export function lessonBranchNodes(snapshot: CurriculumSnapshot, view: LearnerGraphView, focus: readonly string[]): Set<string> {
+	const nodes = new Set<string>();
+	for (const id of focus) {
+		let item = snapshot.items[id];
+		if (!item || !view.nodes.has(id)) {
+			nodes.add(id);
+			continue;
+		}
+		while (item.parentId && item.kind !== "unit" && item.kind !== "area" && item.kind !== "domain") item = snapshot.items[item.parentId]!;
+		const pending = [item.id];
+		while (pending.length) {
+			const next = pending.pop()!;
+			if (nodes.has(next)) continue;
+			nodes.add(next);
+			for (const child of view.nodes.get(next)?.children ?? []) pending.push(child);
+		}
+	}
+	return nodes;
+}
+
 /** What the "Hoje" card and the lesson opener need to know about one node. */
 export interface StudyNodeBrief {
 	id: string;
@@ -83,6 +104,8 @@ export interface StudyNodeBrief {
 	scope: string;
 	objectives: string[];
 	misconceptions: string[];
+	assessment?: string[];
+	regionExit?: boolean;
 	hours: Hours;
 	kind: CurriculumItem["kind"];
 }
@@ -107,6 +130,8 @@ export function nodeBrief(snapshot: CurriculumSnapshot, id: string): StudyNodeBr
 		summary: item.summary,
 		scope: item.scope,
 		objectives: [...item.objectives],
+		assessment: item.assess,
+		regionExit: item.tags?.includes("region-exit"),
 		misconceptions: [...(item.misconceptions ?? [])],
 		hours: { ...item.hours },
 		kind: item.kind,

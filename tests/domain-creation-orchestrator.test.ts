@@ -28,6 +28,7 @@ it("installs one generated curriculum, even after a resubmission, with the selec
 	const input = { topic: "Interpretar o relevo", requestId };
 	const progress: ReturnType<typeof domainCreationStatus>[] = [];
 	let sent = 0;
+	let planned: unknown[] | undefined;
 	let catalogs = 0;
 	const original = globalThis.fetch;
 	t.after(() => { globalThis.fetch = original; safeFetchOverride.current = undefined; });
@@ -36,7 +37,7 @@ it("installs one generated curriculum, even after a resubmission, with the selec
 		assert.equal(String(url), baseUrl + "/chat/completions");
 		assert.equal(JSON.parse(String(options?.body)).model, pin.id);
 		progress.push(domainCreationStatus(requestId));
-		const content = JSON.stringify(sent ? lessons(sent - 1) : outline);
+		const content = JSON.stringify(planned ? planned.shift() : sent ? lessons(sent - 1) : outline);
 		sent++;
 		const chunk = { choices: [{ index: 0, delta: { role: "assistant", content }, finish_reason: null }] };
 		const end = { choices: [{ index: 0, delta: {}, finish_reason: "stop" }], usage: { prompt_tokens: 12, completion_tokens: 45 } };
@@ -65,4 +66,40 @@ it("installs one generated curriculum, even after a resubmission, with the selec
 	const ledger = fs.readFileSync(path.join(curriculum, "ledger.jsonl"), "utf8").trim().split("\n");
 	assert.equal(ledger.length, 1);
 	assert.equal(JSON.parse(ledger[0]!).provenance.model, "custom:test-local");
+
+	const focused = structuredClone(outline);
+	focused.areas[0]!.regions.push({ ...focused.areas[0]!.regions[0]!, title: { pt: "Ler escala", en: "Read scale" } });
+	focused.areas[1]!.regions[0]!.requires = [1, 2];
+	focused.areas[2]!.regions[0]!.requires = [3];
+	planned = [focused];
+	for (let i = 0; i < 4; i++) {
+		const base = lessons(0).skills;
+		planned.push({ skills: [...base, { ...base[2], title: { pt: "Verificar o perfil", en: "Verify profile" }, requires: [3],
+			practice: { targetHours: 8, sessions: 16, minutesPerSession: 30, variation: "Use uma carta diferente em cada semana.", exitCriterion: "Justificar uma rota em três cartas novas." } }],
+		reviews: [1, 2].map(gain => ({ prompt: `De 50 a ${50 + gain} m, quanto se sobe? Escreva o número.`, answers: [String(gain)], explanation: "Subtraia a altura inicial da altura final." })) }, { issues: [] });
+	}
+	const timed = { ...input, requestId: randomUUID(), pace: "focused" };
+	startDomainCreation(timed, schedule);
+	await run();
+	const ready = domainCreationStatus(timed.requestId);
+	assert.ok(ready.state === "ready", JSON.stringify(ready));
+	assert.deepEqual(ready.workload, { skills: 16, regions: 4, lessonHours: 5, practiceHours: 32 });
+	assert.equal(planned.length, 0);
+	assert.throws(() => startDomainCreation({ ...timed, pace: "extended" }, schedule), /outro domínio/);
+	switchStudyDomain(ready.domainId);
+	const { studyDomains } = await import("../src/server/study.ts");
+	const profile = studyDomains().readProfile(ready.domainId)!;
+	assert.equal(profile.dailyBudgetMin, 60);
+	assert.equal(studyToday().progress.plannedPracticeHours, 32);
+	assert.equal(profile.goal.targetNodeIds.length, 1);
+	const today = studyToday();
+	assert.equal(today.campaignGoal, undefined);
+	assert.deepEqual(today.chapters?.map(c => c.total), [8, 4, 4]);
+	assert.equal(today.next?.nodeId, today.chapters![0]!.entry);
+	assert.ok(today.chapters!.every(c => c.landmarks.at(-1)!.id === c.finale));
+	const bank = JSON.parse(fs.readFileSync(path.join(root, "domains", ready.domainId, "curriculum", "review-bank.json"), "utf8"));
+	assert.equal(bank.length, 8);
+	assert.ok(bank.some((task: { nodeId: string }) => task.nodeId === profile.goal.targetNodeIds[0]));
+	studyDomains().updateProfile(ready.domainId, p => ({ ...p, goal: { text: "Minha próxima tarefa", targetNodeIds: [today.chapters![1]!.entry] } }));
+	assert.equal(studyToday().campaignGoal, "Minha próxima tarefa");
 });

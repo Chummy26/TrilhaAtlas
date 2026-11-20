@@ -52,6 +52,10 @@ export interface PlanOptions {
 	budgetMin: number;
 	/** Goal plan P (default: goalPlanOf with the explicit goals, else every node). */
 	goalPlan?: ReadonlySet<NodeId>;
+	/** Campaign order for eligible new lessons. Other plan items retain their policy. */
+	newPriority?: (id: NodeId) => number;
+	eligibleNew?: (id: NodeId) => boolean;
+	lessonMinutes?: ReadonlyMap<NodeId, number>;
 	/** Seed of the load simulation (default: domain + date). */
 	seed?: string;
 	/** Precomputed signals at the same instant (avoids recomputation). */
@@ -358,17 +362,19 @@ export function planDay(snapshot: LearnerSnapshot, graph: LearnerGraphView, para
 
 	// 3. new nodes ∈ frontier ∩ goal plan, each with its warm-ups (load controller).
 	const plan = opts.goalPlan ?? goalPlanOf(graph, known);
-	const frontier = sig.structure.frontier.filter(id => !graph.nodes.get(id)?.reinforcementFor || graph.nodes.get(id)!.goalWeight > 0);
+	const frontier = sig.structure.frontier.filter(id => (!opts.eligibleNew || opts.eligibleNew(id)) &&
+		(!graph.nodes.get(id)?.reinforcementFor || graph.nodes.get(id)!.goalWeight > 0));
 	const inPlan = frontier.filter((id) => plan.has(id));
 	const pool = inPlan.length > 0 ? inPlan : frontier;
 	const U = unlockValues(graph, params.planner.gamma);
 	const newCandidates = pool
 		.map((id) => {
 			const s = get(id);
-			const cost = newCost(graph, id);
+			const cost = Math.min(newCost(graph, id), opts.lessonMinutes?.get(id) ?? Infinity);
 			return { id, cost, value: (s.importance * s.readiness * (1 + (U.get(id) ?? 0))) / cost };
 		})
-		.sort((a, b) => b.value - a.value || (pos.get(a.id) as number) - (pos.get(b.id) as number));
+		.sort((a, b) => (opts.newPriority?.(b.id) ?? 0) - (opts.newPriority?.(a.id) ?? 0)
+			|| b.value - a.value || (pos.get(a.id) as number) - (pos.get(b.id) as number));
 	const load = projectedDailyLoad(snapshot, graph, params, at, PC.loadHorizonDays, opts.seed);
 	const suspended = load > reviewCap;
 	const left = Math.max(0, budget.total - budget.used);

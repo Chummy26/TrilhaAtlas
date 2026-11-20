@@ -76,6 +76,22 @@ function toEvents(steps: readonly RandomStep[], ids: readonly NodeId[], firstSeq
 }
 
 describe("learner fold — monotonic states (SÍNTESE §2.6)", () => {
+	it("retains recognition credit while reserving mastery for a delayed independent production", () => {
+		const events = [0, 2, 4, 6].map((d, i) => evidence({ seq: i + 1, at: day(d), nodeId: "n0", grade: 3, format: "mcq", family: "choice-" + i }));
+		const before = foldEvents(null, events, chain(1), P).nodes.n0!;
+		assert.ok(before.attainedAt && before.delayedSuccesses);
+		assert.equal(before.masteredAt, undefined);
+		events.push(evidence({ seq: 5, at: day(8), nodeId: "n0", grade: 3, format: "short" }));
+		assert.equal(foldEvents(null, events, chain(1), P).nodes.n0!.masteredAt, day(8));
+	});
+	it("self-reports cannot supply a second family or a delayed success for mastery", () => {
+		const events = [0, 2, 4, 6].map((d, i) => evidence({ seq: i + 1, at: day(d), nodeId: "n0", grade: 3,
+			format: i ? "explain" : "mcq", family: i ? "n0#self" : "n0#mcq", minutes: i ? 3000 : 1 }));
+		const state = foldEvents(null, events, chain(1), P).nodes.n0!;
+		assert.equal(state.masteredAt, undefined);
+		assert.deepEqual(state.correctFamilies, ["n0#mcq"]);
+		assert.equal(state.delayedSuccesses, 0);
+	});
 	it("mastery needs pL ≥ 0.95, two item families and a delayed hint-free success", () => {
 		const { snapshot } = masteredPrefix();
 		for (const id of ["n0", "n1"]) {

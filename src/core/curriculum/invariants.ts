@@ -52,6 +52,7 @@
 import { buildEffectiveSystem, isProperAncestor, KIND_RANK, type EffectiveSystem } from "./effective.ts";
 import { atomHoursVerdict, formatMinutes, leafGranularityFinding, ATOM_HARD_MAX_HOURS, ATOM_HARD_MIN_HOURS, ATOM_MAX_FAN_IN } from "./granularity.ts";
 import { hoursMid } from "./hours.ts";
+import { campaignErrors } from "./campaign.ts";
 import { effectiveKahn, forwardChain } from "./rank.ts";
 import {
 	CurriculumEdgeSchema,
@@ -394,6 +395,7 @@ export function validateReport(snapshot: CurriculumSnapshot, opts: ValidateOptio
 		errors.push({ code: "cycle", message: `ciclo de pré-requisitos ${witness.join(" → ")} (${steps.join("; ")})`, witness });
 	} else {
 		order = kahn.order;
+		errors.push(...campaignErrors(sys, order));
 		// R1: every live item reachable (forward chaining over the effective system).
 		const { known } = forwardChain(sys.ids.length, sys.clauses);
 		const dead: string[] = [];

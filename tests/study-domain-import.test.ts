@@ -19,7 +19,10 @@ it("opens an imported domain with a book and regional video, and preserves it on
 	const intro = "mp.terrain.contours.height";
 	const next = "mp.terrain.contours.slope";
 	switchStudyDomain(subject);
-	assert.equal(studyToday().next?.nodeId, intro);
+	const today = studyToday();
+	assert.equal(today.next?.nodeId, intro);
+	assert.equal(today.chapters?.[0]?.entry, intro);
+	assert.equal(today.chapters?.reduce((sum,c) => sum + c.total, 0), today.progress.leaves);
 	assert.equal(studyMap().nodes.find(node => node.id === next)?.state, "locked");
 	const materials = (await readRegionMaterials(subject, intro)).materials;
 	assert.ok(materials.some(m => m.kind === "book" && m.nodes.includes(intro) && m.nodes.includes(next)));

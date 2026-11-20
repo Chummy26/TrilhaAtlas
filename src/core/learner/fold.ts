@@ -28,7 +28,7 @@
  *   6. local consistency projection (h ≤ 3 ball, 3 sweeps);
  *   7. upward penalty on encompassing nodes after a failure;
  *   8. MONOTONIC flags — attainedAt: first pL ≥ 0.85 with direct evidence;
- *      masteredAt: pL ≥ 0.95 ∧ ≥ 2 correct families ∧ ≥ 1 delayed success.
+ *      masteredAt: pL ≥ 0.95 ∧ ≥ 2 correct families ∧ delayed independent production.
  *      Neither is ever cleared by failures (tutor-mcp hysteresis bug, §9.1).
  * exposure: lesson transition T_lesson (no evidence count); records
  *   lastExposureAt (restarts the delayed-retrieval clock).
@@ -192,7 +192,7 @@ function put(work: Work, state: NodeState): void {
 /** Monotonic attainment/mastery flags (never cleared here). */
 export function withMonotoneFlags(s: NodeState, at: string, params: LearnerParams): NodeState {
 	let { attainedAt, masteredAt } = s;
-	if (!masteredAt && s.verified && s.pL >= params.masteryThreshold && s.correctFamilies.length >= C.masteryFamilies && s.delayedSuccesses >= C.masteryDelayed) {
+	if (!masteredAt && s.verified && s.independentRecallAt && s.pL >= params.masteryThreshold && s.correctFamilies.length >= C.masteryFamilies && s.delayedSuccesses >= C.masteryDelayed) {
 		masteredAt = at;
 	}
 	if (!attainedAt && s.verified && (s.pL >= params.attainThreshold || masteredAt)) attainedAt = at;
@@ -395,11 +395,13 @@ function applyPrimaryReview(
 		if (latency) s.latency = latency;
 	}
 
-	if (success) {
+	if (success && ev.itemFamily !== id + "#self") {
 		if (!s.correctFamilies.includes(ev.itemFamily)) s = { ...s, correctFamilies: [...s.correctFamilies, ev.itemFamily] };
 		const sinceLastEvidence = prior.state.lastEvidenceAt ? (toMs(at) - toMs(prior.state.lastEvidenceAt)) / MINUTE_MS : Infinity;
 		if (ev.hints === 0 && minutesSinceExposure >= C.delayedMinutes && sinceLastEvidence >= C.delayedMinutes) {
 			s = { ...s, delayedSuccesses: s.delayedSuccesses + 1 };
+			if (!s.independentRecallAt && grade === 3 && ev.graderConfidence > 0.5 && ev.format !== "mcq" && ev.format !== "flashcard" &&
+				(prior.state.lastEvidenceAt || prior.state.lastExposureAt)) s.independentRecallAt = at;
 		}
 		if (ev.summative && !s.demonstratedAt) s = { ...s, demonstratedAt: at };
 	}

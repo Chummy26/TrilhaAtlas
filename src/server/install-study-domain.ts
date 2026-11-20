@@ -7,10 +7,14 @@ import { builtinManifests, customManifest } from "../core/domains/defaults.ts";
 import { curriculumDir, domainDir, domainsDir } from "../core/domains/paths.ts";
 import { withCurriculumLock } from "./curriculum-migration.ts";
 import { createDomainsStore } from "../store/domains-store.ts";
+import type { CampaignReview } from "../core/study/campaign-review.ts";
+import type { CampaignPace } from "../core/study/creation.ts";
+import { campaignPaces } from "../core/study/creation.ts";
+import { defaultCampaignTargets } from "../core/study/campaign.ts";
 
-export function installStudyDomain(files: CurriculumSeedFile[], authoring?: { topic: string; model: string; requestId: string; fingerprint: string }) {
+export function installStudyDomain(files: CurriculumSeedFile[], authoring?: { topic: string; model: string; requestId: string; fingerprint: string; reviews?: CampaignReview[]; pace?: CampaignPace }) {
 	const createdAt = new Date().toISOString();
-	const result = applySeedFiles(files, { createdAt, edgeMode: "strict", model: authoring?.model, promptVersion: authoring ? "domain-authoring-v1" : undefined });
+	const result = applySeedFiles(files, { createdAt, edgeMode: "strict", model: authoring?.model, promptVersion: authoring ? "domain-authoring-v2" : undefined });
 	if (!result.ok) throw new Error(result.errors.map(error => error.message).slice(0, 6).join("\n"));
 	const { snapshot, envelope } = result;
 	const root = Object.values(snapshot.items).find(item => item.parentId === null)!;
@@ -37,8 +41,16 @@ export function installStudyDomain(files: CurriculumSeedFile[], authoring?: { to
 			const staging = createDomainsStore(stage);
 			staging.ensureDomain(manifest.id, { manifest });
 			if (authoring) {
-				staging.updateProfile(manifest.id, profile => ({ ...profile, goal: { ...profile.goal, text: authoring.topic } }));
-				fs.writeFileSync(path.join(curriculumDir(stage, manifest.id), "generation.json"), JSON.stringify({ requestId: authoring.requestId, fingerprint: authoring.fingerprint }));
+				const items = Object.values(snapshot.items);
+				const skills = items.filter(item => item.kind === "atom");
+				const targets = defaultCampaignTargets(snapshot);
+				staging.updateProfile(manifest.id, profile => ({ ...profile, ...(authoring.pace && { dailyBudgetMin: campaignPaces[authoring.pace].minutes }),
+					goal: { ...profile.goal, text: authoring.topic, targetNodeIds: targets } }));
+				const workload = { skills: skills.length, regions: items.filter(item => item.kind === "unit").length,
+					lessonHours: Math.round(skills.reduce((total, item) => total + (item.hours.lo + item.hours.hi) / 2, 0)),
+					practiceHours: Math.round(skills.reduce((total, item) => total + (item.practice?.targetHours ?? 0), 0)) };
+				fs.writeFileSync(path.join(curriculumDir(stage, manifest.id), "generation.json"), JSON.stringify({ requestId: authoring.requestId, fingerprint: authoring.fingerprint, pace: authoring.pace, workload, targets }));
+				if (authoring.reviews?.length) fs.writeFileSync(path.join(curriculumDir(stage, manifest.id), "review-bank.json"), JSON.stringify(authoring.reviews));
 			}
 			const curriculum = curriculumDir(stage, manifest.id);
 			fs.writeFileSync(path.join(curriculum, "sources.json"), JSON.stringify([...sources.values()]));

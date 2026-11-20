@@ -76,7 +76,7 @@ export function domainMemoryLlmCall(domain: string, engineFor: typeof piEngineFo
 	return domainBackgroundCall(domain, engineFor);
 }
 
-type ExpansionRequest = Omit<MemoryLlmRequest, "role" | "op"> & { role: "curriculum"; op: "reinforce" };
+type ExpansionRequest = Omit<MemoryLlmRequest, "role" | "op"> & { role: "curriculum"; op: "reinforce" | "review" };
 
 export function domainBackgroundCall(domain: string, engineFor: typeof piEngineForSpec = piEngineForSpec) {
 	return async (request: MemoryLlmRequest | ExpansionRequest) => {

@@ -79,6 +79,7 @@ import { canonicalJson, checkRankCertificate, computeCertificate, effectiveClaus
 import { normalizeClauses, sameClauses, NEXT_KIND } from "./effective.ts";
 import { hoursMid } from "./hours.ts";
 import { validateReport, type CurriculumLimits } from "./invariants.ts";
+import { campaignTag, foundationTag } from "./campaign.ts";
 import { IMMUTABLE_ITEM_KEYS, PatchEnvelopeSchema, zodIssuesToErrors } from "./schema.ts";
 import type {
 	ApplyPatchResult,
@@ -744,6 +745,16 @@ export function applyPatch(snapshot: CurriculumSnapshot, envelope: unknown, opts
 		return { ok: false, errors: [{ code: "budget", message: `o patch cria ${d.added.length} itens; o teto por patch é ${limits.maxAddedPerPatch}` }] };
 
 	const draft = { schemaVersion: 1 as const, domainId: snapshot.domainId, version: snapshot.version + 1, items: d.items, edges: d.edges };
+	for (const id of d.changed) {
+		const before = snapshot.items[id];
+		if (before?.parentId === null && before.tags?.includes(campaignTag) && !draft.items[id]?.tags?.includes(campaignTag)) {
+			return { ok: false, errors: [{ code: "immutable-id", message: "O contrato de progressão da campanha deve permanecer ativo.", witness: [id] }] };
+		}
+		if (before?.tags?.includes(foundationTag) && draft.items[id]?.status !== "deprecated" && !draft.items[id]?.tags?.includes(foundationTag) &&
+			Object.values(snapshot.items).some(item => item.parentId === null && item.tags?.includes(campaignTag))) {
+			return { ok: false, errors: [{ code: "immutable-id", message: "O fundamento regional precisa permanecer identificado.", witness: [id] }] };
+		}
+	}
 	const touched = new Set<string>([...d.added, ...d.changed]);
 	const report = validateReport(
 		{ ...draft, certificate: { order: [], hash: "" }, updatedAt: "" },

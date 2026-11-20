@@ -13,6 +13,7 @@ import { StudyError, studyDomains } from "./study.ts";
 const inputSchema = z.strictObject({
 	requestId: z.uuid(),
 	topic: z.string().trim().min(3).max(1600),
+	pace: z.enum(["focused", "semester", "extended"]).optional(),
 	model: z.strictObject({ provider: z.string().min(1).max(160), id: z.string().min(1).max(256) }).optional(),
 });
 type Job = { status: DomainCreationStatus; fingerprint: string; controller: AbortController };
@@ -33,7 +34,7 @@ function saved(requestId: string, fingerprint?: string): DomainCreationStatus | 
 	if (!fs.existsSync(receipt)) throw new StudyError(409, "Já existe um domínio com esse identificador.");
 	const record = JSON.parse(fs.readFileSync(receipt, "utf8"));
 	if (record.requestId !== requestId || (fingerprint && fingerprint !== record.fingerprint)) throw new StudyError(409, "Esse pedido pertence a outro domínio.");
-	return { state: "ready", domainId, title: manifest.title.pt };
+	return { state: "ready", domainId, title: manifest.title.pt, ...(record.workload && { workload: record.workload }) };
 }
 
 export function domainCreationStatus(requestId: string) {
@@ -59,9 +60,9 @@ function availablePrefix(requestId: string) {
 export function startDomainCreation(body: unknown, schedule: (run: () => Promise<void>) => void): DomainCreationStatus {
 	const input = inputSchema.safeParse(body);
 	if (!input.success) throw new StudyError(400, "Descreva o que quer estudar em 3 a 1600 caracteres e selecione um modelo válido.");
-	const { requestId, topic, model } = input.data;
+	const { requestId, topic, model, pace } = input.data;
 	const { domainId, key } = ids(requestId);
-	const fingerprint = createHash("sha256").update(JSON.stringify([topic, model])).digest("hex");
+	const fingerprint = createHash("sha256").update(JSON.stringify([topic, model, ...(pace ? [pace] : [])])).digest("hex");
 	const existing = saved(requestId, fingerprint);
 	if (existing) return existing;
 	const previous = jobs.get(key);
@@ -76,15 +77,15 @@ export function startDomainCreation(body: unknown, schedule: (run: () => Promise
 	const job: Job = { fingerprint, status: { state: "planning", done: 0, total: 0 }, controller: new AbortController() };
 	jobs.set(key, job);
 	schedule(async () => {
-		const signal = AbortSignal.any([job.controller.signal, AbortSignal.timeout(30 * 60_000)]);
+		const signal = AbortSignal.any([job.controller.signal, AbortSignal.timeout((pace === "extended" ? 120 : 45) * 60_000)]);
 		try {
-			const result = await generateDomainCurriculum({ topic, model, domainId, prefix: availablePrefix(requestId), signal,
+			const result = await generateDomainCurriculum({ topic, model, pace, domainId, prefix: availablePrefix(requestId), signal,
 				onProgress: (done, total) => { job.status = { state: "planning", done, total }; } });
 			job.status = { state: "materials", done: 0, total: result.regions.length };
 			await attachRegionalSources(result.seed, result.regions, signal, done => { job.status = { state: "materials", done, total: result.regions.length }; });
 			signal.throwIfAborted();
-			const manifest = installStudyDomain([result.seed], { requestId, fingerprint, topic, model: result.model });
-			job.status = { state: "ready", domainId, title: manifest.title.pt };
+			const manifest = installStudyDomain([result.seed], { requestId, fingerprint, topic, model: result.model, reviews: result.reviews, pace });
+			job.status = saved(requestId, fingerprint) ?? { state: "ready", domainId, title: manifest.title.pt };
 		} catch (error) {
 			job.status = { state: "failed", error: signal.aborted ? "Criação interrompida. Você pode tentar novamente." :
 				error instanceof Error ? error.message.slice(0, 480) : "Não foi possível criar o domínio." };

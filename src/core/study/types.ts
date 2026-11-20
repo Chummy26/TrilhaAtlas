@@ -6,6 +6,7 @@
 import type { DomainSummary } from "../domains/types.ts";
 import type { PlanItem } from "../learner/types.ts";
 import type { StudyNodeBrief } from "./projection.ts";
+import type { CampaignChapter } from "./campaign.ts";
 
 export interface StudyDomainList {
 	domains: DomainSummary[];
@@ -17,12 +18,15 @@ export interface StudyToday {
 	domain: { id: string; title: string; accent: string; icon: string };
 	/** False when the domain has no curriculum yet. */
 	ready: boolean;
+	chapters?: CampaignChapter[];
+	campaignGoal?: string;
 	optionalPractice?: { id: string; title: string };
+	review?: { id: string; title: string; prompt: string };
 	next: (PlanItem & { brief: StudyNodeBrief }) | null;
 	/** A lesson was started and not yet self-checked (≤ 3 days). */
 	pendingCheck: { sessionId: string; exposureId: string; nodeId: string; title: string; at: string } | null;
 	plan: { budgetMin: number; reviewMinutes: number; newMinutes: number; items: number };
-	progress: { leaves: number; attained: number; mastered: number; totalHours: number; attainedHours: number };
+	progress: { leaves: number; attained: number; mastered: number; totalHours: number; attainedHours: number; plannedPracticeHours?: number };
 }
 
 /** GET /profile — light, honest numbers (estudos-sota §2.10–2.11). */

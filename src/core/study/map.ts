@@ -15,6 +15,7 @@ export interface SkillNode {
 	reinforcementFor?: string;
 	state: "available" | "known" | "locked" | "group";
 	inProgress: boolean;
+	independentRecallAt?: string;
 	completed: boolean;
 	requires: string[][];
 	related: string[];
@@ -29,6 +30,14 @@ export interface SkillMap {
 	reinforcement?: string;
 }
 
+export interface PdfCitationBook {
+	book: string;
+	region: string;
+	title: string;
+	fileTitle: string;
+	pages: number;
+}
+
 export interface StudyMaterial {
 	kind: "book" | "video";
 	title: string;
@@ -40,6 +49,26 @@ export interface StudyMaterial {
 	bookKey?: string;
 	saved?: boolean;
 	linkOnly?: boolean;
+}
+
+/** Preserve the best-ranked reading and video in the lesson's six source slots. */
+export type LessonResource = Pick<StudyMaterial, "kind" | "title" | "part" | "url" | "suggested">;
+export function lessonResources(materials: readonly StudyMaterial[]): LessonResource[] {
+	return (["book", "video"] as const).flatMap(kind => {
+		const match = materials.find(m => m.kind === kind && /^https:\/\//i.test(m.url));
+		return match ? [{ kind, title: match.title, part: match.part, url: match.url, suggested: match.suggested }] : [];
+	});
+}
+
+export function lessonSourceLines(materials: readonly StudyMaterial[]): string[] {
+	const book = materials.find(m => m.kind === "book");
+	const video = materials.find(m => m.kind === "video");
+	const selected = new Set([book, video].filter((m): m is StudyMaterial => !!m));
+	for (const m of materials) {
+		if (selected.size >= 6) break;
+		selected.add(m);
+	}
+	return [...selected].map(m => `${m.suggested ? "Sugestão" : "Referência"} · ${m.kind === "video" ? "Vídeo" : "Livro"} · ${m.title} · ${m.part} (${m.url})`);
 }
 
 export interface RegionMaterials {
@@ -68,6 +97,7 @@ export function skillMap(snapshot: CurriculumSnapshot, view: LearnerGraphView, l
 			region: region.kind === "unit" ? region.id : null, leaf: graphNode.isLeaf,
 			state: state.known.has(id) ? "known" : !graphNode.isLeaf ? "group" : available.has(id) ? "available" : "locked",
 			completed, inProgress: !completed && Boolean(progress?.lastExposureAt || progress?.lastEvidenceAt),
+			...(progress?.independentRecallAt && { independentRecallAt: progress.independentRecallAt }),
 			requires: graphNode.isLeaf ? graphNode.clauses.map(c => [...c]) : item.clauses, related: item.softPrereqs,
 		};
 	});

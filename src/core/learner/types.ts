@@ -15,7 +15,7 @@
  *   readiness   — all prerequisites with pL·R ≥ 0.85; failing it schedules a
  *                 warm-up, it NEVER re-locks content.
  *   masteredAt  — pL ≥ 0.95 ∧ ≥2 distinct correct items ∧ ≥1 delayed (≥24 h)
- *                 hint-free success. Badges, FIRe vehicles, tier cores.
+ *                 hint-free independent production. Badges, FIRe vehicles, tier cores.
  *   demonstrated— a summative checkpoint passed.
  *   retained    — R ≥ 0.7 (tiers).
  *
@@ -82,6 +82,8 @@ export interface NodeState {
 	correctFamilies: string[];
 	/** Successes with delayed (≥24 h) hint-free retrieval. */
 	delayedSuccesses: number;
+	/** First full, unaided constructed response after a measured interval. */
+	independentRecallAt?: string;
 	lastEvidenceAt?: string;
 	/** MONOTONIC (see header). */
 	attainedAt?: string;

@@ -50,6 +50,7 @@ const KIND_LABEL: Record<PlanItem["kind"], string> = {
 };
 
 export interface PromptSnapshotOptions {
+	nodes?: ReadonlySet<NodeId>;
 	at: string;
 	plan?: StudyPlan | null;
 	signals?: SignalsResult;
@@ -63,8 +64,10 @@ export function buildPromptSnapshot(
 ): LearnerPromptSnapshot {
 	const sig = opts.signals ?? computeSignals(snapshot, graph, params, opts.at);
 	const get = (id: NodeId) => sig.signals.get(id);
+	const relevant = (id: NodeId) => !opts.nodes || opts.nodes.has(id);
 
 	const frontier = sig.structure.frontier
+		.filter(relevant)
 		.map((id) => ({ id, readiness: get(id)?.readiness ?? 0, score: (get(id)?.readiness ?? 0) * (get(id)?.importance ?? 1) }))
 		.sort((a, b) => b.score - a.score || compareIds(a.id, b.id))
 		.slice(0, 5)
@@ -75,12 +78,13 @@ export function buildPromptSnapshot(
 		return m ? toMs(m) : 0;
 	};
 	const topMastered = topLeaves(graph, sig.crisp)
+		.filter(relevant)
 		.sort((a, b) => masteredAtOf(b) - masteredAtOf(a) || compareIds(a, b))
 		.slice(0, 5)
 		.map((id) => ({ nodeId: id, title: titleOf(graph, id) }));
 
 	const weak = [...sig.signals.values()]
-		.filter((s) => s.status === "weak")
+		.filter((s) => s.status === "weak" && relevant(s.nodeId))
 		.sort((a, b) => b.weakScore - a.weakScore || compareIds(a.nodeId, b.nodeId))
 		.slice(0, 3)
 		.map((s) => ({
@@ -90,9 +94,9 @@ export function buildPromptSnapshot(
 		}));
 
 	let dueReviews = 0;
-	for (const s of sig.signals.values()) if (s.reviewDue) dueReviews++;
+	for (const s of sig.signals.values()) if (s.reviewDue && relevant(s.nodeId)) dueReviews++;
 
-	const todayPlan = (opts.plan?.items ?? []).slice(0, 6).map((item) => `${KIND_LABEL[item.kind]}: ${titleOf(graph, item.nodeId)} (${item.estMinutes} min)`);
+	const todayPlan = (opts.plan?.items ?? []).filter(item => relevant(item.nodeId)).slice(0, 6).map((item) => `${KIND_LABEL[item.kind]}: ${titleOf(graph, item.nodeId)} (${item.estMinutes} min)`);
 
 	return { frontier, topMastered, weak, dueReviews, todayPlan };
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useModelCatalog } from "@/components/model-catalog";
 import { useSettingsDialog } from "@/components/settings/settings-dialog";
-import type { DomainCreationStatus, PluginModelValue } from "@/src/core";
+import { campaignHours, campaignPaces, type CampaignPace, type DomainCreationStatus, type PluginModelValue } from "@/src/core";
 
 const endpoint = "/api/domains/create";
 const lastRequest = "trilhaatlas.domain-creation";
@@ -13,6 +13,8 @@ export function DomainCreator() {
 	const { catalog, failed, refresh } = useModelCatalog();
 	const { open } = useSettingsDialog();
 	const [topic, setTopic] = useState("");
+	const [pace, setPace] = useState<CampaignPace>("extended");
+	const workload = campaignPaces[pace];
 	const [chosen, setChosen] = useState<PluginModelValue>();
 	const [requestId, setRequestId] = useState("");
 	const [status, setStatus] = useState<DomainCreationStatus>();
@@ -68,7 +70,7 @@ export function DomainCreator() {
 		let refused = false;
 		try {
 			const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ topic, model, requestId: id }) });
+				body: JSON.stringify({ topic, model, pace, requestId: id }) });
 			const body = await response.json();
 			if (!response.ok) {
 				refused = true;
@@ -105,12 +107,19 @@ export function DomainCreator() {
 			<h1 className="cel-display text-3xl">Criar domínio de estudo</h1>
 			{status?.state === "ready" ? <section className="cel-card space-y-4 p-5">
 				<h2 className="cel-display text-2xl">{status.title}</h2>
+				{status.workload && <p>{status.workload.regions} regiões · {status.workload.skills} habilidades. Estimativa de {status.workload.lessonHours} h de aulas e {status.workload.practiceHours} h de prática distribuída.</p>}
 				<button type="button" className="cel-button cel-button-primary px-4 py-2" disabled={busy} onClick={() => void showMap(status.domainId)}>Abrir minha árvore</button>
 				<button type="button" className="block text-sm underline" onClick={() => { sessionStorage.removeItem(lastRequest); setRequestId(""); setStatus(undefined); setTopic(""); setError(""); }}>Criar outro domínio</button>
 			</section> : <form className="cel-card space-y-5 p-5" onSubmit={event => { event.preventDefault(); void create(); }}>
 				<label className="block space-y-2"><span className="font-semibold">O que você quer aprender a fazer?</span>
 					<textarea className="block w-full rounded-lg border bg-background p-3" rows={4} value={topic} minLength={3} maxLength={1600} required disabled={working || busy}
 						onChange={event => setTopic(event.target.value)} placeholder="Quero aprender astronomia do zero até interpretar dados de um telescópio." />
+				</label>
+				<label className="block space-y-2"><span className="font-semibold">Extensão da campanha</span>
+					<select className="block w-full rounded-md border bg-background p-2" value={pace} disabled={working || busy} onChange={event => setPace(event.target.value as CampaignPace)}>
+						{(Object.entries(campaignPaces) as [CampaignPace, typeof workload][]).map(([key, option]) => <option value={key} key={key}>{option.label} · {option.weeks} semanas</option>)}
+					</select>
+					<span className="block text-sm">{workload.days} dias por semana × {workload.minutes} min. Cerca de {campaignHours(pace)} h entre aulas e prática distribuída, com {workload.minRegions}–{workload.maxRegions} regiões e {workload.minRegions * workload.minSkills}–{workload.maxRegions * 14} habilidades.</span>
 				</label>
 				<label className="block space-y-2"><span className="text-sm font-semibold">Modelo para criar a árvore</span>
 					<select className="block w-full rounded-md border bg-background p-2" value={selection} disabled={working || busy} onChange={event => {
