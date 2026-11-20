@@ -1,7 +1,9 @@
 import type { ComponentType } from "react";
 import type { ArtifactPartProps } from "@/src/core";
 import { DemoCard } from "@/components/artifacts/demo-card";
+import { ReviewPrepared } from "@/components/study/review-prepared";
 import { ActivityArtifact } from "@/components/study/lesson-activity";
+import { StudyMaterialsArtifact } from "@/components/study/study-materials-artifact";
 import { JobCard, PdfJobCard } from "@/components/artifacts/job-card";
 import { VisualCard } from "@/components/artifacts/visual-card";
 import { ImageCard } from "@/components/artifacts/image-card";
@@ -29,7 +31,9 @@ export const artifactRenderers: Record<string, ComponentType<ArtifactPartProps>>
 	// part-level plan_init divider retired with it).
 	// Artifacts (W6 fills in the components):
 	demo: DemoCard,
+	prepare_review: ReviewPrepared,
 	study_activity: ActivityArtifact,
+	attach_study_materials: StudyMaterialsArtifact,
 	visual: VisualCard,
 	// A learner image shown as-is (issue #363): the picture itself, inline.
 	show_image: ImageCard,

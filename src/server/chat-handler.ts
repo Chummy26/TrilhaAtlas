@@ -1,4 +1,4 @@
-import { lessonBooks, lessonNodeOfChat } from "./study-materials.ts";
+import { attachStudyMaterials, lessonBooks, lessonNodeOfChat } from "./study-materials.ts";
 import { prepareStudyReview } from "./prepare-study-review.ts";
 import type { Usage } from "@earendil-works/pi-ai";
 import {
@@ -807,6 +807,8 @@ export async function handleChatInput(
 			? createTeacherAgent(
 					{
 						...bookContext,
+					attachMaterials: (topic, useLesson, signal) => attachStudyMaterials(domainId,
+						useLesson ? lessonNodeOfChat(domainId, chatId) : null, topic, signal, readingSource?.book),
 						...(domainId && lessonNodeOfChat(domainId, chatId) && { prepareReview: () => prepareStudyReview(domainId, chatId) }),
 						chatId,
 						chatStore: stores.chatStore,

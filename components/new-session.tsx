@@ -300,12 +300,11 @@ export function NewSession({ initialConfigured, mode = "teach", domains, account
 	// 33 providers, chats cannot start. The draft stays in the textarea;
 	// Save stores the slots and never sends (owner ruling 2026-10-09) —
 	// the learner sends the draft themselves.
-	const { catalog, configured, zeroKeys } = useModelSetup(initialConfigured);
+	const { catalog, configured, zeroKeys, setupHint } = useModelSetup(initialConfigured);
 	const [setupOpen, setSetupOpen] = useState(false);
 
 	const send = useCallback((lesson?: LessonStart) => {
-		if (lesson) applyText(lesson.title);
-		const draft = textRef.current.trim();
+		const draft = lesson?.title ?? textRef.current.trim();
 		if (!draft || startingRef.current) return;
 		if (!configured) {
 			setSetupOpen(true);
@@ -355,7 +354,7 @@ export function NewSession({ initialConfigured, mode = "teach", domains, account
 				onModeChange={next => router.replace(next === "practice" ? "/chat/new?mode=practice" : "/chat/new", { scroll: false })}
 				navigation={<StudyNavigation domains={domains} account={account} />}
 				overview={rendering ? <GraphView /> : <MinimalHome />}
-				today={domains?.active && <TodayCard disabled={busy} onStart={send} />}
+				today={domains?.active && <TodayCard setupHint={setupHint} disabled={busy} onStart={send} />}
 				mode={mode}
 				picks={picks}
 				onOpenPicker={openPicker}

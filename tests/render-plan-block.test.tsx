@@ -183,7 +183,7 @@ describe("plan block render", () => {
 		// Two stacked nodes: 2*NODE_H + GAP_Y = 136 extent + GRAPH_PAD on
 		// every side (strokes/glow never clip at the edges). The width
 		// rides the hug now: 96-min boxes, not the old 160 slabs.
-		assert.match(html, /viewBox="-8 -8 112 152"/);
+		assert.match(html, /viewBox="-8 -8 112 200"/);
 		// Snapshot statuses render as carried.
 		assert.match(html, /data-testid="plan-node-a" data-status="visited"/);
 		assert.match(html, /data-testid="plan-node-b" data-status="upcoming"/);

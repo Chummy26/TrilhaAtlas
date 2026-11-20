@@ -413,6 +413,7 @@ function bookTools(ctx: BookToolContext): Record<string, AgentTool<any>> {
 }
 
 export interface TeacherToolContext extends PlanToolContext, BookToolContext {
+	attachMaterials?: (topic: string, useLesson: boolean, signal?: AbortSignal) => Promise<import("../core/study/attachments.ts").StudyAttachments>;
 	prepareReview?: () => Promise<string>;
 	/** Job-tool wiring (sub-agent dispatch): the job store + the runner's
 	 *  spawn seam. The composition root injects both. */
@@ -463,6 +464,10 @@ export function createTeacherTools(
 	// the settings arm. ask stays always-on.
 	const mechanics = quizMechanics(enabled);
 	const lessonSchema = ctx.readBookPage && !ctx.bookShelf ? bookActivitySchema : activitySchema;
+	const materialsSchema = Type.Object({
+		topic: Type.String({ minLength: 2, maxLength: 120, description: "Short public subject keywords, excluding learner names or personal details." }),
+		useLesson: Type.Boolean({ description: "True for the current curriculum skill; false for a different topic raised by the learner." }),
+	});
 	// Same widening as the prober's (see above) — the conditional spread of
 	// two differently-typed literals collapses into an unusable union type.
 	const quizzing: Record<string, AgentTool<any>> =
@@ -485,14 +490,20 @@ export function createTeacherTools(
 			// only, always on — it shows the learner their own file.
 			show_image: createShowImageTool(ctx),
 			...bookTools(ctx),
+			...(ctx.attachMaterials && { attach_study_materials: {
+				name: "attach_study_materials", label: "Anexar materiais de estudo", parameters: materialsSchema,
+				description: "Attach available full books, targeted readings and videos as clickable materials in the conversation. Use for demanding work or when requested. Explain where to start based on the returned items.",
+				execute: serverExecute("attach_study_materials", materialsSchema, (input, { signal }) => ctx.attachMaterials!(input.topic, input.useLesson, signal)),
+			} }),
 			study_activity: {
 				name: "study_activity",
 				label: "study_activity",
 				parameters: lessonSchema,
 				description: ctx.readBookPage && !ctx.bookShelf ? "Generate the interactive lesson from this book passage or visual selection. Author the title, 2–6 selectable cases or steps with concrete consequences, and cite the book and physical page or section. For a custom simulation use demo."
-					: "Display a native interactive lesson. For an unloaded DC voltage divider use kind=divider and optional divider={volts,upperOhms,lowerOhms}; returns the calculated voltage/current and lets the learner edit in Falstad or download an LTspice netlist. For circuit (Ohm's law), notation (SI current) or timeline (English past continuous), pass only kind. For other subjects use sequence, diagram or comparison with title, labeled steps and a real source and section.",
+					: "Display a native interactive lesson. For an unloaded DC voltage divider use kind=divider and optional divider={volts,upperOhms,lowerOhms}; returns the calculated voltage/current and lets the learner edit in Falstad or download an LTspice netlist. For a listening or pronunciation task use kind=pronunciation and voice={language: a BCP-47 language tag, sample: a short contrastive example, mode: phrase or spelling}. The learner hears a model and can compare a private recording. For circuit (Ohm's law), notation (SI current) or timeline (English past continuous), pass only kind. For other subjects use sequence, diagram or comparison with title, labeled steps and a real source and section.",
 				execute: serverExecute("study_activity", lessonSchema, input => {
 					const activity = parseLessonActivity(input);
+					if (!activity && input.kind === "pronunciation") throw new Error("Use voice.language such as en-US, a short voice.sample, and voice.mode spelling for individual letters or phrase for speech.");
 					if (!activity) throw new Error("Choose an experiment for falstad, or supply a title, source and 2–6 distinct labeled steps for authored activities.");
 					if (activity.kind === "falstad" && activity.experiment) {
 						const lab = falstadExperiments[activity.experiment];
@@ -509,7 +520,10 @@ export function createTeacherTools(
 			...(ctx.prepareReview && { prepare_review: {
 				name: "prepare_review", label: "Preparar revisão", parameters: Type.Object({}),
 				description: "Reserve two new short application cases for delayed retrieval of this curriculum skill. The learner answers later in Hoje. Use at a milestone, a recurring difficulty or the learner's request.",
-				execute: serverExecute("prepare_review", Type.Object({}), () => ctx.prepareReview!()),
+				execute: serverExecute("prepare_review", Type.Object({}), async () => {
+					const message = await ctx.prepareReview!();
+					return { text: message, details: { message } };
+				}),
 			} }),
 			...planTools(ctx),
 			...jobTools({ chatId: ctx.chatId, jobStore: ctx.jobStore, spawn: ctx.spawn, searchAvailable: ctx.searchAvailable }),

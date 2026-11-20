@@ -63,7 +63,7 @@ export function Home({
 	// 33 providers. The dock shows the CTA while unconfigured; submitting
 	// a topic opens the setup dialog WITH THE DRAFT PRESERVED (Save
 	// stores slots only; the learner sends the message themselves).
-	const { catalog, configured, zeroKeys } = useModelSetup(initialConfigured);
+	const { catalog, configured, zeroKeys, setupHint } = useModelSetup(initialConfigured);
 	const [setupOpen, setSetupOpen] = useState(false);
 	// Voice dictation (STT wave, 2026-09-17): finals append at the end of the
 	// topic draft; the strip lives in the stats bar's middle slot.
@@ -128,14 +128,7 @@ export function Home({
 		void dictation.finish().then(() => begin());
 	};
 	const begin = async (lesson?: LessonStart) => {
-		if (lesson) {
-			// A "Hoje" lesson: the node title is the topic (kept in the
-			// composer if a setup guard intercepts) and the curriculum node
-			// rides the creation as session context.
-			topicRef.current = lesson.title;
-			setTopic(lesson.title);
-		}
-		const t = topicRef.current.trim();
+		const t = lesson?.title ?? topicRef.current.trim();
 		if (!t || startingRef.current) return;
 		// Unconfigured: the send INTERCEPTS into the setup flow (the draft
 		// stays in the textarea; the learner sends it after Save).
@@ -239,7 +232,7 @@ export function Home({
 					    send consumes it). Practice mode with nothing picked
 					    shows the pick HINT so the affordance is discoverable;
 					    teaching mode with nothing picked renders nothing. */}
-					<TodayCard disabled={busy} onStart={(lesson) => void begin(lesson)} />
+					<TodayCard setupHint={setupHint} disabled={busy} onStart={(lesson) => void begin(lesson)} />
 					<ComposerActions
 						picker={(practiceProps.length > 0 || mode === "practice") && (
 							<NodePickerControl

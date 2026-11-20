@@ -473,6 +473,8 @@ function applyEvent(work: Work, ev: LearnerEvent, graph: LearnerGraphView, param
 		case "evidence":
 			applyEvidence(work, ev.evidence, graph, params);
 			break;
+		case "lesson-finished":
+			break; // Closing a lesson adds no evidence of mastery.
 		case "exposure":
 			applyExposure(work, ev, graph, params);
 			break;

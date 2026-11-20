@@ -9,7 +9,7 @@ process.env.LH_DATA_DIR = temp;
 process.env.LH_AUTH_FILE = path.join(temp, "auth.json");
 process.env.YOUTUBE_API_KEY = "fixture-key-for-discovery";
 const { switchStudyDomain, studyMap } = await import("../src/server/study.ts");
-const { downloadRegionalBook, readRegionMaterials, studyMapLesson } = await import("../src/server/study-materials.ts");
+const { attachStudyMaterials, downloadRegionalBook, readRegionMaterials, studyMapLesson } = await import("../src/server/study-materials.ts");
 const { mapVideoItem, YoutubeDataProvider } = await import("../src/server/resources/youtube-data.ts");
 const { layoutSkillMap } = await import("../src/core/study/map-layout.ts");
 const { appendStudyEvent } = await import("../src/server/study-log.ts");
@@ -29,6 +29,11 @@ it("projects all regions and reuses chapter-specific material across regions in 
 	const math = (await studyMapLesson("electronics",first)).materials.find(m => m.bookKey === dc.bookKey && !m.suggested)!;
 	assert.notEqual(dc.url,math.url);
 	await assert.rejects(downloadRegionalBook("electronics",first,"unrelated"),/indisponível/);
+	const { items } = await attachStudyMaterials("electronics", "ee.dc.laws.kcl", "Lei de Kirchhoff", new AbortController().signal);
+	const complete = items.find(item => item.kind === "book");
+	assert.ok(complete && complete.url.endsWith(".pdf"));
+	assert.ok(complete.sectionUrl && complete.sectionUrl !== complete.url);
+	assert.ok(items.some(item => item.kind === "video" && item.url.includes("ALvobeJOrr4")));
 
 	const result = mapVideoItem({ id: "AbCdEfG1234", snippet: { title: nodes.get(law)!.title, defaultAudioLanguage: "pt", description:
 		`0:00 Introdução\n1:15 ${nodes.get(first)!.title}\n3:20 ${nodes.get(law)!.title}` }, contentDetails: { duration: "PT12M" } }, new Date().toISOString())!;

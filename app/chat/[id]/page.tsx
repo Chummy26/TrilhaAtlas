@@ -5,7 +5,7 @@ import { MissionShelf } from "@/components/study/mission-shelf";
 import { Chat } from "@/components/chat";
 import { activityForSkill, lessonResources, slotsConfigured, type LessonResource } from "@/src/core";
 import { StudyHeartbeat } from "@/components/study/study-heartbeat";
-import { activeDomainId, compactionInFlight, getChat, isTurnRunning, lessonPdfShelf, lessonNodeOfChat, materialsForEnglishMission, readSettingsRecord, turnFailure } from "@/src/server";
+import { activeDomainId, compactionInFlight, getChat, isTurnRunning, lessonCompletionState, lessonPdfShelf, lessonNodeOfChat, materialsForEnglishMission, readSettingsRecord, turnFailure } from "@/src/server";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +42,7 @@ export default async function ChatPage({
 			<Chat
 				key={chat.id}
 				chatId={chat.id}
+				lessonCompletion={domain && node && !reading ? lessonCompletionState(domain, chat.id) : null}
 				lessonActivity={reading ? undefined : activityForSkill(node)}
 				title={chat.title}
 				kind={chat.kind ?? "teach"}

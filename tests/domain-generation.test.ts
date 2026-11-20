@@ -141,7 +141,21 @@ it("sends a structurally valid but pedagogically rejected region back for repair
 		reviews: [1, 2].map(i => ({ prompt: "Qual o desnível no novo trajeto " + i + "?", answers: ["15"], explanation: "A diferença entre as cotas é 15 m." })) };
 	const issue = { issues: [{ skill: 1, reason: "A primeira tarefa usa declividade sem ensinar escala.", fix: "Introduza a leitura da escala antes do cálculo." }] };
 	const mock = scripted([four, region, issue, region, issue]);
-	await assert.rejects(generateDomainCurriculum({ ...input, pace: "focused" }, async () => mock.engine), /declividade/);
+	await assert.rejects(generateDomainCurriculum({ ...input, pace: "focused" }, async () => mock.engine), error => {
+		assert.ok(error instanceof Error);
+		assert.ok(error.message.includes(four.areas[0]!.regions[0]!.title.pt));
+		assert.ok(error.message.includes("habilidade 1"));
+		assert.ok(error.message.includes("declividade"));
+		return true;
+	});
 	assert.equal(mock.calls.length, 5);
 	assert.ok(mock.calls[3]!.includes("Introduza a leitura da escala"));
+	const laterGap = { issues: [{ skill: 4, reason: "A prática exige ler uma coordenada em voz alta sem preparação.", fix: "Use a indicação visual já ensinada para escolher a carta." }] };
+	const corrected = structuredClone(region);
+	corrected.skills[3]!.activity = "Selecione a carta pela indicação visual já ensinada e compare os trajetos.";
+	const pass = { issues: [] };
+	const repaired = scripted([four, region, issue, region, laterGap, corrected, pass, region, pass, region, pass, region, pass]);
+	const result = await generateDomainCurriculum({ ...input, pace: "focused" }, async () => repaired.engine);
+	assert.ok(repaired.calls[5]!.includes(laterGap.issues[0]!.fix));
+	assert.ok(result.seed.items.some(item => item.summary === corrected.skills[3]!.activity));
 });

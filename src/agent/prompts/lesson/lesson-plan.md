@@ -33,7 +33,7 @@ Stay inside the node's `scope`. Teach toward its `objectives`. Assume only `know
 4. **knowledgePoints** (2–4): each is ONE assessable claim or skill:
    - `workedExample`: a complete solution, steps labelled by `subgoal` (what the step achieves) and `text` (how).
    - `fadedSteps`: an isomorphic problem with the first steps `given` and the last step left as the `blank` item; `blankSubgoal` names that step.
-   - `items`: 2–5 practice items isomorphic to the worked example, difficulty 1→3 (1 = direct application, 2 = one extra step or unfamiliar surface, 3 = transfer or combination). Never repeat a number set from the worked example.
+   - `items`: 2–5 practice items on the same skill, difficulty 1→3. Start with one familiar decision, then vary a condition, add a step or combine taught ideas. Before finalizing each independent item and the closing check, solve it against the examples, visuals and earlier answers the learner will have seen. If substituting names or numbers into a visible solution is sufficient, change what the learner must decide. Keep the prerequisite knowledge fixed. Reserve close imitation and completion of a supplied procedure for guided practice such as `fadedSteps`.
 5. **selfExplanation** (optional): an `explain` item asking WHY one worked-example step is valid (`kpId`, `stepIndex`, 0-based). Prefer a knowledge point other than the first.
 6. **variation** (optional): a different format for the same idea (`simulation_poe`, `find_the_error`, `contrasting_cases`, `shadowing`, `speaking`, `explain_two_sentences`, `mini_project`, `dictation`, `video_clip`). Avoid the formats in `recentVariationFormats`.
 7. **recap**: 2–3 bullets, ≤60 words in total, each a statement the learner can now use; `unlocks` lists what this enables next.

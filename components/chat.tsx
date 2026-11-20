@@ -35,6 +35,7 @@ import { Separator } from "@/components/ui/separator";
 import { AnsweredCard } from "@/components/answered-card";
 import { MalformedQuestion } from "@/components/malformed-question";
 import { SubagentSteerCard } from "@/components/artifacts/steer-card";
+import { LessonFinish, type LessonFinishState } from "@/components/study/lesson-finish";
 import { ChatSessionComposer } from "@/components/composer";
 import { useEnterSubmits } from "@/components/enter-submits";
 import { blurAfterPointerClick } from "@/components/focus-hygiene";
@@ -80,7 +81,7 @@ import { pluginQuestionOccurrenceKey, type PluginQuestionSnapshot } from "@/src/
 import type { PluginQuestionDraft } from "./session-core";
 import { SessionFind } from "@/components/session-find";
 import { ActivityPanel } from "@/components/study/lesson-activity";
-import type { LessonActivity } from "@/src/core";
+import { coversLessonActivity, type LessonActivity } from "@/src/core";
 import { SessionMessageNavigation } from "@/components/session-navigation";
 import { SelectionToolbar } from "@/components/selection-toolbar";
 import { createCiteAction, type CitationEditTarget } from "@/components/citation-actions";
@@ -268,6 +269,7 @@ function isSubagentSteer(m: LhViewMessage): boolean {
 export function Chat({
 	chatId,
 	lessonActivity,
+	lessonCompletion,
 	title,
 	initialMessages,
 	initialError,
@@ -279,6 +281,7 @@ export function Chat({
 }: {
 	chatId: string;
 	lessonActivity?: LessonActivity;
+	lessonCompletion?: LessonFinishState | null;
 	title: string;
 	initialMessages: LhMessage[];
 	/** Memory-only settlement notice supplied on reopening. */
@@ -1766,7 +1769,7 @@ export function Chat({
 					<TranscriptElementReporter onElement={setTranscriptElement} />
 					<ConversationContent className="min-h-full gap-0 p-0">
 						<div data-session-find-root="" className={`${COLUMN} flex flex-1 flex-col gap-4 pt-4`}>
-							{lessonActivity && !messages.some(m => m.parts.some(p => p.type === "tool-study_activity" && p.state === "output-available" && (p.output as LessonActivity | null)?.kind === lessonActivity.kind)) && <ActivityPanel activity={lessonActivity} />}
+							{lessonActivity && !messages.some(m => m.parts.some(p => p.type === "tool-study_activity" && p.state === "output-available" && coversLessonActivity(p.output, lessonActivity))) && <ActivityPanel activity={lessonActivity} />}
 							{!lessonActivity && messages.length === 0 && !busy && (
 								<ConversationEmptyState
 									title="New session"
@@ -2024,6 +2027,7 @@ export function Chat({
 							{(status === "submitted" || turnInFlight) && (
 								<PendingTurnIndicator evaluating={evaluating} />
 							)}
+							{lessonCompletion && messages.some(m => m.role === "assistant") && <LessonFinish state={lessonCompletion} disabled={busy || compacting || !!pending} />}
 							{openingError && <p role="alert" className="text-sm text-destructive">{OPENING_PROMPT_FAILURE}</p>}
 							{error && (
 								<div className="flex items-center justify-between gap-3 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm">

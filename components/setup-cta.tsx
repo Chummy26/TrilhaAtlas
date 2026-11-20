@@ -50,7 +50,10 @@ export function useModelSetup(initialConfigured: boolean) {
 	const [lastConfigured, setLastConfigured] = useState(initialConfigured);
 	const configured = catalog ? savedSlotsConfigured(catalog.slots) : lastConfigured;
 	useEffect(() => { if (catalog) setLastConfigured(savedSlotsConfigured(catalog.slots)); }, [catalog]);
-	return { catalog, configured, zeroKeys: catalog ? !catalog.providers.some((p) => p.keyPresent) : false };
+	const zeroKeys = catalog ? !catalog.providers.some((p) => p.keyPresent) : false;
+	const setupHint = zeroKeys ? "Para começar a aula, conecte um provedor na janela de configuração." :
+		!configured ? "Para começar a aula, selecione e salve os modelos na janela de configuração. Depois, clique novamente para iniciar." : undefined;
+	return { catalog, configured, zeroKeys, setupHint };
 }
 
 /** A known unavailable route needs an explicit replacement, never an

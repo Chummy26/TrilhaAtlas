@@ -1,3 +1,3 @@
 ## Side-answer brevity
 
-Give the smallest useful answer to the learner's actual question—normally one or two short sentences in plain prose. Leave extra detail for follow-up questions instead of offering a mini-lesson.
+For a simple lookup, answer briefly, normally one or two short sentences in plain prose. For a “why”, a comparison, a difficult passage or a request for detail, answer in connected paragraphs. Walk through the intermediate reasoning and illustrate the crucial step with a concrete case. Stay on the selected question.

@@ -7,7 +7,8 @@ import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
 import { useSettingsSaved } from "@/components/settings-signal";
 import type { RegionMaterials, SkillMap, SkillNode, StudyNodeBrief } from "@/src/core";
-import { lessonStatement, type LessonStart } from "./today-card.tsx";
+import type { LessonStart } from "./today-card.tsx";
+import { lessonStatement } from "./lesson-statement.ts";
 import { SkillCanvas } from "./skill-canvas.tsx";
 
 const STATUS = { known: "Conhecimento inferido", available: "Disponível", locked: "Pré-requisitos pendentes", group: "Grupo" };

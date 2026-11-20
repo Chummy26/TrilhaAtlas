@@ -322,6 +322,7 @@ function eventNodes(ev: LearnerEvent): string[] {
 		case "evidence":
 			return ev.evidence.nodes.map((n) => n.nodeId);
 		case "exposure":
+		case "lesson-finished":
 		case "node-version":
 			return [ev.nodeId];
 		case "implicit-credit":
@@ -420,6 +421,43 @@ export function parseStudyEvent(body: unknown): NewEvent | null {
 }
 
 /** Append one learner event to the ACTIVE domain's log; returns the fresh "Hoje". */
+function completionState(events: LearnerEvent[], sessionId: string) {
+	const exposure = events.find((e): e is Exposure => e.kind === "exposure" && e.source === "ai_lesson" && !e.exploratory && e.sessionId === sessionId);
+	if (!exposure) return null;
+	const completed = events.some(e => (e.kind === "lesson-finished" && e.exposureId === exposure.id) ||
+		(e.kind === "evidence" && e.evidence.lessonExposureId === exposure.id && e.evidence.itemFamily === exposure.nodeId + "#self"));
+	return { exposure, completed };
+}
+
+export function lessonCompletionState(domainId: string, sessionId: string) {
+	const state = completionState(readStudyEvents(domainId), sessionId);
+	return state && { domainId, sessionId, nodeId: state.exposure.nodeId, completed: state.completed };
+}
+
+export function finishStudyLesson(domainId: string, sessionId: string, grade: Grade) {
+	const { id } = requireActive();
+	if (id !== domainId) throw new StudyError(409, "O domínio da aula mudou.");
+	const events = readStudyEvents(id);
+	const state = completionState(events, sessionId);
+	if (!state) throw new StudyError(409, "Esta sessão não pertence a uma missão da campanha.");
+	const { exposure, completed } = state;
+	const domains = studyDomains().listDomains();
+	const before = studyAccountSummary(domains).xp;
+	let today: StudyToday | undefined;
+	if (!completed && ratedLessons(events).get(exposure.id)?.rating) {
+		appendStudyEvent(id, { kind: "lesson-finished", id: "finished-" + exposure.id, at: new Date().toISOString(),
+			seq: nextStudySeq(events), nodeId: exposure.nodeId, domainId, exposureId: exposure.id });
+	} else if (!completed) {
+		today = recordStudyEvent({ kind: "self-check", nodeId: exposure.nodeId, exposureId: exposure.id, sessionId, grade });
+	}
+	today ??= studyToday();
+	const next = today.next?.nodeId !== exposure.nodeId ? today.next : null;
+	const pending = next && [...ratedLessons(events).values()].reverse().find(({ exposure: prior, rating }) =>
+		!rating && !prior.exploratory && prior.nodeId === next.nodeId && prior.sessionId !== "hoje" &&
+		Date.now() - Date.parse(prior.at) <= 3 * 86_400_000);
+	return { before, after: studyAccountSummary(domains).xp, alreadyCompleted: completed, resume: pending?.exposure.sessionId ?? null, next };
+}
+
 export function recordStudyEvent(input: NewEvent): StudyToday {
 	const { id, manifest } = requireActive();
 	const cur = loadCurriculum(id, manifest);

@@ -47,6 +47,8 @@ export interface StudyMaterial {
 	nodes: string[];
 	suggested?: boolean;
 	bookKey?: string;
+	/** Complete open work, distinct from the section or worksheet in url. */
+	fullBookUrl?: string;
 	saved?: boolean;
 	linkOnly?: boolean;
 }

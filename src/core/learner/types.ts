@@ -176,6 +176,7 @@ export interface Evidence {
 /** Non-graded learning events folded into the model (lesson exposure, implicit credit). */
 export type LearnerEvent =
 	| { kind: "evidence"; evidence: Evidence }
+	| { kind: "lesson-finished"; id: string; seq: number; at: string; domainId: DomainId; nodeId: NodeId; exposureId: string }
 	| { kind: "exposure"; id: string; seq: number; at: string; domainId: DomainId; sessionId: string; nodeId: NodeId; source: "ai_lesson" | "video" | "book" | "article"; minutes: number; exploratory?: boolean }
 	| { kind: "implicit-credit"; id: string; seq: number; at: string; domainId: DomainId; fromNodeId: NodeId; toNodeId: NodeId; w: number }
 	| { kind: "diagnostic"; id: string; seq: number; at: string; domainId: DomainId; estimates: { nodeId: NodeId; p: number }[] }

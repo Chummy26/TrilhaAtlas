@@ -55,7 +55,7 @@ try {
 		assert.deepEqual(await chatIds(), before, "opening new-session views created a chat");
 		await page.goto(origin);
 		await page.waitForSelector(card + " .study-campaign nav a[aria-current=step]");
-		assert.ok(await page.$eval(card, el => el.innerText.includes("Começar missão")));
+		assert.ok(await page.$eval(card, el => el.querySelector("[data-testid=today-start]")?.textContent.includes("Iniciar campanha")));
 		assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
 		const summary = await page.waitForSelector(card + " .study-campaign details summary");
 		await summary.focus();

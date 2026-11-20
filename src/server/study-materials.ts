@@ -10,12 +10,13 @@ import type { CurriculumItem } from "../core/curriculum/types.ts";
 import { libraryDir, resourcesDir } from "../core/domains/paths.ts";
 import { LEARNER_CONSTANTS } from "../core/learner/params.ts";
 import { booksForDomain, seedLicense } from "../core/resources/catalog.ts";
-import { bestMatch } from "../core/resources/match.ts";
+import { bestMatch, rankByMatch } from "../core/resources/match.ts";
 import { rankCandidates } from "../core/resources/playlist.ts";
 import { parseDescriptionChapters } from "../core/resources/segments.ts";
 import { planRegionReading, type BookCandidate } from "../core/resources/setcover.ts";
 import { nodeBrief } from "../core/study/projection.ts";
 import type { RegionMaterials, StudyMaterial } from "../core/study/map.ts";
+import type { StudyAttachments } from "../core/study/attachments.ts";
 import { keyValue } from "./keys.ts";
 import { CATALOG_TTL_MS, FileTtlCache } from "./resources/cache.ts";
 import { cachedText } from "./resources/provider-kit.ts";
@@ -79,6 +80,7 @@ function regionalReading(domain: string, nodes: CurriculumItem[], linked: Set<st
 			}
 			for (const [ids, provisional] of [[confirmed, false], [suggested, true]] as const) {
 				if (ids.length) materials.push({ kind: "book", title: book.title, part: section.part, url: section.url, lang: book.lang, nodes: ids, suggested: provisional,
+					fullBookUrl: book.downloadUrl ?? (book.provider === "wikibooks" && !book.urlUnverified ? book.url : undefined),
 					...(book.downloadUrl ? { bookKey: book.key, saved: origins.has(book.downloadUrl) } : {}) });
 			}
 			return { sectionId: section.url, order, coverage };
@@ -163,7 +165,7 @@ async function discoverBooks(domain: string, item: CurriculumItem, allNodes: Cur
 				const part = await reg.resolve(book.id + "#" + section.id);
 				if (!part.url || !section.href) continue;
 				const matches = allNodes.filter(n => bestMatch({ text: n.title }, section.title) >= 0.65).map(n => n.id);
-				materials.push({ kind: "book", title: book.title, part: section.title, lang: book.lang, nodes: [...new Set([item.id, ...matches])], url: part.url, suggested: true });
+				materials.push({ kind: "book", title: book.title, part: section.title, lang: book.lang, nodes: [...new Set([item.id, ...matches])], url: part.url, fullBookUrl: book.url, suggested: true });
 			}
 		} catch { complete = false; }
 	}
@@ -343,6 +345,56 @@ function booksForLessonNode(domain: string, nodeId: string) {
 	return regionalReadingList(domain, region.id).map(book => ({ region: region.id, book: book.id, title: book.title }));
 }
 
+function relevantMaterials(shelf: RegionMaterials, node: string) {
+	return shelf.materials.filter(m => m.nodes.includes(node) || m.nodes.includes(shelf.region))
+		.sort((a, b) => Number(b.nodes.includes(node)) - Number(a.nodes.includes(node)) || Number(!!a.suggested) - Number(!!b.suggested));
+}
+
+/** Resolve attachments on demand. Only links and locators enter the teacher's context. */
+export async function attachStudyMaterials(domain: string | null, node: string | null, topic: string, signal: AbortSignal = AbortSignal.timeout(26000), readingBook?: string): Promise<StudyAttachments> {
+	const items: StudyAttachments["items"] = [];
+	const deadline = AbortSignal.any([signal, AbortSignal.timeout(25000)]);
+	const checkScope = () => {
+		signal.throwIfAborted();
+		if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
+	};
+	checkScope();
+	let materials: StudyMaterial[] = [];
+	if (domain && node && current(domain, node, true).region.kind === "unit") {
+		const shelf = await readRegionMaterials(domain, node);
+		checkScope();
+		materials = relevantMaterials(shelf, node);
+		const local = shelf.localReadings?.filter(b => b.readable) ?? [];
+		const book = local.find(b => b.id === readingBook) ?? rankByMatch(local, { text: { pt: topic } }, b => b, 0.6)[0];
+		if (book) items.push({ kind: "book", title: book.title, part: "Livro da biblioteca desta região",
+			url: "/ler/" + encodeURIComponent(book.id) + "?" + new URLSearchParams({ domain, region: shelf.region, node }) });
+	}
+	const reading = materials.find(m => m.kind === "book");
+	const whole = materials.find(m => m.kind === "book" && m.fullBookUrl?.startsWith("https://"));
+	if (!items.length && whole?.fullBookUrl) items.push({ kind: "book", title: whole.title, url: whole.fullBookUrl,
+		part: whole.part, sectionUrl: whole.url, suggested: whole.suggested });
+	if (reading && reading.url !== items[0]?.sectionUrl && reading.title !== items[0]?.title) {
+		items.push({ kind: "reading", title: reading.title, url: reading.url, part: reading.part, suggested: reading.suggested });
+	}
+	const video = materials.find(m => m.kind === "video");
+	const query = { domainId: domain ?? "general", text: { pt: topic, en: topic }, langs: ["pt", "en"], maxResults: 5, signal: deadline };
+	const [openBook, foundVideo] = await Promise.all([
+		items.some(item => item.kind === "book") ? undefined : (async () => {
+			const fetch = createResourceFetch({ timeoutMs: 5000 });
+			const reg = createDefaultRegistry({ stateDir: path.join(PATHS.data, "catalog-cache"), libraryRoot: libraryDir(PATHS.data),
+				youtubeApiKey: () => undefined, youtubeEnrichedOptIn: () => false, fetch: (url, init) => fetch(url, { ...init, signal: deadline }) });
+			const result = await reg.search({ ...query, kinds: ["book"] }, { providers: ["wikibooks"] });
+			return rankByMatch(result.results.filter(r => r.url?.startsWith("https://")), query, r => ({ title: r.title, body: r.description }))[0];
+		})().catch(() => undefined),
+		video ? undefined : findRegionalSource(domain ?? "general", { id: "topic", title: topic, bookQuery: topic, videoQuery: topic }, "video", deadline).catch(() => undefined),
+	]);
+	checkScope();
+	if (openBook?.url) items.unshift({ kind: "book", title: openBook.title, url: openBook.url, part: "Livro aberto no Wikibooks", suggested: true });
+	if (video) items.push({ kind: "video", title: video.title, url: video.url, part: video.part, suggested: video.suggested });
+	else if (foundVideo?.source.url) items.push({ kind: "video", title: foundVideo.source.title, url: foundVideo.source.url, part: foundVideo.ref, suggested: true });
+	return { items };
+}
+
 export function lessonPdfShelf(domain: string, chat: string, node = lessonNodeOfChat(domain, chat)) {
 	if (!node) return [];
 	const root = libraryDir(PATHS.data);
@@ -401,8 +453,7 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	const main = previous(false);
 	const side = previous(true);
 	const regionMaterials: RegionMaterials = region.kind === "unit" ? await readRegionMaterials(domain, id) : { region: id, materials: [], references: [], videoSearch: false };
-	const materials = regionMaterials.materials.filter(m => m.nodes.includes(id) || m.nodes.includes(region.id))
-		.sort((a,b) => Number(b.nodes.includes(id)) - Number(a.nodes.includes(id)) || Number(!!a.suggested) - Number(!!b.suggested));
+	const materials = relevantMaterials(regionMaterials, id);
 	let excerpt = "";
 	const book = materials.find(m => m.kind === "book");
 	if (withReading && book && !book.linkOnly) excerpt = await excerptFor(domain, book).catch(() => "");

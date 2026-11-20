@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { activityForSkill, currentReadings, parseLessonActivity } from "../src/core/lesson-activity.ts";
+import { activityForSkill, coversLessonActivity, currentReadings, parseLessonActivity } from "../src/core/lesson-activity.ts";
 import { createTeacherTools, type TeacherToolContext } from "../src/agent/tools.ts";
 import { ActivityArtifact } from "../components/study/lesson-activity.tsx";
 import { hasTeachingContext, newGraphContextMessage } from "../src/core/native-messages.ts";
@@ -100,4 +100,20 @@ it("opens the teacher's selected Falstad laboratory from the rendered answer", a
 	const html = renderToStaticMarkup(<ActivityArtifact part={{ type: "tool-study_activity", toolCallId: "rc", state: "output-available", input, output: out.details }} />);
 	assert.match(html, /startCircuit=filt-lopass\.txt/);
 	assert.match(html, /frequência/);
+});
+
+it("provides a human spelling model and local rehearsal without a transcription service", async () => {
+	const exercise = activityForSkill("en.listening.a1.personal-info")!;
+	const tool = createTeacherTools({} as TeacherToolContext).study_activity!;
+	assert.ok(parseLessonActivity(exercise));
+	assert.ok(coversLessonActivity(exercise, exercise));
+	assert.ok(coversLessonActivity({ ...exercise, voice: { ...exercise.voice, sample: "A, N, N, A." } }, exercise));
+	assert.equal(coversLessonActivity({ ...exercise, voice: { ...exercise.voice, sample: "Sam" } }, exercise), false);
+	assert.equal(parseLessonActivity({ kind: "pronunciation" }), undefined);
+	assert.equal(parseLessonActivity({ ...exercise, voice: { ...exercise.voice, sample: "!!!" } }), undefined);
+	const result = await tool.execute("voice", exercise);
+	const html = renderToStaticMarkup(<ActivityArtifact part={{ type: "tool-study_activity", toolCallId: "voice", state: "output-available", output: result.details }} />);
+	assert.match(html, /<audio[^>]+voa-audio/);
+	assert.match(html, /Gravar minha voz/);
+	assert.match(html, /separadas por hífens/);
 });

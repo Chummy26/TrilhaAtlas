@@ -16,7 +16,7 @@ const { runningTurn } = await import("../src/server/turn-runs.ts");
 const { createTeacherAgent } = await import("../src/agent/teacher-agent.ts");
 const { handleChatRequest } = await import("../src/server/chat-handler.ts");
 const { chatStore } = await import("../src/store/chats.ts");
-const { switchStudyDomain, studyToday, studyProfile, studyMap, recordStudyEvent } = await import("../src/server/study.ts");
+const { switchStudyDomain, studyToday, studyProfile, studyMap, finishStudyLesson, lessonCompletionState } = await import("../src/server/study.ts");
 const { lessonNodeOfChat, studyMapLesson } = await import("../src/server/study-materials.ts");
 const { createMemoryService, HashEmbedder } = await import("../src/server/memory/index.ts");
 const memory = createMemoryService({ dataRoot: root, embedder: new HashEmbedder() });
@@ -124,7 +124,18 @@ it("binds checks to their own lesson, recovers an interrupted append and credits
 	}
 	assert.equal(new Set(evidence.map(e => e.itemFamily)).size, 1);
 	assert.equal(studyProfile().account.xp, 20);
-	recordStudyEvent({ kind: "self-check", nodeId, sessionId: second.id, grade: 3 });
+	assert.equal(lessonCompletionState("electronics", first.id)?.completed, false);
+	const fromQuiz = finishStudyLesson("electronics", first.id, 3);
+	assert.equal(fromQuiz.after, fromQuiz.before);
+	assert.equal(fromQuiz.resume, null); // An older attempt on this same skill is not the next mission.
+	assert.equal(lessonCompletionState("electronics", first.id)?.completed, true);
+	assert.equal(finishStudyLesson("electronics", first.id, 1).alreadyCompleted, true);
+	assert.equal(log("electronics").filter(e => e.kind === "lesson-finished").length, 1);
+	const fromSelfCheck = finishStudyLesson("electronics", second.id, 3);
+	assert.equal(fromSelfCheck.after - fromSelfCheck.before, 40);
+	assert.notEqual(fromSelfCheck.next?.nodeId, nodeId);
+	assert.equal(finishStudyLesson("electronics", second.id, 3).alreadyCompleted, true);
+	assert.throws(() => finishStudyLesson("english", second.id, 3), /domínio/);
 	assert.equal(studyToday().pendingCheck, null);
 	assert.equal(studyProfile().account.xp, 60);
 	switchStudyDomain("english");

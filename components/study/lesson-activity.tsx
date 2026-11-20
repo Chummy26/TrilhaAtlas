@@ -2,6 +2,8 @@
 
 import { useContext, useState } from "react";
 import { ChatActionsContext } from "@/components/chat";
+import { PronunciationPractice } from "./pronunciation-practice.tsx";
+import { lessonDrawing } from "./lesson-drawing.ts";
 import { CircuitFigure } from "@/components/study/circuit-figure";
 import { currentReadings, dividerLab, falstadExperiments, parseLessonActivity, type ArtifactPartProps, type LessonActivity } from "@/src/core";
 
@@ -30,6 +32,7 @@ export function ActivityArtifact({ part }: ArtifactPartProps) {
 }
 
 export function ActivityPanel({ activity }: { activity: LessonActivity }) {
+	if (activity.kind === "pronunciation" && activity.voice) return <PronunciationPractice key={JSON.stringify(activity.voice)} voice={activity.voice} title={activity.title} />;
 	if (activity.kind === "divider") return <DividerPanel key={JSON.stringify(activity.divider)} initial={activity.divider} />;
 	if (activity.kind === "falstad" && activity.experiment) {
 		const lab = falstadExperiments[activity.experiment];
@@ -111,9 +114,11 @@ function LessonPanel({ activity }: { activity: LessonActivity }) {
 			<label className="lab-range-label">Momento da ligação<input type="range" min="0" max="2" value={index} aria-valuetext={scene.time} onChange={e => setIndex(+e.target.value)} /></label>
 			<div aria-live="polite"><strong lang="en">{scene.phrase}</strong><p>{scene.meaning}</p></div>
 		</div> : <div className="lab-body">
-			{kind === "diagram" ? <ol className="lab-chain" aria-label="Relações entre etapas">{activity.steps?.map((s, i) => <li key={i}>
-				<button type="button" aria-pressed={i === index} onClick={() => setIndex(i)}>{s.label}</button>
-			</li>)}</ol> : <Choices label={kind === "comparison" ? "Comparação" : "Etapas"} selected={index} choose={setIndex} items={activity.steps?.map(s => s.label) ?? []} />}
+			{kind === "diagram" ? <ol className="lab-chain" aria-label="Relações entre etapas">{activity.steps?.map((s, i, steps) => {
+				const Drawing = lessonDrawing(s.label, i, i < steps.length - 1, s.illustration);
+				return <li key={i}><button type="button" aria-pressed={i === index} onClick={() => setIndex(i)}>
+					<Drawing aria-hidden="true" size={24} className="mx-auto mb-1"/>{s.label}</button></li>;
+			})}</ol> : <Choices label={kind === "comparison" ? "Comparação" : "Etapas"} selected={index} choose={setIndex} items={activity.steps?.map(s => s.label) ?? []} />}
 			<div aria-live="polite">{!inline && <strong>{step?.label}</strong>}<p>{step?.detail}</p></div>
 		</div>}
 		<footer>
