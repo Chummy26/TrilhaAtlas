@@ -28,10 +28,12 @@ export async function verifyCorePlugins({ root, standalone, dataDirectory, url }
 	assert.deepEqual(initial.plugins.filter(p => p.origin === "core").map(p => p.id).sort(), [...ids].sort());
 	for (const id of ids) {
 		const info = initial.plugins.find(p => p.id === id);
-		assert.equal(info.enabled, false, id); assert.equal(info.status, "disabled", JSON.stringify(info));
+		const enabled = id === "flashcards";
+		assert.equal(info.enabled, enabled, id);
+		assert.equal(info.status, enabled ? "active" : "disabled", JSON.stringify(info));
+		assert.equal(fs.existsSync(path.join(dataDirectory, "core-plugin-data", id)), enabled, id);
 		assert.equal(fs.existsSync(path.join(dataDirectory, "plugins", id)), false, "core code must not be installed into user data");
 	}
-	assert.equal(fs.existsSync(path.join(dataDirectory, "core-plugin-data")), false, "disabled fresh discovery creates no core records");
 	const shadow = path.join(dataDirectory, "plugins", ids[0]);
 	fs.mkdirSync(path.join(shadow, "dist"), { recursive: true });
 	fs.writeFileSync(path.join(shadow, "dist", "manifest.json"), "{invalid shadow must never substitute for core}");
@@ -59,5 +61,5 @@ export async function verifyCorePlugins({ root, standalone, dataDirectory, url }
 		for (const id of ids) await request(`/api/plugins/${id}`, { enabled: false });
 		fs.rmSync(shadow, { recursive: true }); await request("/api/plugins", { action: "refresh" });
 	}
-	console.log("[smoke-core-plugins] four disabled defaults → direct core activation/assets/private-file refusal → separate data → reserved-ID collision → cooperative disable; code byte-identical");
+	console.log("[smoke-core-plugins] Flashcards active by default → direct core activation/assets/private-file refusal → separate data → reserved-ID collision → cooperative disable; code byte-identical");
 }
