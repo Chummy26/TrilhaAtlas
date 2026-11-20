@@ -49,7 +49,7 @@ not supported runtime imports for plugin code.
 
 Manifest API version is 1; app/package versions are numeric `x.y.z`. Validate identity,
 paths, compatibility and built entries before executing code. Disabled packages are
-inspected without evaluation. New core and community plugins default to disabled;
+inspected without evaluation. Bundled Flashcards starts enabled. All other core and community plugins start disabled;
 explicit enable/disable choices share `plugins-state.json` and survive app updates.
 
 Code/data locations are explicit:

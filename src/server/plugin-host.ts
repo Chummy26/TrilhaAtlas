@@ -37,7 +37,7 @@ export function isPluginHostError(error: unknown): error is { status: number; me
 export interface PluginHostDependencies {
 	directory: string;
 	/** App-owned flat built packages and a separate writable data root. */
-	core?: { directory: string; dataDirectory: string; ids: readonly string[] };
+	core?: { directory: string; dataDirectory: string; ids: readonly string[]; enabledByDefault?: readonly string[] };
 	appVersion: string;
 	createServices(info: { manifest: PluginManifest; directory: string; dataDirectory: string; signal: AbortSignal; cleanup: (fn: PluginCleanup) => void }): {
 		learning: PluginLearningData; inference: PluginInference; agents: PluginAgentService; workers: PluginWorkerService;
@@ -182,6 +182,7 @@ export function createPluginHost(deps: PluginHostDependencies) {
 	const directory = path.resolve(/* turbopackIgnore: true */ deps.directory);
 	const stateFile = path.resolve(/* turbopackIgnore: true */ directory, "..", "plugins-state.json");
 	const core = deps.core ? { ...deps.core, ids: Object.freeze([...deps.core.ids]) } : undefined;
+	const coreDefaults = new Set(core?.enabledByDefault);
 	const coreIds = new Set(core?.ids ?? []);
 	if (core && (coreIds.size !== core.ids.length || core.ids.some(id => typeof id !== "string" || !PLUGIN_ID_PATTERN.test(id)))) throw new Error("Invalid core plugin catalog");
 	if (core) {
@@ -380,7 +381,7 @@ export function createPluginHost(deps: PluginHostDependencies) {
 				}
 				continue;
 			}
-			candidate.info.enabled = state.enabled[id] === true;
+			candidate.info.enabled = state.enabled[id] ?? (origin === "core" && coreDefaults.has(id));
 			packages.set(id, candidate);
 			if (candidate.info.enabled && !candidate.blocked) await activate(candidate);
 		}

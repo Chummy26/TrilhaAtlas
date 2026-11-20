@@ -36,6 +36,26 @@ test("core packages load directly, default disabled, and never create data or ev
 	assert.equal(fs.existsSync(path.join(f.directory, "official")), false, "no core installation copy");
 });
 
+test("only selected bundled plugins start active and an explicit opt-out survives restart", async t => {
+	const f = fixture(t);
+	f.pkg("official", "core");
+	f.pkg("community", "community");
+	const deps = { ...f.deps, core: { ...f.core, enabledByDefault: ["official", "community"] } };
+	const host = createPluginHost(deps);
+	t.after(() => host.dispose());
+	await host.initialize();
+	assert.equal(host.list().find(p => p.id === "official")?.status, "active");
+	assert.equal(host.list().find(p => p.id === "community")?.status, "disabled");
+	await host.setEnabled("official", false);
+	await host.dispose();
+	const restarted = createPluginHost(deps);
+	t.after(() => restarted.dispose());
+	await restarted.initialize();
+	assert.equal(restarted.list().find(p => p.id === "official")?.status, "disabled");
+	await restarted.setEnabled("official", true);
+	assert.equal(restarted.list().find(p => p.id === "official")?.status, "active");
+});
+
 test("core activation uses separate writable data, pinned assets, and persisted explicit choices", async t => {
 	const f = fixture(t); const code = f.pkg("official", "core"); f.pkg("community", "community");
 	const before = fs.readdirSync(code).map(name => [name, fs.readFileSync(path.join(code, name), "utf8")]);

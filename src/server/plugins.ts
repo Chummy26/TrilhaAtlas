@@ -29,6 +29,7 @@ const core = {
 	directory: path.join(/* turbopackIgnore: true */ PATHS.root, "core-plugins"),
 	dataDirectory: path.join(/* turbopackIgnore: true */ PATHS.data, "core-plugin-data"),
 	ids: corePluginIds,
+	enabledByDefault: ["flashcards"],
 };
 const coreData = { directory: core.dataDirectory, ids: core.ids };
 type Host = ReturnType<typeof createPluginHost>;
