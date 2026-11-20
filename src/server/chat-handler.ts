@@ -1,3 +1,5 @@
+import { lessonBooks, lessonNodeOfChat } from "./study-materials.ts";
+import { prepareStudyReview } from "./prepare-study-review.ts";
 import type { Usage } from "@earendil-works/pi-ai";
 import {
 	createPracticeAgent,
@@ -57,9 +59,10 @@ import { sideConversationEntries } from "../core/side-chat.ts";
 import { sideChats, type SideChatService } from "./side-chat.ts";
 import { SIDE_CONTEXT_BUDGET_ERROR, sideBudgetRetryDrops, sideContextWindow } from "./side-context-budget.ts";
 import { registerTurn, rememberTurnFailure, unregisterTurn } from "./turn-runs.ts";
+import { regionalBookUnit, regionalBookImage } from "./book-reader.ts";
 import { saveStudyAnswer } from "./study.ts";
 import { persistTurn, triggerExtraction, TurnPersistenceError } from "./turn-service.ts";
-import { hasProbeDone, hasUnresolvedQuestion, pendingPluginQuestionOf, pluginQuestionCallsOf, questionCallsOf } from "../core/native-messages.ts";
+import { hasTeachingContext, readingSourceOf, hasUnresolvedQuestion, pendingPluginQuestionOf, pluginQuestionCallsOf, questionCallsOf } from "../core/native-messages.ts";
 import { samePluginQuestionOccurrence } from "../core/plugin-questions.ts";
 import { composeInstructions } from "../agent/teacher-agent.ts";
 import { ensureCompacted, kickCompaction, effectiveThresholdTokens, projectedContextTokens, compactionInFlight } from "./compaction.ts";
@@ -371,7 +374,7 @@ export async function handleChatInput(
 	const modelIdForCompaction = `${conversationEngine.model.provider}:${conversationEngine.model.id}`;
 	const contextWindow = catalogContextLimits().get(modelIdForCompaction);
 	const thresholdTokens = effectiveThresholdTokens(effective.compaction?.thresholdTokens, contextWindow);
-	const promptKind = record.kind === "practice" ? "practice" : domainId && !hasProbeDone(record.messages) ? "prober" : "teacher";
+	const promptKind = record.kind === "practice" ? "practice" : domainId && !hasTeachingContext(record.messages) ? "prober" : "teacher";
 	let systemPromptTokens = Math.ceil(composeInstructions(promptKind, domainId ? effective.agent.prompts : undefined).length / 4);
 	const estimateModel = effective.compaction.includeReasoning ? conversationEngine.model : undefined;
 	const fitsSideContext = (messages: readonly LhMessage[]) => {
@@ -397,7 +400,7 @@ export async function handleChatInput(
 			engine: compactionEngine,
 			canStart: () => !isTurnRunning(chatId) && connectionBackgroundAllowed(conversation.provider),
 			modelId: modelIdForCompaction,
-			kind: record.kind === "practice" ? "practice" : hasProbeDone(record.messages) ? "teach" : "probe",
+			kind: record.kind === "practice" ? "practice" : hasTeachingContext(record.messages) ? "teach" : "probe",
 			includeReasoning: effective.compaction.includeReasoning,
 			thresholdTokens,
 			systemPromptTokens,
@@ -655,7 +658,22 @@ export async function handleChatInput(
 	// the session is still probing: build the PROBER (quiz/ask + probe_done).
 	// Both share this whole composition (write-ahead persist, liveness,
 	// steers, usage, extraction) — only the agent differs.
-	const teaching = hasProbeDone(agentMessages);
+	const readingSource = readingSourceOf(record.messages);
+	const shelf = domainId && !readingSource ? lessonBooks(domainId, chatId) : [];
+	const bookContext = domainId && (readingSource || shelf.length) ? {
+		...(!readingSource && { bookShelf: shelf.map((entry, i) => (i + 1) + ". " + entry.title).join(" | ") }),
+		readBookPage: async (unit: number, includeImage: boolean, number = 1) => {
+			const source = readingSource ?? shelf[number - 1];
+			if (!source) throw new Error("Selecione um livro disponível nesta região.");
+			const args = [domainId, source.region, source.book, unit] as const;
+			const page = await regionalBookUnit(...args);
+			const image = (includeImage || !page.text) && page.format === "pdf" ? await regionalBookImage(...args) : undefined;
+			return { text: [page.title, (page.format === "pdf" ? "Página física " : "Seção ") + unit + " de " + page.total, page.heading, page.text, page.format === "pdf" ? `Citação: [página física ${unit}](#livro-${source.book}-${unit})` : ""].filter(Boolean).join("\n\n"),
+				...(image && { images: [{ data: image.toString("base64"), mimeType: "image/png" }] }) };
+		},
+	} : {};
+
+	const teaching = hasTeachingContext(record.messages);
 	// BYOK (owner, 2026-09-22): the conversation chain was resolved by the
 	// turn gate above (chat.model override → strong slot → refused) — the
 	// engine build is pure from here; thinking levels clamp natively.
@@ -788,6 +806,8 @@ export async function handleChatInput(
 			: teaching
 			? createTeacherAgent(
 					{
+						...bookContext,
+						...(domainId && lessonNodeOfChat(domainId, chatId) && { prepareReview: () => prepareStudyReview(domainId, chatId) }),
 						chatId,
 						chatStore: stores.chatStore,
 						jobStore: stores.jobStore,
@@ -800,7 +820,8 @@ export async function handleChatInput(
 				)
 			: createProberAgent(
 					{
-						chatId,
+						...bookContext,
+					chatId,
 						chatStore: stores.chatStore,
 						deliver: (steer) => void deliverJobResult(steer),
 						// Fix wave (2026-09-20): the prober carries research + pdf
@@ -969,7 +990,7 @@ export async function handleChatInput(
 							engine: kickEngine,
 							canStart: () => !isTurnRunning(chatId) && connectionBackgroundAllowed(spec.provider),
 							modelId: kickModelId,
-							kind: freshRecord.kind === "practice" ? "practice" : hasProbeDone(freshRecord.messages) ? "teach" : "probe",
+							kind: freshRecord.kind === "practice" ? "practice" : hasTeachingContext(freshRecord.messages) ? "teach" : "probe",
 							includeReasoning: fresh.compaction.includeReasoning,
 							thresholdTokens: effectiveThresholdTokens(
 								fresh.compaction?.thresholdTokens,

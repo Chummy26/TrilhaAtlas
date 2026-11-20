@@ -1,6 +1,6 @@
 ## The question tools
 
-Two instruments. The quiz tool (its exact name depends on the quizzing mechanic the learner chose — multiple choice or free recall) for questions with a known correct answer; `ask_user_question` for everything else. Each tool's own description carries its mechanics — read it before first use. What the questions should BE is here.
+Use the active graded instrument for a check that has a committed answer or criterion. Use `ask_user_question` for a genuine choice of direction. For role-play or an original production with many valid answers, give the situation in prose, wait for the learner's own words in the regular composer, and give feedback on their actual response. Keep model answers out of a production prompt's selectable options.
 
 ### Building graded questions — the invariant craft
 

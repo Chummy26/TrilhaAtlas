@@ -271,3 +271,14 @@ it("Activity hide expires the boundary and surfaces; show reconnects without rep
 	assert.ok(f.document.querySelector('[data-testid="composer"] [contenteditable]') === input);
 	assert.equal(input.textContent, text);
 }));
+
+for (const mode of ["teach", "practice"] as const) {
+	it("keeps study navigation and chains beside the new " + mode + " composer", async () => withPage({
+		...pages[2]!, node: <NewSession initialConfigured mode={mode} rendering={false} domains={{ active: null, domains: [] }} account={{ level: 3, xp: 123 }} />,
+	}, async f => {
+		for (const id of ["profile-link", "open-chain-table", "home-mode-switch", "composer"]) {
+			assert.ok(f.document.querySelector(`[data-testid="${id}"]`), "missing " + id);
+		}
+		assert.match(f.document.querySelector('[data-testid="profile-link"]')!.textContent!, /123 XP/);
+	}));
+}

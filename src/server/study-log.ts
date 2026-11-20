@@ -29,6 +29,14 @@ function pendingPath(id: string) {
 	return path.join(learnerDir(PATHS.data, id), "pending-chat-event.json");
 }
 
+/** A pending intent needs reconciliation even when the event log itself has not changed. */
+export function studyLogRevision(id: string): string | undefined {
+	if (fs.statSync(pendingPath(id), { throwIfNoEntry: false })) return undefined;
+	const file = logPath(id);
+	const stat = fs.statSync(file, { bigint: true, throwIfNoEntry: false });
+	return stat ? [file, stat.dev, stat.ino, stat.ctimeNs, stat.mtimeNs, stat.size].join("|") : file;
+}
+
 export function appendStudyEvent(id: string, event: LearnerEvent) {
 	fs.mkdirSync(learnerDir(PATHS.data, id), { recursive: true });
 	fs.appendFileSync(logPath(id), JSON.stringify(event) + "\n");

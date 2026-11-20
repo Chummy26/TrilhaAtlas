@@ -62,7 +62,13 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 			context: { id: node.id, name: node.title, statement: lessonStatement(detail.brief, detail.minutes) } });
 	}
 	const materials = data?.materials.filter(m => node.kind === "unit" || m.nodes.includes(node.id) || m.nodes.includes(data.region)) ?? [];
-	const titles = [...new Set(materials.map(m => m.title))];
+	const groups = new Map<string, typeof materials>();
+	for (const m of materials) {
+		const key = m.kind + ":" + m.title;
+		const group = groups.get(key);
+		if (group) group.push(m);
+		else groups.set(key, [m]);
+	}
 	const otherParts = node.kind === "unit" ? [] : data?.materials.filter(m => !materials.some(own => own.url === m.url)) ?? [];
 	return <div className="space-y-4">
 		{detail && <>
@@ -75,8 +81,10 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		</>}
 		{node.region && <>
 		<h3 className="cel-display text-base">{node.kind === "unit" ? "Materiais da região" : "Materiais do nó"}</h3>
-		{data?.localReadings?.map(book => <div key={book.id} className="flex items-center justify-between gap-2 text-sm">
-			<span>{book.title}</span>
+		{data?.localReadings?.map(book => <div key={book.id} className="reader-shelf">
+			<Link href={"/ler/" + book.id + "?" + new URLSearchParams({ domain, region: data.region, node: node.id })}>
+				<Icon name="book" size={20} /><span><strong>{book.title}</strong><small>Ler no aplicativo</small></span>
+			</Link>
 			<button type="button" aria-label={"Desvincular " + book.title + " da região"} disabled={searching} onClick={() => void updateBook(undefined, book.id)}>Desvincular</button>
 		</div>)}
 		{data && <details className="text-sm">
@@ -93,11 +101,10 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		{error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 		{!data && !error && <p role="status" className="text-sm">Carregando…</p>}
 		{data && !materials.length && !data.localReadings?.length && <p className="text-sm text-muted-foreground">Ainda sem material vinculado.</p>}
-		{titles.map(title => {
-			const group = materials.filter(m => m.title === title);
+		{[...groups].map(([key, group]) => {
 			const first = group[0]!;
-			return <section key={title} className="space-y-2 rounded-lg border p-2.5">
-				<h4 className="flex items-start gap-2 text-sm font-semibold"><Icon name={first.kind === "book" ? "book" : "play"} size={18} />{title}</h4>
+			return <section key={key} className="space-y-2 rounded-lg border p-2.5">
+				<h4 className="flex items-start gap-2 text-sm font-semibold"><Icon name={first.kind === "book" ? "book" : "play"} size={18} />{first.kind === "book" ? "Leitura" : "Vídeo"} · {first.title}</h4>
 				{group.map(m => <a key={m.url + !!m.suggested} href={m.url} target="_blank" rel="noreferrer" className="block text-sm underline underline-offset-2">
 					{m.part} <span className="text-xs text-muted-foreground">{m.lang}{m.suggested ? " · Sugestão" : ""}</span>
 				</a>)}
@@ -132,7 +139,7 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 	useServerEvent("curriculum-expanded", event => { if (event.domainId === map.domain) router.refresh(); });
 	const byId = useMemo(() => new Map(map.nodes.map(n => [n.id,n])),[map.nodes]);
 	const root = map.nodes.find(n => !n.parent)!;
-	const [id,setId] = useState(initialNode && byId.has(initialNode) ? initialNode : root.id);
+	const [id,setId] = useState(initialNode && byId.has(initialNode) ? initialNode : map.position ?? map.next ?? root.id);
 	const selected = byId.get(id) ?? root;
 	const scope = selected.leaf ? byId.get(selected.region ?? selected.parent ?? root.id)! : selected;
 	const [query,setQuery] = useState("");
@@ -157,7 +164,7 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 			<div className="min-w-40"><span className="text-sm font-semibold">{completed} de {leaves.length} habilidades concluídas</span>
 				<progress aria-label="Progresso do domínio" value={completed} max={leaves.length} className="block h-1.5 w-full accent-emerald-700" /></div>
 			{anchor && <button type="button" className="text-left text-sm underline underline-offset-2" onClick={() => { pick(anchor.id); setLocate(n => n + 1); }}>
-				{map.position ? "Onde parei" : "Ponto de partida"} · {anchor.title}</button>}
+				<span aria-hidden="true" className="mr-1 inline-block size-2 rounded-full bg-teal-600 ring-2 ring-teal-500/50 dark:bg-teal-300" />{map.position ? "Onde parei" : "Ponto de partida"} · {anchor.title}</button>}
 		</div>
 		<nav aria-label="Caminho no currículo" className="mb-4 flex flex-wrap items-center gap-2 text-sm">{trail.map((n,i) => <span key={n.id}>{i > 0 && " › "}<button type="button" aria-current={n.id === id ? "page" : undefined} className="hover:underline" onClick={() => pick(n.id)}>{n.title}</button></span>)}</nav>
 		<div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
@@ -165,6 +172,7 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 
 			<aside className="cel-card space-y-3 p-4 xl:col-start-2 xl:row-span-2" aria-live="polite">
 				<p className="text-xs text-muted-foreground">{[category, progress ?? (selected.leaf ? STATUS[selected.state] : undefined)].filter(Boolean).join(" · ")}</p>
+				{selected.independentRecallAt && <p className="text-sm">Resposta independente em revisão posterior · {new Date(selected.independentRecallAt).toLocaleDateString("pt-BR")}</p>}
 				<h2 className="cel-display text-xl">{selected.title}</h2>
 				{selected.reinforcementFor && <button type="button" className="text-sm underline" onClick={() => pick(selected.reinforcementFor!)}>Reforço opcional de {byId.get(selected.reinforcementFor)?.title}</button>}
 				{map.nodes.filter(n => n.reinforcementFor === id).map(n => <button key={n.id} type="button" className="cel-button px-3 py-2" onClick={() => { pick(n.id); setLocate(v => v + 1); }}>Estudar reforço · {n.title}</button>)}

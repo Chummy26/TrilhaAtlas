@@ -1,4 +1,6 @@
 import { Type } from "typebox";
+import { activitySchema, bookActivitySchema, falstadExperiments, parseLessonActivity } from "../core/lesson-activity.ts";
+import { dividerLab } from "../core/divider-lab.ts";
 import type { AgentTool } from "@earendil-works/pi-agent-core";
 import { invalidInputResult, questionResult, serverExecute } from "./tool-execute.ts";
 import {
@@ -83,7 +85,8 @@ export const askUserQuestionTool: AgentTool<typeof askInputSchema> = {
 	description:
 		"Ask the learner a single question and pause until they answer. NOT graded — there is no correct answer. " +
 		"Use when requirements are ambiguous, preferences are needed, a decision would materially affect the lesson, " +
-		"or you need an open-ended response. ONE question per turn: call a single ask_user_question, then end your " +
+		"or the learner needs to choose a direction. For a language role-play or an original argument, invite a reply in the regular composer and wait. " +
+		"Use the graded tool when assessing an answer against a criterion. ONE question per turn: call a single ask_user_question, then end your " +
 		"turn — his answer determines the next.",
 	parameters: askInputSchema,
 	prepareArguments: prepareQuestionArguments,
@@ -264,7 +267,7 @@ export const probeExplainTool: AgentTool<typeof explainInputBase> = {
 /** The prober's registry context: the probe's own needs (probe_done —
  *  ProbeDoneContext) PLUS the job-dispatch wiring, since the owner ruling
  *  (2026-09-20) puts research + pdf in the probe phase's registry too. */
-export interface ProberToolContext extends ProbeDoneContext {
+export interface ProberToolContext extends ProbeDoneContext, BookToolContext {
 	/** Creates the job record (deduped by toolCallId). */
 	jobStore: JobStore;
 	/** Fire the background runner for a freshly created job. */
@@ -319,6 +322,7 @@ export function createProberTools(
 		...filterEnabledTools(
 			{
 				...quizzing,
+				...bookTools(ctx),
 				ask_user_question: askUserQuestionTool,
 				// The learner-filesystem set is always-on (user-decided 2026-09,
 				// sources v1): the prober inspects and LOCATES learner-referenced
@@ -391,7 +395,25 @@ export function teachQuizToolFor(ctx: Pick<PlanToolContext, "chatId" | "chatStor
 	};
 }
 
-export interface TeacherToolContext extends PlanToolContext {
+const bookPageSchema = Type.Object({ unit: Type.Integer({ minimum: 1 }), image: Type.Optional(Type.Boolean()), book: Type.Optional(Type.Integer({ minimum: 1 })) });
+
+interface BookToolContext {
+	bookShelf?: string;
+	readBookPage?: (unit: number, includeImage: boolean, book?: number) => Promise<{ text: string; images?: { data: string; mimeType: string }[] }>;
+}
+
+function bookTools(ctx: BookToolContext): Record<string, AgentTool<any>> {
+	if (!ctx.readBookPage) return {};
+	return { read_book_page: {
+		name: "read_book_page", label: "Consultar página",
+		description: "Read one physical PDF page or EPUB section. For a figure, diagram, chart or scanned page request image=true, inspect the actual image and cite the book and physical page. Use book to select its number from the shelf. " + (ctx.bookShelf ?? ""),
+		parameters: bookPageSchema,
+		execute: serverExecute("read_book_page", bookPageSchema, input => ctx.readBookPage!(input.unit, input.image !== false, input.book)),
+	} };
+}
+
+export interface TeacherToolContext extends PlanToolContext, BookToolContext {
+	prepareReview?: () => Promise<string>;
 	/** Job-tool wiring (sub-agent dispatch): the job store + the runner's
 	 *  spawn seam. The composition root injects both. */
 	jobStore: JobStore;
@@ -440,6 +462,7 @@ export function createTeacherTools(
 	// quiz for the teach explain — one quizzing tool at a time, whichever
 	// the settings arm. ask stays always-on.
 	const mechanics = quizMechanics(enabled);
+	const lessonSchema = ctx.readBookPage && !ctx.bookShelf ? bookActivitySchema : activitySchema;
 	// Same widening as the prober's (see above) — the conditional spread of
 	// two differently-typed literals collapses into an unusable union type.
 	const quizzing: Record<string, AgentTool<any>> =
@@ -461,6 +484,33 @@ export function createTeacherTools(
 			// The learner-image display twin of read (issue #363): teacher
 			// only, always on — it shows the learner their own file.
 			show_image: createShowImageTool(ctx),
+			...bookTools(ctx),
+			study_activity: {
+				name: "study_activity",
+				label: "study_activity",
+				parameters: lessonSchema,
+				description: ctx.readBookPage && !ctx.bookShelf ? "Generate the interactive lesson from this book passage or visual selection. Author the title, 2–6 selectable cases or steps with concrete consequences, and cite the book and physical page or section. For a custom simulation use demo."
+					: "Display a native interactive lesson. For an unloaded DC voltage divider use kind=divider and optional divider={volts,upperOhms,lowerOhms}; returns the calculated voltage/current and lets the learner edit in Falstad or download an LTspice netlist. For circuit (Ohm's law), notation (SI current) or timeline (English past continuous), pass only kind. For other subjects use sequence, diagram or comparison with title, labeled steps and a real source and section.",
+				execute: serverExecute("study_activity", lessonSchema, input => {
+					const activity = parseLessonActivity(input);
+					if (!activity) throw new Error("Choose an experiment for falstad, or supply a title, source and 2–6 distinct labeled steps for authored activities.");
+					if (activity.kind === "falstad" && activity.experiment) {
+						const lab = falstadExperiments[activity.experiment];
+						return { text: `CircuitJS lab available: ${lab.title}. ${lab.task}`, details: activity };
+					}
+					if (activity.kind === "divider") {
+						const d = activity.divider ?? { volts: 10, upperOhms: 10000, lowerOhms: 10000 };
+						const { voltsOut, milliamps } = dividerLab(d.volts, d.upperOhms, d.lowerOhms);
+						return { text: `Ideal DC divider: output ${voltsOut} V, series current ${milliamps} mA. Lab displayed.`, details: activity };
+					}
+					return { text: "Activity displayed in the conversation.", details: activity };
+				}),
+			},
+			...(ctx.prepareReview && { prepare_review: {
+				name: "prepare_review", label: "Preparar revisão", parameters: Type.Object({}),
+				description: "Reserve two new short application cases for delayed retrieval of this curriculum skill. The learner answers later in Hoje. Use at a milestone, a recurring difficulty or the learner's request.",
+				execute: serverExecute("prepare_review", Type.Object({}), () => ctx.prepareReview!()),
+			} }),
 			...planTools(ctx),
 			...jobTools({ chatId: ctx.chatId, jobStore: ctx.jobStore, spawn: ctx.spawn, searchAvailable: ctx.searchAvailable }),
 		},

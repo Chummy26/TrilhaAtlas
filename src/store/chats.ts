@@ -57,6 +57,7 @@ function createChat(title: string, kind?: "practice"): ChatRecord {
  *  lazy migration means existing files only get stamped on their next write.
  *  A future-version guard lives on the read side (getChat). */
 function writeChat(record: ChatRecord): void {
+	summaries.delete(record.id + ".json");
 	writeFileAtomicSync(chatFile(record.id), JSON.stringify({ ...record, version: CURRENT_CHAT_VERSION }, null, "\t"), { allowInPlaceFallback: true });
 }
 
@@ -78,52 +79,41 @@ function getChat(id: string): ChatRecord | null {
 	return parsed as ChatRecord;
 }
 
+type SummaryEntry = { stamp: string; summary: ChatSummary };
+let summaryDirectory = "";
+let summaries = new Map<string, SummaryEntry>();
+
 function listChats(): ChatSummary[] {
-	try {
-		fs.mkdirSync(PATHS.chats, { recursive: true });
-		return fs
-			.readdirSync(/* turbopackIgnore: true */ PATHS.chats)
-			.filter((f) => f.endsWith(".json"))
-			.map((f) => getChat(f.slice(0, -5)))
-			.filter((r): r is ChatRecord => r !== null)
-			.map(({ messages, tree, turns, extractions, imageSnapshots: _imageSnapshots, sideChats: _sideChats, ...summary }) => {
-				// Per-record isolation (Wave B): a record whose messages fail the
-				// projection (e.g. pre-Wave-B UIMessage-format scratch — the
-				// zero-back-compat wipe makes these "corrupt") must not blank the
-				// whole sidebar — same isolation getChat's per-file catch gives.
-				try {
-					return {
-						// turns and extractions stay out of the list payload (list =
-						// summaries; usage aggregates ride the full record, the picker
-						// never needs them).
-						...summary,
-						// Normalized kind: absent record field reads as teach.
-						kind: summary.kind ?? "teach",
-						messageCount: messages.length,
-						// Record-derived status for the session picker: phase from the
-						// transcript's explicit events (probe_done concluded / verdict
-						// accepted — docs/archive/probe-teach-split.md §4), pending question
-						// from the native dangling-call scan. Wave D: both folds read
-						// the NATIVE record (core/phases.ts phaseAt3Lh +
-						// native-messages.ts danglingQuestionOf). Liveness (busy) is
-						// NOT record-derived — the API route merges it (ChatListItem).
-						phase: phaseAt3Lh(messages),
-						pendingQuestion: danglingQuestionOf(messages) !== null,
-						// Practice: a posed problem with no conclude (the sidebar's
-						// "Problem waiting"); false on teaching sessions, which
-						// have no problem tool.
-						pendingProblem: activeProblemOf(messages) !== null,
-					};
-				} catch (err) {
-					console.error(`[chat ${summary.id}] summary projection failed:`, err);
-					return null;
-				}
-			})
-			.filter((s) => s !== null)
-			.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-	} catch {
-		return [];
+	const directory = PATHS.chats;
+	if (summaryDirectory !== directory) {
+		summaryDirectory = directory;
+		summaries.clear();
 	}
+	try {
+		fs.mkdirSync(directory, { recursive: true });
+		const next = new Map<string, SummaryEntry>();
+		for (const name of fs.readdirSync(/* turbopackIgnore: true */ directory)) {
+			if (!name.endsWith(".json")) continue;
+			const file = path.join(directory, name);
+			try {
+				const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true });
+				const stamp = [stat.ino, stat.ctimeNs, stat.mtimeNs, stat.size].join("/");
+				const cached = summaries.get(name);
+				if (cached?.stamp === stamp) { next.set(name, cached); continue; }
+				const record = getChat(name.slice(0, -5));
+				if (!record) continue;
+				const { messages, tree, turns, extractions, imageSnapshots, sideChats, ...fields } = record;
+				const summary = { ...fields, kind: fields.kind ?? "teach", messageCount: messages.length,
+					phase: phaseAt3Lh(messages), pendingQuestion: danglingQuestionOf(messages) !== null,
+					pendingProblem: activeProblemOf(messages) !== null };
+				next.set(name, { stamp, summary });
+			} catch (error) {
+				console.error(`[chat ${name}] summary unavailable:`, error);
+			}
+		}
+		summaries = next;
+		return Array.from(next.values(), entry => structuredClone(entry.summary)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+	} catch { return []; }
 }
 
 /** Persist the full native message list (the record IS the agent state —

@@ -24,7 +24,8 @@ import {
 	ConversationEmptyState,
 	ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { CitedResponse } from "@/components/study/cited-response";
+import { Message, MessageContent } from "@/components/ai-elements/message";
 import { PathText } from "@/components/file-path-chip";
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
 import { Shimmer } from "@/components/ai-elements/shimmer";
@@ -78,6 +79,8 @@ import { pendingPluginQuestionOf, pluginQuestionCallsOf } from "@/src/core";
 import { pluginQuestionOccurrenceKey, type PluginQuestionSnapshot } from "@/src/core";
 import type { PluginQuestionDraft } from "./session-core";
 import { SessionFind } from "@/components/session-find";
+import { ActivityPanel } from "@/components/study/lesson-activity";
+import type { LessonActivity } from "@/src/core";
 import { SessionMessageNavigation } from "@/components/session-navigation";
 import { SelectionToolbar } from "@/components/selection-toolbar";
 import { createCiteAction, type CitationEditTarget } from "@/components/citation-actions";
@@ -167,6 +170,7 @@ export const ChatActionsContext = createContext<{
 	syncFromServer: () => Promise<void>;
 	/** Send a user message into the session (demo error-fix loop, W6). */
 	sendText: (text: string) => void;
+	askActivity?: (text: string) => Promise<boolean>;
 	/** Opens the model setup dialog (BYOK, 2026-09-22): refused job cards
 	 *  deep-link into the same SetupDialog the send interception uses. */
 	openSetup: () => void;
@@ -263,6 +267,7 @@ function isSubagentSteer(m: LhViewMessage): boolean {
  */
 export function Chat({
 	chatId,
+	lessonActivity,
 	title,
 	initialMessages,
 	initialError,
@@ -273,6 +278,7 @@ export function Chat({
 	kind = "teach",
 }: {
 	chatId: string;
+	lessonActivity?: LessonActivity;
 	title: string;
 	initialMessages: LhMessage[];
 	/** Memory-only settlement notice supplied on reopening. */
@@ -321,7 +327,7 @@ export function Chat({
 	const submissionMounted = useRef(true);
 	useEffect(() => { submissionMounted.current = true; return () => { submissionMounted.current = false; submissionRunner.dispose(); }; }, [submissionRunner]);
 	useEffect(() => () => submissionRunner.dispose(), [surfaceTarget, submissionRunner]);
-	const inputViewReader = useRef<(() => PluginSessionViewInput) | null>(null) as SessionInputViewReader;
+	const inputViewReader = useRef<SessionInputViewReader>({ current: null }).current;
 	const refreshPluginActions = useRef<(() => void) | null>(null);
 	const notifyViewChanged = useCallback(() => { if (submissionMounted.current) refreshPluginActions.current?.(); }, []);
 	inputViewReader.changed = notifyViewChanged;
@@ -943,6 +949,7 @@ export function Chat({
 			...pick('[data-testid="question-dock"] [data-file-path-input]'),
 			...pick('[data-testid="practice-dock"] [data-file-path-input]'),
 			...pick('[data-testid="composer"] [data-file-path-input]'),
+			...pick('.study-lab :is(button, input, summary, details[open] a[href])'),
 		];
 	}, []);
 	useFieldCycle(cycleChatFields);
@@ -1288,18 +1295,25 @@ export function Chat({
 	// guess so the static paint has a sane tail. The first layout effect
 	// replaces it with the measured truth before paint.
 	const [dockReserve, setDockReserve] = useState(208);
+	const usageRequest = useRef<AbortController | null>(null);
 	const syncTurns = useCallback(async () => {
+		usageRequest.current?.abort();
+		const controller = new AbortController();
+		usageRequest.current = controller;
 		try {
-			const record = await readRecord({ adoption: "none" });
-			if (!record) return;
+			const response = await fetch(`/api/chats/${encodeURIComponent(chatId)}?view=usage`, { signal: controller.signal });
+			if (!response.ok) return;
+			const record: { turns: TurnUsage[]; pricing: SessionPricing } = await response.json();
+			if (controller.signal.aborted) return;
 			if (Array.isArray(record.turns)) setTurns(record.turns);
 			setPricing(record.pricing);
 		} catch {
 			// transient blip: stats stay on the last known figures
 		}
-	}, [readRecord]);
+	}, [chatId]);
 	useEffect(() => {
 		void syncTurns();
+		return () => usageRequest.current?.abort();
 	}, [syncTurns]);
 	// After the learner's own turn ends the log has a fresh entry — and the
 	// Post-turn settle (the SLIMMED watch — push-architecture S3,
@@ -1601,6 +1615,7 @@ export function Chat({
 				chatId,
 				syncFromServer,
 				sendText: (t: string) => { void prepareText(t); },
+				askActivity: t => prepareText(t),
 				openSetup: () => setSetupOpen(true),
 			}}
 		>
@@ -1751,7 +1766,8 @@ export function Chat({
 					<TranscriptElementReporter onElement={setTranscriptElement} />
 					<ConversationContent className="min-h-full gap-0 p-0">
 						<div data-session-find-root="" className={`${COLUMN} flex flex-1 flex-col gap-4 pt-4`}>
-							{messages.length === 0 && !busy && (
+							{lessonActivity && !messages.some(m => m.parts.some(p => p.type === "tool-study_activity" && p.state === "output-available" && (p.output as LessonActivity | null)?.kind === lessonActivity.kind)) && <ActivityPanel activity={lessonActivity} />}
+							{!lessonActivity && messages.length === 0 && !busy && (
 								<ConversationEmptyState
 									title="New session"
 									description="The teacher will open by probing what you already know."
@@ -1914,7 +1930,7 @@ export function Chat({
 														const anchor = sourceId && sourceTextParts.get(sourceId) === part.id ? messageAnchorId(sourceId) : undefined;
 														return (
 															<div key={part.id || pi} id={anchor} data-source-message-id={sourceId ?? undefined} className="lh-source-passage">
-																<MessageResponse>{part.text}</MessageResponse>
+																<CitedResponse text={part.text ?? ""} />
 															</div>
 														);
 													}
@@ -2504,9 +2520,9 @@ export function DockOverlay({
 	const readingInputRef = useRef<HTMLDivElement>(null);
 	const ownsDock = !!pending || !!pluginQuestion || unreadablePlugin || !!practice;
 	const initialPendingRef = useRef(pendingId);
-	const nativeViewReader = useRef<(() => NativeQuestionViewState) | null>(null) as ViewReaderRef<NativeQuestionViewState>;
-	const practiceViewReader = useRef<(() => string) | null>(null) as ViewReaderRef<string>;
-	const customViewReader = useRef<(() => { available: boolean }) | null>(null) as ViewReaderRef<{ available: boolean }>;
+	const nativeViewReader = useRef<ViewReaderRef<NativeQuestionViewState>>({ current: null }).current;
+	const practiceViewReader = useRef<ViewReaderRef<string>>({ current: null }).current;
+	const customViewReader = useRef<ViewReaderRef<{ available: boolean }>>({ current: null }).current;
 	nativeViewReader.changed = practiceViewReader.changed = customViewReader.changed = viewReader?.changed;
 
 	// Teach-question ARRIVAL state, applied during render — BEFORE the

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { SurfaceRegion, usePageSurfaceBoundary, useSurfaceChromeStyle } from "./plugin-surfaces";
-import { CornerDownLeftIcon, DumbbellIcon } from "lucide-react";
+import { CornerDownLeftIcon } from "lucide-react";
 import { GraphView } from "@/components/graph-view";
 import { MinimalHome } from "@/components/minimal-home";
 import { SetupDialog } from "@/components/setup-dialog";
@@ -18,13 +18,11 @@ import { StatsBar } from "@/components/stats-bar";
 import { OPENING_PROMPT_FAILURE } from "@/components/opening-prompt";
 import { PathInput } from "@/components/path-input";
 import { AttachFilesButton } from "@/components/attach-files-button";
-import { SessionStarter } from "@/components/start-session";
-import type { SkillMap, TurnUsage } from "@/src/core";
+import { SessionStarter, studyLessonRequest } from "./start-session.ts";
+import type { SkillMap, StudyDomainList, TurnUsage } from "@/src/core";
 import { SkillTree } from "./study/skill-tree.tsx";
-import { DomainSwitcher } from "@/components/study/domain-switcher";
+import { SessionModeSwitch, StudyNavigation } from "./study/session-navigation.tsx";
 import { TodayCard, type LessonStart } from "@/components/study/today-card";
-import { Icon } from "@/components/icons/icon";
-import Link from "next/link";
 
 /**
  * Home — the knowledge graph is the main view, full-bleed edge to edge
@@ -33,12 +31,14 @@ import Link from "next/link";
  * with no gradient scrims. Sessions live in the toggleable sidebar.
  */
 export function Home({
-	initialConfigured,
+	initialConfigured, domains, account,
 	map,
 	initialNode,
 	rendering = true,
 }: {
 	initialConfigured: boolean;
+	domains?: StudyDomainList;
+	account?: { level: number; xp: number };
 	map?: SkillMap;
 	initialNode?: string;
 	/** GRAPH RENDERING off (owner, 2026-10-06): the home's main view is
@@ -168,14 +168,10 @@ export function Home({
 			// graph-context marker as message[0] (a separate custom message
 			// before the learner's first user message, propositions + the
 			// chains among them); the prompt stays the learner's own words.
-			const target = await starterRef.current.start({
+			const target = await starterRef.current.start(lesson ? studyLessonRequest(lesson) : {
 				title: t,
-				...(mode === "practice" && !lesson ? { kind: "practice" } : {}),
-				...(lesson
-					? { graphContext: { propositions: [lesson.context] }, studyLesson: { domainId: lesson.domainId, minutes: lesson.minutes, exploratory: lesson.exploratory } }
-					: practiceProps.length > 0
-						? { graphContext: { propositions: practiceProps } }
-						: {}),
+				...(mode === "practice" ? { kind: "practice" } : {}),
+				...(practiceProps.length > 0 && { graphContext: { propositions: practiceProps } }),
 			}, fetch, JSON.stringify(catalog?.slots.strong));
 			router.push(target);
 		} catch {
@@ -191,7 +187,7 @@ export function Home({
 		<SetupDialog open={setupOpen} onClose={() => setSetupOpen(false)} onDone={() => setSetupOpen(false)} />
 	</>;
 	return (
-		<div className="relative h-dvh">
+		<div className="study-session-start relative h-dvh">
 			{/* Window-drag strip (merged chrome, owner 2026-09-17): a dedicated
 			    mask element, deliberately FIRST in the DOM. Electron's app-region
 			    mask resolves by DOM order — a no-drag element subtracts only drag
@@ -325,25 +321,7 @@ export function Home({
 						dictationSlot={<DictationBar dictation={dictation} />}
 						turns={[] as TurnUsage[]}
 						leadingSlot={
-							<div className="flex items-center gap-0.5 rounded-md border border-border/60 bg-background p-0.5" data-testid="home-mode-switch">
-								{(["teach", "practice"] as const).map((m) => (
-									<button
-										key={m}
-										type="button"
-										data-testid={`home-mode-${m}`}
-										onClick={() => setMode(m)}
-										className={
-											"flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] uppercase tracking-wider transition-colors " +
-											(mode === m
-												? "bg-accent text-foreground"
-												: "text-muted-foreground hover:text-foreground")
-										}
-									>
-										{m === "practice" ? <DumbbellIcon aria-hidden="true" className="size-3" /> : null}
-										{m === "teach" ? "Teach" : "Practice"}
-									</button>
-								))}
-							</div>
+							<SessionModeSwitch mode={mode} onChange={setMode} />
 						}
 					/>
 				</div>
@@ -358,12 +336,7 @@ export function Home({
 				<div className="pointer-events-auto">
 					<SidebarToggle />
 				</div>
-				<div className="pointer-events-auto">
-					<DomainSwitcher />
-				</div>
-				<Link href="/profile" aria-label="Perfil" className="lh-no-drag pointer-events-auto rounded-md p-1 hover:bg-accent" data-testid="profile-link">
-					<Icon name="profile" size={22} />
-				</Link>
+				<StudyNavigation domains={domains} account={account} />
 			</header>
 
 			{/* First-run setup (unconfigured): the CTA's target and the send

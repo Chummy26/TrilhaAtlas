@@ -1,11 +1,14 @@
 import { compactionInFlight, deleteChatSession, getChat, isTurnRunning, sessionCoverage, sessionCost, stores, turnFailure, type ChatDeleteMode, pluginQuestionAvailabilityOf, reconcilePluginQuestionCompatibility, type QuestionTypeResolver, getPluginQuestionTypeResolver, getPluginHost, pluginProblemAvailabilityOf, type ProblemTypeResolver } from "@/src/server";
 import { pendingPluginQuestionOf, activeProblemOf } from "@/src/core";
 
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
 	await reconcilePluginQuestionCompatibility(stores.chatStore, id);
 	let chat = getChat(id);
 	if (!chat) return Response.json({ error: "Not found" }, { status: 404 });
+	const view = new URL(req.url).searchParams.get("view");
+	if (view === "usage") return Response.json({ turns: chat.turns ?? [], pricing: sessionCost(chat) });
+	if (view === "coverage") return Response.json({ coverage: sessionCoverage(id, chat) });
 	let questionResolver: QuestionTypeResolver | undefined;
 	if (pendingPluginQuestionOf(chat.messages)) {
 		try { questionResolver = await getPluginQuestionTypeResolver(); } catch { /* unavailable fallback */ }
@@ -41,7 +44,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 		// Also reaches idle views that missed the failing turn's stream.
 		turnError: turnFailure(id),
 		compacting: compactionInFlight(id),
-		coverage: sessionCoverage(id),
+		coverage: sessionCoverage(id, chat),
 	});
 }
 

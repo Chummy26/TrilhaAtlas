@@ -16,8 +16,8 @@
  * Integration defaults (documented in docs/impl/integration.md):
  *  - "Geral" (no active domain) is the original learnharness world, untouched.
  *  - A self-check after a lesson is WEAK evidence: format "explain",
- *    graderConfidence 0.5, weight 0.5, its own item family — it can attain a
- *    node but never master it alone (mastery needs ≥2 distinct families).
+ *    graderConfidence 0.5, weight 0.5. Its #self marker excludes it from
+ *    mastery family counts and delayed independent retrieval.
  *  - "Já domino" is a diagnostic placement (p = 0.9): the node unlocks its
  *    dependents but stays `inferred` until a real check.
  */
@@ -37,8 +37,9 @@ import { planDay, routeTo } from "../core/learner/planner.ts";
 import { buildPromptSnapshot } from "../core/learner/snapshot.ts";
 import { computeSignals } from "../core/learner/signals.ts";
 import { structuralState } from "../core/learner/kst.ts";
+import { studyCampaign, defaultCampaignTargets, guidedLessonOptions } from "../core/study/campaign.ts";
 import type { Evidence, Grade, LearnerEvent, LearnerSnapshot, PlanItem } from "../core/learner/types.ts";
-import { learnerViewOf, nodeBrief, type StudyNodeBrief } from "../core/study/projection.ts";
+import { learnerViewOf, lessonBranchNodes, nodeBrief, type StudyNodeBrief } from "../core/study/projection.ts";
 import type { StudyDomainList, StudyProfile, StudyToday } from "../core/study/types.ts";
 import { lessonCredit } from "../core/progress/xp.ts";
 import { levelProgress } from "../core/progress/levels.ts";
@@ -50,9 +51,11 @@ import { parseActivityEvent } from "../core/stats/schema.ts";
 import { chatsDir, isUsableDomainId } from "../core/domains/paths.ts";
 import { STUDY_HEARTBEAT_SEC, WORKSPACE_SCOPE } from "../core/stats/types.ts";
 import { createStatsStore, type StatsStore } from "../store/stats-store.ts";
-import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents } from "./study-log.ts";
+import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents, studyLogRevision } from "./study-log.ts";
 import { gradeStudyQuiz } from "../core/study/quiz.ts";
 import { failedChecks, queueReinforcements } from "./study-expansion.ts";
+import { eligibleReview, matchesReviewAnswer, type CampaignReview } from "../core/study/campaign-review.ts";
+import { availableReviews } from "./campaign-review-bank.ts";
 import { skillMap } from "../core/study/map.ts";
 import { questionCallsOf, type LhMessage } from "../core/native-messages.ts";
 import type { TurnUsage } from "../core/contracts/chat.ts";
@@ -172,17 +175,27 @@ function seedFilesOf(id: DomainId): CurriculumSeedFile[] {
  * rank certificate) and persists ledger entry 0 + the snapshot. null when
  * the domain has no curriculum yet (custom domains before generation).
  */
+const goalViews = new WeakMap<CurriculumSnapshot, { key: string; view: LearnerGraphView }>();
+
 export function loadCurriculum(id: DomainId, manifest: DomainManifest, goals: readonly string[] = []): { snapshot: CurriculumSnapshot; view: LearnerGraphView } | null {
 	const dir = curriculumDir(PATHS.data, id);
 	const cache = state().curricula;
 	const stamp = electronicsCurriculumStamp(dir);
-	const hit = cache.get(id);
-	if (hit?.stamp === stamp) return goals.length ? { snapshot: hit.snapshot, view: learnerViewOf(hit.snapshot, goals) } : hit;
-	const loaded = loadDomainCurriculum(id, dir, manifest.edgeMode, () => seedFilesOf(id));
-	if (!loaded) return null;
-	const entry = { ...loaded, view: learnerViewOf(loaded.snapshot) };
-	cache.set(id, entry);
-	return goals.length ? { snapshot: entry.snapshot, view: learnerViewOf(entry.snapshot, goals) } : entry;
+	let entry = cache.get(id);
+	if (!entry || entry.stamp !== stamp) {
+		const loaded = loadDomainCurriculum(id, dir, manifest.edgeMode, () => seedFilesOf(id));
+		if (!loaded) return null;
+		entry = { ...loaded, view: learnerViewOf(loaded.snapshot) };
+		cache.set(id, entry);
+	}
+	if (!goals.length) return entry;
+	const key = JSON.stringify(goals);
+	let weighted = goalViews.get(entry.snapshot);
+	if (weighted?.key !== key) {
+		weighted = { key, view: learnerViewOf(entry.snapshot, goals) };
+		goalViews.set(entry.snapshot, weighted);
+	}
+	return { snapshot: entry.snapshot, view: weighted.view };
 }
 
 type CurriculumSource = CurriculumSeedFile["sources"][number];
@@ -201,6 +214,28 @@ export function curriculumSources(id: DomainId) {
 }
 
 // ─── learner log ─────────────────────────────────────────────────────────────
+
+// The generated final performances are installed as profile targets. Older
+// generation receipts lack the original IDs, so recover them from the tree.
+const installedTargets = new WeakMap<CurriculumSnapshot, Set<string>>();
+
+function hasCustomCampaignGoal(snapshot: CurriculumSnapshot, targets: readonly string[] = []) {
+	if (!targets.length) return false;
+	let defaults = installedTargets.get(snapshot);
+	if (!defaults) {
+		const file = path.join(curriculumDir(PATHS.data, snapshot.domainId), "generation.json");
+		defaults = new Set<string>();
+		try {
+			const receipt = JSON.parse(fs.readFileSync(file, "utf8")) as { targets?: string[] };
+			defaults = new Set(receipt.targets ?? defaultCampaignTargets(snapshot));
+		} catch {
+			// Imported trees have no receipt. Without a readable generation
+			// record, honor the saved targets as the learner's own selection.
+		}
+		installedTargets.set(snapshot, defaults);
+	}
+	return defaults.size !== targets.length || targets.some(id => !defaults.has(id));
+}
 
 type Exposure = Extract<LearnerEvent, { kind: "exposure" }>;
 type StudyLesson = { domainId: string; nodeId: string; minutes: number; exploratory?: boolean };
@@ -320,7 +355,7 @@ export function lessonRoute(id: DomainId, view: LearnerGraphView, events: Learne
 	return alternatives.sort((a,b) => a.missing.length-b.missing.length || a.route.length-b.route.length)[0]!;
 }
 
-export function studyLearnerPrompt(domainId: string, focus: readonly string[] = []) {
+export function studyLearnerPrompt(domainId: string, focus?: readonly string[]) {
 	const store = studyDomains();
 	const manifest = store.readManifest(domainId);
 	const profile = store.readProfile(domainId);
@@ -331,13 +366,23 @@ export function studyLearnerPrompt(domainId: string, focus: readonly string[] = 
 	const snap = learnerSnapshotOf(domainId, cur.view, events, at);
 	const budgetMin = profile?.dailyBudgetMin ?? 180;
 	const signals = computeSignals(snap, cur.view, DEFAULT_LEARNER_PARAMS, at);
-	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin, signals });
-	const prompt = buildPromptSnapshot(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, plan, signals });
-	const failures = focus.length ? failedChecks(events) : [];
+	const lessonNodes = focus && lessonBranchNodes(cur.snapshot, cur.view, focus);
+	const route = new Set(focus);
+	for (const id of focus ?? []) {
+		if (!cur.view.nodes.get(id)?.isLeaf) continue;
+		for (const prerequisite of routeTo(id, cur.view, signals)) {
+			lessonNodes!.add(prerequisite);
+			route.add(prerequisite);
+		}
+	}
+	const campaign = !hasCustomCampaignGoal(cur.snapshot, profile?.goal.targetNodeIds) ? studyCampaign(cur.snapshot, cur.view, signals.structure.known) : undefined;
+	const plan = !lessonNodes || lessonNodes.size ? planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin, signals,
+		...guidedLessonOptions(campaign, events, at, campaign && eligibleReview(reviewBank(domainId, cur.view), events, at)?.nodeId) }) : null;
+	const prompt = buildPromptSnapshot(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, plan, signals, nodes: lessonNodes });
+	const failures = focus?.length ? failedChecks(events) : [];
 	if (failures.length) {
 		const streaks = new Map(failures.map(candidate => [candidate.target, candidate.checks]));
-		const relevant = new Set([...focus, ...focus.flatMap(id => routeTo(id, cur.view, signals))]);
-		for (const id of relevant) {
+		for (const id of route) {
 			const checks = streaks.get(id);
 			const node = cur.view.nodes.get(id);
 			if (!node || !checks) continue;
@@ -353,7 +398,7 @@ export function studyLearnerPrompt(domainId: string, focus: readonly string[] = 
 			break;
 		}
 	}
-	return { prompt, weak: prompt.weak.map(w => ({ nodeId: w.nodeId, weakness: signals.signals.get(w.nodeId)!.weakScore })) };
+	return { prompt, lessonNodes, weak: prompt.weak.map(w => ({ nodeId: w.nodeId, weakness: signals.signals.get(w.nodeId)!.weakScore })) };
 }
 
 type NewEvent =
@@ -423,13 +468,57 @@ export function recordStudyEvent(input: NewEvent): StudyToday {
 
 // ─── "Hoje" ──────────────────────────────────────────────────────────────────
 
+function reviewBank(id: string, view: LearnerGraphView): CampaignReview[] {
+	return availableReviews(id).filter(task => view.nodes.get(task.nodeId)?.isLeaf && view.nodes.get(task.nodeId)?.version === (task.nodeVersion ?? 1));
+}
+
+
+export function answerCampaignReview(domain: string, reviewId: string, answer: string) {
+	const { id, manifest } = requireActive();
+	if (domain !== id) throw new StudyError(409, "O domínio mudou. Atualize a revisão.");
+	const cur = loadCurriculum(id, manifest);
+	if (!cur) throw new StudyError(409, "Currículo indisponível.");
+	const bank = reviewBank(id, cur.view);
+	const task = bank.find(entry => entry.id === reviewId);
+	const events = readStudyEvents(id);
+	const at = new Date().toISOString();
+	if (!task) throw new StudyError(409, "Revisão indisponível.");
+	const receipt = "review-" + task.id;
+	const prior = events.find(e => e.kind === "evidence" && e.evidence.id === receipt);
+	if (prior?.kind === "evidence") return { correct: prior.evidence.grade === 3, explanation: task.explanation };
+	if (eligibleReview(bank, events, at)?.id !== reviewId) throw new StudyError(409, "Essa revisão ainda não está disponível.");
+	const exposure = events.findLast((e): e is Exposure => e.kind === "exposure" && e.nodeId === task.nodeId && !e.exploratory)!;
+	const correct = matchesReviewAnswer(task, answer);
+	appendStudyEvent(id, { kind: "evidence", evidence: { id: receipt, seq: nextStudySeq(events), at, domainId: id,
+		sessionId: "review-" + task.id, itemId: task.id, itemFamily: task.nodeId + (task.format ? "#language-form" : "#application"),
+		nodes: [{ nodeId: task.nodeId, q: 1, primary: true }], format: task.format ?? "short", level: task.level ?? 3, grade: correct ? 3 : 0,
+		graderConfidence: 1, hints: 0, minutesSinceExposure: (Date.parse(at) - Date.parse(exposure.at)) / 60_000 } });
+	return { correct, explanation: task.explanation };
+}
+
+// A fold is determined by the curriculum and event log. Plans, retention and
+// review windows are evaluated against the caller's current clock on every read.
+const projectedHistory = new WeakMap<LearnerGraphView, {
+	revision: string; events: LearnerEvent[]; snap: LearnerSnapshot;
+}>();
+
+function readLearnerHistory(id: DomainId, view: LearnerGraphView, at: string) {
+	const revision = studyLogRevision(id);
+	const cached = projectedHistory.get(view);
+	if (cached && revision === cached.revision) return cached;
+	const events = readStudyEvents(id);
+	const snap = learnerSnapshotOf(id, view, events, at);
+	// An empty/orphan-only history uses the request time as its snapshot date.
+	if (revision !== undefined && snap.seq > 0) projectedHistory.set(view, { revision, events, snap });
+	return { events, snap };
+}
+
 export function studyMap() {
 	const { id, manifest } = requireActive();
 	const cur = loadCurriculum(id, manifest);
 	if (!cur) throw new StudyError(404, "Currículo indisponível.");
-	const events = readStudyEvents(id);
-	const learner = learnerSnapshotOf(id, cur.view, events, new Date().toISOString());
-	const map = skillMap(cur.snapshot, cur.view, learner, manifest.title.pt);
+	const { events, snap } = readLearnerHistory(id, cur.view, new Date().toISOString());
+	const map = skillMap(cur.snapshot, cur.view, snap, manifest.title.pt);
 	const next = studyToday().next;
 	map.next = next?.nodeId;
 	if (next?.kind === "remediate") map.reinforcement = next.reason;
@@ -454,15 +543,19 @@ export function studyToday(): StudyToday {
 		};
 	}
 	const at = new Date().toISOString();
-	const events = readStudyEvents(id);
+	const { events, snap } = readLearnerHistory(id, cur.view, at);
+	const review = eligibleReview(reviewBank(id, cur.view), events, at);
 	queueReinforcements(id, events);
-	const snap = learnerSnapshotOf(id, cur.view, events, at);
-	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin });
 	// Spacing rule: a node TAUGHT in the last 20 h is not re-taught as "new" —
 	// its consolidation comes from tomorrow's delayed check (an immediate
 	// self-check is weak evidence by design), so "Hoje" moves on.
 	const recent = new Set<string>();
 	for (const ev of events) if (ev.kind === "exposure" && !ev.exploratory && Date.parse(at) - Date.parse(ev.at) < 20 * 3_600_000) recent.add(ev.nodeId);
+	const signals = computeSignals(snap, cur.view, DEFAULT_LEARNER_PARAMS, at);
+	const campaign = studyCampaign(cur.snapshot, cur.view, signals.structure.known);
+	const customGoal = hasCustomCampaignGoal(cur.snapshot, profile?.goal.targetNodeIds);
+	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin, signals,
+		...guidedLessonOptions(customGoal ? undefined : campaign, events, at, review?.nodeId) });
 	const pick = [plan.next, ...plan.items].find((it): it is PlanItem => !!it && !(it.kind === "new" && recent.has(it.nodeId))) ?? null;
 	const next = pick ? { ...pick, brief: nodeBrief(cur.snapshot, pick.nodeId) as StudyNodeBrief } : null;
 
@@ -483,6 +576,7 @@ export function studyToday(): StudyToday {
 	let attained = 0;
 	let mastered = 0;
 	let totalHours = 0;
+	let plannedPracticeHours = 0;
 	let attainedHours = 0;
 	for (const nodeId of cur.view.ids) {
 		const node = cur.view.nodes.get(nodeId);
@@ -490,6 +584,7 @@ export function studyToday(): StudyToday {
 		leaves++;
 		const h = hoursMid(cur.snapshot.items[nodeId]?.hours ?? { lo: 0, hi: 0 });
 		totalHours += h;
+		plannedPracticeHours += cur.snapshot.items[nodeId]?.practice?.targetHours ?? 0;
 		const st = snap.nodes[nodeId];
 		if (st?.attainedAt || st?.placedAt) {
 			attained++;
@@ -500,11 +595,15 @@ export function studyToday(): StudyToday {
 	return {
 		domain,
 		ready: true,
+		chapters: campaign.journey,
+		...(customGoal && { campaignGoal: profile?.goal.text || "Meta personalizada" }),
+		...(review && { review: { id: review.id, prompt: review.prompt, title: cur.view.nodes.get(review.nodeId)!.title } }),
 		...(suggestion && { optionalPractice: { id: suggestion.id, title: suggestion.title.pt } }),
 		next,
 		pendingCheck,
 		plan: { budgetMin, reviewMinutes: plan.reviewMinutes, newMinutes: plan.newMinutes, items: plan.items.length },
-		progress: { leaves, attained, mastered, totalHours: Math.round(totalHours), attainedHours: Math.round(attainedHours) },
+		progress: { leaves, attained, mastered, totalHours: Math.round(totalHours), attainedHours: Math.round(attainedHours),
+			...(plannedPracticeHours > 0 && { plannedPracticeHours: Math.round(plannedPracticeHours) }) },
 	};
 }
 
@@ -544,8 +643,11 @@ function tierCoreOf(view: LearnerGraphView, snapshot: CurriculumSnapshot): { cor
 	return { coreVersion: "hours-7@" + snapshot.certificate.hash.slice(0, 12), stages };
 }
 
+let usageByChatFile = new Map<string, { revision: string; turns: TurnUsage[] }>();
+
 function chatTurns(dirs: readonly string[]): TurnUsage[] {
 	const turns: TurnUsage[] = [];
+	const next: typeof usageByChatFile = new Map();
 	for (const dir of dirs) {
 		let names: string[];
 		try {
@@ -555,13 +657,22 @@ function chatTurns(dirs: readonly string[]): TurnUsage[] {
 		}
 		for (const name of names) {
 			try {
-				const record = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")) as { turns?: TurnUsage[] };
-				if (Array.isArray(record.turns)) turns.push(...record.turns);
+				const file = path.join(dir, name);
+				const stat = fs.statSync(file, { bigint: true });
+				const revision = [stat.dev, stat.ino, stat.size, stat.ctimeNs, stat.mtimeNs].join("/");
+				let entry = usageByChatFile.get(file);
+				if (entry?.revision !== revision) {
+					const record = JSON.parse(fs.readFileSync(file, "utf8")) as { turns?: TurnUsage[] };
+					entry = { revision, turns: Array.isArray(record.turns) ? record.turns : [] };
+				}
+				next.set(file, entry);
+				for (const turn of entry.turns) turns.push(turn);
 			} catch {
 				/* unreadable record: skipped */
 			}
 		}
 	}
+	usageByChatFile = next;
 	return turns;
 }
 
@@ -597,6 +708,28 @@ function profileUsage(stats: StatsStore, domainChatDirs: string[], until: string
 	return { totalTokens, calls, byModel: [...models.values()].sort((a, b) => b.tokens - a.tokens || a.model.localeCompare(b.model)) };
 }
 
+let headerDomainXp = new Map<string, { revision: string; xp: number }>();
+
+/** Header totals use the same rated lessons as the profile, without loading curricula or usage charts. */
+export function studyAccountSummary(domains: StudyDomainList["domains"]) {
+	const current: typeof headerDomainXp = new Map();
+	let xp = 0;
+	for (const { id } of domains) {
+		const revision = studyLogRevision(id);
+		const cached = headerDomainXp.get(id);
+		if (cached && cached.revision === revision) {
+			current.set(id, cached);
+			xp += cached.xp;
+			continue;
+		}
+		const value = domainXp(readStudyEvents(id)).xp;
+		if (revision !== undefined) current.set(id, { revision, xp: value });
+		xp += value;
+	}
+	headerDomainXp = current;
+	return { xp, level: levelProgress(xp).level };
+}
+
 export function studyProfile(): StudyProfile {
 	const store = studyDomains();
 	const at = new Date().toISOString();
@@ -607,15 +740,15 @@ export function studyProfile(): StudyProfile {
 		const manifest = store.readManifest(summary.id);
 		if (!manifest) continue;
 		const cur = loadCurriculum(summary.id, manifest);
-		const events = readStudyEvents(summary.id);
-		const xp = domainXp(events);
+		const history = cur && readLearnerHistory(summary.id, cur.view, at);
+		const xp = domainXp(history?.events ?? readStudyEvents(summary.id));
 		totalXp += xp.xp;
 		let tier = { label: "Novato", pm: 0, fractions: [0, 0, 0, 0, 0, 0, 0] };
 		let attained = 0;
 		let mastered = 0;
 		let leaves = 0;
-		if (cur) {
-			const snap = learnerSnapshotOf(summary.id, cur.view, events, at);
+		if (cur && history) {
+			const { snap } = history;
 			const retention = new Map<string, number>();
 			for (const id of cur.view.ids) {
 				if (!cur.view.nodes.get(id)?.isLeaf || cur.snapshot.items[id]?.reinforcementFor) continue;

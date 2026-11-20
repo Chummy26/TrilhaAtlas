@@ -707,7 +707,7 @@ export function toLlmMessages(messages: readonly AgentMessage[]): Message[] {
 			out.push({
 				role: "user",
 				content: problemSubmission ? nativeAnswerContent(marker.content, { answer: problemSubmission.images?.submission, thinking: problemSubmission.images?.thinking })
-					: [{ type: "text", text: marker.customType === "practice-thinking" || marker.customType === "side-question" ? expandCitationsForModel(marker.content) : marker.content }, ...(marker.customType === "practice-thinking"
+					: [{ type: "text", text: marker.customType === "practice-thinking" || marker.customType === "side-question" ? expandCitationsForModel(marker.content) : marker.content }, ...(marker.customType === "practice-thinking" || marker.customType === "graph-context"
 						? (marker.details as { images?: ImageContent[] } | null)?.images ?? [] : [])],
 				timestamp: marker.timestamp,
 			});
@@ -916,8 +916,33 @@ export function probeDoneResultIds(messages: readonly LhMessage[]): Set<string> 
 	return results;
 }
 
-/** The probe→teach construction seam (chat-handler and the tool guard):
- *  only a concluded call plus a matching successful result means teach. */
+/** Book sessions persist the selected volume and its physical location. */
+export function readingSourceOf(messages: readonly LhMessage[]): { book: string; unit: number; region: string } | undefined {
+	const first = messages[0];
+	if (first?.role !== "custom" || first.customType !== "graph-context") return;
+	return readingSourceDetails(first.details);
+}
+
+export function readingSourceDetails(details: unknown): { book: string; unit: number; region: string } | undefined {
+	const source = (details as { readingSource?: { book?: unknown; unit?: unknown; region?: unknown } } | null)?.readingSource;
+	if (source && typeof source.book === "string" && /^[a-f0-9]{64}$/.test(source.book) &&
+		typeof source.unit === "number" && Number.isSafeInteger(source.unit) && source.unit > 0 && typeof source.region === "string")
+		return { book: source.book, unit: source.unit, region: source.region };
+}
+
+export function directLessonDetails(details: unknown): boolean {
+	return (details as { campaignLesson?: unknown } | null)?.campaignLesson === true || Boolean(readingSourceDetails(details));
+}
+
+export function startsWithLesson(messages: readonly LhMessage[]): boolean {
+	const first = messages[0];
+	return first?.role === "custom" && first.customType === "graph-context" && directLessonDetails(first.details);
+}
+
+export function hasTeachingContext(messages: readonly LhMessage[]): boolean {
+	return startsWithLesson(messages) || hasProbeDone(messages);
+}
+
 export function hasProbeDone(messages: readonly LhMessage[]): boolean {
 	return probeDoneResultIds(messages).size > 0;
 }

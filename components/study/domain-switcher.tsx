@@ -17,8 +17,8 @@ import type { StudyDomainList } from "@/src/core";
 
 const GENERAL = { id: null, title: "Geral", icon: "domain-generic" } as const;
 
-export function DomainSwitcher() {
-	const [list, setList] = useState<StudyDomainList | null>(null);
+export function DomainSwitcher({ initialList }: { initialList?: StudyDomainList } = {}) {
+	const [list, setList] = useState<StudyDomainList | null>(initialList ?? null);
 	const [open, setOpen] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
@@ -30,7 +30,7 @@ export function DomainSwitcher() {
 			.then((body) => body && setList(body))
 			.catch(() => {});
 	}, []);
-	useEffect(read, [read]);
+	useEffect(() => { if (initialList) setList(initialList); else read(); }, [initialList, read]);
 
 	useServerEvent("domain-changed", (payload) => {
 		if (list && payload.domainId !== list.active) window.location.assign("/");
@@ -77,12 +77,13 @@ export function DomainSwitcher() {
 				type="button"
 				aria-haspopup="listbox"
 				aria-expanded={open}
+				title={label}
 				disabled={busy}
 				onClick={() => setOpen((v) => !v)}
 				className="cel-chip h-8 cursor-pointer text-sm"
 			>
 				<Icon name={icon} size={18} />
-				{label}
+				<span className="min-w-0 truncate">{label}</span>
 				<Icon name="domain-switch" size={14} tone={false} />
 			</button>
 			{open && (

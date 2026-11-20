@@ -12,11 +12,15 @@ import { isInteractionScopeEligible } from "./plugin-input-focus";
 import { SidebarToggle } from "@/components/sidebar";
 import { SetupDialog } from "@/components/setup-dialog";
 import { useModelSetup, selectedModelUnavailable, openModelPicker, ZeroKeysPill } from "@/components/setup-cta";
+import { SessionModeSwitch, StudyNavigation, type StudyNavigationProps } from "./study/session-navigation.tsx";
+import { TodayCard, type LessonStart } from "./study/today-card.tsx";
+import { MinimalHome } from "./minimal-home.tsx";
+import { GraphView } from "./graph-view.tsx";
 import { StatsBar } from "@/components/stats-bar";
 import { ChainTableOverlay } from "@/components/chain-table.tsx";
 import { ComposerActions, NodePickerControl } from "@/components/composer-actions";
 import { OPENING_PROMPT_FAILURE } from "@/components/opening-prompt";
-import { SessionStarter } from "@/components/start-session";
+import { SessionStarter, studyLessonRequest } from "./start-session.ts";
 import type { ChatSettings, GraphSnapshot } from "@/src/core";
 
 /** The draft's pick set (owner round 10): the SAME shape the home pick
@@ -76,6 +80,7 @@ export function DraftShell({
 	text,
 	onChange,
 	onSend,
+	overview, navigation, today, onModeChange,
 	startError = false,
 	setupCta,
 	mode = "teach",
@@ -88,6 +93,10 @@ export function DraftShell({
 	text: string;
 	onChange: (v: string) => void;
 	onSend: () => void;
+	overview?: ReactNode;
+	navigation?: ReactNode;
+	today?: ReactNode;
+	onModeChange?: (mode: "teach" | "practice") => void;
 	startError?: boolean;
 	/** The practice draft (owner, 2026-10-04): ?mode=practice — the
 	 *  created session carries kind:"practice" and the copy changes
@@ -164,18 +173,19 @@ export function DraftShell({
 		 * (the only pointer-events-auto spot), the empty state carrying the
 		 * orientation. The chain picker then owns the column top exactly
 		 * like the graph view's — no stacked bars. */
-		<div className="relative flex h-dvh">
+		<div className="study-session-start relative flex h-dvh">
 			{/* Window-drag strip — deliberately FIRST in the DOM (the mask
 			    law: no-drag subtraction resolves by DOM order, so every
 			    carved control later in the tree subtracts correctly). */}
 			<div className="lh-drag absolute inset-x-0 top-0 h-13" aria-hidden="true" />
 			<div className="flex min-w-0 flex-1 flex-col">
 				<div ref={bodyRef} className="relative flex min-h-0 flex-1">
+					{overview && <main className="absolute inset-0">{overview}</main>}
 					{/* The pointer-events pattern (953b22b): the sticky wrapper is
 					    pointer-events-none so nothing here blocks the empty-state
 					    area; the blob and the stats row re-enable it themselves. */}
 					<div className="pointer-events-none sticky bottom-0 mt-auto w-full">
-						<Conversation className="h-full min-w-0 flex-1" initial="instant">
+						{!overview && <Conversation className="h-full min-w-0 flex-1" initial="instant">
 							<ConversationContent className="min-h-full gap-0 p-0">
 								<ConversationEmptyState
 									title={mode === "practice" ? "New practice session" : "New session"}
@@ -186,10 +196,11 @@ export function DraftShell({
 									}
 								/>
 							</ConversationContent>
-						</Conversation>
-						<div className="h-24 bg-gradient-to-t from-background via-background/85 to-transparent" />
-						<div className="bg-background pb-4">
+						</Conversation>}
+						{!overview && <div className="h-24 bg-gradient-to-t from-background via-background/85 to-transparent" />}
+						<div className="pb-4">
 							<div className={DOCK}>
+								{today && <div className="pointer-events-auto">{today}</div>}
 								<ComposerActions
 									picker={(picks.length > 0 || mode === "practice") && (
 										<NodePickerControl count={picks.length} onOpen={onOpenPicker} onClear={onClearPicks} />
@@ -216,6 +227,7 @@ export function DraftShell({
 									/>
 								</div>
 								<StatsBar
+									leadingSlot={onModeChange && <SessionModeSwitch mode={mode} onChange={onModeChange} />}
 									dictationSlot={<DictationBar dictation={dictation} />}
 									turns={[]}
 								/>
@@ -234,12 +246,13 @@ export function DraftShell({
 				<div className="pointer-events-auto">
 					<SidebarToggle />
 				</div>
+				{navigation}
 			</header>
 		</div>
 	);
 }
 
-export function NewSession({ initialConfigured, mode = "teach" }: { initialConfigured: boolean; mode?: "teach" | "practice" }) {
+export function NewSession({ initialConfigured, mode = "teach", domains, account, rendering = true }: StudyNavigationProps & { initialConfigured: boolean; mode?: "teach" | "practice"; rendering?: boolean }) {
 	const router = useRouter();
 	const [text, setText] = useState("");
 	/* The draft MIRROR ("nothing gets lost" round, 2026-10-01): the shell's
@@ -290,7 +303,8 @@ export function NewSession({ initialConfigured, mode = "teach" }: { initialConfi
 	const { catalog, configured, zeroKeys } = useModelSetup(initialConfigured);
 	const [setupOpen, setSetupOpen] = useState(false);
 
-	const send = useCallback(() => {
+	const send = useCallback((lesson?: LessonStart) => {
+		if (lesson) applyText(lesson.title);
 		const draft = textRef.current.trim();
 		if (!draft || startingRef.current) return;
 		if (!configured) {
@@ -315,9 +329,11 @@ export function NewSession({ initialConfigured, mode = "teach" }: { initialConfi
 		startingRef.current = true;
 		setBusy(true);
 		setStartError(false);
-		void startDraftSession(draft, fetch, mode === "practice" ? "practice" : undefined, mode === "practice" ? picksRef.current : undefined,
-			starterRef.current, JSON.stringify(catalog?.slots.strong))
-			.then((target) => {
+		const settings = JSON.stringify(catalog?.slots.strong);
+		const creation = lesson
+			? starterRef.current.start(studyLessonRequest(lesson), fetch, settings)
+			: startDraftSession(draft, fetch, mode === "practice" ? mode : undefined, picksRef.current, starterRef.current, settings);
+		void creation.then((target) => {
 				if (target) router.push(target);
 				else { startingRef.current = false; setBusy(false); }
 			})
@@ -335,7 +351,11 @@ export function NewSession({ initialConfigured, mode = "teach" }: { initialConfi
 				startError={startError}
 				text={text}
 				onChange={applyText}
-				onSend={send}
+				onSend={() => send()}
+				onModeChange={next => router.replace(next === "practice" ? "/chat/new?mode=practice" : "/chat/new", { scroll: false })}
+				navigation={<StudyNavigation domains={domains} account={account} />}
+				overview={rendering ? <GraphView /> : <MinimalHome />}
+				today={domains?.active && <TodayCard disabled={busy} onStart={send} />}
 				mode={mode}
 				picks={picks}
 				onOpenPicker={openPicker}

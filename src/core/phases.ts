@@ -24,7 +24,7 @@ export type Phase3 = "probe" | "plan" | "teach";
  * calls) an output.
  */
 export interface PhaseMessage {
-	parts: ReadonlyArray<{ type: string; state?: string; input?: unknown; output?: unknown; pluginQuestion?: unknown }>;
+	parts: ReadonlyArray<{ type: string; data?: unknown; state?: string; input?: unknown; output?: unknown; pluginQuestion?: unknown }>;
 }
 
 /** A quiz call's part input carries `nodeId` iff it is tagged (teach-only —
@@ -63,6 +63,7 @@ function advance(
 ): Phase3 {
 	if (!parts) return phase;
 	for (const part of parts) {
+		if (part.type === "data-graph-context" && directLessonDetails(part.data)) return "teach";
 		// STRICTLY SEQUENTIAL: probe → plan only via a concluded probe_done,
 		// plan → teach only via the first nodeId-tagged quiz CALL (the call,
 		// not its answer — an errored-and-retried call still proves teaching
@@ -138,7 +139,7 @@ export function phaseTimeline(messages: readonly PhaseMessage[]): Phase3[] {
 
 // ─── the native fold (Wave D: record-side phase over LhMessage[]) ───────────
 
-import { probeDoneResultIds, type LhMessage } from "./native-messages.ts";
+import { directLessonDetails, startsWithLesson, probeDoneResultIds, type LhMessage } from "./native-messages.ts";
 
 /** The phase at `upToIndex` (inclusive; default: the last message) of a
  *  NATIVE record. probe→plan advances at the probe_done call's clean
@@ -148,6 +149,7 @@ import { probeDoneResultIds, type LhMessage } from "./native-messages.ts";
 export function phaseAt3Lh(messages: readonly LhMessage[], upToIndex?: number): Phase3 {
 	let phase: Phase3 = "probe";
 	const last = Math.min(upToIndex ?? messages.length - 1, messages.length - 1);
+	if (last >= 0 && startsWithLesson(messages)) return "teach";
 	const concluded = probeDoneResultIds(messages.slice(0, last + 1));
 	for (let i = 0; i <= last; i++) {
 		const m = messages[i]!;

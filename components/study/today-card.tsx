@@ -35,7 +35,7 @@ const CHECK_GRADES = [
 	{ grade: 0, label: "Não entendi" },
 	{ grade: 1, label: "Parcial" },
 	{ grade: 2, label: "Com ajuda" },
-	{ grade: 3, label: "Domino" },
+	{ grade: 3, label: "Entendi sem ajuda" },
 ] as const;
 
 export function lessonStatement(brief: StudyNodeBrief, minutes: number): string {
@@ -43,6 +43,9 @@ export function lessonStatement(brief: StudyNodeBrief, minutes: number): string 
 		brief.path.length > 0 ? `Trilha: ${brief.path.join(" › ")}.` : "",
 		brief.summary ? `Resumo: ${brief.summary}` : "",
 		brief.objectives.length > 0 ? `Objetivos: ${brief.objectives.join("; ")}.` : "",
+		brief.scope && brief.scope !== brief.summary ? `Escopo: ${brief.scope}` : "",
+		brief.assessment?.length ? `Evidência esperada: ${brief.assessment.join("; ")}.` : "",
+		brief.regionExit ? "Fechamento de região. Ofereça um exemplo resolvido ou um trecho das fontes antes do desafio; permita seguir direto. Peça uma aplicação independente em situação nova." : "",
 		brief.misconceptions.length > 0 ? `Confusões comuns: ${brief.misconceptions.join("; ")}.` : "",
 		`Aula de ~${minutes} min do currículo do domínio; ensine em pt-BR.`,
 	];
@@ -52,6 +55,7 @@ export function lessonStatement(brief: StudyNodeBrief, minutes: number): string 
 export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: LessonStart) => void; disabled?: boolean }) {
 	const [today, setToday] = useState<StudyToday | null>(null);
 	const [pending, setPending] = useState(false);
+	const [reviewFeedback, setReviewFeedback] = useState<{ domain: string; text: string }>();
 
 	const read = useCallback(() => {
 		fetch("/api/study/today")
@@ -77,11 +81,13 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 
 	if (!today || !today.ready) return null;
 	const { next, pendingCheck, progress } = today;
+	const chapter = today.chapters?.find(c => c.known < c.total);
+	const mapLink = (node: string) => `/mapa?dominio=${encodeURIComponent(today.domain.id)}&no=${encodeURIComponent(node)}`;
 	const pct = progress.leaves > 0 ? Math.round((100 * progress.attained) / progress.leaves) : 0;
 
 	return (
 		<section data-domain={today.domain.id} data-testid="today-card" className="cel-card mb-2 px-3.5 py-3">
-			<div className="mb-1.5 flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+			<div className="mb-1.5 flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
 				<Icon name={pendingCheck ? "check" : "play"} size={14} />
 				<span className="cel-display">Hoje</span>
 				<Link href={`/mapa?dominio=${encodeURIComponent(today.domain.id)}`} className="cel-button cel-button-ghost px-2 normal-case tracking-normal">Árvore de habilidades</Link>
@@ -90,14 +96,58 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 						· {KIND_LABEL[next.kind] ?? next.kind} · ~{Math.round(next.estMinutes)} min
 					</span>
 				)}
-				<span className="ml-auto normal-case tracking-normal" title={`${progress.attained} de ${progress.leaves} tópicos`}>
-					{pct}% · {progress.attainedHours}/{progress.totalHours} h
+				<span className="ml-auto normal-case tracking-normal" title={`${progress.attained} de ${progress.leaves} tópicos · carga estimada das habilidades alcançadas`}>
+					{progress.attained > 0 && pct === 0 ? "<1" : pct}% · {progress.attainedHours}/{progress.totalHours} h previstas
 				</span>
 			</div>
 
+			{today.chapters && <div className="study-campaign" aria-label={`Campanha de ${today.domain.title}`}>
+				<p className="cel-display">{today.campaignGoal ? "Sua meta · " + today.campaignGoal : chapter ? `${chapter.level} · ${chapter.title}` : "Percurso concluído · continue praticando pelo mapa"}</p>
+				{chapter && <p>{today.campaignGoal && `Percurso principal · ${chapter.level} · ${chapter.title}. `}{chapter.mission}</p>}
+				<nav aria-label="Capítulos da campanha">
+					{today.chapters.map(c => <Link key={c.level} href={mapLink(c.entry)} data-reached={c.known === c.total && c.total > 0}
+						aria-current={c === chapter ? "step" : undefined}
+						aria-label={`${c.level}, ${c.title}. ${c.known} de ${c.total} habilidades no percurso. Explorar capítulo.`}
+						title={`${c.title} · ${c.known}/${c.total}`}>{c.total > 0 && c.known === c.total ? "✓ " : ""}{c.level.replace(/^Etapa /, "")}</Link>)}
+				</nav>
+				{chapter && <div className="flex flex-wrap items-center gap-2 text-xs"><progress max={chapter.total} value={chapter.known} aria-label={`Progresso em ${chapter.level}`} />
+					<span title="Inclui habilidades alcançadas, colocação por nivelamento e pré-requisitos inferidos.">{chapter.known}/{chapter.total} habilidades no percurso</span>
+				</div>}
+				{chapter && <details className="mt-2 text-sm">
+					<summary className="cursor-pointer">Percurso e missão final de {chapter.level}</summary>
+					<ol className="study-missions">{chapter.landmarks.map(step => <li key={step.id} data-reached={step.known}>
+						<span className="study-mission-marker" aria-hidden="true">{step.known ? "✓" : step.id === chapter.finale ? "⚑" : "•"}</span>
+						<Link className="underline" href={mapLink(step.id)}>{step.title}</Link>
+						{step.id === chapter.finale && " · missão final"}{step.known && " · alcançada"}
+					</li>)}</ol>
+					<p className="mt-2 text-xs">Entre essas missões, o plano inclui habilidades do capítulo e revisões conforme sua prática.</p>
+				</details>}
+			</div>}
+			{today.review && <details key={today.domain.id + today.review.id} className="my-3">
+				<summary className="cursor-pointer">Revisão sem consulta · {today.review.title}</summary>
+				<form onSubmit={async event => {
+					event.preventDefault();
+					const answer = new FormData(event.currentTarget).get("answer");
+					setPending(true);
+					try {
+						const res = await fetch("/api/study/review", { method: "POST", headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ domain: today.domain.id, id: today.review!.id, answer }) });
+						const result = await res.json();
+						if (!res.ok) throw new Error(result.error);
+						setReviewFeedback({ domain: today.domain.id, text: (result.correct ? "Correto. " : "Confira a resolução. ") + result.explanation });
+						read();
+					} catch (error) { setReviewFeedback({ domain: today.domain.id, text: error instanceof Error ? error.message : "Falha ao registrar resposta." }); }
+					finally { setPending(false); }
+				}} className="space-y-2 py-2">
+					<label className="block">{today.review.prompt}<input name="answer" className="block w-full rounded border bg-background p-2" maxLength={150} required autoComplete="off" /></label>
+					<button type="submit" disabled={pending} className="cel-button px-3 py-1">Conferir resposta</button>
+				</form>
+			</details>}
+			{reviewFeedback?.domain === today.domain.id && <p role="status" className="text-sm">{reviewFeedback.text}</p>}
 			{pendingCheck ? (
 				<div>
 					<p className="cel-display text-base">Como foi «{pendingCheck.title}»?</p>
+					<Link className="text-sm underline" href={`/chat/${encodeURIComponent(pendingCheck.sessionId)}`}>Retomar aula</Link>
 					<div className="mt-2 flex flex-wrap gap-1.5">
 						{CHECK_GRADES.map((g) => (
 							<button
@@ -132,7 +182,7 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 							className="cel-button cel-button-primary min-h-8 px-3.5 text-sm"
 						>
 							<Icon name="book" size={16} />
-							Começar aula
+							{chapter && next.kind === "new" ? "Começar missão" : "Começar aula"}
 						</button>
 						{next.kind === "new" && (
 							<button
@@ -152,6 +202,7 @@ export function TodayCard({ onStart, disabled = false }: { onStart: (lesson: Les
 			{today.optionalPractice && <Link className="mt-2 block text-sm underline" href={`/mapa?dominio=${encodeURIComponent(today.domain.id)}&no=${encodeURIComponent(today.optionalPractice.id)}`}>
 				Reforço opcional · {today.optionalPractice.title}
 			</Link>}
+			{Boolean(progress.plannedPracticeHours) && <p className="mt-2 text-xs text-muted-foreground">Prática distribuída prevista no domínio · {progress.plannedPracticeHours} h</p>}
 		</section>
 	);
 }

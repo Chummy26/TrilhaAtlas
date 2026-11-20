@@ -22,6 +22,21 @@ process.env.LH_DATA_DIR = TMP_DATA;
 const { chatStore } = await import("../src/store/chats.ts");
 const { subscribe } = await import("../src/core/events.ts");
 
+it("reuses list summaries and observes external edits and deletes", () => {
+	const chat = chatStore.createChat("Primeiro título");
+	const list = () => chatStore.listChats().find(row => row.id === chat.id);
+	assert.equal(list()?.title, "Primeiro título");
+	const orphan = list()!;
+	orphan.title = "Mutação do chamador";
+	assert.equal(list()?.title, "Primeiro título");
+	const file = path.join(TMP_DATA, "chats", chat.id + ".json");
+	const updated = { ...chat, title: "Título alterado em disco" };
+	fs.writeFileSync(file, JSON.stringify(updated));
+	assert.equal(list()?.title, updated.title);
+	fs.unlinkSync(file);
+	assert.equal(list(), undefined);
+});
+
 after(() => {
 	fs.rmSync(TMP_DATA, { recursive: true, force: true });
 });

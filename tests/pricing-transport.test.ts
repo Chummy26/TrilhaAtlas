@@ -30,5 +30,13 @@ test("chat GET supplies derived Pi costs without persisting dollars or changing 
 	assert.equal(body.pricing.subscription, 1);
 	assert.equal(body.pricing.unpriced, 1);
 	assert.deepEqual(body.pricing.turnCosts, { api: 0.037, plan: null, unknown: null });
+	for (const [view, expected] of [
+		["usage", { turns: body.turns, pricing: body.pricing }],
+		["coverage", { coverage: body.coverage }],
+	] as const) {
+		const response = await GET(new Request(`http://localhost/api/chats/${record.id}?view=${view}`), { params: Promise.resolve({ id: record.id }) });
+		assert.equal(response.status, 200);
+		assert.deepEqual(await response.json(), expected);
+	}
 	assert.equal(fs.readFileSync(file, "utf8"), before, "read-time estimates must never rewrite the usage log");
 });

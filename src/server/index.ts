@@ -46,10 +46,12 @@ export { authStore } from "../store/auth.ts";
 export * from "./settings-body.ts";
 export { fileAccessConfigurationError } from "./file-access.ts";
 export * from "./turn-liveness.ts";
-export { StudyError, validateStudyLesson, saveStudyLesson, recordStudyActivity, studyProfile, listStudyDomains, switchStudyDomain, studyToday, recordStudyEvent, parseStudyEvent } from "./study.ts";
+export { StudyError, validateStudyLesson, saveStudyLesson, recordStudyActivity, studyAccountSummary, studyProfile, listStudyDomains, switchStudyDomain, studyToday, recordStudyEvent, parseStudyEvent } from "./study.ts";
 export { activeDomainId } from "../../config.ts";
+export { startDomainCreation, domainCreationStatus, cancelDomainCreation } from "./create-study-domain.ts";
 export { studyMap } from "./study.ts";
-export { readRegionMaterials, studyMapLesson, downloadRegionalBook, updateRegionalReading, lessonNodeOfChat } from "./study-materials.ts";
+export { materialsForEnglishMission } from "./english-mission-materials.ts";
+export { readRegionMaterials, studyMapLesson, downloadRegionalBook, updateRegionalReading, lessonPdfShelf, lessonNodeOfChat } from "./study-materials.ts";
 export * from "./turn-runs.ts";
 export * from "./dismissal-park.ts";
 export * from "./compaction.ts";
@@ -69,5 +71,5 @@ export { claudeCodeInstallationResponse } from "./claude-code.ts";
 // No import side effects; the boot sync lives in stores.ts.
 export * from "./custom-provider.ts";
 export { customProviderGet, customProviderMutation } from "./custom-provider-http.ts";
-
-export { startDomainCreation, domainCreationStatus, cancelDomainCreation } from "./create-study-domain.ts";
+export { regionalBookUnit, regionalBookImage, prepareReadingScreenshot } from "./book-reader.ts";
+export { answerCampaignReview } from "./study.ts";

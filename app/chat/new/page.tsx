@@ -1,6 +1,7 @@
 import { NewSession } from "@/components/new-session";
-import { readSettingsRecord } from "@/src/server";
-import { slotsConfigured } from "@/src/core";
+import { StudyHeartbeat } from "@/components/study/study-heartbeat";
+import { listStudyDomains, studyAccountSummary, readSettingsRecord } from "@/src/server";
+import { resolveSettings, slotsConfigured } from "@/src/core";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +22,17 @@ export default async function NewSessionPage({
 	searchParams: Promise<{ mode?: string }>;
 }) {
 	const { mode } = await searchParams;
+	const domains = listStudyDomains();
+	const record = readSettingsRecord();
 	return (
-		<NewSession
-			initialConfigured={slotsConfigured(readSettingsRecord()?.models)}
-			mode={mode === "practice" ? "practice" : "teach"}
-		/>
+		<>
+			<StudyHeartbeat domain={domains.active} kind="reading" />
+			<NewSession
+			domains={domains} account={studyAccountSummary(domains.domains)}
+				rendering={resolveSettings(record ?? null).graph.rendering}
+				initialConfigured={slotsConfigured(record?.models)}
+				mode={mode === "practice" ? "practice" : "teach"}
+			/>
+		</>
 	);
 }

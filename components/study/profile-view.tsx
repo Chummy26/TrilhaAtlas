@@ -37,7 +37,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 
 			<section className="cel-card mb-5 flex items-center gap-4 p-4">
 				<div className="cel-display flex size-16 shrink-0 flex-col items-center justify-center rounded-full border-2 border-current">
-					<span className="text-[10px] uppercase tracking-wider text-muted-foreground">nível</span>
+					<span className="text-xs uppercase tracking-wider text-muted-foreground">nível</span>
 					<span className="text-2xl leading-none">{account.level}</span>
 				</div>
 				<div className="min-w-0 flex-1">
@@ -99,7 +99,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 					{days.map((d) => (
 						<div key={d.day} className="flex flex-1 flex-col items-center gap-1" title={`${d.day}: ${hours(d.minutes)}`}>
 							<div className="w-full rounded-t-sm bg-[var(--cel-accent,var(--primary))]" style={{ height: `${Math.max(2, Math.round((d.minutes / maxDay) * 80))}px`, opacity: d.minutes > 0 ? 1 : 0.25 }} />
-							<span className="text-[9px] text-muted-foreground">{d.day.slice(8)}</span>
+							<span className="text-xs text-muted-foreground">{d.day.slice(8)}</span>
 						</div>
 					))}
 				</div>

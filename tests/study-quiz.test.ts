@@ -17,7 +17,7 @@ const { createTeacherAgent } = await import("../src/agent/teacher-agent.ts");
 const { handleChatRequest } = await import("../src/server/chat-handler.ts");
 const { chatStore } = await import("../src/store/chats.ts");
 const { switchStudyDomain, studyToday, studyProfile, studyMap, recordStudyEvent } = await import("../src/server/study.ts");
-const { studyMapLesson } = await import("../src/server/study-materials.ts");
+const { lessonNodeOfChat, studyMapLesson } = await import("../src/server/study-materials.ts");
 const { createMemoryService, HashEmbedder } = await import("../src/server/memory/index.ts");
 const memory = createMemoryService({ dataRoot: root, embedder: new HashEmbedder() });
 after(async () => {
@@ -29,6 +29,22 @@ function log(domain: string): LearnerEvent[] {
 	const file = path.join(root, "domains", domain, "learner", "events.jsonl");
 	return fs.existsSync(file) ? fs.readFileSync(file, "utf8").trim().split("\n").map(line => JSON.parse(line)) : [];
 }
+
+it("keeps the first lesson for each session and refreshes the navigation index after external writes", () => {
+	const domain = "navigation-test";
+	const dir = path.join(root, "domains", domain, "learner");
+	const file = path.join(dir, "events.jsonl");
+	const line = (sessionId: string, nodeId: string) => JSON.stringify({ kind: "exposure", source: "ai_lesson", sessionId, nodeId }) + "\n";
+	assert.equal(lessonNodeOfChat(domain, "a"), null);
+	fs.mkdirSync(dir, { recursive: true });
+	fs.writeFileSync(file, line("a", "first") + line("a", "later"));
+	assert.equal(lessonNodeOfChat(domain, "a"), "first");
+	assert.equal(lessonNodeOfChat(domain, "b"), null);
+	fs.appendFileSync(file, line("b", "new"));
+	assert.equal(lessonNodeOfChat(domain, "b"), "new");
+	fs.unlinkSync(file);
+	assert.equal(lessonNodeOfChat(domain, "a"), null);
+});
 
 async function lesson(domainId: string, nodeId: string, minutes: number, exploratory = false) {
 	return create(new Request("http://local/api/chats", { method: "POST", body: JSON.stringify({

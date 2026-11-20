@@ -10,9 +10,38 @@ import { usageEventFromCall } from "../src/core/stats/events.ts";
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "lh-study-stats-"));
 process.env.LH_DATA_DIR = root;
-const { studyProfile, switchStudyDomain } = await import("../src/server/study.ts");
+const { studyAccountSummary, studyProfile, switchStudyDomain } = await import("../src/server/study.ts");
 const { chatStore } = await import("../src/store/chats.ts");
 after(() => fs.rmSync(root, { recursive: true, force: true }));
+
+it("reuses header XP until the log changes and recovers a pending chat check on a warm header", t => {
+	const id = "header-test";
+	const domains = [{ id, title: { pt: "Teste", en: "Test" }, accent: "", icon: "", active: false }];
+	const directory = path.join(root, "domains", id);
+	const learner = path.join(directory, "learner");
+	const log = path.join(learner, "events.jsonl");
+	fs.mkdirSync(learner, { recursive: true });
+	const exposure = { kind: "exposure", id: "l1", domainId: id, minutes: 20, sessionId: "chat1", nodeId: "item" };
+	const check = { kind: "evidence", evidence: { id: "e1", domainId: id, nodes: [{ nodeId: "item" }], lessonExposureId: "l1", grade: 3, format: "mcq" } };
+	fs.writeFileSync(log, JSON.stringify(exposure) + "\n");
+	assert.equal(studyAccountSummary(domains).xp, 0);
+	const reads = t.mock.method(fs, "readFileSync");
+	assert.equal(studyAccountSummary(domains).xp, 0);
+	assert.equal(reads.mock.calls.filter(call => String(call.arguments[0]) === log).length, 0);
+	const pending = path.join(learner, "pending-chat-event.json");
+	fs.writeFileSync(pending, JSON.stringify({ chatId: "chat1", messageId: "saved", event: check }));
+	fs.mkdirSync(path.join(directory, "chats"));
+	fs.writeFileSync(path.join(directory, "chats", "chat1.json"), JSON.stringify({ messages: [{ id: "saved" }] }));
+	assert.equal(studyAccountSummary(domains).xp, 20);
+	assert.equal(fs.existsSync(pending), false);
+	assert.equal(studyAccountSummary(domains).xp, 20);
+	const rewritten = fs.readFileSync(log, "utf8").replace('"minutes":20', '"minutes":50');
+	fs.writeFileSync(log + ".next", rewritten);
+	fs.renameSync(log + ".next", log);
+	assert.equal(studyAccountSummary(domains).xp, 50);
+	fs.unlinkSync(log);
+	assert.equal(studyAccountSummary(domains).xp, 0);
+});
 
 it("reads measured seconds and per-call tokens, preserves historical counters and never counts a step twice", () => {
 	switchStudyDomain("english");

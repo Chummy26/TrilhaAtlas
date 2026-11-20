@@ -105,12 +105,13 @@ async function ask(chat: Awaited<ReturnType<typeof lesson>>, text: string) {
 }
 
 it("passes grounded memory and the learner snapshot on the real model wire, scoped to the study domain", async () => {
-	const first = await lesson("english");
+	const focus = "en.speaking.a1.greetings";
+	const first = await lesson("english", "teach", focus);
 	const { studyDomains } = await import("../src/server/study.ts");
 	studyDomains().updateProfile("english", p => ({ ...p, goal: { ...p.goal, text: "Present a field report" }, dailyBudgetMin: 200 }));
 	const firstContext = await ask(first, original);
 	assert.ok(firstContext.includes("Present a field report") && firstContext.includes("200 min"));
-	const frontier = studyLearnerPrompt("english")!.prompt.frontier[0]!.title;
+	const frontier = studyLearnerPrompt("english", [focus])!.prompt.frontier[0]!.title;
 	assert.ok(firstContext.includes(frontier));
 	assert.ok(!firstContext.includes(original));
 	const english = service.get("english")!;
@@ -125,7 +126,7 @@ it("passes grounded memory and the learner snapshot on the real model wire, scop
 	const nodeId = english.sessionMessages(first.id)[0]!.nodeIds[0]!;
 	const uploadUrl = "http://local/api/study/materials?" + new URLSearchParams({ domain: "english", node: nodeId, pdf: "" });
 	const quote = "The saffron notebook illustrates how prepositions express location.";
-	const pdf = tinyPdf([{ runs: [{ text: quote, x: 72, y: 700 }] }]);
+	const pdf = tinyPdf([{ runs: [{ text: "A different introductory page.", x: 72, y: 700 }] }, { runs: [{ text: quote, x: 72, y: 700 }] }]);
 	const form = new FormData();
 	form.set("file", new File([Uint8Array.from(pdf)], "Grammar field notes.pdf", { type: "application/pdf" }));
 	const uploaded = await upload(new Request(uploadUrl, { method: "POST", body: form }));
@@ -133,14 +134,14 @@ it("passes grounded memory and the learner snapshot on the real model wire, scop
 	const linked = (await uploaded.json()).localReadings[0];
 	assert.ok(linked.readable);
 
-	const second = await lesson("english");
+	const second = await lesson("english", "teach", focus);
 	const secondContext = await ask(second, lookup);
 	assert.ok(secondContext.includes("## Leitura da região"));
-	assert.ok(secondContext.includes("Grammar field notes") && secondContext.includes("páginas físicas 1"));
+	assert.ok(secondContext.includes("Grammar field notes") && secondContext.includes("página física 2") && !secondContext.includes("1-2"));
 	assert.ok(secondContext.includes(quote), "the model actually receives the searchable text extracted from the regional PDF");
-	const unrelatedNode = "en.speaking.a1.greetings";
+	const unrelatedNode = "en.listening.a1.personal-info";
 	assert.notEqual(unrelatedNode, nodeId);
-	const unrelated = newGraphContextMessage([{ id: unrelatedNode, name: "Greetings", statement: "" }], []);
+	const unrelated = newGraphContextMessage([{ id: unrelatedNode, name: "Personal information", statement: "" }], []);
 	assert.ok(!(await tutorMemoryText(english, second.id, [unrelated, newUserMessage(lookup)], 2500)).includes(quote),
 		"searching identical words in another region does not include the book");
 	assert.match(secondContext, /Fronteira:/);
@@ -160,7 +161,7 @@ it("passes grounded memory and the learner snapshot on the real model wire, scop
 	const updated = english.allFacts().find(f => f.quote === corrected)!;
 	assert.equal(english.allFacts().find(f => f.id === fact.id)?.supersededBy, updated.id);
 	assert.equal(english.sessionMessages(first.id).length, 4);
-	const practice = await lesson("english", "practice");
+	const practice = await lesson("english", "practice", focus);
 	const beforePractice = calls.length;
 	assert.ok((await ask(practice, lookup)).includes(corrected));
 	await english.flush();
@@ -231,4 +232,20 @@ it("sends two distinct graded mistakes on the current prerequisite and clears th
 	assert.ok((await reader()).includes(heading));
 	assert.ok(chatStore.deleteChat(source.id));
 	assert.ok(!(await reader()).includes(heading), "deleted source conversations must not return through the learner ledger");
+});
+
+it("puts the prior unit on the teaching wire and keeps an identical query in another branch local", async () => {
+	const source = await lesson("electronics", "teach", "ee.math.algebra.sci-notation.powers-of-ten");
+	const prior = "Na calibração dos expoentes marquei a amostra violeta.";
+	await ask(source, prior);
+	await service.get("electronics")!.flush();
+	const query = "Que amostra marquei na calibração dos expoentes?";
+	const resumed = await lesson("electronics", "teach", "ee.math.algebra.sci-notation.si-prefixes");
+	const scoped = await ask(resumed, query);
+	assert.ok(scoped.includes(prior));
+	assert.ok(estimateTokens(scoped) <= 2400);
+	const unrelated = await lesson("electronics", "teach", "ee.digital.boolean.boolean-algebra");
+	assert.ok(!(await ask(unrelated, query)).includes(prior));
+	const noNode = await tutorMemoryText(service.get("electronics")!, "free", [newUserMessage(query)], 2400);
+	assert.ok(!noNode.includes(prior));
 });
