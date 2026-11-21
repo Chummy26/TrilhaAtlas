@@ -11,7 +11,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import * as fs from "node:fs";
+import fs from "node:fs";
 
 const RETRYABLE = new Set(["EPERM", "EBUSY", "EACCES"]);
 const LINK_UNSUPPORTED = new Set(["EPERM", "ENOTSUP", "EOPNOTSUPP", "ENOSYS", "EXDEV", "EINVAL"]);

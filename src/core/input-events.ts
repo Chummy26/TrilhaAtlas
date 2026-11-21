@@ -8,7 +8,8 @@
  *
  * The four events (the complete client-originated input taxonomy):
  *   text    — a learner-authored user message (composer send, initial
- *             topic, the demo error-fix loop)
+ *             topic, the demo error-fix loop, or a formal exam submission
+ *             bound to its card ID)
  *   answer  — the pending question's graded result (QuestionAnswerData,
  *             built client-side exactly as today; a dismissal is an answer
  *             carrying its flag). Server-side this becomes the call's
@@ -60,7 +61,7 @@ export type DismissPluginQuestionInput = { type: "dismiss-plugin-question"; ques
 export type ChatInput =
 	| PluginQuestionAnswerInput
 	| PluginProblemSubmissionInput
-	| { type: "text"; text: string; images?: ImageContent[] }
+	| { type: "text"; text: string; images?: ImageContent[]; examCallId?: string }
 	| { type: "answer"; toolCallId: string; answer: QuestionAnswerData; occurrence?: PluginSubmissionOccurrence }
 	| { type: "continue" }
 	/** The failed-turn retry (issue #110): the banner's Retry button. */
@@ -244,7 +245,9 @@ export function parseChatInput(input: unknown): ChatInput {
 			if (typeof i.text !== "string" || (!i.text.trim() && !images)) {
 				throw new ChatInputError("text input requires non-empty text or images");
 			}
-			return { type: "text", text: i.text, ...(images ? { images } : {}) };
+			if (i.examCallId !== undefined && (typeof i.examCallId !== "string" || !i.examCallId.trim() || i.examCallId.length > 256 || images || i.text.length > 12000))
+				throw new ChatInputError("Escreva sua resposta à prova antes de entregá-la.");
+			return { type: "text", text: i.text, ...(images ? { images } : {}), ...(typeof i.examCallId === "string" && { examCallId: i.examCallId }) };
 		}
 		case "answer": {
 			if (typeof i.toolCallId !== "string" || i.toolCallId.length === 0) {
@@ -308,6 +311,7 @@ export function inputAppends(
 		case "plugin-question-answer":
 			throw new ChatInputError("Plugin question answers require canonical server validation");
 		case "text":
+			if (input.examCallId) return [{ ...newUserMessage(input.text), examCallId: input.examCallId }];
 			return [...dismissalConclusion(record), newUserMessage(input.text, input.images)];
 		case "answer": {
 			const pending = danglingQuestionOf(record.messages);

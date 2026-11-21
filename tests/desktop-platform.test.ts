@@ -15,7 +15,7 @@ const mainRequire = createRequire(mainFile);
 /** Decline the single-instance lock so normal boot never spawns a server.
  * Then call the REAL createWindow with a stub Electron API and inspect its
  * constructor options. No rewritten copy of the production logic. */
-function windowOptions(platform: string, env: Record<string, string> = {}, reported?: { mode: string; background?: string }) {
+function windowOptions(platform: string, env: Record<string, string> = {}, reported?: { mode: string; background?: string }, packaged = false) {
 	class FakeWindow {
 		constructor(readonly options: unknown) {}
 		webContents = { on() {}, setWindowOpenHandler() {} };
@@ -23,7 +23,7 @@ function windowOptions(platform: string, env: Record<string, string> = {}, repor
 		once() {}
 	}
 	const electron = {
-		app: { setName() {}, getPath: () => "/fixture/LearnHarness", setPath() {}, requestSingleInstanceLock: () => false, quit() {} },
+		app: { isPackaged: packaged, setName() {}, setAppUserModelId() {}, getPath: () => "/fixture/LearnHarness", setPath() {}, requestSingleInstanceLock: () => false, quit() {} },
 		BrowserWindow: FakeWindow,
 		nativeTheme: { shouldUseDarkColors: true, themeSource: "system", on() {} },
 		session: { defaultSession: { setPermissionRequestHandler() {}, setPermissionCheckHandler() {} } },
@@ -151,6 +151,10 @@ describe("desktop appearance boot and IPC", () => {
 });
 
 describe("desktop window chrome", () => {
+	it("brands the packaged Windows window as TrilhaAtlas", () => {
+		assert.equal(windowOptions("win32", {}, undefined, true).title, "TrilhaAtlas");
+	});
+
 	it("macOS keeps the proven traffic lights and does not enable WCO", () => {
 		const options = windowOptions("darwin");
 		assert.equal(options.titleBarStyle, "hiddenInset");

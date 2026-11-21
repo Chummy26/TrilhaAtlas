@@ -449,7 +449,8 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	const limit = campaign.lessonMinutes.get(id) ?? maxNewMinutes;
 	const minutes = Math.round(Math.min(limit, maxNewMinutes, Math.max(minNewMinutes, node.hoursMid * 60)));
 	const events = readStudyEvents(domain);
-	const previous = (exploratory: boolean) => events.findLast(e => e.kind === "exposure" && !!e.exploratory === exploratory && e.source === "ai_lesson" && e.nodeId === id && e.sessionId && getChat(e.sessionId));
+	const closedForReinforcement = new Set(events.flatMap(e => e.kind === "lesson-finished" && e.outcome === "reinforce" ? [e.exposureId] : []));
+	const previous = (exploratory: boolean) => events.findLast(e => e.kind === "exposure" && !closedForReinforcement.has(e.id) && !!e.exploratory === exploratory && e.source === "ai_lesson" && e.nodeId === id && e.sessionId && getChat(e.sessionId));
 	const main = previous(false);
 	const side = previous(true);
 	const regionMaterials: RegionMaterials = region.kind === "unit" ? await readRegionMaterials(domain, id) : { region: id, materials: [], references: [], videoSearch: false };

@@ -117,12 +117,12 @@ export function BookReader({ domain, region, node, book, page }: {
 					}}>{page.text}</Streamdown> : page.text}
 				</div>}
 			</article>
-			<aside id="estudar-leitura" className="reader-actions" aria-label="Atividade de leitura">
-				<h2>Estudar com o tutor</h2>
-				<label htmlFor="reading-request">O que você quer entender?</label>
-				<textarea id="reading-request" rows={3} value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="Explique este gráfico com um exemplo…" />
+			<aside id="estudar-leitura" className="cel-card reader-actions" aria-label="Atividade de leitura">
+				<h2 className="cel-display">Estudar com o tutor</h2>
+				<label htmlFor="reading-request" className="text-sm font-semibold">O que você quer entender?</label>
+				<textarea id="reading-request" className="cel-input text-sm" rows={3} value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="Explique este gráfico com um exemplo…" />
 				<p>Selecione texto, cole um print ou peça uma aula sobre a {label.toLowerCase()} inteira.</p>
-				{original && <button type="button" className="cel-button" aria-pressed={cropping} disabled={pending || imageFailed} onClick={() => setCropping(!cropping)}>{cropping ? "Cancelar recorte" : "Recortar área da página"}</button>}
+				{original && <button type="button" className="cel-button text-sm" aria-pressed={cropping} disabled={pending || imageFailed} onClick={() => setCropping(!cropping)}>{cropping ? "Cancelar recorte" : "Recortar área da página"}</button>}
 				{cropping && <p role="status">Arraste sobre a página para selecionar a área do print.</p>}
 				<label className="reader-attachment">Anexar print<input type="file" accept="image/png,image/jpeg,image/webp" disabled={pending} onChange={e => {
 					const file = e.currentTarget.files?.[0]; e.currentTarget.value = ""; if (file) void attach(file);
@@ -133,11 +133,11 @@ export function BookReader({ domain, region, node, book, page }: {
 					<button type="button" onClick={() => setCapture("")}>Remover print</button>
 				</div>}
 				{selection && <blockquote>{selection}</blockquote>}
-				{capture && <button className="cel-button cel-button-primary" disabled={pending} onClick={() => void interact("print")}>Criar aula com print</button>}
-				{selection && <button className="reader-selection-action cel-button cel-button-primary" disabled={pending} onClick={() => void interact("trecho")}>Criar aula com trecho</button>}
-				<button className={"cel-button" + (selection || capture ? "" : " cel-button-primary")} disabled={pending || (original && imageFailed) || (!original && !page.text)} onClick={() => void interact("página")}>Criar aula com {label.toLowerCase()} {page.unit}</button>
+				{capture && <button className="cel-button cel-button-primary text-sm" disabled={pending} onClick={() => void interact("print")}>Criar aula com print</button>}
+				{selection && <button className="reader-selection-action cel-button cel-button-primary text-sm" disabled={pending} onClick={() => void interact("trecho")}>Criar aula com trecho</button>}
+				<button className={"cel-button text-sm" + (selection || capture ? "" : " cel-button-primary")} disabled={pending || (original && imageFailed) || (!original && !page.text)} onClick={() => void interact("página")}>Criar aula com {label.toLowerCase()} {page.unit}</button>
 				{pending && <p role="status">Abrindo atividade…</p>}
-				{error && <p role="alert">{error}</p>}
+				{error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 			</aside>
 		</div>
 	</main>;

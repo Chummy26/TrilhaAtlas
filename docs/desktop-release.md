@@ -49,6 +49,20 @@ npx electron-builder --win --x64 --publish never    # Windows
 npx electron-builder --linux --x64 --publish never # Linux
 ```
 
+#### Windows local
+
+Em um checkout novo, execute `npm ci` e `npm run plugins:setup`. Se mudar o ícone, rode
+`node scripts/make-icons.mjs`. Na raiz, execute `npm run build`, `node scripts/smoke-provider-runtime.mjs`,
+`node scripts/build-server.mjs` e `node scripts/smoke-server.mjs --electron --isolated` em ordem.
+Gere o instalador local com `npx electron-builder --win --x64 --publish never '--config.productName=TrilhaAtlas'`.
+Feche o app instalado, execute o novo instalador de `dist` e reabra pelo mesmo atalho.
+O perfil persistente fica em `%APPDATA%\TrilhaAtlas`.
+
+Com o app aberto, use **Exibir → Abrir no navegador** (`Ctrl+Shift+B`) para autorizar
+o navegador padrão em `http://trilhaatlas.localhost:43387`. As duas janelas usam o
+servidor empacotado e o mesmo perfil. Depois de reiniciar o app, abra o navegador
+pelo menu novamente.
+
 ## CI and release modes
 
 [CI](../.github/workflows/ci.yml) runs typecheck/tests/lint on Ubuntu, plus standalone/native checks on macOS, Windows, and Linux. Its `macos-15` job does not compile the release icon.

@@ -1,19 +1,4 @@
-// Regenerate the Windows/Linux icon set from the flat design source
-// (build/icon-flat.svg — the owner's Affinity export, rounded squircle
-// with baked transparency, owner ruling 2026-10-13).
-//
-//   build/icon.ico  — Windows (.ico with 16/24/32/48/64/128/256 PNG entries)
-//   build/icon.png  — Linux (512×512; AppImage/deb/desktop entry)
-//
-// macOS does NOT come from here: build/icon.icon (the Icon Composer
-// document) is the mac source of truth, compiled by actool at package
-// time into Assets.car (macOS 26 Liquid Glass) + a fallback icns; the
-// hand-packed build/icon.icns replaces that fallback's 256px cap via
-// scripts/after-pack.cjs (pre-Tahoe keeps full-res).
-//
-// Renders each size DIRECTLY from the SVG (resvg) — sharper squircle
-// edges than downsampling a raster. Committed outputs; rerun only when
-// the design changes: `node scripts/make-icons.mjs`.
+// Render every TrilhaAtlas icon from build/icon-flat.svg.
 import { Resvg } from "@resvg/resvg-js";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -53,3 +38,19 @@ console.log(`build/icon.ico  ${ICO_SIZES.join("/")} — ${(ico.length / 1024).to
 const png512 = render(512);
 writeFileSync(path.join(root, "build", "icon.png"), png512);
 console.log(`build/icon.png  512×512 — ${(png512.length / 1024).toFixed(1)} KB`);
+
+const macTypes = [["icp4", 16], ["icp5", 32], ["icp6", 64], ["ic07", 128], ["ic08", 256], ["ic09", 512], ["ic10", 1024], ["ic11", 32], ["ic12", 64], ["ic13", 256], ["ic14", 512]];
+const macChunks = macTypes.map(([type, size]) => {
+	const png = render(size);
+	const chunkHeader = Buffer.alloc(8);
+	chunkHeader.write(type, 0);
+	chunkHeader.writeUInt32BE(chunkHeader.length + png.length, 4);
+	return Buffer.concat([chunkHeader, png]);
+});
+const macHeader = Buffer.alloc(8);
+macHeader.write("icns");
+macHeader.writeUInt32BE(macHeader.length + macChunks.reduce((sum, chunk) => sum + chunk.length, 0), 4);
+writeFileSync(path.join(root, "build", "icon.icns"), Buffer.concat([macHeader, ...macChunks]));
+writeFileSync(path.join(root, "build", "icon.icon", "Assets", "trilhaatlas.svg"), svg);
+writeFileSync(path.join(root, "public", "trilhaatlas.svg"), svg);
+writeFileSync(path.join(root, "app", "favicon.ico"), ico);

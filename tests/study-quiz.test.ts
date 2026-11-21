@@ -127,6 +127,7 @@ it("binds checks to their own lesson, recovers an interrupted append and credits
 	assert.equal(lessonCompletionState("electronics", first.id)?.completed, false);
 	const fromQuiz = finishStudyLesson("electronics", first.id, 3);
 	assert.equal(fromQuiz.after, fromQuiz.before);
+	assert.equal(studyMap().nodes.find(n => n.id === nodeId)?.completed, true);
 	assert.equal(fromQuiz.resume, null); // An older attempt on this same skill is not the next mission.
 	assert.equal(lessonCompletionState("electronics", first.id)?.completed, true);
 	assert.equal(finishStudyLesson("electronics", first.id, 1).alreadyCompleted, true);
@@ -146,7 +147,8 @@ it("binds checks to their own lesson, recovers an interrupted append and credits
 	assert.equal(fs.existsSync(path.join(root, "learner")), false);
 });
 
-it("keeps exploratory chats separate and accepts evidence only from an answered skill quiz", async () => {
+it("keeps exploratory chats separate and accepts evidence only from an answered skill quiz", async t => {
+	t.mock.timers.enable({ apis: ["Date"], now: Date.now() }); // Compare identical planner instants across reads.
 	switchStudyDomain("electronics");
 	const before = studyToday();
 	const position = studyMap().position;
@@ -182,4 +184,53 @@ it("keeps exploratory chats separate and accepts evidence only from an answered 
 		if (turn) await new Response(turn.subscribe()).text();
 		assert.equal(evidenceCount(),expected);
 	}
+});
+
+it("closes an insufficient exam without advancing this node or awarding completion XP", async () => {
+	switchStudyDomain("english");
+	const nodeId = studyToday().next!.nodeId;
+	const { id } = await (await lesson("english", nodeId, 15)).json();
+	const feedback = "Revise a distinção entre apresentar-se e apresentar outra pessoa.";
+	const result = finishStudyLesson("english", id, 2, { feedback });
+	assert.equal(result.before, result.after);
+	assert.equal(result.next, null);
+	assert.equal(studyToday().pendingCheck, null);
+	assert.equal(studyMap().nodes.find(n => n.id === nodeId)?.completed, false);
+	assert.equal(lessonCompletionState("english", id)?.reinforcement, feedback);
+	assert.equal((await studyMapLesson("english", nodeId)).sessionId, undefined);
+	assert.equal(finishStudyLesson("english", id, 2, { feedback }).alreadyCompleted, true);
+	assert.equal(log("english").filter(event => event.kind === "lesson-finished").length, 1);
+});
+
+it("binds formal submissions to the open exam and keeps ordinary chat out of grading", async () => {
+	switchStudyDomain("english");
+	const nodeId = "en.speaking.a1.greetings";
+	const { id } = await (await lesson("english", nodeId, 15)).json();
+	chatStore.saveSettings(id, { model: { provider: "openrouter", id: "z-ai/glm-5.3-flash" } });
+	const exam = { task: "Escreva como você se apresentaria a uma turma nova.", attempt: 1, total: 2 };
+	const call = fauxAssistantMessage([fauxToolCall("present_lesson_exam", { task: exam.task }, { id: "exam-id" })], { stopReason: "toolUse" });
+	chatStore.saveMessages(id, [...chatStore.getChat(id)!.messages, { ...call, id: "teacher" }, {
+		role: "toolResult", id: "exam-output", toolName: "present_lesson_exam", toolCallId: "exam-id",
+		content: [{ type: "text", text: "Prova apresentada." }], details: exam, isError: false, timestamp: Date.now(),
+	}]);
+	async function send(text: string, examCallId?: string) {
+		const faux = createFauxCore({});
+		faux.setResponses([fauxAssistantMessage("Recebi sua mensagem.")]);
+		const response = await handleChatRequest(new Request("http://local/api/chat", {
+			method: "POST", body: JSON.stringify({ chatId: id, input: { type: "text", text, examCallId } }),
+		}), opts => createTeacherAgent(undefined, { messages: opts.messages, engine: { model: faux.getModel(), streamFn: faux.streamSimple } }),
+		undefined, async domain => { await memory.open(domain); return memory.get(domain)!; });
+		if (response.ok) {
+			const turn = runningTurn(id);
+			if (turn) await new Response(turn.subscribe()).text();
+		}
+		return response.status;
+	}
+	assert.equal(await send("Entendi."), 200);
+	assert.equal(chatStore.getChat(id)!.messages.findLast(m => m.role === "user")?.examCallId, undefined);
+	assert.equal(await send("Entendi.", "exam-id"), 400);
+	assert.equal(await send("Hello, I'm Jo.", "old-id"), 400);
+	assert.equal(await send("Hello, I'm Jo.", "exam-id"), 200);
+	assert.equal(chatStore.getChat(id)!.messages.findLast(m => m.role === "user")?.examCallId, "exam-id");
+	assert.equal(await send("Hello, I'm Jo.", "exam-id"), 400);
 });

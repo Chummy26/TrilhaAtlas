@@ -37,7 +37,7 @@ export function ActivityPanel({ activity }: { activity: LessonActivity }) {
 	if (activity.kind === "falstad" && activity.experiment) {
 		const lab = falstadExperiments[activity.experiment];
 		return <section className="study-lab" aria-label={lab.title}><header><h2>{lab.title}</h2><p>{lab.task}</p></header>
-			<footer><a className="underline" href={"https://www.falstad.com/circuit/circuitjs.html?startCircuit=" + lab.file} target="_blank" rel="noreferrer">Abrir experimento no Falstad</a></footer>
+			<footer><a className="cel-button cel-button-primary w-fit px-4 py-1.5 text-sm no-underline" href={"https://www.falstad.com/circuit/circuitjs.html?startCircuit=" + lab.file} target="_blank" rel="noreferrer">Abrir experimento no Falstad</a></footer>
 		</section>;
 	}
 	return <LessonPanel activity={activity} />;
@@ -58,7 +58,7 @@ function DividerPanel({ initial }: { initial?: LessonActivity["divider"] }) {
 			<label>Fonte (V)<input type="number" min="0" max="24" step="any" value={Number.isNaN(volts) ? "" : volts} onChange={e => setVolts(e.target.valueAsNumber)} /></label>
 			<label>R1 entre fonte e saída (Ω)<input type="number" min="1" max="10000000" value={Number.isNaN(upper) ? "" : upper} onChange={e => setUpper(e.target.valueAsNumber)} /></label>
 			<label>R2 entre saída e terra (Ω)<input type="number" min="1" max="10000000" value={Number.isNaN(lower) ? "" : lower} onChange={e => setLower(e.target.valueAsNumber)} /></label>
-			<output aria-live="polite">{lab ? `Saída: ${fmt(lab.voltsOut)} V · Corrente: ${fmt(lab.milliamps)} mA` : "Use uma fonte de 0 a 24 V e resistências inteiras de 1 a 10 milhões de ohms."}</output>
+			<output aria-live="polite" className="rounded-lg border-l-[3px] border-[var(--lab-accent)] bg-background/70 px-3 py-2 text-[var(--lh-prose-size)] font-bold tabular-nums">{lab ? `Saída: ${fmt(lab.voltsOut)} V · Corrente: ${fmt(lab.milliamps)} mA` : "Use uma fonte de 0 a 24 V e resistências inteiras de 1 a 10 milhões de ohms."}</output>
 		</div>
 		{lab && <footer className="flex flex-wrap gap-3">
 			<a href={lab.falstad} target="_blank" rel="noreferrer" className="underline">Abrir circuito no Falstad</a>

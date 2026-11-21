@@ -89,6 +89,8 @@ export interface NodeState {
 	attainedAt?: string;
 	masteredAt?: string;
 	demonstratedAt?: string;
+	/** The teacher signed off the curriculum performance; retention is assessed separately. */
+	lessonCompletedAt?: string;
 	/** Inferred by diagnosis/propagation without direct check. */
 	inferred?: boolean;
 	/**
@@ -176,7 +178,7 @@ export interface Evidence {
 /** Non-graded learning events folded into the model (lesson exposure, implicit credit). */
 export type LearnerEvent =
 	| { kind: "evidence"; evidence: Evidence }
-	| { kind: "lesson-finished"; id: string; seq: number; at: string; domainId: DomainId; nodeId: NodeId; exposureId: string }
+	| { kind: "lesson-finished"; id: string; seq: number; at: string; domainId: DomainId; nodeId: NodeId; exposureId: string; assessedBy?: "teacher"; outcome?: "reinforce"; feedback?: string }
 	| { kind: "exposure"; id: string; seq: number; at: string; domainId: DomainId; sessionId: string; nodeId: NodeId; source: "ai_lesson" | "video" | "book" | "article"; minutes: number; exploratory?: boolean }
 	| { kind: "implicit-credit"; id: string; seq: number; at: string; domainId: DomainId; fromNodeId: NodeId; toNodeId: NodeId; w: number }
 	| { kind: "diagnostic"; id: string; seq: number; at: string; domainId: DomainId; estimates: { nodeId: NodeId; p: number }[] }

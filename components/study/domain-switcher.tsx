@@ -41,8 +41,15 @@ export function DomainSwitcher({ initialList }: { initialList?: StudyDomainList 
 		const close = (e: MouseEvent) => {
 			if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
 		};
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === "Escape") setOpen(false);
+		};
 		window.addEventListener("mousedown", close);
-		return () => window.removeEventListener("mousedown", close);
+		window.addEventListener("keydown", onKey);
+		return () => {
+			window.removeEventListener("mousedown", close);
+			window.removeEventListener("keydown", onKey);
+		};
 	}, [open]);
 
 	const choose = async (id: string | null) => {
@@ -80,35 +87,51 @@ export function DomainSwitcher({ initialList }: { initialList?: StudyDomainList 
 				title={label}
 				disabled={busy}
 				onClick={() => setOpen((v) => !v)}
-				className="cel-chip h-8 cursor-pointer text-sm"
+				className="cel-chip h-9 cursor-pointer gap-2 px-3 text-sm"
 			>
 				<Icon name={icon} size={18} />
 				<span className="min-w-0 truncate">{label}</span>
 				<Icon name="domain-switch" size={14} tone={false} />
 			</button>
 			{open && (
-				<div className="cel-card absolute left-0 top-10 z-30 min-w-52 p-1.5">
-				<ul role="listbox" aria-label="Domínio de estudo" className="max-h-[50dvh] overflow-y-auto">
-					{[...list.domains.map((d) => ({ id: d.id as string | null, title: d.title.pt, icon: d.icon })), GENERAL].map((d) => (
-						<li key={d.id ?? "geral"}>
-							<button
-								type="button"
-								role="option"
-								aria-selected={d.id === list.active}
-								onClick={() => void choose(d.id)}
-								className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm hover:bg-accent aria-selected:font-semibold"
-							>
-								<Icon name={d.icon as IconName} size={20} />
-								{d.title}
-							</button>
-						</li>
-					))}
-				</ul>
-				<Link href="/dominios/novo" className="block rounded-md border-t px-2.5 py-2 text-sm font-semibold hover:bg-accent">+ Criar domínio de estudo</Link>
+				<div className="cel-card absolute left-0 top-11 z-30 min-w-56 p-1.5">
+					<ul role="listbox" aria-label="Domínio de estudo" className="max-h-[50dvh] space-y-0.5 overflow-y-auto">
+						{[...list.domains.map((d) => ({ id: d.id as string | null, title: d.title.pt, icon: d.icon })), GENERAL].map((d) => {
+							const active = d.id === list.active;
+							return (
+								<li key={d.id ?? "geral"}>
+									<button
+										type="button"
+										role="option"
+										aria-selected={active}
+										onClick={() => void choose(d.id)}
+										className={
+											"flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors " +
+											(active ? "bg-accent font-semibold text-foreground" : "hover:bg-accent/70")
+										}
+									>
+										<Icon name={d.icon as IconName} size={20} />
+										<span className="min-w-0 flex-1 truncate">{d.title}</span>
+										{active && <Icon name="check" size={15} tone={false} />}
+									</button>
+								</li>
+							);
+						})}
+					</ul>
+					<div className="mt-1.5 border-t border-border/55 pt-1.5">
+						<Link
+							href="/dominios/novo"
+							onClick={() => setOpen(false)}
+							className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold text-[var(--cel-accent-text,var(--foreground))] transition-colors hover:bg-accent"
+						>
+							<Icon name="plus" size={16} tone={false} />
+							Criar domínio de estudo
+						</Link>
+					</div>
 				</div>
 			)}
 			{error && (
-				<p role="alert" className="cel-card absolute left-0 top-10 z-30 w-72 p-2.5 text-xs text-destructive">
+				<p role="alert" className="cel-card absolute left-0 top-11 z-30 w-72 p-2.5 text-xs text-destructive">
 					{error}
 				</p>
 			)}

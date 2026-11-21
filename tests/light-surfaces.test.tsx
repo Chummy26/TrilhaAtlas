@@ -5,12 +5,13 @@
 
 import React from "react";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { confidenceRailStyle } from "../components/confidence-rail.tsx";
 import { mermaidConfig } from "../components/mermaid-render.ts";
 import { CLUSTER_LIGHTNESS } from "../components/graph-canvas.ts";
-import { LhMark } from "../components/lh-mark.tsx";
+import { TrilhaAtlasMark } from "../components/lh-mark.tsx";
 
 describe("confidence rail", () => {
 	it("sits on the page background, ticks in the foreground ink", () => {
@@ -38,11 +39,10 @@ describe("graph clusters", () => {
 	});
 });
 
-describe("LH mark", () => {
-	it("the ring follows the strong line ink; the spiral gray stays", () => {
-		const html = renderToStaticMarkup(<LhMark />);
-		assert.equal((html.match(/fill:var\(--lh-line-strong\)/g) ?? []).length, 2);
-		assert.ok(!html.includes("#fff"));
-		assert.ok(html.includes("rgb(148,148,148)"));
+describe("TrilhaAtlas mark", () => {
+	it("uses the same artwork in the sidebar, desktop and browser tab", () => {
+		assert.match(renderToStaticMarkup(<TrilhaAtlasMark />), /src="\/trilhaatlas\.svg"/);
+		assert.deepEqual(readFileSync("public/trilhaatlas.svg"), readFileSync("build/icon-flat.svg"));
+		assert.deepEqual(readFileSync("app/favicon.ico"), readFileSync("build/icon.ico"));
 	});
 });

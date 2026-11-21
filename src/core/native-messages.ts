@@ -107,6 +107,8 @@ export type LhMessage = (UserMessage | AssistantMessage | ToolResultMessage | Lh
 	 * App-only metadata: never transmitted as provider/model message content. */
 	cliContextWindow?: number;
 	/** Host-owned occurrence annotations, never model input. */
+	/** Server-validated association between a submitted answer and its exam card. */
+	examCallId?: string;
 	lhQuestions?: PluginQuestionOccurrenceMap;
 	/** Exact binding for genuine plugin-question results (details stays public envelope). */
 	lhQuestionOccurrence?: PluginQuestionOccurrence;
@@ -714,10 +716,12 @@ export function toLlmMessages(messages: readonly AgentMessage[]): Message[] {
 			continue;
 		}
 		// Strip app-only id/CLI context metadata: the wire carries the native shape only.
-		const { id: _id, cliContextWindow: _cliContextWindow, lhQuestions: _lhQuestions, lhQuestionOccurrence: _lhQuestionOccurrence, ...native } = m as LhMessage;
+		const { id: _id, cliContextWindow: _cliContextWindow, lhQuestions: _lhQuestions, lhQuestionOccurrence: _lhQuestionOccurrence, examCallId, ...native } = m as LhMessage;
 		// Learner citations are links in the record; the wire carries them
 		// expanded (core/citations.ts) — the one model-facing rewrite.
-		out.push(role === "user" ? expandUserCitations(native as UserMessage) : (native as Message));
+		if (m.role === "user" && examCallId && typeof m.content === "string") {
+			out.push({ role: "user", timestamp: m.timestamp, content: "Resposta entregue no formulário da prova:\n" + m.content });
+		} else out.push(role === "user" ? expandUserCitations(native as UserMessage) : (native as Message));
 		// Repair unanswered calls from completed generations, not calls in
 		// failed generations. Pi filters error/aborted assistants itself;
 		// adding results for their unexecuted calls would leave orphans.

@@ -37,7 +37,18 @@ import { planDay, routeTo } from "../core/learner/planner.ts";
 import { buildPromptSnapshot } from "../core/learner/snapshot.ts";
 import { computeSignals } from "../core/learner/signals.ts";
 import { structuralState } from "../core/learner/kst.ts";
-import { studyCampaign, defaultCampaignTargets, guidedLessonOptions } from "../core/study/campaign.ts";
+import {
+	activeModuleOf,
+	campaignCompletionProgress,
+	campaignQueue,
+	defaultCampaignTargets,
+	guidedLessonOptions,
+	lessonCourseContext,
+	pendingReinforcements,
+	studyCampaign,
+	type LessonCourseContext,
+	type LessonCourseProgress,
+} from "../core/study/campaign.ts";
 import type { Evidence, Grade, LearnerEvent, LearnerSnapshot, PlanItem } from "../core/learner/types.ts";
 import { learnerViewOf, lessonBranchNodes, nodeBrief, type StudyNodeBrief } from "../core/study/projection.ts";
 import type { StudyDomainList, StudyProfile, StudyToday } from "../core/study/types.ts";
@@ -48,7 +59,9 @@ import { retrievability } from "../core/learner/fsrs.ts";
 import { aggregateActivity, aggregateUsage, denseDailySeries } from "../core/stats/aggregate.ts";
 import { addDays, dayKey } from "../core/stats/dates.ts";
 import { parseActivityEvent } from "../core/stats/schema.ts";
-import { chatsDir, isUsableDomainId } from "../core/domains/paths.ts";
+import { chatsDir, isUsableDomainId, learnerDir } from "../core/domains/paths.ts";
+import { buildDomainTranscript } from "../core/study/transcript.ts";
+import { isAdvancedDefenseNode } from "../core/study/tutor-pedagogy.ts";
 import { STUDY_HEARTBEAT_SEC, WORKSPACE_SCOPE } from "../core/stats/types.ts";
 import { createStatsStore, type StatsStore } from "../store/stats-store.ts";
 import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents, studyLogRevision } from "./study-log.ts";
@@ -421,21 +434,105 @@ export function parseStudyEvent(body: unknown): NewEvent | null {
 }
 
 /** Append one learner event to the ACTIVE domain's log; returns the fresh "Hoje". */
+function finishedExposures(events: readonly LearnerEvent[]) {
+	const finished = new Set<string>();
+	for (const e of events) {
+		if (e.kind === "lesson-finished") finished.add(e.exposureId);
+		if (e.kind === "evidence" && e.evidence.lessonExposureId && /#(?:self|teacher)$/.test(e.evidence.itemFamily))
+			finished.add(e.evidence.lessonExposureId);
+	}
+	return finished;
+}
+
 function completionState(events: LearnerEvent[], sessionId: string) {
 	const exposure = events.find((e): e is Exposure => e.kind === "exposure" && e.source === "ai_lesson" && !e.exploratory && e.sessionId === sessionId);
-	if (!exposure) return null;
-	const completed = events.some(e => (e.kind === "lesson-finished" && e.exposureId === exposure.id) ||
-		(e.kind === "evidence" && e.evidence.lessonExposureId === exposure.id && e.evidence.itemFamily === exposure.nodeId + "#self"));
-	return { exposure, completed };
+	return exposure ? { exposure, completed: finishedExposures(events).has(exposure.id) } : null;
 }
 
 export function lessonCompletionState(domainId: string, sessionId: string) {
-	const state = completionState(readStudyEvents(domainId), sessionId);
-	return state && { domainId, sessionId, nodeId: state.exposure.nodeId, completed: state.completed };
+	const events = readStudyEvents(domainId);
+	const state = completionState(events, sessionId);
+	if (!state) return null;
+	const reinforcement = state.completed ? events.find(e => e.kind === "lesson-finished" && e.exposureId === state.exposure.id && e.outcome === "reinforce") : undefined;
+	const manifest = studyDomains().readManifest(domainId);
+	const profile = studyDomains().readProfile(domainId);
+	const cur = manifest && loadCurriculum(domainId, manifest, profile?.goal.targetNodeIds);
+	let course: LessonCourseContext | null = null;
+	let next: StudyToday["next"] = null;
+	let resume: string | null = null;
+	let retry: { nodeId: string; brief: StudyNodeBrief; estMinutes: number; feedback: string } | null = null;
+	if (cur) {
+		const at = new Date().toISOString();
+		const snap = learnerSnapshotOf(domainId, cur.view, events, at);
+		const signals = computeSignals(snap, cur.view, DEFAULT_LEARNER_PARAMS, at);
+		const campaign = studyCampaign(cur.snapshot, cur.view, signals.structure.known);
+		course = lessonCourseContext(cur.snapshot, cur.view, campaign, signals.structure.known, state.exposure.nodeId);
+		if (reinforcement?.kind === "lesson-finished") {
+			const brief = nodeBrief(cur.snapshot, state.exposure.nodeId);
+			if (brief) {
+				retry = {
+					nodeId: state.exposure.nodeId,
+					brief,
+					estMinutes: Math.round(campaign.lessonMinutes.get(state.exposure.nodeId) ?? state.exposure.minutes),
+					feedback: reinforcement.feedback ?? "Retome este nó para praticar os objetivos pendentes.",
+				};
+			}
+		} else if (state.completed && activeDomainId() === domainId) {
+			const today = studyToday();
+			next = today.next?.nodeId !== state.exposure.nodeId ? today.next : null;
+			const finished = finishedExposures(events);
+			const domainChatsDir = chatsDir(PATHS.data, domainId);
+			const sessionExists = (id: string) => !id.startsWith("chat_") || fs.existsSync(path.join(domainChatsDir, id + ".json"));
+			const pending = next && [...ratedLessons(events).values()].reverse().find(({ exposure: prior, rating }) =>
+				!rating && !finished.has(prior.id) && !prior.exploratory && prior.nodeId === next!.nodeId && prior.sessionId !== "hoje" &&
+				sessionExists(prior.sessionId) &&
+				Date.now() - Date.parse(prior.at) <= 3 * 86_400_000);
+			resume = pending?.exposure.sessionId ?? null;
+		}
+	}
+	return {
+		domainId,
+		sessionId,
+		nodeId: state.exposure.nodeId,
+		completed: state.completed,
+		course,
+		...(next && { next }),
+		...(resume && { resume }),
+		...(retry && { retry }),
+		...(reinforcement?.kind === "lesson-finished" && { reinforcement: reinforcement.feedback ?? "Retome este nó para praticar os objetivos pendentes." }),
+	};
 }
 
-export function finishStudyLesson(domainId: string, sessionId: string, grade: Grade) {
-	const { id } = requireActive();
+export function lessonConclusionObjective(domainId: string, sessionId: string) {
+	const events = readStudyEvents(domainId);
+	const state = completionState(events, sessionId);
+	const manifest = state && !state.completed && studyDomains().readManifest(domainId);
+	const cur = manifest && loadCurriculum(domainId, manifest);
+	const item = cur && state && cur.snapshot.items[state.exposure.nodeId];
+	if (!item || !state || !cur) return undefined;
+	const priorReinforcement = [...events].reverse().find(e => e.kind === "lesson-finished" && e.nodeId === state.exposure.nodeId && e.outcome === "reinforce" && e.exposureId !== state.exposure.id);
+	const snap = learnerSnapshotOf(domainId, cur.view, events, new Date().toISOString());
+	const campaign = studyCampaign(cur.snapshot, cur.view, structuralState(snap, cur.view).known);
+	const isFinale = campaign.journey.some(chapter => chapter.finale === state.exposure.nodeId);
+	const isAdvancedDefense = isAdvancedDefenseNode(item, isFinale);
+	const levelLabel = item.level.scheme === "cefr"
+		? item.level.cefr
+		: item.level.scheme === "ee"
+			? ["Fundamentos", "Técnico", "Graduação", "Avançado", "Pesquisa"][item.level.band]
+			: undefined;
+	return {
+		title: item.title.pt,
+		objectives: item.objectives.length ? item.objectives : [item.summary || item.title.pt],
+		assessment: item.assess,
+		misconceptions: item.misconceptions ?? [],
+		...(isAdvancedDefense ? { isAdvancedDefense: true } : {}),
+		...(levelLabel ? { levelLabel } : {}),
+		...(priorReinforcement?.kind === "lesson-finished" && priorReinforcement.feedback ? { priorReinforcement: priorReinforcement.feedback } : {}),
+	};
+}
+
+export function finishStudyLesson(domainId: string, sessionId: string, grade: Grade, reinforcement?: { feedback: string }) {
+	const { id, manifest, profile } = requireActive();
 	if (id !== domainId) throw new StudyError(409, "O domínio da aula mudou.");
 	const events = readStudyEvents(id);
 	const state = completionState(events, sessionId);
@@ -443,19 +540,65 @@ export function finishStudyLesson(domainId: string, sessionId: string, grade: Gr
 	const { exposure, completed } = state;
 	const domains = studyDomains().listDomains();
 	const before = studyAccountSummary(domains).xp;
-	let today: StudyToday | undefined;
-	if (!completed && ratedLessons(events).get(exposure.id)?.rating) {
+	const seq = nextStudySeq(events);
+	const at = new Date().toISOString();
+	if (!completed && !reinforcement && grade < 2) throw new StudyError(409, "O objetivo do nó ainda precisa de prática.");
+	const cur = loadCurriculum(id, manifest, profile?.goal.targetNodeIds);
+	const snapBefore = cur ? learnerSnapshotOf(id, cur.view, events, at) : null;
+	const knownBefore = cur && snapBefore ? structuralState(snapBefore, cur.view).known : null;
+	const campaignBefore = cur && knownBefore ? studyCampaign(cur.snapshot, cur.view, knownBefore) : null;
+
+	if (!completed && (reinforcement || ratedLessons(events).get(exposure.id)?.rating)) {
 		appendStudyEvent(id, { kind: "lesson-finished", id: "finished-" + exposure.id, at: new Date().toISOString(),
-			seq: nextStudySeq(events), nodeId: exposure.nodeId, domainId, exposureId: exposure.id });
+			seq: nextStudySeq(events), nodeId: exposure.nodeId, domainId, exposureId: exposure.id, assessedBy: "teacher",
+			...(reinforcement && { outcome: "reinforce", feedback: reinforcement.feedback }) });
 	} else if (!completed) {
-		today = recordStudyEvent({ kind: "self-check", nodeId: exposure.nodeId, exposureId: exposure.id, sessionId, grade });
+		appendStudyEvent(id, { kind: "evidence", evidence: {
+			id: "teacher-" + exposure.id, seq, at, domainId, sessionId, lessonExposureId: exposure.id,
+			itemId: exposure.id + "#performance", itemFamily: exposure.nodeId + "#teacher",
+			nodes: [{ nodeId: exposure.nodeId, q: 1, primary: true }], format: "explain", level: 3,
+			grade, graderConfidence: 0.8, hints: grade === 2 ? 1 : 0, summative: grade === 3,
+			minutesSinceExposure: Math.max(0, (Date.parse(at) - Date.parse(exposure.at)) / 60000),
+		} });
 	}
-	today ??= studyToday();
-	const next = today.next?.nodeId !== exposure.nodeId ? today.next : null;
-	const pending = next && [...ratedLessons(events).values()].reverse().find(({ exposure: prior, rating }) =>
-		!rating && !prior.exploratory && prior.nodeId === next.nodeId && prior.sessionId !== "hoje" &&
+	const freshEvents = readStudyEvents(id);
+	const today = studyToday();
+	const next = !reinforcement && today.next?.nodeId !== exposure.nodeId ? today.next : null;
+	const finished = finishedExposures(freshEvents);
+	const domainChatsDir = chatsDir(PATHS.data, id);
+	const sessionExists = (sessionId: string) => !sessionId.startsWith("chat_") || fs.existsSync(path.join(domainChatsDir, sessionId + ".json"));
+	const pending = next && [...ratedLessons(freshEvents).values()].reverse().find(({ exposure: prior, rating }) =>
+		!rating && !finished.has(prior.id) && !prior.exploratory && prior.nodeId === next.nodeId && prior.sessionId !== "hoje" &&
+		sessionExists(prior.sessionId) &&
 		Date.now() - Date.parse(prior.at) <= 3 * 86_400_000);
-	return { before, after: studyAccountSummary(domains).xp, alreadyCompleted: completed, resume: pending?.exposure.sessionId ?? null, next };
+	let course: LessonCourseProgress | null = null;
+	let retry: { nodeId: string; brief: StudyNodeBrief; estMinutes: number; feedback: string } | null = null;
+	if (cur && knownBefore && campaignBefore) {
+		const snapAfter = learnerSnapshotOf(id, cur.view, freshEvents, new Date().toISOString());
+		const knownAfter = structuralState(snapAfter, cur.view).known;
+		const campaignAfter = studyCampaign(cur.snapshot, cur.view, knownAfter);
+		course = campaignCompletionProgress(cur.snapshot, cur.view, campaignBefore, campaignAfter, knownBefore, knownAfter, exposure.nodeId);
+		if (reinforcement) {
+			const brief = nodeBrief(cur.snapshot, exposure.nodeId);
+			if (brief) {
+				retry = {
+					nodeId: exposure.nodeId,
+					brief,
+					estMinutes: Math.round(campaignAfter.lessonMinutes.get(exposure.nodeId) ?? exposure.minutes),
+					feedback: reinforcement.feedback,
+				};
+			}
+		}
+	}
+	return {
+		before,
+		after: studyAccountSummary(domains).xp,
+		alreadyCompleted: completed,
+		resume: pending?.exposure.sessionId ?? null,
+		next,
+		course,
+		...(retry && { retry }),
+	};
 }
 
 export function recordStudyEvent(input: NewEvent): StudyToday {
@@ -478,6 +621,7 @@ export function recordStudyEvent(input: NewEvent): StudyToday {
 			.reverse()
 			.find((ev): ev is Extract<LearnerEvent, { kind: "exposure" }> => ev.kind === "exposure" && !ev.exploratory && ev.nodeId === input.nodeId && (!input.exposureId || ev.id === input.exposureId) && (!input.sessionId || ev.sessionId === input.sessionId));
 		if ((input.exposureId || input.sessionId) && !lastExposure) throw new StudyError(409, "Esta aula não está pendente.");
+		if (lastExposure && lastExposure.sessionId !== "hoje") throw new StudyError(403, "O professor conclui esta missão após avaliar o objetivo.");
 		if (lastExposure && ratedLessons(events).get(lastExposure.id)?.rating) return studyToday();
 		const minutesSinceExposure = lastExposure ? Math.max(0, (Date.parse(at) - Date.parse(lastExposure.at)) / 60_000) : 100_000;
 		const evidence: Evidence = {
@@ -584,27 +728,65 @@ export function studyToday(): StudyToday {
 	const { events, snap } = readLearnerHistory(id, cur.view, at);
 	const review = eligibleReview(reviewBank(id, cur.view), events, at);
 	queueReinforcements(id, events);
-	// Spacing rule: a node TAUGHT in the last 20 h is not re-taught as "new" —
-	// its consolidation comes from tomorrow's delayed check (an immediate
-	// self-check is weak evidence by design), so "Hoje" moves on.
-	const recent = new Set<string>();
-	for (const ev of events) if (ev.kind === "exposure" && !ev.exploratory && Date.parse(at) - Date.parse(ev.at) < 20 * 3_600_000) recent.add(ev.nodeId);
 	const signals = computeSignals(snap, cur.view, DEFAULT_LEARNER_PARAMS, at);
+	const reinforced = pendingReinforcements(events, signals.structure.known);
+	const reinforcedIds = new Set(reinforced.keys());
+	// Spacing rule: a node TAUGHT in the last 20 h is not re-taught as "new" —
+	// its consolidation comes from tomorrow's delayed check, unless its latest
+	// formal exam closed with reinforcement (allow immediate guided retry).
+	const recent = new Set<string>();
+	for (const ev of events) {
+		if (ev.kind === "exposure" && !ev.exploratory && !reinforcedIds.has(ev.nodeId) && Date.parse(at) - Date.parse(ev.at) < 20 * 3_600_000) {
+			recent.add(ev.nodeId);
+		}
+	}
 	const campaign = studyCampaign(cur.snapshot, cur.view, signals.structure.known);
 	const customGoal = hasCustomCampaignGoal(cur.snapshot, profile?.goal.targetNodeIds);
 	const plan = planDay(snap, cur.view, DEFAULT_LEARNER_PARAMS, { at, budgetMin, signals,
-		...guidedLessonOptions(customGoal ? undefined : campaign, events, at, review?.nodeId) });
-	const pick = [plan.next, ...plan.items].find((it): it is PlanItem => !!it && !(it.kind === "new" && recent.has(it.nodeId))) ?? null;
+		...guidedLessonOptions(customGoal ? undefined : campaign, events, at, review?.nodeId, reinforcedIds) });
+	const rawPick = [plan.next, ...plan.items].find((it): it is PlanItem => !!it && !(it.kind === "new" && recent.has(it.nodeId))) ?? null;
+	const reinforceNote = rawPick && reinforced.get(rawPick.nodeId);
+	const pick = rawPick && reinforceNote
+		? { ...rawPick, kind: "remediate" as const, reason: `Reforço da tentativa anterior: ${reinforceNote}` }
+		: rawPick;
 	const next = pick ? { ...pick, brief: nodeBrief(cur.snapshot, pick.nodeId) as StudyNodeBrief } : null;
 
 	let pendingCheck: StudyToday["pendingCheck"] = null;
 	const lessons = [...ratedLessons(events).values()];
-	const pending = lessons.reverse().find(({ exposure, rating }) => !exposure.exploratory && !rating &&
-		Date.parse(at) - Date.parse(exposure.at) <= 3 * 86_400_000 && cur.view.nodes.has(exposure.nodeId));
+	const finished = finishedExposures(events);
+	const latestFinishByNode = new Map<string, number>();
+	for (const ev of events) {
+		if (ev.kind === "lesson-finished") {
+			const ts = Date.parse(ev.at);
+			latestFinishByNode.set(ev.nodeId, Math.max(latestFinishByNode.get(ev.nodeId) ?? -Infinity, ts));
+		} else if (ev.kind === "evidence" && /#(?:self|teacher)$/.test(ev.evidence.itemFamily)) {
+			const nodeId = (ev.evidence.nodes.find(n => n.primary) ?? ev.evidence.nodes[0])?.nodeId;
+			if (nodeId) latestFinishByNode.set(nodeId, Math.max(latestFinishByNode.get(nodeId) ?? -Infinity, Date.parse(ev.evidence.at)));
+		}
+	}
+	const domainChatsDir = chatsDir(PATHS.data, id);
+	const sessionExists = (sessionId: string) => !sessionId.startsWith("chat_") || fs.existsSync(path.join(domainChatsDir, sessionId + ".json"));
+	const pending = lessons.reverse().find(({ exposure, rating }) => {
+		if (exposure.exploratory || !cur.view.nodes.has(exposure.nodeId)) return false;
+		const exposedAt = Date.parse(exposure.at);
+		if (Date.parse(at) - exposedAt > 3 * 86_400_000) return false;
+		if (exposure.sessionId === "hoje") return !rating;
+		if (finished.has(exposure.id) || !sessionExists(exposure.sessionId)) return false;
+		// A newer finished lesson for this same node supersedes older unfinished attempts.
+		if ((latestFinishByNode.get(exposure.nodeId) ?? -Infinity) >= exposedAt) return false;
+		return true;
+	});
 	if (pending) {
 		const { id: exposureId, nodeId, sessionId, at } = pending.exposure;
 		pendingCheck = { exposureId, nodeId, sessionId, title: cur.view.nodes.get(nodeId)?.title ?? nodeId, at };
 	}
+	const available = new Set(signals.structure.frontier);
+	const focusNodeId = pendingCheck?.nodeId ?? next?.nodeId;
+	const currentModule = activeModuleOf(cur.snapshot, cur.view, campaign, signals.structure.known, available, focusNodeId);
+	const queue = campaignQueue(cur.snapshot, cur.view, campaign, plan.items.filter(it => !(it.kind === "new" && recent.has(it.nodeId))), next?.nodeId, 4);
+	const reinforceHint = pick && reinforceNote && next
+		? { nodeId: next.nodeId, title: next.brief.title, feedback: reinforceNote }
+		: undefined;
 
 	const support = new Map(Object.values(cur.snapshot.items).filter(n => n.reinforcementFor && n.status !== "deprecated" &&
 		!snap.nodes[n.id]?.attainedAt && !snap.nodes[n.id]?.placedAt).map(n => [n.reinforcementFor, n]));
@@ -624,7 +806,7 @@ export function studyToday(): StudyToday {
 		totalHours += h;
 		plannedPracticeHours += cur.snapshot.items[nodeId]?.practice?.targetHours ?? 0;
 		const st = snap.nodes[nodeId];
-		if (st?.attainedAt || st?.placedAt) {
+		if (st?.lessonCompletedAt || st?.attainedAt || st?.placedAt) {
 			attained++;
 			attainedHours += h;
 		}
@@ -634,6 +816,9 @@ export function studyToday(): StudyToday {
 		domain,
 		ready: true,
 		chapters: campaign.journey,
+		...(currentModule && { currentModule }),
+		...(queue.length > 0 && { queue }),
+		...(reinforceHint && { reinforceHint }),
 		...(customGoal && { campaignGoal: profile?.goal.text || "Meta personalizada" }),
 		...(review && { review: { id: review.id, prompt: review.prompt, title: cur.view.nodes.get(review.nodeId)!.title } }),
 		...(suggestion && { optionalPractice: { id: suggestion.id, title: suggestion.title.pt } }),
@@ -768,6 +953,23 @@ export function studyAccountSummary(domains: StudyDomainList["domains"]) {
 	return { xp, level: levelProgress(xp).level };
 }
 
+function readSavedModuleScores(domainId: string): Map<string, { score: number; passed: boolean; at: string }> {
+	const scores = new Map<string, { score: number; passed: boolean; at: string }>();
+	const file = path.join(learnerDir(PATHS.data, domainId), "module-exams.jsonl");
+	let raw: string;
+	try { raw = fs.readFileSync(file, "utf8"); } catch { return scores; }
+	for (const line of raw.split("\n")) {
+		if (!line.trim()) continue;
+		try {
+			const row = JSON.parse(line) as { targetId?: string; score10?: number; passed?: boolean; at?: string };
+			if (typeof row.targetId === "string" && typeof row.score10 === "number" && typeof row.at === "string") {
+				scores.set(row.targetId, { score: row.score10, passed: Boolean(row.passed), at: row.at });
+			}
+		} catch { /* ignore partial line */ }
+	}
+	return scores;
+}
+
 export function studyProfile(): StudyProfile {
 	const store = studyDomains();
 	const at = new Date().toISOString();
@@ -785,6 +987,7 @@ export function studyProfile(): StudyProfile {
 		let attained = 0;
 		let mastered = 0;
 		let leaves = 0;
+		let transcript: StudyProfile["domains"][number]["transcript"];
 		if (cur && history) {
 			const { snap } = history;
 			const retention = new Map<string, number>();
@@ -793,7 +996,7 @@ export function studyProfile(): StudyProfile {
 				leaves++;
 				const st = snap.nodes[id];
 				if (st?.masteredAt) mastered++;
-				if (!st || (!st.attainedAt && !st.placedAt)) continue;
+				if (!st || (!st.attainedAt && !st.placedAt && !st.lessonCompletedAt)) continue;
 				attained++;
 				// Placements without a card count at their diagnostic confidence.
 				retention.set(id, st.fsrs ? retrievability(st.fsrs, at, DEFAULT_LEARNER_PARAMS) : 0.9);
@@ -804,8 +1007,25 @@ export function studyProfile(): StudyProfile {
 				pm: Math.round(standing.pm * 100) / 100,
 				fractions: standing.fractions.map((f) => Math.round(f * 1000) / 1000),
 			};
+			const known = structuralState(snap, cur.view).known;
+			const campaign = studyCampaign(cur.snapshot, cur.view, known);
+			transcript = buildDomainTranscript({
+				domainId: summary.id,
+				domainTitle: manifest.title.pt,
+				snapshot: cur.snapshot,
+				graph: cur.view,
+				learner: snap,
+				campaign,
+				known,
+				at,
+				moduleScores: readSavedModuleScores(summary.id),
+			});
 		}
-		domains.push({ id: summary.id, title: manifest.title.pt, accent: manifest.accent, icon: manifest.icon, xp: xp.xp, lessons: xp.lessons, tier, attained, mastered, leaves });
+		domains.push({
+			id: summary.id, title: manifest.title.pt, accent: manifest.accent, icon: manifest.icon,
+			xp: xp.xp, lessons: xp.lessons, tier, attained, mastered, leaves,
+			...(transcript ? { transcript } : {}),
+		});
 	}
 
 	const stats = createStatsStore(PATHS.data);

@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { ArtifactPartProps } from "@/src/core";
 import { DemoCard } from "@/components/artifacts/demo-card";
+import { LessonExamCard } from "@/components/study/lesson-exam-card";
 import { ReviewPrepared } from "@/components/study/review-prepared";
 import { ActivityArtifact } from "@/components/study/lesson-activity";
 import { StudyMaterialsArtifact } from "@/components/study/study-materials-artifact";
@@ -31,6 +32,8 @@ export const artifactRenderers: Record<string, ComponentType<ArtifactPartProps>>
 	// part-level plan_init divider retired with it).
 	// Artifacts (W6 fills in the components):
 	demo: DemoCard,
+	present_lesson_exam: LessonExamCard,
+	conclude_lesson: () => null, // The mission receipt is shown once below the transcript.
 	prepare_review: ReviewPrepared,
 	study_activity: ActivityArtifact,
 	attach_study_materials: StudyMaterialsArtifact,

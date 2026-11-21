@@ -92,7 +92,7 @@ export function skillMap(snapshot: CurriculumSnapshot, view: LearnerGraphView, l
 		while (region.kind !== "unit" && region.parentId) region = snapshot.items[region.parentId]!;
 		const level = item.level;
 		const progress = learner.nodes[id];
-		const completed = Boolean(progress?.attainedAt || progress?.masteredAt || progress?.demonstratedAt);
+		const completed = Boolean(progress?.lessonCompletedAt || progress?.attainedAt || progress?.masteredAt || progress?.demonstratedAt);
 		return {
 			id, title: item.title.pt, parent: item.parentId, order: item.order, kind: item.kind, reinforcementFor: item.reinforcementFor,
 			level: level.scheme === "cefr" ? level.cefr : level.scheme === "ee" ? ["Fundamentos", "Técnico", "Graduação", "Avançado", "Pesquisa"][level.band]! : String(level.band),

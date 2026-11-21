@@ -1,21 +1,9 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const { randomUUID } = require('node:crypto');
+const { writeFileAtomic: atomicWrite } = require('./fs-durable.ts');
 const { migrateStoreSchedules } = require('./fsrs7.ts');
 
-function atomicWrite(file, content) {
-  const temporary = `${file}.${randomUUID()}.tmp`;
-  let fd;
-  try {
-    fd = fs.openSync(temporary, 'wx', 0o600);
-    fs.writeFileSync(fd, content); fs.fsyncSync(fd); fs.closeSync(fd); fd = undefined;
-    fs.renameSync(temporary, file);
-  } finally {
-    if (fd !== undefined) fs.closeSync(fd);
-    try { fs.unlinkSync(temporary); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-  }
-}
 // Keep retry receipts separate from card text so deletion can be physical.
 function migrate(state) {
   let changed = false;

@@ -36,6 +36,7 @@ import * as http from "node:http";
 import * as net from "node:net";
 import * as os from "node:os";
 import * as path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const SOURCE_STANDALONE = path.join(ROOT, ".next", "standalone");
@@ -87,9 +88,22 @@ async function main() {
 	// dependencies cannot resolve upward into development node_modules.
 	if (ISOLATED_MODE) {
 		isolatedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "lh-isolated-server-"));
-		// Preserve Next's relative external-package links. cpSync otherwise
-		// rewrites them to absolute links back into the original checkout.
-		fs.cpSync(SOURCE_STANDALONE, path.join(isolatedRoot, "standalone"), { recursive: true, verbatimSymlinks: true });
+		// NSIS extracts Windows junctions as directories. Other targets can keep
+		// Next's relative external-package links when the payload is relocated.
+		const copied = path.join(isolatedRoot, "standalone");
+		fs.cpSync(SOURCE_STANDALONE, copied, { recursive: true, verbatimSymlinks: true });
+		const aliases = path.join(SOURCE_STANDALONE, ".next", "node_modules");
+		if (process.platform === "win32" && fs.existsSync(aliases)) {
+			for (const entry of fs.readdirSync(aliases, { recursive: true, withFileTypes: true })) {
+				if (!entry.isSymbolicLink()) continue;
+				const source = path.join(entry.parentPath, entry.name);
+				const real = fs.realpathSync(source);
+				if (!real.startsWith(SOURCE_STANDALONE + path.sep)) throw new Error(`External package link escaped standalone: ${source}`);
+				const target = path.join(copied, path.relative(SOURCE_STANDALONE, source));
+				fs.unlinkSync(target);
+				fs.cpSync(real, target, { recursive: true });
+			}
+		}
 	}
 	const standalone = isolatedRoot ? path.join(isolatedRoot, "standalone") : SOURCE_STANDALONE;
 	const server = path.join(standalone, "server.js");
@@ -114,7 +128,7 @@ async function main() {
 		fs.writeFileSync(guard, `import {registerHooks} from 'node:module'; import {realpathSync} from 'node:fs'; import path from 'node:path'; import {fileURLToPath} from 'node:url';
 const roots = ${JSON.stringify([standalone, path.join(home, "data", "plugins")])}.map(p=>realpathSync(p));
 registerHooks({resolve(specifier,context,next){ const result=next(specifier,context); if(result.url.startsWith('file:')) { const file=realpathSync(fileURLToPath(result.url)); if(!roots.some(root=>file===root || file.startsWith(root+path.sep))) throw new Error('Import escaped standalone/plugin payload: '+file); } return result; }});`);
-		imports.push("--import", guard);
+		imports.push("--import", pathToFileURL(guard).href);
 	}
 
 	const tail = []; // rolling log tail for failure diagnosis

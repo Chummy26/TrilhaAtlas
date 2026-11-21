@@ -60,7 +60,10 @@ import { sideChats, type SideChatService } from "./side-chat.ts";
 import { SIDE_CONTEXT_BUDGET_ERROR, sideBudgetRetryDrops, sideContextWindow } from "./side-context-budget.ts";
 import { registerTurn, rememberTurnFailure, unregisterTurn } from "./turn-runs.ts";
 import { regionalBookUnit, regionalBookImage } from "./book-reader.ts";
-import { saveStudyAnswer } from "./study.ts";
+import { projectView as projectLessonMessages } from "../core/view.ts";
+import { isLessonExamAnswer, pendingLessonExam, lessonExamPhase, prepareLessonExam, validateExamVerdict, validateLessonConclusion } from "../core/study/lesson-conclusion.ts";
+import { buildMissionPedagogyDirective } from "../core/study/tutor-pedagogy.ts";
+import { finishStudyLesson, lessonConclusionObjective, lessonCompletionState, listStudyDomains, saveStudyAnswer } from "./study.ts";
 import { persistTurn, triggerExtraction, TurnPersistenceError } from "./turn-service.ts";
 import { hasTeachingContext, readingSourceOf, hasUnresolvedQuestion, pendingPluginQuestionOf, pluginQuestionCallsOf, questionCallsOf } from "../core/native-messages.ts";
 import { samePluginQuestionOccurrence } from "../core/plugin-questions.ts";
@@ -238,6 +241,10 @@ export async function handleChatInput(
 	const freshSubmission = input.type === "text" || input.type === "thinking" || input.type === "answer" || input.type === "plugin-question-answer" || input.type === "plugin-problem-submission";
 	try {
 		assertPluginQuestionInputAllowed(record.messages, input);
+		if (input.type === "text" && input.examCallId &&
+			(!domainId || record.kind === "practice" || !lessonConclusionObjective(domainId, chatId) ||
+				pendingLessonExam(projectLessonMessages(record.messages)) !== input.examCallId || !isLessonExamAnswer(input.text)))
+			throw new ChatInputError("Entregue uma solução pelo formulário da prova em aberto.");
 		if (input.type !== "steers") assertNativeSubmissionTarget(record.messages, input);
 		if (input.type === "plugin-problem-submission") requirePluginProblemTarget(record, input);
 		if (input.type === "plugin-question-answer") {
@@ -777,8 +784,25 @@ export async function handleChatInput(
 	// split, no plan/question/job tools; the whole registry is
 	// problem + conclude. buildAgent stays honored (the test seam is
 	// uniform across kinds).
+	const missionObjective = domainId && teaching ? lessonConclusionObjective(domainId, chatId) : undefined;
+	const projectedMessages = missionObjective ? projectLessonMessages(agentMessages) : [];
+	const examPhase = missionObjective ? lessonExamPhase(projectedMessages) : "teaching";
+	const examInstruction = missionObjective
+		? buildMissionPedagogyDirective(projectedMessages, missionObjective, { priorReinforcement: missionObjective.priorReinforcement })
+		: undefined;
+	const missionMessages = () => {
+		const messages = stores.chatStore.getChat(chatId)?.messages;
+		if (!messages || activeDomainId() !== domainId) throw new Error("A sessão de estudo mudou.");
+		const live = constructed.state.messages.slice(agentMessages.length) as LhMessage[];
+		return projectLessonMessages([...messages, ...live]);
+	};
+	const missionOpts: AgentBuildOptions = {
+		...agentOpts,
+		missionExamInstruction: examInstruction,
+		missionExamPhase: missionObjective ? examPhase : undefined,
+	};
 	const constructed: TeachingAgent = buildAgent
-		? buildAgent({ ...agentOpts, teaching })
+		? buildAgent({ ...missionOpts, teaching })
 		: record.kind === "practice"
 			? createPracticeAgent(
 					{
@@ -809,6 +833,37 @@ export async function handleChatInput(
 						...bookContext,
 					attachMaterials: (topic, useLesson, signal) => attachStudyMaterials(domainId,
 						useLesson ? lessonNodeOfChat(domainId, chatId) : null, topic, signal, readingSource?.book),
+						...(domainId && missionObjective && {
+							missionObjective,
+							presentLessonExam: input => {
+								if (lessonCompletionState(domainId, chatId)?.completed) throw new Error("Esta aula já foi encerrada.");
+								return { ...prepareLessonExam(missionMessages(), input), objectives: missionObjective.objectives };
+							},
+							concludeLesson: async (input) => {
+								const stateBeforeExam = lessonCompletionState(domainId, chatId);
+								if (!stateBeforeExam || stateBeforeExam.completed) throw new Error("Esta aula já foi encerrada.");
+								const messages = missionMessages();
+								const outcome = validateExamVerdict(messages, input, missionObjective.objectives.length);
+								const criteria = input.criteria!.map(item => ({
+									...item, title: missionObjective.objectives[item.objective - 1],
+								}));
+								if (outcome === "reinforce") {
+									const receipt = finishStudyLesson(domainId, chatId, input.grade, { feedback: input.assessment });
+									return { ...receipt, outcome, criteria, assessment: input.assessment, cards: null };
+								}
+								validateLessonConclusion(messages, input);
+								const state = stateBeforeExam;
+								const host = await getPluginHost();
+								const plugin = host.list().find(p => p.id === "flashcards" && p.origin === "core");
+								if (plugin?.enabled && plugin.status !== "active") throw new Error("O plugin Flashcards está indisponível. Tente novamente.");
+								const cards = plugin?.enabled ? await host.call("flashcards", "save-lesson-cards", {
+									domainId, domainTitle: listStudyDomains().domains.find(d => d.id === domainId)?.title.pt ?? domainId,
+									sessionId: chatId, nodeId: state.nodeId, cards: input.cards,
+								}) as { added: number } : null;
+								const receipt = finishStudyLesson(domainId, chatId, input.grade);
+								return { ...receipt, outcome, criteria, assessment: input.assessment, cards: cards?.added ?? null };
+							},
+						}),
 						...(domainId && lessonNodeOfChat(domainId, chatId) && { prepareReview: () => prepareStudyReview(domainId, chatId) }),
 						chatId,
 						chatStore: stores.chatStore,
@@ -818,7 +873,7 @@ export async function handleChatInput(
 						// = no research tool in the teacher's registry.
 						searchAvailable,
 					},
-					agentOpts,
+					missionOpts,
 				)
 			: createProberAgent(
 					{

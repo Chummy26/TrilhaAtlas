@@ -23,7 +23,8 @@ import { createReadTool, readTool } from "./tools/read.ts";
 import { quizInputObject, quizInputProblems } from "../core/question-core.ts";
 import { QUESTION_TOOLS, TOGGLEABLE_TOOLS, type EnabledTools } from "../core/pending.ts";
 import type { PluginToolContext } from "../core/plugins.ts";
-import { toLlmMessages, nativeInputCause, PRACTICE_PROBLEM_TOOL } from "../core/native-messages.ts";
+import { needsLessonExamContinuation, type LessonExamPhase } from "../core/study/lesson-conclusion.ts";
+import { toLlmMessages, nativeInputCause, sendToUserText, PRACTICE_PROBLEM_TOOL } from "../core/native-messages.ts";
 import type { ChatGPTRequestCycle } from "./chatgpt-request-cycle.ts";
 import { usageWasAdmitted } from "./subscription-request-cycle.ts";
 import { PluginQuestionLedger, type NativePluginQuestionContribution } from "./plugin-question-tools.ts";
@@ -60,7 +61,7 @@ export type AgentKind = "prober" | "teacher" | "practice";
  * New builtin names must join this catalog; actual turn tools are reserved too. */
 export const CONVERSATION_TOOL_NAMES = Object.freeze([
 	...QUESTION_TOOLS, ...TOGGLEABLE_TOOLS, "probe_done", "read", "ls", "find", "grep",
-	"plan_init", "list_sessions", "list_propositions", "problem", "conclude", "attach_study_materials", sendToUserTool.name,
+	"plan_init", "list_sessions", "list_propositions", "problem", "conclude", "attach_study_materials", "conclude_lesson", "present_lesson_exam", sendToUserTool.name,
 ] as const);
 
 // P2 (2026-09-19): segment discovery + override resolution live in ONE
@@ -112,6 +113,8 @@ export type StepUsageCollector = (usage: Usage) => void;
 export interface AgentBuildOptions {
 	/** Ephemeral domain evidence; never joins the native chat or a tool result. */
 	studyMemory?: string;
+	missionExamInstruction?: string;
+	missionExamPhase?: LessonExamPhase;
 	/** Model + stream function — tests inject a scripted faux engine. */
 	engine?: PiEngine;
 	callPurpose?: { background: boolean };
@@ -235,14 +238,14 @@ function baseAgentOptions(kind: AgentKind, opts: AgentBuildOptions, tools: Agent
 	const problemTools = kind === "practice" && practice && opts.chatId
 		? pluginProblemTools(contributions?.problemTypes ?? [], opts.chatId, practice.gate, practice.graphNodes) : [];
 	// Never replace the builtin prompt or tools, or mutate an already-running Agent.
-	const systemPrompt = contributions?.instructions.length
-		? [builtinPrompt, ...contributions.instructions].join("\n\n---\n\n")
-		: builtinPrompt;
+	const systemPrompt = [builtinPrompt, ...(contributions?.instructions ?? []), opts.missionExamInstruction]
+		.filter(Boolean).join("\n\n---\n\n");
 	// Debug recorder (owner, 2026-10-04): raw provider events when
 	// LH_PROVIDER_EVENTS=1 and the caller handed a chatId; undefined is
 	// the normal no-observer path (tests, env-off).
 	const providerEvents = opts.chatId ? providerEventObserver(opts.chatId, kind) : undefined;
 	const seenInputs = new Set((opts.messages ?? []).map((m) => (m as { id?: string }).id).filter(Boolean));
+	let continuedMission = false;
 	const agent = new Agent({
 		identity: APP_IDENTITY,
 		sessionId: opts.chatId,
@@ -271,7 +274,26 @@ function baseAgentOptions(kind: AgentKind, opts: AgentBuildOptions, tools: Agent
 		// exits BEFORE the steering poll — the parked-marker stranding our
 		// Wave C registerLiveAgent-before-runPiTurn design depends on.
 		// undefined preserves normal scheduling (the old boolean false).
-		finishTurn: (turn) => (turn.toolResults.some(result => questionLedger?.isAcknowledgment(result) || (kind === "practice" && isPluginProblemPoseAcknowledgment(result))) || stopper(turn) ? { action: "end" } : undefined),
+		finishTurn: (turn, signal) => {
+			if (turn.toolResults.some(result => (!result.isError && result.toolName === "present_lesson_exam") ||
+				questionLedger?.isAcknowledgment(result) || (kind === "practice" && isPluginProblemPoseAcknowledgment(result))) || stopper(turn))
+				return { action: "end" };
+			if (!opts.missionExamPhase || continuedMission || signal?.aborted || turn.message.stopReason !== "stop" || turn.toolResults.length) return;
+			if (turn.newMessages.some(m => m.role === "toolResult" && !m.isError && m.toolName === "conclude_lesson")) return;
+			const prose: { type: string; text?: string; name?: string }[] = [];
+			for (const m of turn.newMessages) {
+				if (m.role !== "assistant") continue;
+				for (const block of m.content) {
+					if (block.type === "toolCall") { prose.push({ type: "toolCall", name: block.name }); continue; }
+					const text = block.type === "text" ? block.text : sendToUserText(block);
+					if (text) prose.push({ type: "text", text });
+				}
+			}
+			if (needsLessonExamContinuation(opts.missionExamPhase, prose)) {
+				continuedMission = true;
+				return { action: "continue" };
+			}
+		},
 		// Wave C (2026-09-26, owner correction same day): markers handed to a
 		// live run drain from pi's STEERING queue — the lesson loop is one
 		// continuous teach→quiz→teach run, so delivery must inject at turn
@@ -360,7 +382,9 @@ export function createTeacherAgent(
 	opts: AgentBuildOptions = {},
 ) {
 	const tools = opts.tools ?? (ctx ? createTeacherTools(ctx, opts.toolToggles) : bareQuestionTools());
-	return baseAgentOptions("teacher", opts, Object.values(tools), ctx
+	const inFormalExam = Boolean(opts.missionExamPhase && opts.missionExamPhase !== "teaching");
+	const registered = Object.values(tools).filter(tool => !inFormalExam || !["ask_user_question", "quiz", "explain"].includes(tool.name));
+	return baseAgentOptions("teacher", opts, registered, ctx
 		? nodeId => ctx.chatStore.getChat(ctx.chatId)?.tree?.nodes.some(node => node.id === nodeId) ?? false
 		: undefined);
 }

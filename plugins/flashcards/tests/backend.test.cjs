@@ -381,6 +381,7 @@ const fileInput = () => ({ name: 'lesson.notes.md', markdown: 'UNIQUE SOURCE MAR
 const chunkedFile = () => ({ name: 'notes.md', markdown: Array.from({ length: 4 }, (_, i) => `Section ${i}\n${'Text '.repeat(100)}\n\n`).join('') });
 
 test('file preflight is temporary and validates inputs before catalog access; confirmation creates one private source and deck even for zero facts', async t => {
+  const assertPrivateSource = require('./private-source.cjs')(t);
   const h = harness(t, graph());
   for (const input of [{}, { name: '', markdown: 'x' }, { name: 'notes.md', markdown: '' }, { name: 'notes.md', markdown: 'a'.repeat(2 * 1024 * 1024 + 1) }, { name: 'notes.md', markdown: 123 }]) await assert.rejects(h.call('preflight-file', input));
   assert.equal(h.catalogReads, 0); assert.deepEqual(fs.readdirSync(h.directory), []);
@@ -393,8 +394,7 @@ test('file preflight is temporary and validates inputs before catalog access; co
   assert.equal(batch.kind, 'file'); assert.equal(batch.name, input.name); assert.equal(batch.deckId, source.deckId);
   assert.equal(h.state().decks.length, 1); assert.equal(h.state().decks[0].name, input.name);
   const filename = path.join(h.directory, 'sources', `${source.id}.md`);
-  assert.equal(fs.readFileSync(filename, 'utf8'), input.markdown); assert.equal(fs.statSync(filename).mode & 0o777, 0o600);
-  assert.equal(fs.statSync(path.dirname(filename)).mode & 0o777, 0o700);
+  assert.equal(fs.readFileSync(filename, 'utf8'), input.markdown); assertPrivateSource(filename);
   const ledger = fs.readFileSync(path.join(h.directory, 'flashcards.json'), 'utf8');
   assert.equal(ledger.includes('UNIQUE SOURCE MARKDOWN'), false); assert.equal(ledger.includes('markdown'), false);
   const task = h.workers.service.list()[0];
@@ -1197,4 +1197,83 @@ test('settings validate atomically and model resolution fails explicitly without
   await assert.rejects(h.call('preflight', { propositionIds: ['p1'] }), /Configure the cheap model slot/);
   assert.equal(h.workers.starts, 0);
   assert.deepEqual(h.state().propositions, []);
+});
+
+test('campaign cards survive restart, stay in their domain deck and deduplicate across lessons', async t => {
+	const h = harness(t);
+	const input = { domainId: 'english', domainTitle: 'Inglês', nodeId: 'skill', sessionId: 'one',
+		cards: [{ question: 'How do you ask for a spelling?', answer: 'How do you spell it?', source: 'To ask for a spelling, say How do you spell it?' }] };
+	const save = change => h.call('save-lesson-cards', { ...input, ...change });
+	assert.equal((await save({})).added, 1);
+	h.activate();
+	assert.equal((await save({})).added, 1);
+	assert.equal((await save({sessionId:'two'})).added, 0);
+	assert.equal((await save({domainId:'other',domainTitle:'Outro'})).added, 1);
+	const state = h.state();
+	assert.equal(state.decks.length, 2);
+	assert.equal(state.propositions.length, 2);
+	assert.ok(state.propositions.every(p => !p.archived));
+	assert.ok((await h.call('next-review', {deckIds:[state.decks[0].id]})));
+});
+
+test('54 weeks of interleaved introductory, intermediate and advanced lesson cards', async t => {
+	const { validateLessonConclusion } = await import('../../../src/core/study/lesson-conclusion.ts');
+	// Independently specified facts and keys. Each stage introduces a new skill; weeks in between
+	// revisit it under new session IDs to exercise idempotence, deduplication and actual FSRS reviews.
+	const trajectories = {
+		idioma: [
+			['How do you spell it? pede as letras em ordem.', 'Que pergunta em inglês pede a grafia de uma palavra?', 'How do you spell it?'],
+			['O past perfect situa um evento antes de outro ponto no passado.', 'Que tempo verbal inglês situa um evento antes de outro marco passado?', 'Past perfect'],
+			['Em artigos científicos, may expressa possibilidade e limita a força de uma conclusão.', 'Que efeito tem may sobre a força de uma conclusão científica?', 'Apresenta a conclusão como possibilidade.'],
+		],
+		eletronica: [
+			['Em série, a mesma corrente atravessa todos os componentes.', 'Que grandeza é comum aos componentes em série?', 'A corrente.'],
+			['A resistência de entrada do voltímetro em paralelo pode carregar um divisor de alta impedância.', 'Por que a leitura de um divisor de alta impedância pode cair ao ligar o voltímetro?', 'A resistência de entrada do instrumento carrega o divisor.'],
+			['A margem de fase é medida na frequência de cruzamento de ganho unitário da malha aberta.', 'Em que frequência se avalia a margem de fase da malha?', 'Na frequência de cruzamento de ganho unitário.'],
+		],
+		historia: [
+			['Uma fonte primária foi produzida no contexto histórico que se investiga.', 'Que relação temporal caracteriza uma fonte primária?', 'Foi produzida no contexto investigado.'],
+			['A proveniência ajuda a situar o interesse e a posição de quem produziu o documento.', 'Que aspecto da fonte permite investigar os interesses de seu produtor?', 'A proveniência.'],
+			['Dois relatos derivados de um mesmo original não fornecem corroboração independente.', 'Por que rastrear uma origem comum antes de cruzar dois relatos?', 'A dependência entre os relatos impede corroboração independente.'],
+		],
+		matematica: [
+			['Com numerador positivo fixo, aumentar o denominador positivo diminui a fração.', 'O que ocorre ao dobrar o denominador positivo mantendo o numerador positivo fixo?', 'A fração cai pela metade.'],
+			['O produto escalar de vetores ortogonais é zero.', 'Que valor o produto escalar assume para dois vetores ortogonais?', 'Zero.'],
+			['Convergência uniforme exige um mesmo índice de corte válido em todo o domínio para cada tolerância.', 'Na convergência uniforme, de que variável o índice de corte deve ser independente?', 'Do ponto do domínio.'],
+		],
+	};
+	let clock = Date.UTC(2026, 0, 1, 12);
+	t.mock.method(Date, 'now', () => clock);
+	const h = harness(t);
+	let attempts = 0, newCards = 0, rejected = 0, reviews = 0;
+	for (let week = 0; week < 54; week++) {
+		clock += 7 * 86400000;
+		const stage = Math.floor(week / 18);
+		if (week % 9 === 0) h.activate();
+		for (const [domainId, stages] of Object.entries(trajectories)) {
+			const [source, question, answer] = stages[stage];
+			const messages = [{ role: 'assistant', parts: [{type:'text',text:source}] }, { role: 'user', parts: [{type:'text',text:answer}] }];
+			const card = { question, answer, source }, conclusion = { grade: 3, assessment: 'Demonstrou a competência do nó.', evidence: answer, cards: [card] };
+			validateLessonConclusion(messages, conclusion);
+			for (const mutant of [{...card, source:'Um trecho ausente da aula.'}, {...card, question:'Qual é a resposta '+answer+' ?'}]) {
+				assert.throws(() => validateLessonConclusion(messages, {...conclusion, cards:[mutant]}));
+				rejected++;
+			}
+			const input = { domainId, domainTitle:domainId, nodeId:'skill-'+stage, sessionId:'lesson-'+week, cards:[card] };
+			const r = await h.call('save-lesson-cards',input);
+			assert.equal(r.added, week % 18 === 0 ? 1 : 0);
+			assert.deepEqual(await h.call('save-lesson-cards',input),r);
+			newCards += r.added; attempts++;
+			const { ticket } = await h.call('next-review',{deckIds:[r.deckId]});
+			if (ticket) {
+				assert.ok(stages.slice(0, stage+1).some(([,q])=>q===ticket.question));
+				await h.call('reveal-review',{ticketId:ticket.id});
+				await h.call('rate-review',{ticketId:ticket.id,rating:week%5===0?1:3,requestId:domainId+'-'+week});
+				reviews++;
+			}
+		}
+	}
+	assert.equal(newCards,12); assert.equal(attempts,216); assert.equal(rejected,432); assert.ok(reviews>=12);
+	assert.equal(h.state().propositions.length,12);
+	t.diagnostic(JSON.stringify({ weeks:54, domains:4, attempts, newCards, rejected, reviews }));
 });

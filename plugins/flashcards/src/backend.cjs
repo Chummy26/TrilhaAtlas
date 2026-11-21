@@ -256,6 +256,41 @@ function activate(ctx) {
     return { spec: { ...pin.model, ...(thinkingLevel ? { thinkingLevel } : {}) }, entry };
   }
   function register(name, handler) { ctx.handle(name, (input = {}) => { alive(); if (!input || typeof input !== 'object' || Array.isArray(input)) fail('Invalid operation input.'); return handler(input); }); }
+  register('save-lesson-cards', ({ domainId, domainTitle, nodeId, sessionId, cards }) => {
+    for (const field of [domainId, domainTitle, nodeId, sessionId]) requiredText(field, 'Lesson source');
+    if (!Array.isArray(cards) || cards.length < 1 || cards.length > 4) fail('Expected 1–4 grounded lesson cards.');
+    const key = fingerprint([domainId, sessionId]);
+    const prior = store.get().lessonReceipts?.[key];
+    if (prior) return prior;
+    const deckId = 'campaign:' + domainId;
+    const normalize = text => text.normalize('NFKC').toLowerCase().replace(/\s+/gu, ' ').trim().replace(/[?!.]+$/, '');
+    return change(s => {
+      let destination = s.decks.find(d => d.id === deckId);
+      if (!destination) {
+        destination = { id: deckId, name: 'Campanha · ' + domainTitle, newLimit: 20, propositionIds: [] };
+        s.decks.push(destination);
+      }
+      const seen = new Set(Object.values(s.propositions).filter(p => p.lessonSource?.domainId === domainId)
+        .flatMap(p => p.cues.map(c => normalize(c.question))));
+      let added = 0;
+      for (const card of cards) {
+        const question = requiredText(card.question, 'Question').trim(), answer = requiredText(card.answer, 'Answer').trim();
+        const source = requiredText(card.source, 'Source').trim();
+        if (seen.has(normalize(question))) continue;
+        seen.add(normalize(question));
+        const id = 'manual:' + randomUUID();
+        s.propositions[id] = { id, origin: 'manual', name: question, statement: answer,
+          lessonSource: { domainId, nodeId, sessionId, source }, schedule: scheduler.createSchedule(),
+          firstReviewedAt: null, learningCueId: null, version: 1,
+          cues: [{ id: randomUUID(), question, answer, latestRating: null }] };
+        destination.propositionIds.push(id);
+        added++;
+      }
+      const receipt = { added, deckId };
+      (s.lessonReceipts ??= {})[key] = receipt;
+      return receipt;
+    });
+  });
   register('get-state', view);
   register('get-catalog', () => ctx.inference.catalog());
   register('save-settings', patch => { change(s => { s.settings = validateSettings(patch, s.settings); }); return view(); });

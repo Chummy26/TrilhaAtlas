@@ -37,12 +37,12 @@ test('failed mutation and atomic write leave memory and persisted store unchange
 test('converted sources use UUID-only private paths and never embed Markdown in the store state', t => {
   const dir = directory(t), store = openStore(dir), id = randomUUID(), markdown = '# Converted Markdown\n\nA supported fact.';
   const before = structuredClone(store.get());
+  const assertPrivateSource = require('./private-source.cjs')(t);
   store.writeSource(id, markdown);
   assert.deepEqual(store.get(), before); assert.equal(fs.existsSync(path.join(dir, 'flashcards.json')), false);
   assert.equal(store.readSource(id), markdown);
   assert.deepEqual(fs.readdirSync(path.join(dir, 'sources')), [`${id}.md`]);
-  assert.equal(fs.statSync(path.join(dir, 'sources', `${id}.md`)).mode & 0o777, 0o600);
-  assert.equal(fs.statSync(path.join(dir, 'sources')).mode & 0o777, 0o700);
+  assertPrivateSource(path.join(dir, 'sources', `${id}.md`));
   for (const unsafe of ['../outside', '/tmp/outside', 'notes.md', '', null]) {
     assert.throws(() => store.writeSource(unsafe, markdown), /Invalid file source ID/);
     assert.throws(() => store.readSource(unsafe), /Invalid file source ID/);

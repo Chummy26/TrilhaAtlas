@@ -395,6 +395,7 @@ function applyPrimaryReview(
 		if (latency) s.latency = latency;
 	}
 
+	if (success && ev.itemFamily === id + "#teacher" && !s.lessonCompletedAt) s = { ...s, lessonCompletedAt: at };
 	if (success && ev.itemFamily !== id + "#self") {
 		if (!s.correctFamilies.includes(ev.itemFamily)) s = { ...s, correctFamilies: [...s.correctFamilies, ev.itemFamily] };
 		const sinceLastEvidence = prior.state.lastEvidenceAt ? (toMs(at) - toMs(prior.state.lastEvidenceAt)) / MINUTE_MS : Infinity;
@@ -473,8 +474,11 @@ function applyEvent(work: Work, ev: LearnerEvent, graph: LearnerGraphView, param
 		case "evidence":
 			applyEvidence(work, ev.evidence, graph, params);
 			break;
-		case "lesson-finished":
-			break; // Closing a lesson adds no evidence of mastery.
+		case "lesson-finished": {
+			const node = work.nodes[ev.nodeId];
+			if (ev.assessedBy === "teacher" && ev.outcome !== "reinforce" && node && !node.lessonCompletedAt) put(work, { ...node, lessonCompletedAt: ev.at });
+			break;
+		}
 		case "exposure":
 			applyExposure(work, ev, graph, params);
 			break;

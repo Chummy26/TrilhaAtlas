@@ -18,6 +18,7 @@ Tutor de estudos para temas definidos pelo aluno. Cada domínio tem mapa, sessõ
 - Ao retomar o projeto, leia `docs/HANDOFF.md`, este arquivo, `docs/research/00-SINTESE.md` e `docs/impl/integration.md`, nessa ordem. Consulte o módulo e os testes para confirmar o estado atual.
 - Use tabs e a extensão explícita nos imports relativos de TypeScript. Respeite as fronteiras do ESLint. Componentes acessam a lógica por `@/src/core`, rotas pelos barrels de core/server, e `src/core` permanece puro.
 - Rode `npm run typecheck`, `npm run lint` e os testes da mudança. Use `LH_DATA_DIR` temporário em todo smoke e `LH_AUTH_FILE` temporário quando houver credenciais. Faça commits ou publicação quando autorizados.
+- Após mudanças que afetem o app Windows, gere e reinstale o pacote local conforme [o roteiro desktop](docs/desktop-release.md#windows-local), reaproveitando o perfil em `%APPDATA%\TrilhaAtlas`. Use **Exibir → Abrir no navegador** para acessar o mesmo servidor e os mesmos dados do app.
 
 ## Criar nós para um tema novo
 

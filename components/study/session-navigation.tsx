@@ -16,16 +16,26 @@ export function StudyNavigation({ domains, account }: StudyNavigationProps) {
 		<div className="pointer-events-auto">
 			<DomainSwitcher initialList={domains} />
 		</div>
-		<Link href="/profile" aria-label="Perfil e experiência" className="lh-no-drag pointer-events-auto flex min-h-9 items-center gap-2 rounded-md px-2 text-sm font-semibold hover:bg-accent" data-testid="profile-link">
-			<Icon name="profile" size={22} /> <span>Perfil</span>
-			{account && <span className="text-muted-foreground">Nv. {account.level} · {account.xp.toLocaleString("pt-BR")} XP</span>}
+		<Link
+			href="/profile"
+			aria-label="Perfil e experiência"
+			className="cel-chip lh-no-drag pointer-events-auto h-9 gap-2 px-3 text-sm font-semibold hover:bg-accent"
+			data-testid="profile-link"
+		>
+			<Icon name="profile" size={19} />
+			<span>Perfil</span>
+			{account && (
+				<span className="border-l border-border/60 pl-2 text-xs font-medium text-muted-foreground tabular-nums">
+					Nv. {account.level} · {account.xp.toLocaleString("pt-BR")} XP
+				</span>
+			)}
 		</Link>
 	</>;
 }
 
 export function SessionModeSwitch({ mode, onChange }: { mode: "teach" | "practice"; onChange: (mode: "teach" | "practice") => void }) {
 	return (
-		<div className="flex items-center gap-0.5 rounded-md border border-border/60 bg-background p-0.5" data-testid="home-mode-switch">
+		<div className="flex items-center gap-0.5 rounded-lg border border-border/60 bg-background p-0.5" data-testid="home-mode-switch">
 			{(["teach", "practice"] as const).map((m) => (
 				<button
 					key={m}
@@ -34,9 +44,9 @@ export function SessionModeSwitch({ mode, onChange }: { mode: "teach" | "practic
 					aria-pressed={mode === m}
 					onClick={() => onChange(m)}
 					className={
-						"flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs uppercase tracking-wider transition-colors " +
+						"flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider transition-colors " +
 						(mode === m
-							? "bg-accent text-foreground"
+							? "bg-accent text-foreground shadow-2xs"
 							: "text-muted-foreground hover:text-foreground")
 					}
 				>

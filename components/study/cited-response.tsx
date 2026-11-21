@@ -28,12 +28,20 @@ function PagePreview({ domain, source, page, onClose }: { domain: string; source
 	}, [url]);
 	return <dialog className="pdf-citation-panel" ref={dialog} aria-label={source.title + " · página " + page}
 		onCancel={onClose} onClick={e => { if (e.target === dialog.current && e.clientX < e.currentTarget.getBoundingClientRect().left) onClose(); }}>
-		<header><div><small>Página física {page} de {source.pages}</small><h2>{source.title}</h2></div>
-			<button type="button" className="cel-button px-3 py-1" autoFocus onClick={onClose}>Fechar</button></header>
-		{failed ? <p role="alert">Não foi possível exibir a página original.</p> :
+		<header>
+			<div>
+				<small className="text-xs font-semibold uppercase tracking-wider text-muted-foreground tabular-nums">Página física {page} de {source.pages}</small>
+				<h2 className="cel-display mt-0.5">{source.title}</h2>
+			</div>
+			<button type="button" className="cel-button min-h-8 px-3 py-1 text-xs" autoFocus onClick={onClose}>Fechar</button>
+		</header>
+		{failed ? <p role="alert" className="text-sm text-destructive">Não foi possível exibir a página original.</p> :
 			/* eslint-disable-next-line @next/next/no-img-element -- The authenticated local PNG must render directly without an optimizer cache. */
 			<img src={url + "&image=1"} alt={source.title + ", página física " + page} onError={() => setFailed(true)} />}
-		{text && <details open={failed || undefined}><summary>Texto da página</summary><p className="whitespace-pre-wrap">{text}</p></details>}
+		{text && <details className="study-disclosure mt-4 text-sm" open={failed || undefined}>
+			<summary>Texto da página</summary>
+			<div className="study-disclosure-body"><p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{text}</p></div>
+		</details>}
 	</dialog>;
 }
 

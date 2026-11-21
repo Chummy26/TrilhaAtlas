@@ -6,10 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { MenuShell } from "@/components/menu-shell";
 import { DeleteSessionDialog } from "@/components/delete-session-dialog";
 import type { ChatDeleteMode, ThemeMode, UserSettings } from "@/src/core";
-import { DumbbellIcon, NetworkIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, PlusIcon, SearchIcon, SettingsIcon } from "lucide-react";
+import { BookOpenIcon, DumbbellIcon, NetworkIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, PlusIcon, SearchIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { ActivitySection } from "@/components/activity-dock";
 import { CoverageMenuBlock } from "@/components/extraction-coverage";
-import { LhMark } from "@/components/lh-mark";
+import { TrilhaAtlasMark } from "@/components/lh-mark";
 import { BrailleSpinner } from "@/components/braille-spinner";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { SettingsDialogProvider, useSettingsDialog } from "@/components/settings/settings-dialog.tsx";
@@ -660,7 +660,7 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 			aria-hidden={!open}
 		>
 			<div className="flex h-full w-72 flex-col border-r bg-background">
-				{/* LH wordmark — the owner's header; close toggle sits at the edge.
+				{/* TrilhaAtlas home link; close toggle sits at the edge.
 				    Merged chrome (2026-09-17): in Electron this band is the
 				    window's drag surface and starts after the traffic lights
 				    (.lh-lights-gutter); in the browser those classes are inert. */}
@@ -685,7 +685,7 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 							aria-label="Home"
 							className="lh-no-drag flex size-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
 						>
-							<LhMark className="size-6" />
+							<TrilhaAtlasMark className="size-6" />
 						</Link>
 					</Hint>
 					<Hint label="Close sidebar" action="toggle-sidebar">
@@ -733,6 +733,15 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 					>
 						<NetworkIcon aria-hidden="true" className="size-4 shrink-0" />
 						<span className="min-w-0 truncate">Árvore</span>
+					</Link>}
+					{domain && <Link
+						href={{ pathname: "/ementa", query: { dominio: domain } }}
+						prefetch={false}
+						aria-current={pathname === "/ementa" ? "page" : undefined}
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
+					>
+						<BookOpenIcon aria-hidden="true" className="size-4 shrink-0" />
+						<span className="min-w-0 truncate">Ementa</span>
 					</Link>}
 				</PluginSidebarActions>
 
@@ -825,7 +834,7 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 					))}
 				</div>
 
-				<div ref={listRef} className="flex-1 overflow-y-auto p-2">
+				<div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
 					{shown === null ? (
 						<div className="px-2 py-4 text-xs text-muted-foreground">Loading…</div>
 					) : shown.length === 0 ? (
@@ -866,16 +875,23 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 					    New session — quiet, bottom-pinned, opens the centered
 					    dialog (also mod+, in the keyboard registry). */}
 					{/* The development overlay can still show an Insight when its idle indicator is disabled. */}
-					<div className={cn("px-3 pt-1", process.env.NODE_ENV === "development" ? "pb-16" : "pb-3")}>
-						<Link href="/profile" className="lh-no-drag flex min-h-11 items-center gap-2.5 rounded-md px-3 text-base font-semibold hover:bg-accent">Perfil e XP</Link>
+					<div className={cn("border-t border-border/50 px-3 pt-2", process.env.NODE_ENV === "development" ? "pb-16" : "pb-3")}>
+						<Link
+							href="/profile"
+							aria-current={pathname === "/profile" ? "page" : undefined}
+							className="lh-no-drag flex min-h-10 items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
+						>
+							<UserIcon aria-hidden="true" className="size-4 shrink-0" />
+							Perfil e XP
+						</Link>
 						<Hint label="Configurações" action="open-settings" side="right">
 							<button
 								type="button"
 								onClick={() => openSettings("appearance")}
 								data-testid="settings-entry"
-								className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
+								className="flex min-h-10 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 							>
-								<SettingsIcon className="size-5" />
+								<SettingsIcon className="size-4 shrink-0" />
 								Configurações
 							</button>
 						</Hint>

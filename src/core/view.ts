@@ -71,6 +71,7 @@ export interface LhViewPart extends Record<string, unknown> {
 export interface LhViewMessage {
 	id: string;
 	role: "user" | "assistant";
+	examCallId?: string;
 	parts: LhViewPart[];
 	/** The subagentResult meta the steer cards read (marker details). */
 	metadata?: unknown;
@@ -208,7 +209,7 @@ export function projectView(messages: readonly LhMessage[], live?: LiveTurnState
 				if (block.type === "image") return [{ ...block as ImageContent }];
 				return [];
 			});
-			out.push({ id: m.id, role: "user", parts });
+			out.push({ id: m.id, role: "user", parts, ...(m.examCallId && { examCallId: m.examCallId }) });
 			continue;
 		}
 

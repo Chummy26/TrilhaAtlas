@@ -6,7 +6,8 @@
 import type { DomainSummary } from "../domains/types.ts";
 import type { PlanItem } from "../learner/types.ts";
 import type { StudyNodeBrief } from "./projection.ts";
-import type { CampaignChapter } from "./campaign.ts";
+import type { CampaignChapter, CampaignModule, CampaignQueueItem } from "./campaign.ts";
+import type { DomainTranscript } from "./transcript.ts";
 
 export interface StudyDomainList {
 	domains: DomainSummary[];
@@ -19,6 +20,12 @@ export interface StudyToday {
 	/** False when the domain has no curriculum yet. */
 	ready: boolean;
 	chapters?: CampaignChapter[];
+	/** Current unit/module within the active chapter, with ordered lesson checklist. */
+	currentModule?: CampaignModule;
+	/** Ordered upcoming lessons/reviews so the campaign feels like a continuous course. */
+	queue?: CampaignQueueItem[];
+	/** Latest reinforcement guidance for the active node when a prior exam fell short. */
+	reinforceHint?: { nodeId: string; title: string; feedback: string };
 	campaignGoal?: string;
 	optionalPractice?: { id: string; title: string };
 	review?: { id: string; title: string; prompt: string };
@@ -44,6 +51,7 @@ export interface StudyProfile {
 		attained: number;
 		mastered: number;
 		leaves: number;
+		transcript?: DomainTranscript;
 	}[];
 	usage: {
 		totalTokens: number;

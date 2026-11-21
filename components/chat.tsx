@@ -2,6 +2,7 @@
 
 import { createContext, Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { pendingLessonExam } from "@/src/core";
 import { useChatSession } from "@/components/session";
 import { usePlugins } from "./plugins";
 import { PluginSubmissionRunner, SubmissionModelEpoch, type SubmissionAttempt } from "./plugin-submission-runner";
@@ -35,7 +36,7 @@ import { Separator } from "@/components/ui/separator";
 import { AnsweredCard } from "@/components/answered-card";
 import { MalformedQuestion } from "@/components/malformed-question";
 import { SubagentSteerCard } from "@/components/artifacts/steer-card";
-import { LessonFinish, type LessonFinishState } from "@/components/study/lesson-finish";
+import { LessonFinish, type LessonFinishState, type LessonReceipt } from "@/components/study/lesson-finish";
 import { ChatSessionComposer } from "@/components/composer";
 import { useEnterSubmits } from "@/components/enter-submits";
 import { blurAfterPointerClick } from "@/components/focus-hygiene";
@@ -172,6 +173,9 @@ export const ChatActionsContext = createContext<{
 	/** Send a user message into the session (demo error-fix loop, W6). */
 	sendText: (text: string) => void;
 	askActivity?: (text: string) => Promise<boolean>;
+	activeExamId?: string;
+	examBusy?: boolean;
+	submitExam?: (examCallId: string, text: string, onAccepted: () => void) => Promise<boolean>;
 	/** Opens the model setup dialog (BYOK, 2026-09-22): refused job cards
 	 *  deep-link into the same SetupDialog the send interception uses. */
 	openSetup: () => void;
@@ -1619,6 +1623,9 @@ export function Chat({
 				syncFromServer,
 				sendText: (t: string) => { void prepareText(t); },
 				askActivity: t => prepareText(t),
+				activeExamId: lessonCompletion && !lessonCompletion.completed ? pendingLessonExam(messages) : undefined,
+				examBusy: busy || compacting,
+				submitExam: (examCallId, text, onAccepted) => send({ type: "text", text, examCallId }, onAccepted),
 				openSetup: () => setSetupOpen(true),
 			}}
 		>
@@ -1637,8 +1644,8 @@ export function Chat({
 		    chip) spans from the left sidebar's edge to the panel's edge. The
 		    dock overlays the column bottom (outside the scroller); a spacer in
 		    the transcript reserves its height. */}
-		<div className="flex h-dvh">
-			<div className="flex min-w-0 flex-1 flex-col">
+		<div className="flex h-full min-h-0 overflow-hidden">
+			<div className="flex min-h-0 min-w-0 flex-1 flex-col">
 				{/* The top bar is its own block (owner, top-fade round 4): in flow
 				    above the scroller on the plain page background — no gradient. Its
 				    bottom outline (border-b border-border) matches the one that
@@ -1764,10 +1771,10 @@ export function Chat({
 
 				<SessionFind scopeRef={sessionFindScopeRef} scrollContextRef={scrollContextRef} />
 				<div ref={sessionFindScopeRef} className="relative flex min-h-0 flex-1">
-				<Conversation className="h-full min-w-0 flex-1" initial="instant" contextRef={scrollContextRef}>
+				<Conversation className="min-h-0 min-w-0 flex-1" initial="instant" contextRef={scrollContextRef}>
 					<SessionMessageNavigation />
 					<TranscriptElementReporter onElement={setTranscriptElement} />
-					<ConversationContent className="min-h-full gap-0 p-0">
+					<ConversationContent className="min-h-full gap-0 p-0" scrollClassName="overscroll-contain">
 						<div data-session-find-root="" className={`${COLUMN} flex flex-1 flex-col gap-4 pt-4`}>
 							{lessonActivity && !messages.some(m => m.parts.some(p => p.type === "tool-study_activity" && p.state === "output-available" && coversLessonActivity(p.output, lessonActivity))) && <ActivityPanel activity={lessonActivity} />}
 							{!lessonActivity && messages.length === 0 && !busy && (
@@ -1875,6 +1882,7 @@ export function Chat({
 										    Rendered WITHOUT the Message wrapper — that is the bubble. */
 											<div
 										data-testid="user-message"
+											data-exam-submission={m.examCallId || undefined}
 										/* THE DOCUMENT, ALL-IN (owner rounds two+three, 2026-10-07):
 										    no chat side — the user message is a full-width card-color
 										    BAND, the IDENTICAL geometry as the thinking rows: 5px band
@@ -1887,7 +1895,7 @@ export function Chat({
 												{/* The rail GROUPS (owner round 4, 2026-10-05): the YOU heading
 												    sits INSIDE the rail, same mono-xs register and same 1ch
 												    rail as the thinking rows — one quote geometry. */}
-												<div className="font-medium uppercase tracking-wide text-muted-foreground">You</div>
+												<div className="font-medium uppercase tracking-wide text-muted-foreground">{m.examCallId ? "Resposta entregue" : "You"}</div>
 												<div className="lh-prose whitespace-pre-wrap text-foreground">
 													<PathText text={m.parts.filter((p) => p.type === "text").map((p) => p.text).join("\n")} />
 												</div>
@@ -2027,7 +2035,7 @@ export function Chat({
 							{(status === "submitted" || turnInFlight) && (
 								<PendingTurnIndicator evaluating={evaluating} />
 							)}
-							{lessonCompletion && messages.some(m => m.role === "assistant") && <LessonFinish state={lessonCompletion} disabled={busy || compacting || !!pending} />}
+							{lessonCompletion && messages.some(m => m.role === "assistant") && <LessonFinish state={lessonCompletion} busy={busy || compacting} receipt={messages.flatMap(m => m.parts).find(p => p.type === "tool-conclude_lesson" && p.state === "output-available")?.output as LessonReceipt | undefined} />}
 							{openingError && <p role="alert" className="text-sm text-destructive">{OPENING_PROMPT_FAILURE}</p>}
 							{error && (
 								<div className="flex items-center justify-between gap-3 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm">

@@ -2,8 +2,9 @@ import type { CurriculumItem, CurriculumSnapshot } from "../curriculum/types.ts"
 import { foundationTag, regionExitTag } from "../curriculum/campaign.ts";
 import type { LearnerGraphView } from "../learner/graph-view.ts";
 import { LEARNER_CONSTANTS } from "../learner/params.ts";
-import type { LearnerEvent } from "../learner/types.ts";
+import type { LearnerEvent, PlanItem } from "../learner/types.ts";
 import { englishCampaign, englishFinale } from "./english-campaign.ts";
+import { isAdvancedDefenseNode } from "./tutor-pedagogy.ts";
 
 export interface CampaignChapter {
 	level: string;
@@ -17,7 +18,65 @@ export interface CampaignChapter {
 	known: number;
 }
 
-interface StudyCampaign {
+export interface CampaignModuleLesson {
+	id: string;
+	title: string;
+	status: "done" | "current" | "available" | "locked";
+	minutes: number;
+	isFinale?: boolean;
+	isLandmark?: boolean;
+}
+
+export interface CampaignModule {
+	id: string;
+	title: string;
+	chapterLevel: string;
+	chapterTitle: string;
+	index: number;
+	totalModules: number;
+	completed: number;
+	total: number;
+	lessons: CampaignModuleLesson[];
+}
+
+export interface CampaignQueueItem {
+	kind: PlanItem["kind"];
+	nodeId: string;
+	title: string;
+	moduleTitle: string;
+	estMinutes: number;
+	reason: string;
+	isFinale?: boolean;
+	isLandmark?: boolean;
+}
+
+export interface LessonCourseContext {
+	chapterLevel: string;
+	chapterTitle: string;
+	chapterIndex: number;
+	totalChapters: number;
+	chapterKnown: number;
+	chapterTotal: number;
+	moduleId: string;
+	moduleTitle: string;
+	moduleIndex: number;
+	totalModules: number;
+	moduleCompleted: number;
+	moduleTotal: number;
+	lessonIndex: number;
+	isFinale: boolean;
+	isLandmark: boolean;
+	isAdvancedDefense?: boolean;
+}
+
+export interface LessonCourseProgress extends LessonCourseContext {
+	moduleJustCompleted: boolean;
+	chapterJustCompleted: boolean;
+	nextModuleTitle?: string;
+	nextChapterTitle?: string;
+}
+
+export interface StudyCampaign {
 	journey: CampaignChapter[];
 	priority: (id: string) => number;
 	lessonMinutes: Map<string, number>;
@@ -135,14 +194,33 @@ export function studyCampaign(snapshot: CurriculumSnapshot, graph: LearnerGraphV
 		const middle = exits.length ? exits : ids.slice(1, -1);
 		const stops = Math.min(3, middle.length);
 		for (let i = 0; i < stops; i++) landmarks.add(middle[Math.floor((i + .5) * middle.length / stops)]!);
+		let activeUnitId: string | undefined;
+		if (active) {
+			const unitProgress = new Map<string, { known: number; total: number }>();
+			for (const id of ids) {
+				const unitId = inheritedGroup(snapshot, snapshot.items[id]!, "unit").id;
+				const stat = unitProgress.get(unitId) ?? { known: 0, total: 0 };
+				stat.total++;
+				if (known.has(id)) stat.known++;
+				unitProgress.set(unitId, stat);
+			}
+			for (const [unitId, stat] of unitProgress) {
+				if (stat.known > 0 && stat.known < stat.total) {
+					activeUnitId = unitId;
+					break;
+				}
+			}
+		}
 		for (const id of ids) {
 			const minutes = Math.max(minNewMinutes, Math.round(graph.nodes.get(id)!.hoursMid * 60));
 			lessonMinutes.set(id, Math.min(minutes, maxNewMinutes, id === entry ? 25 : id === finale ? 45 : 35));
 			if (active) {
 				const item = snapshot.items[id]!;
-				const region = units.get(inheritedGroup(snapshot, item, "unit").id)!;
-				const urgency = 2 * (units.size - region) + Number(item.tags?.includes(foundationTag) ?? false);
-				priorities.set(id, id === entry ? 2 * units.size + 4 : id === finale ? 1 : urgency);
+				const unitId = inheritedGroup(snapshot, item, "unit").id;
+				const region = units.get(unitId)!;
+				const inActiveUnit = activeUnitId && unitId === activeUnitId ? 2 * units.size + 2 : 0;
+				const urgency = inActiveUnit + 2 * (units.size - region) + Number(item.tags?.includes(foundationTag) ?? false);
+				priorities.set(id, id === entry ? 4 * units.size + 8 : id === finale ? 1 : urgency);
 			}
 		}
 		return { level: "Etapa " + (index + 1), title, mission: objective(snapshot.items[finale]!), entry, finale,
@@ -158,7 +236,31 @@ export function campaignFinale(snapshot: CurriculumSnapshot, campaign: StudyCamp
 	return (snapshot.domainId === "english" && englishFinale(id)) || stage.mission;
 }
 
-export function guidedLessonOptions(campaign: StudyCampaign | undefined, events: readonly LearnerEvent[], at: string, due?: string) {
+/** Latest reinforcement feedback per node whose most recent exam closed with reinforcement. */
+export function pendingReinforcements(events: readonly LearnerEvent[], known: ReadonlySet<string>): Map<string, string> {
+	const result = new Map<string, string>();
+	for (const e of events) {
+		if (e.kind !== "lesson-finished") continue;
+		if (known.has(e.nodeId)) {
+			result.delete(e.nodeId);
+			continue;
+		}
+		if (e.outcome === "reinforce") {
+			result.set(e.nodeId, e.feedback ?? "Retome este tópico para consolidar os objetivos pendentes.");
+		} else {
+			result.delete(e.nodeId);
+		}
+	}
+	return result;
+}
+
+export function guidedLessonOptions(
+	campaign: StudyCampaign | undefined,
+	events: readonly LearnerEvent[],
+	at: string,
+	due?: string,
+	reinforced?: ReadonlySet<string>,
+) {
 	if (!campaign) return {};
 	const recent = new Set<string>();
 	const cutoff = Date.parse(at) - LEARNER_CONSTANTS.delayedMinutes * 60_000;
@@ -166,7 +268,214 @@ export function guidedLessonOptions(campaign: StudyCampaign | undefined, events:
 	return {
 		goalPlan: new Set(campaign.lessonMinutes.keys()),
 		newPriority: campaign.priority,
-		eligibleNew: (id: string) => campaign.priority(id) > 0 && !recent.has(id) && id !== due,
+		eligibleNew: (id: string) => campaign.priority(id) > 0 && (!recent.has(id) || !!reinforced?.has(id)) && id !== due,
 		lessonMinutes: campaign.lessonMinutes,
 	};
+}
+
+interface ChapterUnits {
+	chapterIndex: number;
+	chapter: CampaignChapter;
+	modules: { id: string; title: string; leafIds: string[] }[];
+}
+
+function chapterUnitsOf(snapshot: CurriculumSnapshot, graph: LearnerGraphView, campaign: StudyCampaign): ChapterUnits[] {
+	const leaves = graph.ids.filter(id => graph.nodes.get(id)?.isLeaf && !snapshot.items[id]?.reinforcementFor);
+	const isEnglish = snapshot.domainId === "english" && campaign.journey.every(c => cefr.includes(c.level));
+	const stageMap = new Map<number, string[]>();
+	if (isEnglish) {
+		const indexByLevel = new Map(campaign.journey.map((c, i) => [c.level, i]));
+		for (const id of leaves) {
+			const item = snapshot.items[id]!;
+			if (item.level.scheme !== "cefr") continue;
+			const level = item.level.cefr === "pre-A1" ? "A1" : item.level.cefr;
+			const idx = indexByLevel.get(level);
+			if (idx === undefined) continue;
+			const list = stageMap.get(idx) ?? [];
+			list.push(id);
+			stageMap.set(idx, list);
+		}
+	} else {
+		const stages = stagesOf(snapshot, graph);
+		stages.forEach((stage, idx) => stageMap.set(idx, stage.ids));
+	}
+	return campaign.journey.map((chapter, chapterIndex) => {
+		const ids = stageMap.get(chapterIndex) ?? [];
+		const byUnit = new Map<string, { id: string; title: string; leafIds: string[] }>();
+		for (const id of ids) {
+			const unit = inheritedGroup(snapshot, snapshot.items[id]!, "unit");
+			const mod = byUnit.get(unit.id) ?? { id: unit.id, title: unit.title.pt, leafIds: [] };
+			mod.leafIds.push(id);
+			byUnit.set(unit.id, mod);
+		}
+		return { chapterIndex, chapter, modules: [...byUnit.values()] };
+	});
+}
+
+/** Build the ordered lesson list of the active unit/module (online-course syllabus view). */
+export function activeModuleOf(
+	snapshot: CurriculumSnapshot,
+	graph: LearnerGraphView,
+	campaign: StudyCampaign,
+	known: ReadonlySet<string>,
+	available: ReadonlySet<string>,
+	focusNodeId?: string,
+): CampaignModule | undefined {
+	const structure = chapterUnitsOf(snapshot, graph, campaign);
+	let target: { cu: ChapterUnits; modIndex: number } | undefined;
+	if (focusNodeId) {
+		for (const cu of structure) {
+			const modIndex = cu.modules.findIndex(m => m.leafIds.includes(focusNodeId));
+			if (modIndex >= 0) { target = { cu, modIndex }; break; }
+		}
+	}
+	if (!target) {
+		const cu = structure.find(entry => entry.chapter.known < entry.chapter.total) ?? structure.at(-1);
+		if (!cu || !cu.modules.length) return undefined;
+		const inProgress = cu.modules.findIndex(m => m.leafIds.some(id => known.has(id)) && m.leafIds.some(id => !known.has(id)));
+		const firstIncomplete = cu.modules.findIndex(m => m.leafIds.some(id => !known.has(id)));
+		target = { cu, modIndex: inProgress >= 0 ? inProgress : firstIncomplete >= 0 ? firstIncomplete : cu.modules.length - 1 };
+	}
+	const { cu, modIndex } = target;
+	const mod = cu.modules[modIndex]!;
+	const landmarks = new Set(cu.chapter.landmarks.map(l => l.id));
+	const completed = mod.leafIds.reduce((n, id) => n + Number(known.has(id)), 0);
+	const lessons: CampaignModuleLesson[] = mod.leafIds.map(id => {
+		const status: CampaignModuleLesson["status"] = known.has(id)
+			? "done"
+			: id === focusNodeId
+				? "current"
+				: available.has(id)
+					? "available"
+					: "locked";
+		return {
+			id,
+			title: graph.nodes.get(id)?.title ?? snapshot.items[id]?.title.pt ?? id,
+			status,
+			minutes: Math.round(campaign.lessonMinutes.get(id) ?? Math.max(10, (graph.nodes.get(id)?.hoursMid ?? 0.4) * 60)),
+			...(id === cu.chapter.finale && { isFinale: true }),
+			...(landmarks.has(id) && { isLandmark: true }),
+		};
+	});
+	return {
+		id: mod.id,
+		title: mod.title,
+		chapterLevel: cu.chapter.level,
+		chapterTitle: cu.chapter.title,
+		index: modIndex + 1,
+		totalModules: cu.modules.length,
+		completed,
+		total: mod.leafIds.length,
+		lessons,
+	};
+}
+
+/** Course breadcrumb and progress position for a specific campaign skill. */
+export function lessonCourseContext(
+	snapshot: CurriculumSnapshot,
+	graph: LearnerGraphView,
+	campaign: StudyCampaign,
+	known: ReadonlySet<string>,
+	nodeId: string,
+): LessonCourseContext | null {
+	const structure = chapterUnitsOf(snapshot, graph, campaign);
+	for (const cu of structure) {
+		const modIndex = cu.modules.findIndex(m => m.leafIds.includes(nodeId));
+		if (modIndex < 0) continue;
+		const mod = cu.modules[modIndex]!;
+		const lessonIndex = mod.leafIds.indexOf(nodeId) + 1;
+		const moduleCompleted = mod.leafIds.reduce((n, id) => n + Number(known.has(id)), 0);
+		const landmarks = new Set(cu.chapter.landmarks.map(l => l.id));
+		const isFinale = cu.chapter.finale === nodeId;
+		const item = snapshot.items[nodeId];
+		return {
+			chapterLevel: cu.chapter.level,
+			chapterTitle: cu.chapter.title,
+			chapterIndex: cu.chapterIndex + 1,
+			totalChapters: structure.length,
+			chapterKnown: cu.chapter.known,
+			chapterTotal: cu.chapter.total,
+			moduleId: mod.id,
+			moduleTitle: mod.title,
+			moduleIndex: modIndex + 1,
+			totalModules: cu.modules.length,
+			moduleCompleted,
+			moduleTotal: mod.leafIds.length,
+			lessonIndex,
+			isFinale,
+			isLandmark: landmarks.has(nodeId),
+			...(item && isAdvancedDefenseNode(item, isFinale) ? { isAdvancedDefense: true } : {}),
+		};
+	}
+	return null;
+}
+
+/** Detect module/chapter transitions right after completing a lesson node. */
+export function campaignCompletionProgress(
+	snapshot: CurriculumSnapshot,
+	graph: LearnerGraphView,
+	campaignBefore: StudyCampaign,
+	campaignAfter: StudyCampaign,
+	knownBefore: ReadonlySet<string>,
+	knownAfter: ReadonlySet<string>,
+	nodeId: string,
+): LessonCourseProgress | null {
+	const after = lessonCourseContext(snapshot, graph, campaignAfter, knownAfter, nodeId);
+	if (!after) return null;
+	const before = lessonCourseContext(snapshot, graph, campaignBefore, knownBefore, nodeId);
+	const moduleJustCompleted = after.moduleCompleted === after.moduleTotal && after.moduleTotal > 0
+		&& (!before || before.moduleCompleted < before.moduleTotal);
+	const chapterJustCompleted = after.chapterKnown === after.chapterTotal && after.chapterTotal > 0
+		&& (!before || before.chapterKnown < before.chapterTotal);
+	let nextModuleTitle: string | undefined;
+	let nextChapterTitle: string | undefined;
+	if (chapterJustCompleted) {
+		const nextChapter = campaignAfter.journey[after.chapterIndex];
+		if (nextChapter) nextChapterTitle = `${nextChapter.level} · ${nextChapter.title}`;
+	} else if (moduleJustCompleted) {
+		const structure = chapterUnitsOf(snapshot, graph, campaignAfter);
+		const nextMod = structure[after.chapterIndex - 1]?.modules[after.moduleIndex];
+		if (nextMod) nextModuleTitle = nextMod.title;
+	}
+	return {
+		...after,
+		moduleJustCompleted,
+		chapterJustCompleted,
+		...(nextModuleTitle && { nextModuleTitle }),
+		...(nextChapterTitle && { nextChapterTitle }),
+	};
+}
+
+/** Build the continuous "up next" queue for the home campaign card. */
+export function campaignQueue(
+	snapshot: CurriculumSnapshot,
+	graph: LearnerGraphView,
+	campaign: StudyCampaign,
+	planItems: readonly PlanItem[],
+	nextId: string | undefined,
+	limit = 4,
+): CampaignQueueItem[] {
+	const landmarks = new Set(campaign.journey.flatMap(c => c.landmarks.map(l => l.id)));
+	const finales = new Set(campaign.journey.map(c => c.finale));
+	const seen = new Set<string>(nextId ? [nextId] : []);
+	const out: CampaignQueueItem[] = [];
+	for (const item of planItems) {
+		if (out.length >= limit) break;
+		if (seen.has(item.nodeId)) continue;
+		const curriculumItem = snapshot.items[item.nodeId];
+		if (!curriculumItem) continue;
+		seen.add(item.nodeId);
+		const unit = inheritedGroup(snapshot, curriculumItem, "unit");
+		out.push({
+			kind: item.kind,
+			nodeId: item.nodeId,
+			title: graph.nodes.get(item.nodeId)?.title ?? curriculumItem.title.pt,
+			moduleTitle: unit.title.pt,
+			estMinutes: Math.round(item.estMinutes),
+			reason: item.reason,
+			...(finales.has(item.nodeId) && { isFinale: true }),
+			...(landmarks.has(item.nodeId) && { isLandmark: true }),
+		});
+	}
+	return out;
 }

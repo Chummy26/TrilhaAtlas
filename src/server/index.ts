@@ -73,3 +73,34 @@ export * from "./custom-provider.ts";
 export { customProviderGet, customProviderMutation } from "./custom-provider-http.ts";
 export { regionalBookUnit, regionalBookImage, prepareReadingScreenshot } from "./book-reader.ts";
 export { answerCampaignReview } from "./study.ts";
+export {
+	readModuleScoreMap,
+	studySyllabus,
+	studyTranscript,
+	studyNotebook,
+	getModuleExam,
+	submitModuleExam,
+	getModuleProblemSet,
+	submitModuleProblemSet,
+	getFlippedGuide,
+	saveFlippedPrepNote,
+	exportDomainFlashcards,
+	type ModuleExamReceipt,
+	type ProblemSetReceipt,
+	type PublicModuleExamQuestion,
+	type PublicModuleExam,
+	type ModuleExamDelivery,
+	type ModuleExamSubmissionResult,
+	type FlippedGuideResponse,
+	type FlashcardExportMode,
+	type FlashcardExportResult,
+} from "./course.ts";
+export {
+	getDomainPlacement,
+	startDomainPlacement,
+	answerDomainPlacement,
+	finishDomainPlacement,
+	cancelDomainPlacement,
+	type DomainPlacementStatus,
+	type PlacementAnswerResult,
+} from "./placement.ts";

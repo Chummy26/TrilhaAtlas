@@ -184,6 +184,7 @@ export function structuralState(snapshot: Pick<LearnerSnapshot, "nodes">, graph:
 		else if (s.placedAt) placed.add(id);
 	}
 	const raw = new Set<NodeId>([...attained, ...placed]);
+	for (const id of graph.ids) if (snapshot.nodes[id]?.lessonCompletedAt) raw.add(id);
 	const known = addMilestones(graph, impliedClosure(graph, raw));
 	const implied = new Set<NodeId>();
 	for (const id of known) if (!raw.has(id)) implied.add(id);

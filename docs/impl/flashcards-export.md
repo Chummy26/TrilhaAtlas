@@ -2,6 +2,12 @@
 
 Implementa o passo 5 da SÍNTESE §2.4(d) e o marco M4 sobre o plugin `plugins/flashcards`, seguindo o r7 §6–8 e os relatórios de `ts-fsrs` (§8, §14.6) e `anki-apkg-export`. Os contratos `ExternalLink`, `RevlogEntry` e `SyncCursor` são os da §2.3, campo por campo. Tudo roda no **backend Node** do plugin; o frontend só chama operações.
 
+## Cartões ao concluir um nó
+
+O professor compara a produção do aluno com os objetivos do nó. Quando há evidência suficiente, a ferramenta `conclude_lesson` registra o desempenho e entrega de um a quatro cartões à biblioteca do plugin habilitado. Cada cartão guarda o domínio, o nó, a sessão e o trecho da explicação que lhe deu origem. O baralho por domínio usa o mesmo agendamento FSRS e os mesmos exportadores da biblioteca. O critério para abrir a próxima missão é a demonstração do objetivo atual. A avaliação de retenção continua nas revisões posteriores.
+
+O teste de trajetória em `plugins/flashcards/tests/backend.test.cjs` percorre 54 semanas, alternando quatro domínios e três níveis. Usa fatos e respostas previamente especificados, introduz perguntas com vazamento da resposta e fontes ausentes como controles negativos e repete sessões após reativar o plugin. Esses controles medem o comportamento do software. A qualidade semântica das perguntas produzidas pelo professor também requer inspeção das respostas reais. A escolha de pedir recuperação e variar o contexto se apoia nos experimentos de [Karpicke e Roediger](https://doi.org/10.1126/science.1152408) e [Butler](https://pubmed.ncbi.nlm.nih.gov/20804289/).
+
 ## API pública
 
 | Arquivo | Exporta | Papel |

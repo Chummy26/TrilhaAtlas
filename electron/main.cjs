@@ -31,6 +31,7 @@ const { attachChatGPTChild, trustedSender, chatGPTControl } = require("./chatgpt
 const { createSubscriptions, loadSubscriptionSDK } = require("./subscriptions.cjs");
 const { attachSubscriptionChild, subscriptionControl } = require("./subscription-ipc.cjs");
 const { desktopAPIHeaders } = require("./desktop-api.cjs");
+const { startBrowserGateway } = require("./browser-gateway.cjs");
 const { openWebSubscriptionBrowser } = require("./web-subscription-browser.cjs");
 const { randomBytes } = require("node:crypto");
 const { spawn } = require("node:child_process");
@@ -43,15 +44,13 @@ const path = require("node:path");
 // renderer owns the number; this is the IPC widen target).
 const SIDEBAR_AUTOCLOSE = 928;
 
-const PRODUCT_NAME = "LearnHarness";
+const isInstalledWindows = process.platform === "win32" && app.isPackaged;
+const PRODUCT_NAME = isInstalledWindows ? "TrilhaAtlas" : "LearnHarness";
 
-// APP NAME → userData (owner, 2026-10-10): the Application Support dir is
-// exactly "LearnHarness" in dev AND packaged. Packaged Electron would
-// otherwise derive it from package.json "name" (now lowercase
-// "learnharness"), and productName metadata alone doesn't reach app.name.
-// Must run before the LH_DEV_URL suffix below — dev becomes
-// "LearnHarness-dev".
+// Set the name before resolving userData or applying the dev profile suffix.
 app.setName(PRODUCT_NAME);
+// Match the AUMID written by NSIS to the Start menu shortcut.
+if (isInstalledWindows) app.setAppUserModelId("com.learnharness.LearnHarness");
 const AUTH_FILE = () => path.join(app.getPath("userData"), "auth.json");
 const DATA_DIR = () => path.join(app.getPath("userData"), "data");
 
@@ -613,7 +612,7 @@ function applyZoom(win, factor) {
 
 /** macOS needs an application menu with the Edit roles — without one,
  *  Cmd+C/V/A do nothing in the renderer. Everything else stays minimal. */
-function installMenu() {
+function installMenu(openBrowser) {
 	const template = [
 		{
 			label: app.name,
@@ -630,8 +629,9 @@ function installMenu() {
 		},
 		{ label: "Edit", submenu: [{ role: "undo" }, { role: "redo" }, { type: "separator" }, { role: "cut" }, { role: "copy" }, { role: "paste" }, { role: "selectAll" }] },
 		{
-			label: "View",
+			label: "Exibir",
 			submenu: [
+				...(openBrowser ? [{ label: "Abrir no navegador", accelerator: "CommandOrControl+Shift+B", click: openBrowser }, { type: "separator" }] : []),
 				{ role: "reload" },
 				{ role: "toggleDevTools" },
 				{ type: "separator" },
@@ -664,6 +664,7 @@ function installMenu() {
 }
 
 async function main() {
+	let browserGateway;
 	app.on("window-all-closed", () => {
 		chatgpt?.pause();
 		subscriptions?.pause();
@@ -672,7 +673,10 @@ async function main() {
 	});
 
 	// The child must not outlive us — cover every quit path.
-	app.on("before-quit", killServer);
+	app.on("before-quit", () => {
+		void browserGateway?.then((gateway) => gateway.close(), () => {});
+		killServer();
+	});
 	process.on("exit", killServer);
 	process.on("SIGHUP", killServer);
 
@@ -770,7 +774,19 @@ async function main() {
 		BrowserWindow, dialog, trustedAppWindows, origin: new URL(url).origin,
 	}));
 
-	installMenu();
+	installMenu(!devUrl && (() => {
+		browserGateway ??= startBrowserGateway({ upstreamPort: Number(new URL(url).port), secret: desktopAPISecret });
+		void browserGateway.then(
+			(gateway) => shell.openExternal(gateway.pairingUrl()),
+			(error) => {
+				browserGateway = undefined;
+				throw error;
+			},
+		).catch((error) => {
+			log(`browser access failed: ${error.message}`);
+			dialog.showErrorBox("TrilhaAtlas", `Não foi possível abrir no navegador. ${error.code === "EADDRINUSE" ? "A porta local 43387 já está em uso." : "Tente novamente pelo menu Exibir."}`);
+		});
+	}));
 
 	// Auto-update (Wave C): wire the updater before the window so the
 	// banner channel is live from first paint; the first check and the 24h

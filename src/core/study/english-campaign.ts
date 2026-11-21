@@ -78,6 +78,7 @@ export function englishCampaign(snapshot: CurriculumSnapshot, graph: LearnerGrap
 	}));
 	const byLevel = new Map(journey.map(c => [c.level, c]));
 	const stages = new Map<string, CampaignChapter>();
+	const stageLeaves = new Map<CampaignChapter, string[]>();
 	const lessonMinutes = new Map<string, number>();
 	for (const id of graph.ids) {
 		const item = snapshot.items[id]!;
@@ -87,15 +88,51 @@ export function englishCampaign(snapshot: CurriculumSnapshot, graph: LearnerGrap
 		stage.total++;
 		if (known.has(id)) stage.known++;
 		stages.set(id, stage);
+		const list = stageLeaves.get(stage) ?? [];
+		list.push(id);
+		stageLeaves.set(stage, list);
 		lessonMinutes.set(id, englishSessionMinutes(item)!);
 	}
 	const current = journey.find(c => c.known < c.total);
+	const unitRank = new Map<string, number>();
+	let activeUnitId: string | undefined;
+	if (current) {
+		const unitStats = new Map<string, { order: number; known: number; total: number }>();
+		for (const id of stageLeaves.get(current) ?? []) {
+			let unit = snapshot.items[id]!;
+			while (unit.parentId && unit.kind !== "unit") unit = snapshot.items[unit.parentId]!;
+			const key = unit.id;
+			const stat = unitStats.get(key) ?? { order: unitStats.size, known: 0, total: 0 };
+			stat.total++;
+			if (known.has(id)) stat.known++;
+			unitStats.set(key, stat);
+			unitRank.set(id, stat.order);
+		}
+		for (const [unitId, stat] of unitStats) {
+			if (stat.known > 0 && stat.known < stat.total) {
+				activeUnitId = unitId;
+				break;
+			}
+		}
+		const totalUnits = unitStats.size;
+		for (const id of stageLeaves.get(current) ?? []) {
+			let unit = snapshot.items[id]!;
+			while (unit.parentId && unit.kind !== "unit") unit = snapshot.items[unit.parentId]!;
+			const order = unitRank.get(id) ?? 0;
+			const inActiveUnit = activeUnitId && unit.id === activeUnitId ? 2000 : 0;
+			unitRank.set(id, 500 + inActiveUnit + (totalUnits - order));
+		}
+	}
 	// A finale that is itself required to unlock another skill remains reachable.
+	// Preserve authored entry, route landmarks, and finale while keeping
+	// intermediate skills coherent by unit/module (online-course continuity).
 	const priority = (id: string) => {
 		if (!current || stages.get(id) !== current) return 0;
-		if (id === current.entry) return 10;
+		if (id === current.entry) return 10_000;
 		const step = levelSessions.get(current.level)!.route.indexOf(id);
-		return step >= 0 ? 8 - step : id === current.finale ? 1 : 2;
+		if (step >= 0) return 8_000 - step * 1000;
+		if (id === current.finale) return 1;
+		return unitRank.get(id) ?? 500;
 	};
 	return { journey, priority, lessonMinutes };
 }

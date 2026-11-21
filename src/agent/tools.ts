@@ -1,4 +1,5 @@
 import { Type } from "typebox";
+import { lessonConclusionSchema, lessonExamSchema, type LessonConclusion, type LessonExam } from "../core/study/lesson-conclusion.ts";
 import { activitySchema, bookActivitySchema, falstadExperiments, parseLessonActivity } from "../core/lesson-activity.ts";
 import { dividerLab } from "../core/divider-lab.ts";
 import type { AgentTool } from "@earendil-works/pi-agent-core";
@@ -414,6 +415,9 @@ function bookTools(ctx: BookToolContext): Record<string, AgentTool<any>> {
 
 export interface TeacherToolContext extends PlanToolContext, BookToolContext {
 	attachMaterials?: (topic: string, useLesson: boolean, signal?: AbortSignal) => Promise<import("../core/study/attachments.ts").StudyAttachments>;
+	missionObjective?: { title: string; objectives: readonly string[]; assessment?: readonly string[] };
+	presentLessonExam?: (input: LessonExam) => unknown;
+	concludeLesson?: (input: LessonConclusion) => Promise<unknown>;
 	prepareReview?: () => Promise<string>;
 	/** Job-tool wiring (sub-agent dispatch): the job store + the runner's
 	 *  spawn seam. The composition root injects both. */
@@ -517,6 +521,23 @@ export function createTeacherTools(
 					return { text: "Activity displayed in the conversation.", details: activity };
 				}),
 			},
+			...(ctx.presentLessonExam && { present_lesson_exam: {
+				name: "present_lesson_exam", label: "Apresentar prova do nó", parameters: lessonExamSchema,
+				description: "Present one independent, written transfer task covering the selected node's criteria after teaching. The card displays task to the learner, so end your turn and await the response. For a second and final attempt, explain the first attempt's gap in feedback and use a genuinely new case without supplying its answer.",
+				execute: serverExecute("present_lesson_exam", lessonExamSchema, input => ({
+					text: "Prova apresentada. Espere a resposta. Não revele a solução.",
+					details: ctx.presentLessonExam!(input),
+				})),
+			} }),
+			...(ctx.concludeLesson && { conclude_lesson: {
+				name: "conclude_lesson", label: "Concluir missão", parameters: lessonConclusionSchema,
+				description: "Close this curriculum node after its independent exam. Quote the learner's actual latest exam response and report every selected objective as {objective: one-based index, met, reason, evidence}. For an approved exam include a verbatim excerpt of the submitted answer in evidence for EACH criterion, without wrapping quotation marks. Grade 3 requires all objectives met independently and passes the node. Grades 0–2 require reinforcement. Offer one corrective explanation and one new case after a first insufficient attempt. After the second exam response, the only next step is the final verdict, never a third question. Include 1–4 sourced retrieval cards on a pass. Submit cards: [] for reinforcement. If citation validation fails, repair it in the same turn. Selected curriculum node and criteria: " + JSON.stringify(ctx.missionObjective),
+				execute: serverExecute("conclude_lesson", lessonConclusionSchema, async input => ({
+					text: input.grade === 3 ? "Nó aprovado. Registre brevemente o que foi demonstrado e encerre."
+						: "A aula terminou com reforço indicado. Explique a lacuna e encerre sem outra prova.",
+					details: await ctx.concludeLesson!(input),
+				})),
+			} }),
 			...(ctx.prepareReview && { prepare_review: {
 				name: "prepare_review", label: "Preparar revisão", parameters: Type.Object({}),
 				description: "Reserve two new short application cases for delayed retrieval of this curriculum skill. The learner answers later in Hoje. Use at a milestone, a recurring difficulty or the learner's request.",

@@ -7,7 +7,7 @@
  * This script finishes the job and sanity-checks the result — including
  * the exclusion that keeps the repo's real data/ OUT of the bundle
  * (see next.config.ts outputFileTracingExcludes). It also removes exact
- * build-only paths the tracer sweeps in: plugin authoring projects,
+ * build-only paths the tracer sweeps in: research references, plugin authoring projects,
  * old installers and the development Electron runtime. Broad trace exclusions break externals.
  */
 import * as fs from "node:fs";
@@ -84,18 +84,31 @@ try {
 buildPluginAuthoring({ root: ROOT, standalone: true });
 
 // 2c) Payload curation (2026-10-11): the trace sweep can copy repo-root
-// plugins/ (authoring sources/tests), dist/ (previous installers), and the development Electron
+// _refs/ (research), plugins/ (authoring sources/tests), dist/ (previous installers), and the development Electron
 // runtime (the demo helper's dev-only require). Neither belongs in the
 // server: packaged helpers use process.execPath, the app's own binary.
 // Remove ONLY these standalone-root paths AFTER tracing — excluding a
 // generic dist/** earlier broke pi-ai / pi-agent-core's runtime dist/.
 // Never touch ROOT/dist or ROOT/node_modules/electron (the running app
 // and the build runtime); native canvas/resvg packages stay untouched.
-for (const extra of ["plugins", "dist", path.join("node_modules", "electron")]) {
+for (const extra of ["_refs", "plugins", "dist", path.join("node_modules", "electron")]) {
 	const target = path.join(STANDALONE, extra);
 	if (exists(target)) {
 		fs.rmSync(target, { recursive: true, force: true });
 		console.log(`[build-server] removed build-only payload: ${extra}`);
+	}
+}
+
+// NSIS materializes nested Turbopack aliases as directories on Windows.
+// Ship Shiki's traced sibling dependencies inside the alias target so Node
+// can resolve Streamdown's selected versions after the alias is flattened.
+const aliases = path.join(STANDALONE, ".next", "node_modules");
+if (process.platform === "win32" && exists(aliases)) {
+	for (const entry of fs.readdirSync(aliases).filter((name) => /^shiki-[a-f0-9]+$/.test(name))) {
+		const shiki = fs.realpathSync(path.join(aliases, entry));
+		const siblings = path.join(path.dirname(shiki), "@shikijs");
+		if (path.dirname(shiki) === path.join(STANDALONE, "node_modules")) continue;
+		copyTree(siblings, path.join(shiki, "node_modules", "@shikijs"));
 	}
 }
 
