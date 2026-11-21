@@ -1,19 +1,49 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Ear, Mic, PencilLine } from "lucide-react";
-import type { LessonActivity } from "@/src/core";
+import { Ear, EyeOff, Mic, PencilLine, Volume2 } from "lucide-react";
+import { useSettingsSaved } from "@/components/settings-signal";
+import { shouldHideVoiceText, type LessonActivity } from "@/src/core";
+import { useT } from "@/components/i18n";
 
 const conversation = "https://voa-audio.voanews.eu/vle/2016/02/08/49485bf8-4277-47f6-9abe-617ee2473f8c.mp3";
 const video = "https://learningenglish.voanews.com/a/lets-learn-english-lesson-one/3111026.html";
 
-export function PronunciationPractice({ voice, title }: { voice: NonNullable<LessonActivity["voice"]>; title?: string }) {
+export function PronunciationPractice({
+	voice,
+	title,
+	voicePracticeEnabled,
+}: {
+	voice: NonNullable<LessonActivity["voice"]>;
+	title?: string;
+	/** Optional override for tests/SSR; defaults to user setting `agent.lessonVoicePractice` (OFF by default). */
+	voicePracticeEnabled?: boolean;
+}) {
+	const t = useT();
 	const [heard, setHeard] = useState<string>();
 	const [status, setStatus] = useState("");
 	const [recording, setRecording] = useState(false);
 	const [requesting, setRequesting] = useState(false);
 	const [clip, setClip] = useState("");
 	const [letter, setLetter] = useState(-1);
+	const [plays, setPlays] = useState(0);
+	const [settingsVoiceEnabled, setSettingsVoiceEnabled] = useState(false);
+	const [settingsRev, setSettingsRev] = useState(0);
+	useSettingsSaved(section => { if (section === "agent") setSettingsRev(r => r + 1); });
+	useEffect(() => {
+		if (voicePracticeEnabled !== undefined) return;
+		const ctrl = new AbortController();
+		void fetch("/api/settings", { signal: ctrl.signal })
+			.then(res => (res.ok ? res.json() : null))
+			.then((data: { agent?: { lessonVoicePractice?: boolean } } | null) => {
+				if (!ctrl.signal.aborted && data) {
+					setSettingsVoiceEnabled(data.agent?.lessonVoicePractice === true);
+				}
+			})
+			.catch(() => { /* keep default OFF */ });
+		return () => ctrl.abort();
+	}, [voicePracticeEnabled, settingsRev]);
+	const allowVoiceRecording = voicePracticeEnabled ?? settingsVoiceEnabled;
 	const recorder = useRef<MediaRecorder | null>(null);
 	const mounted = useRef(false);
 	const run = useRef(0);
@@ -22,8 +52,9 @@ export function PronunciationPractice({ voice, title }: { voice: NonNullable<Les
 	const speaking = useRef(false);
 	const sourceAudio = useRef<HTMLAudioElement>(null);
 	const spelling = voice.mode === "spelling";
+	const blind = shouldHideVoiceText(voice, title);
 	const letters = Array.from(voice.sample.toUpperCase());
-	const anna = spelling && voice.language.startsWith("en") && voice.sample.toLowerCase() === "anna";
+	const anna = !blind && spelling && voice.language.startsWith("en") && voice.sample.toLowerCase() === "anna";
 	useEffect(() => {
 		mounted.current = true;
 		return () => {
@@ -37,7 +68,7 @@ export function PronunciationPractice({ voice, title }: { voice: NonNullable<Les
 	}, []);
 	useEffect(() => () => { if (clip) URL.revokeObjectURL(clip); }, [clip]);
 
-	function listen() {
+	function listen(rate = 0.84) {
 		sourceAudio.current?.pause();
 		const synth = window.speechSynthesis;
 		if (!synth) { setStatus("A voz sintetizada está indisponível neste navegador."); return; }
@@ -47,16 +78,17 @@ export function PronunciationPractice({ voice, title }: { voice: NonNullable<Les
 		const matching = available.find(v => v.lang === voice.language) ?? available.find(v => v.lang.split("-")[0] === voice.language.split("-")[0]);
 		if (available.length && !matching) { setStatus("O navegador não tem voz instalada neste idioma."); return; }
 		setStatus("");
+		setPlays(count => count + 1);
 		const parts = spelling ? letters : [voice.sample];
 		const play = (i: number) => {
 			if (id !== run.current || !mounted.current) return;
 			speaking.current = i < parts.length;
-			setLetter(spelling && speaking.current ? i : -1);
+			setLetter(spelling && !blind && speaking.current ? i : -1);
 			if (!speaking.current) return;
 			const utterance = new SpeechSynthesisUtterance(parts[i]);
 			utterance.lang = voice.language;
 			if (matching) utterance.voice = matching;
-			utterance.rate = 0.78;
+			utterance.rate = rate;
 			utterance.onend = () => play(i + 1);
 			utterance.onerror = () => { if (id === run.current && mounted.current) { speaking.current = false; setLetter(-1); setStatus("Não foi possível reproduzir a voz do navegador."); } };
 			synth.speak(utterance);
@@ -100,8 +132,8 @@ export function PronunciationPractice({ voice, title }: { voice: NonNullable<Les
 		} finally { waiting.current = false; if (mounted.current) setRequesting(false); }
 	}
 
-	return <section className="study-lab" aria-label="Prática de pronúncia">
-		<header><h2>{title ?? "Prática de pronúncia"}</h2></header>
+	return <section className="study-lab" data-listening-mode={blind ? "blind" : "guided"} aria-label={blind ? "Exercício de escuta sem leitura" : "Prática de pronúncia"}>
+		<header><h2>{title ?? (blind ? "Escuta sem leitura" : "Prática de pronúncia")}</h2></header>
 		<div className="lab-body">
 		{anna && <div className="space-y-3"><p><Ear size={18} className="mr-1 inline" /> Ouça como Pete entende o nome e como Anna corrige a letra repetida.</p>
 			<audio ref={sourceAudio} className="w-full" controls preload="none" src={conversation} aria-label="Diálogo original de Anna e Pete" />
@@ -120,18 +152,42 @@ export function PronunciationPractice({ voice, title }: { voice: NonNullable<Les
 				</div>}
 			</fieldset>
 			<a href={video} target="_blank" rel="noreferrer" className="inline-block text-sm underline underline-offset-2">Ver vídeo e transcrição na VOA</a></div>}
-		<div lang={voice.language} className="flex flex-wrap gap-1.5 text-lg font-semibold">{spelling ? letters.map((l, i) =>
-			<span key={i} className={"rounded-lg border px-2.5 py-1 font-mono text-base transition-colors " + (letter === i ? "border-foreground bg-foreground text-background" : "border-border bg-background")}>{l}</span>) : voice.sample}</div>
+		{blind ? (
+			<div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/70 px-3.5 py-3">
+				<div className="flex items-center gap-2.5 text-sm">
+					<EyeOff size={18} aria-hidden="true" className="shrink-0 text-[var(--lab-accent)]" />
+					<div>
+						<strong className="block font-semibold text-foreground">Modo escuta sem leitura</strong>
+						<span className="text-xs text-muted-foreground">A transcrição fica oculta. Ouça quantas vezes precisar antes de responder.</span>
+					</div>
+				</div>
+				{plays > 0 && <span className="study-pill study-pill-accent tabular-nums">Ouvido {plays}×</span>}
+			</div>
+		) : (
+			<div lang={voice.language} className="flex flex-wrap gap-1.5 text-lg font-semibold">{spelling ? letters.map((l, i) =>
+				<span key={i} className={"rounded-lg border px-2.5 py-1 font-mono text-base transition-colors " + (letter === i ? "border-foreground bg-foreground text-background" : "border-border bg-background")}>{l}</span>) : voice.sample}</div>
+		)}
 		<div className="flex flex-wrap gap-2">
-			<button type="button" className="cel-button px-3.5" disabled={recording || requesting} onClick={listen}>{spelling ? "Ouvir letra por letra" : "Ouvir o exemplo"} · voz sintetizada</button>
-			<button type="button" className="cel-button px-3.5" disabled={requesting} onClick={() => void record()}>{recording ? "Parar gravação" : requesting ? "Abrindo microfone…" : "Gravar minha voz"}</button>
+			<button type="button" className={blind ? "cel-button cel-button-primary px-3.5" : "cel-button px-3.5"} disabled={recording || requesting} onClick={() => listen(blind ? 0.88 : 0.78)}>
+				<Volume2 size={16} aria-hidden="true" />
+				{spelling ? "Ouvir letra por letra" : blind ? "Ouvir áudio" : "Ouvir o exemplo"} · voz sintetizada
+			</button>
+			{blind && (
+				<button type="button" className="cel-button px-3.5" disabled={recording || requesting} onClick={() => listen(0.66)}>
+					<Ear size={16} aria-hidden="true" />
+					Ouvir mais devagar
+				</button>
+			)}
+			{allowVoiceRecording && (
+				<button type="button" className="cel-button px-3.5" disabled={requesting} onClick={() => void record()}>{recording ? "Parar gravação" : requesting ? "Abrindo microfone…" : "Gravar minha voz"}</button>
+			)}
 		</div>
-		<p className="text-sm"><Mic size={16} className="mr-1 inline" /> Para comparar sua fala com o exemplo, grave até 30 segundos e ouça. A gravação fica neste aparelho.</p>
-		{clip && <audio aria-label="Ouvir minha gravação" controls className="w-full" src={clip} />}
+		{allowVoiceRecording && !blind && <p className="text-sm"><Mic size={16} className="mr-1 inline" /> Para comparar sua fala com o exemplo, grave até 30 segundos e ouça. A gravação fica neste aparelho.</p>}
+		{allowVoiceRecording && clip && <audio aria-label="Ouvir minha gravação" controls className="w-full" src={clip} />}
 		{status && <p role="status" className="text-sm">{status}</p>}
 		</div>
 		<footer>
-			<p className="text-sm"><PencilLine size={16} className="mr-1 inline" /> {spelling ? "Na sua vez, digite as letras na ordem pedida, separadas por hífens. O professor confere a ordem." : "Para responder no chat, digite a sua frase."} Se usar o ditado, confira o texto antes de enviar. A transcrição não mede pronúncia.</p>
+			<p className="text-sm"><PencilLine size={16} className="mr-1 inline" /> {blind ? "Escreva o que entendeu ou o ditado pedido no formulário ou no chat. Você pode repetir o áudio em velocidade normal ou mais devagar." : spelling ? "Na sua vez, digite as letras na ordem pedida, separadas por hífens. O professor confere a ordem." : "Para responder, digite a sua frase no formulário ou no chat."} {allowVoiceRecording && !blind && "Se usar o ditado, confira o texto antes de enviar. A transcrição não mede pronúncia."}</p>
 		</footer>
 	</section>;
 }

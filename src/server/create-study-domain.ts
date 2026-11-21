@@ -10,11 +10,21 @@ import { attachRegionalSources } from "./domain-reading-list.ts";
 import { installStudyDomain } from "./install-study-domain.ts";
 import { StudyError, studyDomains } from "./study.ts";
 
+const userMaterialSchema = z.strictObject({
+	kind: z.enum(["book", "video"]),
+	title: z.string().trim().min(2).max(160),
+	url: z.string().trim().url().refine(u => /^https:\/\//i.test(u), "Use um link HTTPS válido."),
+	part: z.string().trim().max(200).optional(),
+	lang: z.string().trim().max(12).optional(),
+	regionHint: z.string().trim().max(160).optional(),
+});
+
 const inputSchema = z.strictObject({
 	requestId: z.uuid(),
 	topic: z.string().trim().min(3).max(1600),
 	pace: z.enum(["focused", "semester", "extended"]).optional(),
 	model: z.strictObject({ provider: z.string().min(1).max(160), id: z.string().min(1).max(256) }).optional(),
+	initialMaterials: z.array(userMaterialSchema).max(24).optional(),
 });
 type Job = { status: DomainCreationStatus; fingerprint: string; controller: AbortController };
 // Route bundles and hot reloads share the local server's single active generation.
@@ -60,9 +70,9 @@ function availablePrefix(requestId: string) {
 export function startDomainCreation(body: unknown, schedule: (run: () => Promise<void>) => void): DomainCreationStatus {
 	const input = inputSchema.safeParse(body);
 	if (!input.success) throw new StudyError(400, "Descreva o que quer estudar em 3 a 1600 caracteres e selecione um modelo válido.");
-	const { requestId, topic, model, pace } = input.data;
+	const { requestId, topic, model, pace, initialMaterials } = input.data;
 	const { domainId, key } = ids(requestId);
-	const fingerprint = createHash("sha256").update(JSON.stringify([topic, model, ...(pace ? [pace] : [])])).digest("hex");
+	const fingerprint = createHash("sha256").update(JSON.stringify([topic, model, ...(pace ? [pace] : []), ...(initialMaterials?.length ? [initialMaterials] : [])])).digest("hex");
 	const existing = saved(requestId, fingerprint);
 	if (existing) return existing;
 	const previous = jobs.get(key);
@@ -82,7 +92,14 @@ export function startDomainCreation(body: unknown, schedule: (run: () => Promise
 			const result = await generateDomainCurriculum({ topic, model, pace, domainId, prefix: availablePrefix(requestId), signal,
 				onProgress: (done, total) => { job.status = { state: "planning", done, total }; } });
 			job.status = { state: "materials", done: 0, total: result.regions.length };
-			await attachRegionalSources(result.seed, result.regions, signal, done => { job.status = { state: "materials", done, total: result.regions.length }; });
+			await attachRegionalSources(
+				result.seed,
+				result.regions,
+				signal,
+				done => { job.status = { state: "materials", done, total: result.regions.length }; },
+				undefined,
+				initialMaterials,
+			);
 			signal.throwIfAborted();
 			const manifest = installStudyDomain([result.seed], { requestId, fingerprint, topic, model: result.model, reviews: result.reviews, pace });
 			job.status = saved(requestId, fingerprint) ?? { state: "ready", domainId, title: manifest.title.pt };

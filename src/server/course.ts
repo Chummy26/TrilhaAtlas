@@ -56,6 +56,7 @@ import { writeFileAtomicSync } from "../store/atomic-write.ts";
 import { createStatsStore } from "../store/stats-store.ts";
 import { englishMissionMaterials } from "./english-mission-materials.ts";
 import { getPluginHost } from "./plugins.ts";
+import { readManualMaterials } from "./resources/manual-materials.ts";
 import { loadResourceSeeds } from "./resources/seeds.ts";
 import { appendStudyEvent, nextStudySeq, readStudyEvents } from "./study-log.ts";
 import {
@@ -258,6 +259,19 @@ function readCuratedMaterialsByUnit(
 		return unitId;
 	};
 
+	// 0. User-curated manual node/section materials take highest priority.
+	for (const entry of readManualMaterials(domainId)) {
+		const targetUnits = new Set<string>();
+		for (const nodeId of entry.nodes) {
+			const unitId = unitFor(nodeId);
+			if (unitId) targetUnits.add(unitId);
+		}
+		if (!targetUnits.size && entry.regionId) targetUnits.add(entry.regionId);
+		for (const unitId of targetUnits) {
+			push(unitId, entry.kind, { title: entry.title, part: entry.part, url: entry.url });
+		}
+	}
+
 	// 1. Domain-specific curated mission materials for English.
 	if (domainId === "english") {
 		for (const mat of englishMissionMaterials) {
@@ -373,18 +387,29 @@ function curatedMaterialsForNode(
 	return direct;
 }
 
-function recentMinutes14d(domainId: string, at: string): number {
+function studyActivitySummary(domainId: string, at: string): { minutes14d: number; activeDays14d: number; totalStudiedMinutes: number } {
 	const stats = createStatsStore(PATHS.data);
-	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 	const endMs = Date.parse(at);
-	const start = new Date(endMs);
+	const safeEnd = Number.isFinite(endMs) ? endMs : Date.now();
+	const start = new Date(safeEnd);
 	start.setDate(start.getDate() - 13);
 	start.setHours(0, 0, 0, 0);
-	const range = { from: start.toISOString(), to: new Date(endMs + 1).toISOString() };
-	const events = stats.readActivity(range, { domain: domainId }).events;
-	const daily = aggregateActivity(events, { range, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId });
-	const totalSec = daily.reduce((sum, day) => sum + day.activeSec, 0);
-	return totalSec / 60;
+	const range14d = { from: start.toISOString(), to: new Date(safeEnd + 1).toISOString() };
+	const events14d = stats.readActivity(range14d, { domain: domainId }).events;
+	const daily14d = aggregateActivity(events14d, { range: range14d, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId });
+	const sec14d = daily14d.reduce((sum, day) => sum + day.activeSec, 0);
+	const activeDays14d = daily14d.filter((day) => day.activeSec >= 60).length;
+
+	const allTimeRange = { from: "2020-01-01T00:00:00.000Z", to: new Date(safeEnd + 1).toISOString() };
+	const allEvents = stats.readActivity(allTimeRange, { domain: domainId }).events;
+	const allDaily = aggregateActivity(allEvents, { range: allTimeRange, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId });
+	const totalSec = allDaily.reduce((sum, day) => sum + day.activeSec, 0);
+	return {
+		minutes14d: sec14d / 60,
+		activeDays14d,
+		totalStudiedMinutes: Math.max(sec14d, totalSec) / 60,
+	};
 }
 
 // ─── public reads: scores, syllabus, transcript, notebook ────────────────────
@@ -425,7 +450,7 @@ export function studySyllabus(domainId?: string): StudySyllabus {
 	const campaign = studyCampaign(cur.snapshot, cur.view, struct.known);
 	const materialsByUnit = readCuratedMaterialsByUnit(id, cur.snapshot, cur.view);
 	const moduleScores = readModuleScoreMap(id);
-	const minutes14d = recentMinutes14d(id, at);
+	const activity = studyActivitySummary(id, at);
 
 	let focusNodeId: string | undefined;
 	if (id === activeDomainId()) {
@@ -445,7 +470,9 @@ export function studySyllabus(domainId?: string): StudySyllabus {
 		known: struct.known,
 		available: new Set(struct.frontier),
 		at,
-		recentMinutes14d: minutes14d,
+		recentMinutes14d: activity.minutes14d,
+		activeDays14d: activity.activeDays14d,
+		totalStudiedMinutes: activity.totalStudiedMinutes,
 		dailyBudgetMin: profile?.dailyBudgetMin ?? 180,
 		moduleScores,
 		materialsByUnit,

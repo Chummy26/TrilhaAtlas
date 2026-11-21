@@ -9,8 +9,9 @@ import { ServerEventsProvider } from "@/components/server-events";
 import { AppearanceProvider } from "@/components/settings/appearance";
 import UpdateBanner from "@/components/update-banner";
 import { PluginsProvider } from "@/components/plugins";
-import { activeDomainId, readThemeBoot } from "@/src/server";
+import { activeDomainId, currentLocale, readThemeBoot } from "@/src/server";
 import { themeRootAttributes } from "@/src/core";
+import { I18nProvider } from "@/components/i18n";
 
 // Source Sans 3 serves UI and prose, JetBrains Mono serves code, and the
 // bundled CMU Serif face is available for session titles.
@@ -30,9 +31,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	await connection();
 	const { settings, appearance, theme, vars } = readThemeBoot();
 	const domain = activeDomainId();
+	const locale = currentLocale();
 	return (
 		<html
-			lang="pt-BR"
+			lang={locale}
 			{...themeRootAttributes(theme)}
 			data-domain={domain ?? undefined}
 			className={`${theme.mode} ${ui.variable} ${prose.variable}`}
@@ -43,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 			{/* The notification channel rides OUTSIDE everything: sidebar, dock,
 				 and pages all subscribe as the polls retire (push S3, 2026-10-02). */}
 			<ServerEventsProvider>
+				<I18nProvider initialLocale={locale}>
 				<PluginsProvider>
 					<AppearanceProvider initialAppearance={appearance} initialTheme={theme}>
 						<SidebarProvider>
@@ -52,6 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 						</SidebarProvider>
 					</AppearanceProvider>
 				</PluginsProvider>
+				</I18nProvider>
 			</ServerEventsProvider>
 			{/* Auto-update banner (Wave C): fixed card, Electron-only pushes. */}
 			<UpdateBanner />

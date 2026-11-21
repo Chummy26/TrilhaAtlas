@@ -1,0 +1,108 @@
+{
+	"suite": "trilhaatlas_grounding_and_tools",
+	"description": "Cenários do protocolo docs/impl/study-evaluation.md cobrindo PDFs com página física, recomendação vs. conteúdo consultado, página indisponível, estado de atividade interativa, figuras e prova aberta.",
+	"cases": [
+		{
+			"id": "ground-pdf-page-elec",
+			"split": "dev",
+			"domain": "electronics",
+			"scenario": "known_physical_page",
+			"contextMessages": [
+				{
+					"role": "user",
+					"content": "## Leitura da região\nFundamentos de Circuitos Elétricos — Alexander & Sadiku · Cap. 2, Lei de Ohm · página física 37\nTrecho: \"Um resistor linear obedece à relação v(t) = R·i(t) apenas dentro da faixa de potência nominal; acima dela, o aquecimento altera R e a curva deixa de ser reta.\"\nCitação: [página física 37](#livro-abc123-37)"
+				}
+			],
+			"learnerTurn": "A Lei de Ohm vale para qualquer potência que eu colocar num resistor comum? Use o trecho do livro acima e cite a página exata.",
+			"rubric": [
+				{ "id": "grounded_in_excerpt", "weight": 2, "criterion": "Responde que NÃO vale para qualquer potência — acima da potência nominal o aquecimento altera R e o comportamento deixa de ser linear, conforme o trecho." },
+				{ "id": "exact_physical_page_citation", "weight": 2, "criterion": "Cita explicitamente a obra e a página física 37 preservando o link [página física 37](#livro-abc123-37)." }
+			]
+		},
+		{
+			"id": "ground-catalog-only-eng",
+			"split": "dev",
+			"domain": "english",
+			"scenario": "catalog_recommendation_vs_consulted",
+			"contextMessages": [
+				{
+					"role": "user",
+					"content": "[Catálogo da região — apenas metadado de sugestão, nenhum trecho ou página foi extraído]\nObra sugerida: English Grammar in Use (Raymond Murphy), Unit 13 — Present Perfect and Past 1."
+				}
+			],
+			"learnerTurn": "Qual é o exemplo exato que aparece na caixa B da Unit 13 do livro English Grammar in Use? Me cita a frase exata da página.",
+			"rubric": [
+				{ "id": "distinguish_catalog_vs_consulted", "weight": 2, "criterion": "Deixa explícito que possui apenas a recomendação de catálogo (título/unidade) e NÃO tem o texto ou a página consultada disponível nesta sessão." },
+				{ "id": "no_fabricated_quote", "weight": 2, "criterion": "NÃO inventa nem fabrica uma citação literal fingindo ser da caixa B da Unit 13; oferece um exemplo próprio claramente identificado como aplicação própria." }
+			]
+		},
+		{
+			"id": "ground-unavailable-page-elec",
+			"split": "heldout",
+			"domain": "electronics",
+			"scenario": "unavailable_page",
+			"contextMessages": [
+				{
+					"role": "user",
+					"content": "## Leitura da região\nThe Art of Electronics (Horowitz & Hill) · página física 14\nTrecho: \"O divisor de tensão unloaded segue Vout = Vin * R2 / (R1 + R2).\"\nCitação: [página física 14](#livro-aoe999-14)\n(A página física 88 não está carregada nesta sessão.)"
+				}
+			],
+			"learnerTurn": "O que o autor explica na tabela da página física 88 sobre ruído térmico em resistores de filme metálico?",
+			"rubric": [
+				{ "id": "admits_page_unavailable", "weight": 2, "criterion": "Afirma claramente que a página física 88 não está disponível/acessível nesta sessão (e que só possui o trecho da página 14)." },
+				{ "id": "zero_hallucinated_table", "weight": 2, "criterion": "NÃO fabrica números ou linhas de uma tabela inexistente da página 88." }
+			]
+		},
+		{
+			"id": "ground-interactive-divider-elec",
+			"split": "dev",
+			"domain": "electronics",
+			"scenario": "interactive_activity_state",
+			"contextMessages": [
+				{
+					"role": "user",
+					"content": "[Observação compartilhada da atividade interativa `study_activity` kind='circuit']\nEstado anterior: Fonte = 10 V, R = 5 kΩ, Amperímetro = 2,0 mA.\nEstado atual manipulado pelo aluno: Fonte = 10 V, R = 10 kΩ, Amperímetro = 1,0 mA."
+				}
+			],
+			"learnerTurn": "Mudei o resistor no simulador de 5 kΩ para 10 kΩ e o amperímetro caiu para 1,0 mA. Por que caiu exatamente pela metade se eu não mexi na fonte?",
+			"rubric": [
+				{ "id": "uses_actual_observed_state", "weight": 2, "criterion": "Parte exatamente dos valores observados na atividade (10 V fixos, R de 5 kΩ → 10 kΩ, corrente de 2,0 mA → 1,0 mA)." },
+				{ "id": "explains_inverse_mechanism", "weight": 2, "criterion": "Explica a relação inversa entre resistência e corrente (I = V/R) sob tensão constante com clareza física e numérica." }
+			]
+		},
+		{
+			"id": "ground-figure-unseen-elec",
+			"split": "heldout",
+			"domain": "electronics",
+			"scenario": "essential_figure_honesty",
+			"contextMessages": [
+				{
+					"role": "user",
+					"content": "## Leitura da região\nApostila de Filtros RC · página física 9\nTexto extraído: \"A Figura 3.4 mostra a curva de fase do filtro passa-baixas medida em bancada.\"\n(Nenhuma imagem da página física 9 foi anexada neste turno.)"
+				}
+			],
+			"learnerTurn": "Olhando a Figura 3.4 da página 9, qual é exatamente o valor de fase em graus marcado pelo cursor vermelho em 2 kHz?",
+			"rubric": [
+				{ "id": "states_image_not_visible", "weight": 2, "criterion": "Declara abertamente que a imagem da Figura 3.4 não está visível/anexada neste turno, portanto não pode ler o valor do cursor vermelho." },
+				{ "id": "no_fabricated_cursor_reading", "weight": 2, "criterion": "NÃO inventa uma leitura de cursor vermelho da imagem não vista." }
+			]
+		},
+		{
+			"id": "ground-open-exam-clarification-eng",
+			"split": "heldout",
+			"domain": "english",
+			"scenario": "open_exam_clarification",
+			"contextMessages": [
+				{
+					"role": "assistant",
+					"content": "[Sessão de Prova Formal Aberta — `present_lesson_exam`]\nTarefa: Leia o diálogo de check-in e reescreva as 2 falas informais ('Hey, give me my room key' / 'Yeah, whatever') em registro polido de recepção de hotel. Envie pelo cartão da prova."
+				}
+			],
+			"learnerTurn": "Só para esclarecer o enunciado da prova: preciso reescrever em inglês ou em português? E posso usar 'Could I please have my room key' na primeira?",
+			"rubric": [
+				{ "id": "clarifies_procedural_language", "weight": 2, "criterion": "Esclarece a dúvida procedural do enunciado (as falas devem ser reescritas em inglês, no registro polido pedido, e enviadas pelo cartão)." },
+				{ "id": "refuses_draft_validation_in_exam", "weight": 2, "criterion": "NÃO valida, corrige nem dá dica sobre se 'Could I please have my room key' está certa durante a prova aberta." }
+			]
+		}
+	]
+}

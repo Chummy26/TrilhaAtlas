@@ -14,6 +14,7 @@ const generationSummary = (source, tokens) => `${source} (approximately ${tokens
 const uuid = () => crypto.randomUUID();
 const flashcardsIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 4h12a1 1 0 0 1 1 1v12"/><rect x="3" y="8" width="14" height="13" rx="2"/><path d="M6 12h8M6 16h5"/></svg>';
 const trashIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>';
+const searchIconMarkup = '<svg class="fc-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>';
 const deletionBlocked = 'Wait for generation to finish or cancel it before deleting content.';
 const activeBatch = batch => batch && ['running', 'pending', 'queued', 'cancelling'].includes(batch.status);
 function lifetime(...parents) {
@@ -251,9 +252,88 @@ export function activate(ctx) {
     generationButton = button(toolbar, 'Generate', () => confirmGeneration(generationIds, signal, showError), signal, { disabled: true, variant: 'default' });
     fileButton = button(toolbar, 'Generate from file…', () => fileInput.click(), signal, { disabled: !canConvertFiles, title: canConvertFiles ? undefined : 'Update LearnHarness to generate flashcards from files.' });
     toolbar.append(fileInput);
+    const hero = el('section', 'fc-hero');
+    hero.setAttribute('aria-label', 'Study overview');
+    const heroPrimary = el('div', 'fc-hero-primary');
+    const heroEyebrow = el('span', 'fc-hero-eyebrow', 'Due today');
+    const heroFigure = el('div', 'fc-hero-figure');
+    const heroDueNum = el('strong', 'fc-hero-num', '0');
+    const heroDueUnit = el('span', 'fc-hero-unit', 'cards');
+    const heroStatusPill = el('span', 'fc-hero-pill', 'All caught up');
+    heroFigure.append(heroDueNum, heroDueUnit, heroStatusPill);
+    heroPrimary.append(heroEyebrow, heroFigure);
+
+    const heroMetrics = el('div', 'fc-hero-metrics');
+    const heroStatDefs = [['new', 'New'], ['learning', 'Learning'], ['review', 'Review'], ['relearning', 'Relearning']];
+    const heroStatValues = new Map();
+    for (const [key, label] of heroStatDefs) {
+      const chip = el('div', 'fc-hero-stat');
+      chip.dataset.state = key;
+      const dot = el('span', 'fc-hero-dot');
+      dot.setAttribute('aria-hidden', 'true');
+      const val = el('strong', 'fc-hero-stat-val', '0');
+      const lbl = el('span', 'fc-hero-stat-label', label);
+      chip.append(dot, val, lbl);
+      heroMetrics.append(chip);
+      heroStatValues.set(key, val);
+    }
+    const heroMetaStrip = el('div', 'fc-hero-meta');
+    const heroDecksMeta = el('span', 'fc-hero-meta-item', '0 decks');
+    const heroCuesMeta = el('span', 'fc-hero-meta-item', '0 cues');
+    const heroStreakMeta = el('span', 'fc-hero-meta-item fc-hero-streak', '0d streak');
+    heroMetaStrip.append(heroDecksMeta, heroCuesMeta, heroStreakMeta);
+    const heroRight = el('div', 'fc-hero-right');
+    heroRight.append(heroMetrics, heroMetaStrip);
+    hero.append(heroPrimary, heroRight);
+
+    const updateHero = state => {
+      const dueList = Array.isArray(state?.statistics?.due) ? state.statistics.due : [];
+      const overdue = Number.isFinite(dueList[0]?.count) ? dueList[0].count : 0;
+      const dueToday = Number.isFinite(dueList[1]?.count) ? dueList[1].count : 0;
+      const liveById = new Map((state?.propositions ?? []).filter(p => !p.archived && p.cues?.some(c => !c.deleted)).map(p => [p.id, p]));
+      const introduced = new Set();
+      let newReady = 0;
+      for (const deck of state?.decks ?? []) {
+        let allowance = Math.max(0, (deck.newLimit ?? 0) - (deck.newToday ?? 0));
+        if (!allowance) continue;
+        for (const id of deck.propositionIds ?? []) {
+          if (!allowance) break;
+          const p = liveById.get(id);
+          if (!p || p.schedule?.state !== 0 || introduced.has(id)) continue;
+          introduced.add(id);
+          newReady++;
+          allowance--;
+        }
+      }
+      const readyNow = overdue + dueToday + newReady;
+      heroDueNum.textContent = String(readyNow);
+      heroDueUnit.textContent = readyNow === 1 ? 'card' : 'cards';
+      heroStatusPill.textContent = readyNow > 0 ? 'Ready now' : 'All caught up';
+      heroStatusPill.dataset.ready = readyNow > 0 ? 'true' : 'false';
+      for (const [key, node] of heroStatValues) {
+        const val = state?.statistics?.states?.[key];
+        node.textContent = String(Number.isFinite(val) && val > 0 ? val : 0);
+      }
+      const deckCount = Array.isArray(state?.decks) ? state.decks.length : 0;
+      const cueCount = (state?.propositions ?? []).reduce((n, p) => n + (p.archived ? 0 : p.cues.filter(c => !c.deleted).length), 0);
+      heroDecksMeta.textContent = `${deckCount} ${deckCount === 1 ? 'deck' : 'decks'}`;
+      heroCuesMeta.textContent = `${cueCount} ${cueCount === 1 ? 'cue' : 'cues'}`;
+      const act = Array.isArray(state?.statistics?.activity) ? state.statistics.activity : [];
+      let streak = 0;
+      let idx = act.length - 1;
+      if (idx >= 0 && !(act[idx]?.count > 0)) idx--;
+      for (; idx >= 0; idx--) {
+        if (act[idx]?.count > 0) streak++;
+        else break;
+      }
+      heroStreakMeta.textContent = `${streak}d streak`;
+      heroStreakMeta.dataset.active = streak > 0 ? 'true' : 'false';
+    };
+
     const deckPanel = el('section', 'fc-deck-panel'), deckToolbar = el('div', 'fc-deck-toolbar');
     deckPanel.setAttribute('aria-label', 'Decks');
     const searchLabel = el('label', 'fc-search'), search = el('input', 'fc-input');
+    searchLabel.insertAdjacentHTML('afterbegin', searchIconMarkup);
     search.type = 'search'; search.placeholder = 'Search decks, propositions, and cues'; search.setAttribute('aria-label', 'Search flashcards'); searchLabel.append(search);
     const batchArea = el('div'), selectionActions = el('div', 'fc-actions fc-selection-actions'), selectionCount = el('span', 'fc-muted'), treeSlot = el('div', 'fc-tree');
     const scopeActions = el('div', 'fc-actions fc-scope-actions'), selectionSummary = el('div', 'fc-selection-summary');
@@ -267,6 +347,7 @@ export function activate(ctx) {
     const clearSelection = button(selectionSummary, 'Clear', () => tree.clearSelection(), signal, { variant: 'ghost', disabled: true });
     const updateSelection = () => {
       const selected = selection.count > 0;
+      selectionActions.dataset.hasSelection = selected ? 'true' : 'false';
       selectionCount.textContent = `${selection.count} selected`;
       reviewAction.update({ label: selected ? 'Review selected' : 'Review all', disabled: selected && !selection.cueIds.length });
       practiceAction.update({ label: selected ? 'Practice selected' : 'Practice all', disabled: selected ? !selection.cueIds.length : !hasPracticeCards });
@@ -280,7 +361,7 @@ export function activate(ctx) {
     button(deckToolbar, 'Create deck', () => editDeck(null, signal), signal);
     deckPanel.append(deckToolbar, selectionActions, treeSlot);
     const dashboardSlot = el('div', 'fc-dashboard-slot');
-    root.append(toolbar, fileStatus, error, batchArea, deckPanel, dashboardSlot); container.append(root);
+    root.append(hero, toolbar, fileStatus, error, batchArea, deckPanel, dashboardSlot); container.append(root);
     const dashboard = mountDashboard({ container: dashboardSlot, signal });
     tree = mountLibraryTree({ ctx, container: treeSlot, signal, button,
       onReview: scope => review.open(scope), onPreview: (p, cue, archive) => previewCue(p, cue, archive, signal),
@@ -349,6 +430,7 @@ export function activate(ctx) {
       else if (cleanupMessage && error.textContent === cleanupMessage) { error.textContent = ''; cleanupMessage = null; }
       updateGenerationButtons(); renderBatch(state.batch); tree.update(state, search.value);
       hasPracticeCards = state.propositions.some(p => !p.archived && p.cues.some(c => !c.deleted)); updateSelection();
+      updateHero(state);
       dashboard.update(state.statistics);
     }, signal);
     return () => { view.abort(); review.dispose(); tree.dispose(); dashboard.dispose(); root.remove(); };

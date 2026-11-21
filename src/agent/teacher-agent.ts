@@ -115,6 +115,7 @@ export interface AgentBuildOptions {
 	studyMemory?: string;
 	missionExamInstruction?: string;
 	missionExamPhase?: LessonExamPhase;
+	responseLanguageInstruction?: string;
 	/** Model + stream function — tests inject a scripted faux engine. */
 	engine?: PiEngine;
 	callPurpose?: { background: boolean };
@@ -238,7 +239,7 @@ function baseAgentOptions(kind: AgentKind, opts: AgentBuildOptions, tools: Agent
 	const problemTools = kind === "practice" && practice && opts.chatId
 		? pluginProblemTools(contributions?.problemTypes ?? [], opts.chatId, practice.gate, practice.graphNodes) : [];
 	// Never replace the builtin prompt or tools, or mutate an already-running Agent.
-	const systemPrompt = [builtinPrompt, ...(contributions?.instructions ?? []), opts.missionExamInstruction]
+	const systemPrompt = [builtinPrompt, ...(contributions?.instructions ?? []), opts.missionExamInstruction, opts.responseLanguageInstruction]
 		.filter(Boolean).join("\n\n---\n\n");
 	// Debug recorder (owner, 2026-10-04): raw provider events when
 	// LH_PROVIDER_EVENTS=1 and the caller handed a chatId; undefined is

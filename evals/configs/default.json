@@ -1,0 +1,88 @@
+{
+	"schemaVersion": "2026-11-evals-v2",
+	"models": [
+		"chatgpt:gpt-6.2-sol",
+		"chatgpt:gpt-6.2-astra"
+	],
+	"conditions": {
+		"production": {
+			"label": "Prompt atual (produção)",
+			"description": "Prompts compostos reais de produção via composeInstructions() / composeSideChatInstructions() / templates lesson/*"
+		},
+		"minimal_contract": {
+			"label": "Prompt mínimo (contratos)",
+			"description": "Baseline enxuto que preserva apenas idioma, formato JSON/Markdown e fronteiras de ferramenta, isolando o ganho real das instruções pedagógicas e de memória"
+		}
+	},
+	"officialExternalBenchmarks": {
+		"tutoringPrimary": [
+			{
+				"id": "tutormoments",
+				"name": "TutorMoments (AllenAI)",
+				"source": "allenai/tutormoments-preview (moments.jsonl, 520 momentos)",
+				"dimensions": ["appropriate_scaffolding", "appropriate_rigor", "avoids_over_scaffolding"]
+			},
+			{
+				"id": "teacharena_tutoring",
+				"name": "TeachArena — Tutoria Situada (Stage 0)",
+				"source": "CinderD/TeachArena (tasks/stage0_situated_tutoring.json, 100 tarefas)",
+				"note": "Reportado individualmente; não constitui escore global do TeachArena (Stage 2 LMS omitido)."
+			},
+			{
+				"id": "teacharena_judgment",
+				"name": "TeachArena — Julgamento Pedagógico (Stage 1)",
+				"source": "CinderD/TeachArena (tasks/stage1_pedagogical_judgment.json, 117 tarefas)",
+				"note": "Reportado individualmente com response_checks determinísticos + nl_assertions."
+			}
+		],
+		"tutoringComplementary": [
+			{
+				"id": "mathtutorbench",
+				"name": "MathTutorBench (Diagnóstico Complementar)",
+				"source": "eth-lre/mathtutorbench (datasets/mathdial_bridge.json)",
+				"note": "Reportado separadamente por habilidade pedagógica, sem condensar em nota global única."
+			}
+		],
+		"memorySeparate": [
+			{
+				"id": "longmemeval_s",
+				"name": "LongMemEval-S (Oracle / Memória)",
+				"source": "xiaowu0162/longmemeval-cleaned (longmemeval_oracle.json, 500 QA)",
+				"note": "Placar separado de Memória & Personalização, complementado pelo diagnóstico em 3 estágios EvalMem."
+			}
+		],
+		"optionalOrCalibration": [
+			{
+				"id": "locomo",
+				"role": "optional-memory",
+				"source": "snap-research/locomo (data/locomo10.json)"
+			},
+			{
+				"id": "mrbench_bea2025",
+				"role": "judge-calibration",
+				"source": "kaushal0494/UnifyingAITutorEvaluation (mrbench_v3_devset.json)"
+			},
+			{
+				"id": "tutorbench",
+				"role": "historical-secondary",
+				"source": "ScaleAI/TutorBench (text-only)"
+			}
+		]
+	},
+	"defaultSampleSizes": {
+		"tutormoments": 6,
+		"teacharena_tutoring": 4,
+		"teacharena_judgment": 6,
+		"mathtutorbench": 6,
+		"longmemeval_s": 6
+	},
+	"protocol": {
+		"crossModelBlindJudge": true,
+		"hidePromptIdentityFromJudge": true,
+		"alternatePresentationOrder": true,
+		"freezeContextForPromptComparison": true,
+		"captureEffectivePromptSha256": true,
+		"reportConfidenceInterval": "95% paired t/bootstrap CI",
+		"forbidCrossFrontOverallAverage": true
+	}
+}

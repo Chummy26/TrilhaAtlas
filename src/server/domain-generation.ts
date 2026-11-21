@@ -33,6 +33,7 @@ const lessonSchema = z.strictObject({
 	skills: z.array(z.strictObject({
 		title, objective: teachingText, activity: teachingText, assessment: teachingText, bloom: BloomLevelSchema,
 		minutes: z.number().int().min(10).max(45), requires: earlier,
+		resourceQuery: searchTerms.optional(),
 		practice: z.strictObject({ targetHours: z.number().positive().max(200), exitCriterion: teachingText,
 			sessions: z.number().int().min(2).max(200).optional(), minutesPerSession: z.number().int().min(10).max(120).optional(), variation: teachingText.optional() }).optional(),
 	})).min(3).max(14),
@@ -48,7 +49,8 @@ Write 3–14 skills (usually 5–10) for this one region, ordered from simplest 
 Number the skills locally from 1. In requires put numbers of earlier skills in THIS region genuinely required for the activity. Use [] for incoming skills, whose regional prerequisites the app handles. Every dependency must point backwards. Give distinct titles. The final skill should be a short demonstration or application, not an exam covering unrelated topics.
 Check the instructions as well as the answers for hidden prerequisites. Specify what learners hear, read, say or select when that changes the skill being tested. A prompt or practice variation must not require an untaught operation just to identify the exercise.
 For a long-term project or an ability that requires distributed practice, add an optional practice object: {"targetHours":20,"exitCriterion":"specific observable performance on new tasks"}. Keep minutes as the initial taught lesson duration. Estimate the practice hours from the work itself and omit practice for a one-off concept.
-Format: {"skills":[{"title":{"pt":"...","en":"..."},"objective":"...","activity":"...","assessment":"...","bloom":"apply","minutes":25,"requires":[]}]}`;
+For specialized or demanding skills that need dedicated reading or a targeted video tutorial beyond the region overview, include an optional short English resourceQuery (2–5 subject keywords, no URLs).
+Format: {"skills":[{"title":{"pt":"...","en":"..."},"objective":"...","activity":"...","assessment":"...","bloom":"apply","minutes":25,"requires":[],"resourceQuery":"optional keywords"}]}`;
 
 type Outline = z.infer<typeof outlineSchema>;
 export interface DomainGenerationRequest {
@@ -60,6 +62,12 @@ export interface DomainGenerationRequest {
 	signal?: AbortSignal;
 	onProgress?: (done: number, total: number) => void;
 }
+export interface GeneratedSkillRef {
+	id: string;
+	title: string;
+	titleEn?: string;
+	query?: string;
+}
 export interface GeneratedRegion {
 	titleEn?: string;
 	objective?: string;
@@ -68,6 +76,7 @@ export interface GeneratedRegion {
 	bookQuery: string;
 	videoQuery: string;
 	youtubeId?: string;
+	skills?: GeneratedSkillRef[];
 }
 
 function checkEarlier(indices: number[], position: number) {
@@ -252,7 +261,16 @@ export async function generateDomainCurriculum(request: DomainGenerationRequest,
 			exits.push(skillIds.at(-1)!);
 			for (const [i, task] of (cases ?? []).entries()) reviews.push({ ...task, nodeId: skillIds.at(-1)!, id: regionId + ":review:" + (i + 1) });
 			const { bookQuery, videoQuery, youtubeId } = definition;
-			regions.push({ id: regionId, title: definition.title.pt, titleEn: definition.title.en, objective: definition.exit, bookQuery, videoQuery, ...(youtubeId ? { youtubeId } : {}) });
+			const skillRefs: GeneratedSkillRef[] = skills.map((skill, idx) => ({
+				id: skillIds[idx]!,
+				title: skill.title.pt,
+				titleEn: skill.title.en,
+				...(skill.resourceQuery ? { query: skill.resourceQuery } : {}),
+			}));
+			regions.push({
+				id: regionId, title: definition.title.pt, titleEn: definition.title.en, objective: definition.exit,
+				bookQuery, videoQuery, ...(youtubeId ? { youtubeId } : {}), skills: skillRefs,
+			});
 			request.onProgress?.(regions.length, allRegions.length);
 		}
 		stage.hours = sumHours(seed.items.filter(item => item.parentId === stage.id).map(item => item.hours));

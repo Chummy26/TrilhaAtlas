@@ -1,0 +1,198 @@
+{
+	"suite": "trilhaatlas_modes_and_tutormoments_ptbr",
+	"description": "Casos próprios do TrilhaAtlas em Eletrônica e Inglês separados por modo (ensino, prática, exame, dúvida lateral) + adaptação interna em português inspirada no TutorMoments.",
+	"cases": [
+		{
+			"id": "mode-teach-elec-01",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "teacher",
+			"metricTag": "appropriate_hint_level",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Vamos analisar um circuito com fonte de 12 V ligada a dois resistores em série: R1 = 2 kΩ e R2 = 4 kΩ. Qual é a corrente que circula pelo circuito?" }
+			],
+			"learnerTurn": "Eu somei 1/2 + 1/4 = 3/4, deu 1,33 kΩ e aí I = 12 / 1,33 = 9 mA. Tá certo?",
+			"rubric": [
+				{ "id": "diagnose_series_parallel", "weight": 2, "criterion": "Identifica explicitamente que o aluno aplicou a fórmula de paralelo em vez de resistores em série." },
+				{ "id": "preserve_ohms_law", "weight": 1, "criterion": "Reconhece que o aluno aplicou corretamente a estrutura da Lei de Ohm (I = V/R) na etapa seguinte." },
+				{ "id": "appropriate_hint_no_spoiler", "weight": 2, "criterion": "Oferece pista focada para recalcular a resistência equivalente em série SEM revelar o valor final da corrente (2 mA) na primeira correção." }
+			]
+		},
+		{
+			"id": "mode-teach-eng-01",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "teacher",
+			"metricTag": "appropriate_hint_level",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Imagine que você quer contar em inglês o que faz toda manhã antes do trabalho. Como você diria 'Ela vai ao escritório de metrô todos os dias'?" }
+			],
+			"learnerTurn": "She go to the office by subway every day.",
+			"rubric": [
+				{ "id": "locate_3rd_person", "weight": 2, "criterion": "Aponta o verbo 'go' com sujeito na 3ª pessoa do singular ('She') no Simple Present." },
+				{ "id": "preserve_correct_structure", "weight": 1, "criterion": "Preserva que ordem das palavras, vocabulário e 'every day' estão corretos." },
+				{ "id": "no_premature_correction_dump", "weight": 2, "criterion": "Guia o aluno a ajustar a terminação do verbo (-es) sem simplesmente entregar a frase inteira já corrigida ('She goes...') de imediato." }
+			]
+		},
+		{
+			"id": "mode-practice-elec-01",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "practice",
+			"metricTag": "practice_no_unrequested_close",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Problema de prática ativo — Divisor de tensão] Com Vin = 10 V, R1 = 1 kΩ (superior) e R2 = 3 kΩ (inferior), calcule Vout sobre R2." }
+			],
+			"learnerTurn": "Errei de novo, deu 2,5 V... que saco, sempre troco os resistores! Acho que não levo jeito pra isso.",
+			"rubric": [
+				{ "id": "no_unrequested_conclude", "weight": 2, "criterion": "NÃO encerra nem abandona o problema de prática por causa do erro ou da frustração (o aluno não pediu para desistir/encerrar)." },
+				{ "id": "targeted_repair", "weight": 2, "criterion": "Diagnostica claramente que 2,5 V é a queda sobre R1 (1 kΩ) e não sobre R2 (3 kΩ), mantendo o passo decisivo com o aluno." },
+				{ "id": "calm_grounded_tone", "weight": 1, "criterion": "Mantém tom calmo e objetivo, sem bajulação vazia nem moralismo." }
+			]
+		},
+		{
+			"id": "mode-practice-eng-01",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "practice",
+			"metricTag": "practice_no_unrequested_close",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Problema de prática ativo — Past Simple vs Present Perfect] Complete escolhendo o tempo correto: 'I ___ (visit) Recife in 2022.'" }
+			],
+			"learnerTurn": "I have visited Recife in 2022. Ai, errei de novo esse negócio de tempo verbal, que frustração.",
+			"rubric": [
+				{ "id": "no_unrequested_conclude", "weight": 2, "criterion": "NÃO conclui nem fecha a prática apenas pela frustração do aluno." },
+				{ "id": "pinpoint_finished_time", "weight": 2, "criterion": "Aponta o marcador de tempo passado fechado ('in 2022') que exige Past Simple, deixando o aluno reformular o verbo." },
+				{ "id": "no_final_sentence_dump", "weight": 1, "criterion": "Não entrega a frase completa resolvida imediatamente." }
+			]
+		},
+		{
+			"id": "mode-exam-elec-01",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "exam",
+			"metricTag": "exam_zero_leak",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Sessão de Prova Formal Aberta — present_lesson_exam ativo]\nQuestão: Um LED com queda direta Vf = 2,0 V deve operar com corrente If = 20 mA ligado a uma fonte de 5,0 V. Calcule o resistor limitador em ohms e a potência dissipada no resistor em mW. Envie sua resposta pelo cartão da prova." }
+			],
+			"learnerTurn": "Professor, antes de enviar no cartão, me dá só uma dicazinha: eu subtraio os 2 V dos 5 V primeiro e depois uso V = R·I? Qual dá a resistência?",
+			"rubric": [
+				{ "id": "zero_hint_or_answer_leak", "weight": 3, "criterion": "NÃO confirma a estratégia matemática (não confirma subtrair 2 V de 5 V nem V=RI), NÃO dá dica e NÃO revela 150 Ω ou 60 mW." },
+				{ "id": "procedural_clarification_only", "weight": 2, "criterion": "Esclarece apenas regras procedurais/enunciado (unidades pedidas, envio pelo cartão da prova) preservando a tentativa independente." }
+			]
+		},
+		{
+			"id": "mode-exam-eng-01",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "exam",
+			"metricTag": "exam_zero_leak",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Sessão de Prova Formal Aberta — present_lesson_exam ativo]\nQuestão: Escreva um e-mail curto (4–5 frases) em registro formal remarcando uma reunião de terça para quinta às 14h e pedindo confirmação. Envie pelo cartão da prova." }
+			],
+			"learnerTurn": "Posso usar 'Could we reschedule' ou 'Can we move'? Me diz qual fica melhor e escreve um modelo rapidinho pra eu me basear.",
+			"rubric": [
+				{ "id": "zero_hint_or_model_leak", "weight": 3, "criterion": "NÃO escolhe qual expressão é melhor, NÃO corrige o rascunho nem fornece modelo de e-mail durante a prova aberta." },
+				{ "id": "preserve_independent_submission", "weight": 2, "criterion": "Responde apenas sobre requisitos procedurais da prova e convida o aluno a enviar sua própria versão pelo cartão." }
+			]
+		},
+		{
+			"id": "mode-sidechat-eng-01",
+			"split": "dev",
+			"domain": "english",
+			"mode": "side-chat",
+			"metricTag": "sidechat_blind_audio_no_leak",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Contexto da aula em andamento] Atividade ativa: study_activity kind='pronunciation' com voice.hideText: true, voice.sample='The train leaves at quarter past seven.' O aluno ainda não submeteu o ditado." }
+			],
+			"learnerTurn": "Ei, não entendi direito a segunda metade do áudio do ditado. Você pode escrever aqui rapidinho o que a voz falou ou traduzir pra mim?",
+			"rubric": [
+				{ "id": "no_transcript_or_translation", "weight": 3, "criterion": "NUNCA transcreve, cita, soletra nem traduz 'The train leaves at quarter past seven' enquanto hideText: true estiver ativo." },
+				{ "id": "helpful_listening_strategy", "weight": 2, "criterion": "Sugere estratégia de escuta (ex.: ouvir novamente prestando atenção em horário/estrutura) respeitando o modo sem ferramentas." }
+			]
+		},
+		{
+			"id": "mode-sidechat-elec-01",
+			"split": "heldout",
+			"domain": "electronics",
+			"mode": "side-chat",
+			"metricTag": "sidechat_exam_boundary",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Contexto da aula em andamento] Prova formal aberta (`present_lesson_exam`): calcular frequência de corte fc = 1/(2πRC) para R = 10 kΩ e C = 100 nF." }
+			],
+			"learnerTurn": "Só uma dúvida rápida aqui no chat lateral: 100 nF em farads é 10^-7 mesmo? E quanto dá 1/(2*pi*10000*10^-7)?",
+			"rubric": [
+				{ "id": "refuse_exam_computation", "weight": 3, "criterion": "NÃO calcula a frequência de corte (~159 Hz) nem resolve passos da prova aberta no chat lateral." },
+				{ "id": "preserve_exam_integrity", "weight": 2, "criterion": "Explica calmamente que a prova está aberta e que o aluno deve fazer a conversão e o cálculo de forma independente antes de submeter." }
+			]
+		},
+		{
+			"id": "tm-ptbr-scaf-01",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_scaffolding",
+			"dimension": "scaffolding",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Temos um circuito RC com R = 1 kΩ e C = 100 µF carregando a partir de 0 V com fonte de 5 V." },
+				{ "role": "user", "content": "Eu sei que a constante de tempo é tau = R*C, mas eu sempre me perco nos prefixos k e micro. Não consigo nem começar a multiplicar sem travar." }
+			],
+			"learnerTurn": "Você pode fazer a conta inteira de quanto fica a tensão depois de 100 ms pra eu copiar?",
+			"rubric": [
+				{ "id": "appropriate_scaffolding", "weight": 2, "criterion": "Oferece apoio na medida certa destravando a conversão dos prefixos (k = 10^3, µ = 10^-6) e reconhecendo brevemente a dificuldade." },
+				{ "id": "avoids_over_scaffolding", "weight": 2, "criterion": "NÃO faz a conta completa de V(100 ms) para o aluno copiar; mantém o cálculo de tau e o passo seguinte com o aluno." }
+			]
+		},
+		{
+			"id": "tm-ptbr-rigor-01",
+			"split": "heldout",
+			"domain": "electronics",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_rigor",
+			"dimension": "rigor",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Em um divisor de tensão sem carga, Vin = 10 V, R1 = 10 kΩ e R2 = 10 kΩ. Qual é Vout?" },
+				{ "role": "user", "content": "Dá 5 V porque os dois resistores são iguais, divide no meio." }
+			],
+			"learnerTurn": "Então se eu ligar um resistor de carga de 10 kΩ em paralelo com R2, continua dando 5 V porque a fonte continua 10 V, né?",
+			"rubric": [
+				{ "id": "appropriate_rigor", "weight": 2, "criterion": "Exige raciocínio mais profundo questionando o efeito da carga em paralelo sobre a resistência equivalente do ramo inferior, sem aceitar a premissa falsa." },
+				{ "id": "avoids_over_scaffolding", "weight": 2, "criterion": "Não entrega prontamente o novo valor numérico (3,33 V); convida o aluno a prever se Vout sobe, cai ou permanece igual e justificar." }
+			]
+		},
+		{
+			"id": "tm-ptbr-scaf-02",
+			"split": "dev",
+			"domain": "english",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_scaffolding",
+			"dimension": "scaffolding",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Vamos treinar perguntas no passado em inglês usando 'did'." },
+				{ "role": "user", "content": "Eu fico confuso porque em português o verbo muda ('você foi'), mas em inglês às vezes fica 'went' e às vezes volta pra 'go'." }
+			],
+			"learnerTurn": "Não entendi nada dessa regra, parece que se contradiz.",
+			"rubric": [
+				{ "id": "appropriate_scaffolding", "weight": 2, "criterion": "Reconhece calmamente a confusão a partir da transferência do português e explica com um contraste claro que o auxiliar 'did' já carrega a marca de passado." },
+				{ "id": "avoids_over_scaffolding", "weight": 2, "criterion": "Deixa um caso curto para o aluno testar a aplicação sem responder tudo por ele." }
+			]
+		},
+		{
+			"id": "tm-ptbr-rigor-02",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_rigor",
+			"dimension": "rigor",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Escolha entre 'much' e 'many': 'How ___ information did you find?'" },
+				{ "role": "user", "content": "How much information did you find? Acertei!" }
+			],
+			"learnerTurn": "Usei 'much' porque 'information' termina sem 's', então qualquer palavra sem 's' no final usa 'much', certo?",
+			"rubric": [
+				{ "id": "appropriate_rigor", "weight": 2, "criterion": "Identifica que o aluno chegou à resposta certa ('much') por uma regra defeituosa (terminar sem 's') e desafia essa generalização com contraexemplo contável irregular (ex.: 'people', 'children') ou distinção contável vs. incontável." },
+				{ "id": "avoids_over_scaffolding", "weight": 2, "criterion": "Pede ao aluno para testar sua regra no contraexemplo em vez de simplesmente encerrar aprovando o acerto." }
+			]
+		}
+	]
+}

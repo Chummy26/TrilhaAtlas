@@ -114,6 +114,6 @@ it("provides a human spelling model and local rehearsal without a transcription 
 	const result = await tool.execute("voice", exercise);
 	const html = renderToStaticMarkup(<ActivityArtifact part={{ type: "tool-study_activity", toolCallId: "voice", state: "output-available", output: result.details }} />);
 	assert.match(html, /<audio[^>]+voa-audio/);
-	assert.match(html, /Gravar minha voz/);
+	assert.ok(!html.includes("Gravar minha voz"), "lesson voice recording is OFF by default");
 	assert.match(html, /separadas por hífens/);
 });

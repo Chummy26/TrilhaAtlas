@@ -14,7 +14,9 @@ As aulas de potências de dez, prefixos SI, Lei de Ohm e passado contínuo abrem
 
 ## Autoria
 
-Para usar um exemplo próprio em outra matéria, o tutor informa `sequence`, `comparison` ou `diagram`, título, referência com seção e uma lista de etapas. Cada etapa tem um rótulo e uma explicação curta. Uma comparação apresenta casos com o mesmo critério e pode incluir uma observação final. Em um diagrama, cada seta deve representar uma dependência ou consequência real. A interface renderiza texto e controles nativos. A ferramenta `demo` já existente atende simulações com outras dinâmicas.
+Para diálogos, situações cotidianas, aulas de idiomas, histórias ou analogias iniciais, o tutor prioriza `kind: "comic"` (tirinha ilustrada em quadrinhos) com 2 a 6 quadros, cenários desenhados em cel shading (`reception`, `cafe`, `classroom`, `home`, `work`, `street`, `lab`, `park`), personagens expressivos com balões de fala e resposta, selo de pista-chave (`cue`), legenda narrativa, síntese de voz opcional por idioma (`language`) e navegação por clique ou teclado.
+
+Para outros temas estruturados, o tutor informa `sequence`, `comparison` ou `diagram`, título, referência com seção e uma lista de etapas. Cada etapa tem um rótulo, uma explicação curta e um selo ilustrado correspondente ao tema. Uma comparação apresenta casos com o mesmo critério e pode incluir uma observação final. Em um diagrama, cada seta deve representar uma dependência ou consequência real. A interface renderiza texto e controles nativos. A ferramenta `demo` já existente atende simulações com outras dinâmicas.
 
 O contrato e a associação às habilidades ficam em `src/core/lesson-activity.ts`. Os painéis compartilham as cores do tema e a preferência de movimento reduzido. A paleta de fábrica é Cel Noite, com grafite, carvão e marfim, tanto no navegador quanto no primeiro quadro do aplicativo desktop.
 

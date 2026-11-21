@@ -1,10 +1,13 @@
+"use client";
+
 /**
  * Profile — level, XP, tier per domain and light usage stats (estudos-sota
- * §2.10–2.11). Server-rendered; no interactivity beyond the back link.
+ * §2.10–2.11). Client-rendered so i18n locale switching stays reactive.
  */
 
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
+import { useT } from "@/components/i18n";
 import type { IconName } from "@/components/icons/generated";
 import type { StudyProfile, TranscriptChapterRow, TranscriptGradeLabel } from "@/src/core";
 
@@ -38,29 +41,64 @@ function chapterAvgExamScore(chapter: TranscriptChapterRow): string {
 	return avg.toFixed(1).replace(".", ",");
 }
 
+function computeStudyStreak(days: readonly { minutes: number }[]): number {
+	if (days.length === 0) return 0;
+	let streak = 0;
+	let i = days.length - 1;
+	if ((days[i]?.minutes ?? 0) <= 0) i--;
+	for (; i >= 0; i--) {
+		if ((days[i]?.minutes ?? 0) > 0) streak++;
+		else break;
+	}
+	return streak;
+}
+
 export function ProfileView({ profile }: { profile: StudyProfile }) {
+	const t = useT();
 	const { account, domains, usage, days } = profile;
 	const maxDay = Math.max(60, ...days.map((d) => d.minutes));
 	const weekMin = days.slice(-7).reduce((a, d) => a + d.minutes, 0);
 	const periodMin = days.reduce((a, d) => a + d.minutes, 0);
+	const streakDays = computeStudyStreak(days);
 	const levelPct = Math.round(account.fraction * 100);
+	const ringRadius = 33;
+	const ringCircumference = 2 * Math.PI * ringRadius;
+	const ringOffset = ringCircumference * (1 - Math.max(0, Math.min(1, account.fraction)));
 	const maxModelTokens = Math.max(1, ...usage.byModel.map((m) => m.tokens));
 	const transcriptDomains = domains.filter((d): d is typeof d & { transcript: NonNullable<typeof d.transcript> } => Boolean(d.transcript));
 
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-12">
 			<div className="mb-6 flex items-center gap-3">
-				<Link href="/" aria-label="Voltar" className="cel-button cel-button-ghost lh-no-drag min-h-9 px-2.5 text-sm">
+				<Link href="/" aria-label={t("pages.profile.back")} className="cel-button cel-button-ghost lh-no-drag min-h-9 px-2.5 text-sm">
 					<Icon name="chevron-left" size={18} tone={false} />
-					Início
+					{t("shell.sidebar.home")}
 				</Link>
-				<h1 className="cel-display text-2xl">Perfil</h1>
+				<h1 className="cel-display text-2xl">{t("pages.profile.title")}</h1>
 			</div>
 
 			<section className="cel-card mb-5 flex flex-wrap items-center gap-4 p-5">
-				<div className="cel-display flex size-18 shrink-0 flex-col items-center justify-center rounded-full border-2 border-[var(--cel-xp,var(--primary))] bg-[color-mix(in_srgb,var(--cel-xp,var(--primary))_12%,var(--background))]">
-					<span className="text-[11px] uppercase tracking-wider text-muted-foreground">nível</span>
-					<span className="text-2xl leading-none tabular-nums">{account.level}</span>
+				{/* Onigiri ring-profile inspired level dial */}
+				<div className="relative flex size-20 shrink-0 items-center justify-center">
+					<svg viewBox="0 0 76 76" className="absolute inset-0 size-full -rotate-90" aria-hidden="true">
+						<circle cx="38" cy="38" r={ringRadius} fill="none" stroke="color-mix(in srgb, var(--border) 55%, transparent)" strokeWidth="5" />
+						<circle
+							cx="38"
+							cy="38"
+							r={ringRadius}
+							fill="none"
+							stroke="var(--cel-xp, var(--primary))"
+							strokeWidth="5"
+							strokeLinecap="round"
+							strokeDasharray={ringCircumference}
+							strokeDashoffset={ringOffset}
+							className="profile-ring-progress"
+						/>
+					</svg>
+					<div className="cel-display relative z-10 flex size-[58px] flex-col items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--cel-xp,var(--primary))_10%,var(--background))]">
+						<span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("pages.profile.level")}</span>
+						<span className="text-2xl leading-none tabular-nums">{account.level}</span>
+					</div>
 				</div>
 				<div className="min-w-48 flex-1 space-y-2">
 					<div className="flex flex-wrap items-baseline gap-2 text-sm">
@@ -72,8 +110,8 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 							{levelPct}% · faltam {fmt.format(account.xpToNext)} XP
 						</span>
 					</div>
-					<div className="h-3 overflow-hidden rounded-full border border-border/70 bg-background/80">
-						<div className="h-full rounded-full bg-[var(--cel-xp,var(--primary))] transition-all" style={{ width: `${levelPct}%` }} />
+					<div className="h-2.5 overflow-hidden rounded-full border border-border/60 bg-background/80">
+						<div className="h-full rounded-full bg-[var(--cel-xp,var(--primary))] transition-all duration-300" style={{ width: `${levelPct}%` }} />
 					</div>
 				</div>
 			</section>
@@ -162,7 +200,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 										<div className="rounded-xl border border-[var(--cel-warning,var(--border))]/45 bg-[color-mix(in_srgb,var(--cel-warning,var(--primary))_8%,var(--background))] px-3.5 py-2.5 text-xs">
 											<div className="mb-1.5 flex items-center gap-1.5 font-semibold text-foreground">
 												<Icon name="warning" size={14} />
-												<span>Módulos esfriando (&lt; 85%)</span>
+												<span>{t("pages.profile.coolingModules")}</span>
 											</div>
 											<ul className="space-y-1.5">
 												{alerts.map((alert) => (
@@ -189,18 +227,18 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 										<table className="w-full text-sm tabular-nums">
 											<thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
 												<tr>
-													<th className="pb-2 pr-3 font-medium">Capítulo</th>
-													<th className="px-2 pb-2 text-right font-medium">Alcançadas</th>
-													<th className="px-2 pb-2 text-right font-medium">Duradouras ≥24h</th>
-													<th className="px-2 pb-2 text-right font-medium">Dominadas</th>
-													<th className="px-2 pb-2 text-right font-medium">Retenção FSRS</th>
-													<th className="px-2 pb-2 text-right font-medium">Nota Provas</th>
-													<th className="pb-2 pl-2 text-right font-medium">Conceito</th>
+													<th className="pb-2 pr-3 font-medium">{t("pages.profile.colChapter")}</th>
+													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colReached")}</th>
+													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colDurable")}</th>
+													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colMastered")}</th>
+													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colFsrs")}</th>
+													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colExam")}</th>
+													<th className="pb-2 pl-2 text-right font-medium">{t("pages.profile.colGrade")}</th>
 												</tr>
 											</thead>
 											<tbody>
 												{transcript.chapters.map((ch) => (
-													<tr key={`${ch.index}-${ch.level}`} className="border-t border-border/50">
+													<tr key={`${ch.index}-${ch.level}`} className="border-t border-border/50 transition-colors hover:bg-accent/40">
 														<td className="min-w-40 py-2 pr-3">
 															<span className="font-semibold text-foreground">{ch.level}</span>
 															<span className="block text-xs text-muted-foreground">{ch.title}</span>
@@ -236,24 +274,30 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 			)}
 
 			<section className="cel-card mb-5 p-5">
-				<div className="mb-3.5 flex flex-wrap items-baseline gap-2">
+				<div className="mb-3.5 flex flex-wrap items-center gap-2">
 					<div className="flex items-center gap-2">
 						<Icon name="clock" size={18} />
-						<h2 className="cel-display text-lg">Tempo de estudo</h2>
+						<h2 className="cel-display text-lg">{t("pages.profile.studyTime")}</h2>
 					</div>
+					<span className={`study-pill tabular-nums ${streakDays > 0 ? "study-pill-warning" : ""}`}>
+						{t("pages.profile.streak", { days: String(streakDays) })}
+					</span>
 					<span className="ml-auto text-xs text-muted-foreground tabular-nums">
 						7 dias: <strong className="font-semibold text-foreground">{hours(weekMin)}</strong> · 14 dias: <strong className="font-semibold text-foreground">{hours(periodMin)}</strong>
 					</span>
 				</div>
-				<div className="flex h-28 items-end gap-1.5 border-b border-border/50 pb-2">
+				<div className="flex h-32 items-end gap-1.5 border-b border-dashed border-border/60 pb-2">
 					{days.map((d, index) => {
 						const isToday = index === days.length - 1;
 						const barHeight = d.minutes > 0 ? Math.max(6, Math.round((d.minutes / maxDay) * 86)) : 3;
 						return (
-							<div key={d.day} className="group flex flex-1 flex-col items-center gap-1.5" title={`${d.day}: ${hours(d.minutes)}`}>
+							<div key={d.day} className="group flex flex-1 flex-col items-center gap-1" title={`${d.day}: ${hours(d.minutes)}`}>
+								<span className="text-[10px] font-semibold tabular-nums text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+									{d.minutes > 0 ? `${Math.round(d.minutes)}m` : ""}
+								</span>
 								<div
-									className="w-full rounded-t-md bg-[var(--cel-accent,var(--primary))] transition-opacity group-hover:opacity-100"
-									style={{ height: `${barHeight}px`, opacity: d.minutes > 0 ? (isToday ? 1 : 0.82) : 0.22 }}
+									className="w-full rounded-t-md bg-[var(--cel-accent,var(--primary))] transition-all duration-150 group-hover:brightness-110"
+									style={{ height: `${barHeight}px`, opacity: d.minutes > 0 ? (isToday ? 1 : 0.78) : 0.2 }}
 								/>
 								<span className={"text-[11px] tabular-nums " + (isToday ? "font-bold text-foreground" : "text-muted-foreground")}>
 									{d.day.slice(8)}
@@ -290,7 +334,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 							</thead>
 							<tbody>
 								{usage.byModel.map((m) => (
-									<tr key={m.model} className="border-t border-border/50">
+									<tr key={m.model} className="border-t border-border/50 transition-colors hover:bg-accent/40">
 										<td className="max-w-52 py-2 pr-3">
 											<span className="block truncate font-mono text-xs">{m.model}</span>
 											<span className="mt-1 block h-1 w-full overflow-hidden rounded-full bg-border/35" aria-hidden="true">

@@ -14,12 +14,12 @@ ONE JSON object and nothing else:
 
 ```json
 {
-  "mission": "Passar na prova de Circuitos I em dezembro, dominando análise nodal.",
+  "mission": "<frase única sobre o objetivo de longo prazo do aluno neste domínio, ou null>",
   "summary": "…",
   "nextFocus": "…"
 }
 ```
 - `mission`: the learner's long-term goal in this domain, one sentence (≤ 240 characters). Keep `previous.mission` unless the session changed it; null if no goal is known.
 - `summary`: what happened in THIS session (≤ 800 characters): topics covered, what the learner mastered, where they struggled, misconceptions found or fixed, exercises done.
-- `nextFocus`: one concrete, actionable next step for the next session (≤ 240 characters), e.g. "Retomar o exercício 4 de divisor com carga e revisar resistência equivalente antes".
+- `nextFocus`: one concrete, actionable next step for the next session (≤ 240 characters), strictly grounded in this domain's messages.
 - Only state what the input supports. No praise, no filler.

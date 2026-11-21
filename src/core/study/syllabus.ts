@@ -11,7 +11,7 @@ import type { CurriculumItem, CurriculumSnapshot } from "../curriculum/types.ts"
 import { FSRS_STATE, retrievability } from "../learner/fsrs.ts";
 import type { LearnerGraphView } from "../learner/graph-view.ts";
 import { DAY_MS } from "../learner/math.ts";
-import { DEFAULT_LEARNER_PARAMS } from "../learner/params.ts";
+import { DEFAULT_LEARNER_PARAMS, LEARNER_CONSTANTS } from "../learner/params.ts";
 import type { LearnerSnapshot } from "../learner/types.ts";
 import type { CampaignChapter, StudyCampaign } from "./campaign.ts";
 
@@ -86,7 +86,10 @@ export interface StudySyllabus {
 	totalLessons: number;
 	completedLessons: number;
 	totalHours: number;
+	completedLessonHours: number;
 	remainingHours: number;
+	/** Actual recorded active study time in this domain (hours). */
+	studiedHours: number;
 	activeChapterIndex: number | null;
 	activeModuleId: string | null;
 	schedule: CourseScheduleEstimate;
@@ -101,6 +104,10 @@ export interface BuildStudySyllabusInput {
 	available: ReadonlySet<string>;
 	at: string;
 	recentMinutes14d: number;
+	/** Distinct active study days in the last 14 days (avoids diluting day-1 sessions across 14 days). */
+	activeDays14d?: number;
+	/** Total recorded active study minutes in this domain (all-time). */
+	totalStudiedMinutes?: number;
 	dailyBudgetMin: number;
 	moduleScores?: ReadonlyMap<string, { score: number; passed: boolean; at: string }>;
 	materialsByUnit?: ReadonlyMap<string, { books: SyllabusMaterialRef[]; videos: SyllabusMaterialRef[] }>;
@@ -236,11 +243,14 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 		available,
 		at,
 		recentMinutes14d,
+		activeDays14d,
+		totalStudiedMinutes,
 		dailyBudgetMin,
 		moduleScores,
 		materialsByUnit,
 		focusNodeId,
 	} = input;
+	const { minNewMinutes, maxNewMinutes } = LEARNER_CONSTANTS.planner;
 
 	const structure = chapterUnitsOf(snapshot, graph, campaign);
 	let activeChapterIndex: number | null = null;
@@ -278,8 +288,13 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 							? "available"
 							: "locked";
 
-				const minutes = Math.round(campaign.lessonMinutes.get(id) ?? Math.max(10, (graphNode?.hoursMid ?? 0.4) * 60));
-				const rawHours = graphNode && graphNode.hoursMid > 0 ? graphNode.hoursMid : minutes / 60;
+				const plannedCap = campaign.lessonMinutes.get(id) ?? maxNewMinutes;
+				const minutes = Math.round(
+					Math.min(plannedCap, maxNewMinutes, Math.max(minNewMinutes, (graphNode?.hoursMid ?? 0.4) * 60)),
+				);
+				// Keep syllabus lesson hours aligned with guided session duration (15–45 min),
+				// rather than raw multi-month CEFR mastery ceilings that inflate completed hours.
+				const rawHours = minutes / 60;
 				const hours = round2(rawHours);
 
 				let retention: number | null = null;
@@ -372,11 +387,17 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 		activeModuleId = (inProgressMod ?? firstIncompleteMod ?? activeMods[0])?.id ?? null;
 	}
 
+	const totalHours = round2(totalHoursRaw);
 	const remainingHours = round2(remainingHoursRaw);
+	const completedLessonHours = round2(Math.max(0, totalHoursRaw - remainingHoursRaw));
+	const studiedHours = round2(Math.max(0, totalStudiedMinutes ?? recentMinutes14d) / 60);
 	const weeklyHoursObserved = round2(Math.max(0, recentMinutes14d) / 2 / 60);
 	const weeklyHoursPlanned = round2((Math.max(0, dailyBudgetMin) * 5) / 60);
 	const reviewReserveShare = 0.33;
-	const paceSource: CourseScheduleEstimate["paceSource"] = weeklyHoursObserved >= 1 ? "observed" : "planned";
+	// Require at least 3 active study days (when tracked) before overriding planned pace,
+	// so a single first-day session isn't diluted across 14 days into a multi-year forecast.
+	const hasEnoughObservedDays = activeDays14d === undefined || activeDays14d >= 3;
+	const paceSource: CourseScheduleEstimate["paceSource"] = hasEnoughObservedDays && weeklyHoursObserved >= 1 ? "observed" : "planned";
 	const effectiveWeeklyHours = paceSource === "observed" ? weeklyHoursObserved : weeklyHoursPlanned;
 	// Reserve 33% of weekly study time for FSRS reviews and integrative exams (r7 Monte Carlo).
 	const netNewPace = Math.max(0.25, effectiveWeeklyHours * (1 - reviewReserveShare));
@@ -401,8 +422,10 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 		chapters,
 		totalLessons,
 		completedLessons,
-		totalHours: round2(totalHoursRaw),
+		totalHours,
+		completedLessonHours,
 		remainingHours,
+		studiedHours,
 		activeChapterIndex,
 		activeModuleId,
 		schedule: {

@@ -5,18 +5,35 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons/icon";
 import { useModelCatalog } from "@/components/model-catalog";
 import { useSettingsDialog } from "@/components/settings/settings-dialog";
+import { useT } from "@/components/i18n";
 import { campaignHours, campaignPaces, type CampaignPace, type DomainCreationStatus, type PluginModelValue } from "@/src/core";
 
 const endpoint = "/api/domains/create";
 const lastRequest = "trilhaatlas.domain-creation";
 
+interface SeedMaterialDraft {
+	kind: "book" | "video";
+	title: string;
+	url: string;
+	part: string;
+	regionHint: string;
+}
+
 export function DomainCreator() {
+	const t = useT();
 	const { catalog, failed, refresh } = useModelCatalog();
 	const { open } = useSettingsDialog();
 	const [topic, setTopic] = useState("");
 	const [pace, setPace] = useState<CampaignPace>("extended");
 	const workload = campaignPaces[pace];
 	const [chosen, setChosen] = useState<PluginModelValue>();
+	const [materials, setMaterials] = useState<SeedMaterialDraft[]>([]);
+	const [draftKind, setDraftKind] = useState<"book" | "video">("video");
+	const [draftTitle, setDraftTitle] = useState("");
+	const [draftUrl, setDraftUrl] = useState("");
+	const [draftPart, setDraftPart] = useState("");
+	const [draftHint, setDraftHint] = useState("");
+	const [draftError, setDraftError] = useState("");
 	const [requestId, setRequestId] = useState("");
 	const [status, setStatus] = useState<DomainCreationStatus>();
 	const [error, setError] = useState("");
@@ -60,6 +77,16 @@ export function DomainCreator() {
 		return () => { controller.abort(); clearTimeout(timer); };
 	}, [requestId]);
 
+	function addMaterial() {
+		const title = draftTitle.trim();
+		const url = draftUrl.trim();
+		if (title.length < 2) { setDraftError(t("pages.creator.errTitle")); return; }
+		if (!/^https:\/\//i.test(url)) { setDraftError(t("pages.creator.errUrl")); return; }
+		if (materials.length >= 24) { setDraftError("Limite de 24 materiais iniciais atingido."); return; }
+		setMaterials(prev => [...prev, { kind: draftKind, title, url, part: draftPart.trim(), regionHint: draftHint.trim() }]);
+		setDraftTitle(""); setDraftUrl(""); setDraftPart(""); setDraftHint(""); setDraftError("");
+	}
+
 	async function create() {
 		if (submitting.current || working || selection < 0) return;
 		submitting.current = true;
@@ -69,11 +96,24 @@ export function DomainCreator() {
 		// A refresh or a lost POST response can still find the original job.
 		sessionStorage.setItem(lastRequest, id);
 		let refused = false;
+		const initialMaterials = materials.map(m => ({
+			kind: m.kind,
+			title: m.title,
+			url: m.url,
+			...(m.part ? { part: m.part } : {}),
+			...(m.regionHint ? { regionHint: m.regionHint } : {}),
+		}));
 		try {
 			const response = await fetch(endpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ topic, model, pace, requestId: id }),
+				body: JSON.stringify({
+					topic,
+					model,
+					pace,
+					requestId: id,
+					...(initialMaterials.length ? { initialMaterials } : {}),
+				}),
 			});
 			const body = await response.json();
 			if (!response.ok) {
@@ -111,7 +151,7 @@ export function DomainCreator() {
 					<Icon name="chevron-left" size={16} tone={false} />
 					Voltar aos estudos
 				</Link>
-				<h1 className="cel-display text-3xl leading-tight">Criar domínio de estudo</h1>
+				<h1 className="cel-display text-3xl leading-tight">{t("pages.creator.title")}</h1>
 			</div>
 
 			{status?.state === "ready" ? (
@@ -156,7 +196,7 @@ export function DomainCreator() {
 			) : (
 				<form className="cel-card space-y-5 p-6" onSubmit={event => { event.preventDefault(); void create(); }}>
 					<label className="block space-y-2">
-						<span className="text-sm font-semibold">O que você quer aprender a fazer?</span>
+						<span className="text-sm font-semibold">{t("pages.creator.goalLabel")}</span>
 						<textarea
 							className="cel-input block w-full resize-y p-3 text-[15px] leading-relaxed"
 							rows={4}
@@ -200,7 +240,7 @@ export function DomainCreator() {
 					</fieldset>
 
 					<label className="block space-y-2">
-						<span className="text-sm font-semibold">Modelo para criar a árvore</span>
+						<span className="text-sm font-semibold">{t("pages.creator.modelLabel")}</span>
 						<select
 							className="cel-input block w-full px-3 py-2 text-sm"
 							value={selection}
@@ -210,10 +250,65 @@ export function DomainCreator() {
 								if (item) setChosen({ provider: item.provider, id: item.id });
 							}}
 						>
-							<option value={-1} disabled>Escolha um modelo</option>
+							<option value={-1} disabled>{t("pages.creator.chooseModel")}</option>
 							{models.map((entry, i) => <option key={entry.provider + "/" + entry.id} value={i}>{entry.name} · {entry.provider}</option>)}
 						</select>
 					</label>
+
+					<details className="study-disclosure text-sm">
+						<summary>Incluir seus próprios livros, PDFs ou vídeos iniciais{materials.length ? ` (${materials.length})` : " (opcional)"}</summary>
+						<div className="study-disclosure-body space-y-3 pt-2">
+							<p className="text-xs leading-relaxed text-muted-foreground">
+								Cole links de aulas no YouTube, capítulos de livros ou PDFs. Ao montar a árvore, o sistema interliga cada fonte às regiões e habilidades compatíveis — e depois você também pode vincular PDFs locais e seções diretamente em cada nó no mapa.
+							</p>
+							<div className="grid gap-2 sm:grid-cols-2">
+								<label className="space-y-1 text-xs font-semibold">
+									Tipo
+									<select className="cel-input block w-full px-2.5 py-1.5 text-sm font-normal" value={draftKind} disabled={working || busy} onChange={e => setDraftKind(e.target.value === "book" ? "book" : "video")}>
+										<option value="video">Vídeo / aula (YouTube ou link)</option>
+										<option value="book">Livro / PDF / apostila (link)</option>
+									</select>
+								</label>
+								<label className="space-y-1 text-xs font-semibold">
+									Título da obra ou aula
+									<input type="text" className="cel-input block w-full px-2.5 py-1.5 text-sm font-normal" value={draftTitle} disabled={working || busy} onChange={e => setDraftTitle(e.target.value)} placeholder="Ex.: Curso de Astronomia · Aula 3" />
+								</label>
+								<label className="space-y-1 text-xs font-semibold sm:col-span-2">
+									Link HTTPS
+									<input type="url" className="cel-input block w-full px-2.5 py-1.5 text-sm font-normal" value={draftUrl} disabled={working || busy} onChange={e => setDraftUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=... ou https://.../capitulo.pdf" />
+								</label>
+								<label className="space-y-1 text-xs font-semibold">
+									Seção / capítulo / minutagem (opcional)
+									<input type="text" className="cel-input block w-full px-2.5 py-1.5 text-sm font-normal" value={draftPart} disabled={working || busy} onChange={e => setDraftPart(e.target.value)} placeholder="Ex.: Cap. 2 · p. 30–48 ou 05:20" />
+								</label>
+								<label className="space-y-1 text-xs font-semibold">
+									Para qual assunto/região? (opcional)
+									<input type="text" className="cel-input block w-full px-2.5 py-1.5 text-sm font-normal" value={draftHint} disabled={working || busy} onChange={e => setDraftHint(e.target.value)} placeholder="Ex.: telescópios, espectroscopia" />
+								</label>
+							</div>
+							{draftError && <p role="alert" className="text-xs text-destructive">{draftError}</p>}
+							<button type="button" className="cel-button min-h-8 px-3 py-1 text-xs" disabled={working || busy} onClick={addMaterial}>
+								<Icon name="plus" size={14} tone={false} />
+								Adicionar à lista inicial
+							</button>
+							{materials.length > 0 && (
+								<ul className="space-y-1.5 pt-1">
+									{materials.map((item, idx) => (
+										<li key={item.url + idx} className="flex items-center justify-between gap-2 rounded-lg border border-border/55 bg-background/60 px-2.5 py-1.5 text-xs">
+											<span className="min-w-0 truncate">
+												<strong>{item.kind === "video" ? "Vídeo" : "Leitura"}:</strong> {item.title}
+												{item.part ? ` · ${item.part}` : ""}
+												{item.regionHint ? ` (${item.regionHint})` : ""}
+											</span>
+											<button type="button" className="shrink-0 font-semibold text-muted-foreground underline hover:text-foreground" onClick={() => setMaterials(prev => prev.filter((_, i) => i !== idx))}>
+												Remover
+											</button>
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
+					</details>
 
 					{!working && (
 						<div className="flex flex-wrap items-center gap-3 text-xs">
@@ -231,7 +326,7 @@ export function DomainCreator() {
 					{working ? (
 						<div role="status" aria-live="polite" className="space-y-3 rounded-xl border border-border/60 bg-background/70 p-4">
 							<div className="flex items-center justify-between gap-2 text-sm font-semibold">
-								<span>{status.state === "materials" ? "Buscando livros e vídeos por região…" : "Organizando a árvore de habilidades…"}</span>
+								<span>{status.state === "materials" ? t("pages.creator.findingMaterials") : t("pages.creator.organizingTree")}</span>
 								{status.total > 0 && <span className="font-mono text-xs text-muted-foreground tabular-nums">{status.done}/{status.total}</span>}
 							</div>
 							<progress className="study-progress block w-full" value={status.total > 0 ? status.done : undefined} max={status.total > 0 ? status.total : undefined} />

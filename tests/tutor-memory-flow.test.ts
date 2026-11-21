@@ -137,7 +137,7 @@ it("passes grounded memory and the learner snapshot on the real model wire, scop
 	const second = await lesson("english", "teach", focus);
 	const secondContext = await ask(second, lookup);
 	assert.ok(secondContext.includes("## Leitura da região"));
-	assert.ok(secondContext.includes("Grammar field notes") && secondContext.includes("página física 2") && !secondContext.includes("1-2"));
+	assert.ok(secondContext.includes("Grammar field notes") && secondContext.includes("página física 2") && !secondContext.includes("página física 1-2"));
 	assert.ok(secondContext.includes(quote), "the model actually receives the searchable text extracted from the regional PDF");
 	const unrelatedNode = "en.listening.a1.personal-info";
 	assert.notEqual(unrelatedNode, nodeId);

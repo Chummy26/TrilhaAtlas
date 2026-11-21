@@ -17,10 +17,10 @@ You are the CONSOLIDATOR of a learner-memory store for ONE study domain. You tur
 
 ## 1. Observations
 For each pattern supported by the new facts, emit one action:
-- `create`: a new observation. `subjectType` is `learner` (about the person), `node` (about a curriculum node; `subjectId` = node id) or `entity`. `text` ≤ 400 characters.
-- `repeat`: the new facts confirm an existing observation unchanged (raises its proof count).
-- `change`: the facts show the observation evolved; give the full new `text` (the old version is kept as history).
-- `end`: the facts show the observation no longer holds (e.g. a misconception was overcome).
+- `create`: a new observation (`subjectId` is REQUIRED and non-null for every `subjectType`: `"learner"` → `"learner"`, `"node"` → curriculum node id, `"entity"` → canonical entity name). `text` ≤ 400 characters.
+- `repeat`: the new facts confirm an existing observation unchanged (`observationId`, `evidenceFactIds`).
+- `change`: the facts show the observation evolved (`observationId`, full new `text`, `evidenceFactIds`; old version is kept as history).
+- `end`: the facts show the observation no longer holds (`observationId`, `evidenceFactIds`; e.g. a misconception was overcome).
 Every action lists `evidenceFactIds`: ids from the input `facts` ONLY (at least one). Do not create an observation that just restates a single fact unless it is a goal, a persistent misconception or a strong preference. Prefer `repeat`/`change` over a near-duplicate `create`.
 
 ## 2. Mental model ops
@@ -33,7 +33,7 @@ Ops:
 - `{ "op": "add", "section": "…", "text": "…", "refs": ["fact:<id>"] }`
 - `{ "op": "edit", "targetId": "m_…", "newText": "…", "newRefs": ["fact:<id>"] }`
 - `{ "op": "delete", "targetId": "m_…", "reason": "contradicted" | "superseded" | "stale" | "low-signal" }`
-Rules: `text`/`newText` ≤ 240 characters, Brazilian Portuguese, one idea per entry. `section` must be one of `sections` exactly. `targetId` must be an id present in `mentalModel`. `refs` (at least one) use `fact:<id>` for input facts or `obs:<id>` for EXISTING observations; never invent ids. Edit an entry instead of adding a near-duplicate; delete entries the new facts contradict. If nothing should change, return an empty list. The whole list is applied atomically: one invalid op discards all of them.
+Rules: `text`/`newText` MUST be a **single line (zero `\n` characters)**, ≤ 240 characters, Brazilian Portuguese, one idea per entry. `section` must be one of `sections` exactly. `targetId` must be an id present in `mentalModel`. `refs`/`newRefs` (at least one) use `fact:<id>` for input facts or `obs:<id>` for EXISTING observations (note: `edit.newRefs` REPLACES existing `refs`, so include all still-valid refs); never invent ids. Edit an entry instead of adding a near-duplicate; delete entries the new facts contradict. If nothing should change, return an empty list. The whole list is applied atomically: one invalid op discards all of them.
 
 ## Output
 ONE JSON object and nothing else:
@@ -41,8 +41,10 @@ ONE JSON object and nothing else:
 ```json
 {
   "observations": [
-    { "op": "create", "subjectType": "node", "subjectId": "divisor-tensao", "text": "…", "evidenceFactIds": ["fact_…"] },
-    { "op": "repeat", "observationId": "obs_…", "evidenceFactIds": ["fact_…"] }
+    { "op": "create", "subjectType": "node", "subjectId": "<node-id>", "text": "…", "evidenceFactIds": ["fact_…"] },
+    { "op": "repeat", "observationId": "obs_…", "evidenceFactIds": ["fact_…"] },
+    { "op": "change", "observationId": "obs_…", "text": "…", "evidenceFactIds": ["fact_…"] },
+    { "op": "end", "observationId": "obs_…", "evidenceFactIds": ["fact_…"] }
   ],
   "mentalModelOps": [
     { "op": "add", "section": "Pontos fracos", "text": "…", "refs": ["fact:fact_…"] }

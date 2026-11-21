@@ -96,7 +96,7 @@ describe("explicit plugin chrome", () => {
 			assert.deepEqual([...grid().querySelectorAll("button")].slice(0, 2).map(button => button.textContent), ["Teaching", "Practice"]);
 			await act(async () => { for (let i = 4; i < 10; i++) context.placeAction({ id: `sidebar-${i}`, actionId: "run", location: "sidebar" }); });
 			assert.equal(grid().querySelectorAll("button").length, 12);
-			assert.ok(grid().className.includes("max-h-[10.25rem]") && grid().className.includes("overflow-y-auto"));
+			assert.ok(grid().className.includes("max-h-[14rem]") && grid().className.includes("overflow-y-auto"));
 			const rail = f.document.querySelector('[data-testid="plugin-graph-actions"]')!;
 			assert.ok(rail.className.includes("top-11") && rail.className.includes("p-2") && rail.className.includes("bottom-0"), "closed sidebar reserves floating toggle and native lights row; inner padding keeps buttons at 8px edges");
 			assert.ok(rail.classList.contains("pointer-events-none"), "transparent rail and gaps pass pointer/wheel input through to the canvas");

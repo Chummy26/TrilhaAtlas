@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
+import { useT } from "@/components/i18n";
 import {
 	formatFlippedPrepForLesson,
 	type DomainNotebook,
@@ -412,6 +413,7 @@ export function SyllabusView({
 	initialModule,
 	initialAction,
 }: SyllabusViewProps) {
+	const t = useT();
 	const router = useRouter();
 	const starterRef = useRef(new SessionStarter());
 	const [tab, setTab] = useState<SyllabusTab>(initialTab);
@@ -455,7 +457,11 @@ export function SyllabusView({
 	const [exportBusy, setExportBusy] = useState<FlashcardExportMode | null>(null);
 	const [exportStatus, setExportStatus] = useState<{ ok: boolean; text: string } | null>(null);
 
-	const completedHours = Math.max(0, Math.round((syllabus.totalHours - syllabus.remainingHours) * 100) / 100);
+	const completedHours = syllabus.completedLessonHours ?? Math.max(0, Math.round((syllabus.totalHours - syllabus.remainingHours) * 100) / 100);
+	const studiedHours = syllabus.studiedHours ?? 0;
+	const studiedLabel = studiedHours > 0
+		? (studiedHours < 1 ? `${Math.max(1, Math.round(studiedHours * 60))} min` : `${formatNumber(studiedHours)} h`)
+		: null;
 	const overallPct = syllabus.totalLessons > 0
 		? Math.round((100 * syllabus.completedLessons) / syllabus.totalLessons)
 		: 0;
@@ -614,7 +620,8 @@ export function SyllabusView({
 							</h1>
 							<p className="text-xs text-muted-foreground tabular-nums">
 								<strong className="font-semibold text-foreground">{syllabus.completedLessons}/{syllabus.totalLessons}</strong> aulas concluídas ({overallPct}%) ·{" "}
-								<strong className="font-semibold text-foreground">{formatNumber(completedHours)}/{formatNumber(syllabus.totalHours)} h</strong>
+								<strong className="font-semibold text-foreground">{formatNumber(completedHours)}/{formatNumber(syllabus.totalHours)} h</strong> estimadas em aulas
+								{studiedLabel ? <> · <strong className="font-semibold text-foreground">{studiedLabel}</strong> reais estudados</> : null}
 							</p>
 						</div>
 
@@ -671,7 +678,7 @@ export function SyllabusView({
 							<div className="flex flex-wrap items-center justify-between gap-2">
 								<div className="flex items-center gap-2">
 									<Icon name="calendar" size={18} />
-									<h2 className="cel-display text-lg leading-tight">Cronograma Realista</h2>
+									<h2 className="cel-display text-lg leading-tight">{t("course.syllabus.scheduleTitle")}</h2>
 								</div>
 								<span className="study-pill study-pill-info tabular-nums">
 									{schedule.paceSource === "observed" ? "Ritmo observado (14 dias)" : "Ritmo planejado"}
@@ -681,10 +688,11 @@ export function SyllabusView({
 							<div className="space-y-1.5">
 								<div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground tabular-nums">
 									<span>
-										<strong className="font-semibold text-foreground">{formatNumber(completedHours)} h</strong> concluídas ·{" "}
+										<strong className="font-semibold text-foreground">{formatNumber(completedHours)} h</strong> em aulas concluídas ·{" "}
 										<strong className="font-semibold text-foreground">{formatNumber(syllabus.remainingHours)} h</strong> restantes
+										{studiedLabel ? <> · <strong className="font-semibold text-foreground">{studiedLabel}</strong> de estudo real</> : null}
 									</span>
-									<span>{overallPct}% da carga total</span>
+									<span>{overallPct}% das aulas</span>
 								</div>
 								<progress
 									className="study-progress block w-full"
@@ -696,7 +704,7 @@ export function SyllabusView({
 
 							<dl className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
 								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
-									<dt className="text-xs text-muted-foreground">Previsão p50–p80</dt>
+									<dt className="text-xs text-muted-foreground">{t("course.syllabus.forecast")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{syllabus.remainingHours <= 0
 											? "Concluído"
@@ -710,7 +718,7 @@ export function SyllabusView({
 								</div>
 
 								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
-									<dt className="text-xs text-muted-foreground">Ritmo semanal usado</dt>
+									<dt className="text-xs text-muted-foreground">{t("course.syllabus.weeklyPace")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{formatNumber(schedule.effectiveWeeklyHours)} h/sem
 									</dd>
@@ -720,7 +728,7 @@ export function SyllabusView({
 								</div>
 
 								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
-									<dt className="text-xs text-muted-foreground">Reserva para revisões</dt>
+									<dt className="text-xs text-muted-foreground">{t("course.syllabus.reviewReserve")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">{reviewReservePct}% FSRS</dd>
 									<p className="mt-0.5 text-[11px] text-muted-foreground">
 										Revisões espaçadas e provas integradoras já descontadas
@@ -728,7 +736,7 @@ export function SyllabusView({
 								</div>
 
 								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
-									<dt className="text-xs text-muted-foreground">Capítulo atual</dt>
+									<dt className="text-xs text-muted-foreground">{t("course.syllabus.currentChapter")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{schedule.activeChapterWeeks <= 0
 											? "Concluído"
@@ -823,7 +831,7 @@ export function SyllabusView({
 																			<h3 className="cel-display text-base leading-snug">
 																				Módulo {mod.index} · {mod.title}
 																			</h3>
-																			{isCurrentModule && <span className="study-pill study-pill-accent">Em foco</span>}
+																			{isCurrentModule && <span className="study-pill study-pill-accent">{t("course.syllabus.inFocus")}</span>}
 																			{mod.avgRetention !== null && (
 																				<span className="study-pill study-pill-info tabular-nums" title="Retenção média estimada pelo FSRS">
 																					Retenção {Math.round(mod.avgRetention * 100)}%
@@ -844,7 +852,7 @@ export function SyllabusView({
 																			</span>
 																			<span>{formatNumber(mod.hoursRemaining)}/{formatNumber(mod.hoursTotal)} h restantes</span>
 																			{mod.examUnlocked && mod.examScore === undefined && (
-																				<span className="text-[var(--cel-success-text,var(--lh-success))]">Prova destravada</span>
+																				<span className="text-[var(--cel-success-text,var(--lh-success))]">{t("course.syllabus.examUnlocked")}</span>
 																			)}
 																		</div>
 																		<progress
@@ -973,13 +981,13 @@ export function SyllabusView({
 																						{idx + 1}. {lesson.title}
 																					</Link>
 																					{lesson.hasLab && (
-																						<span className="study-pill study-pill-info">Lab</span>
+																						<span className="study-pill study-pill-info">{t("course.syllabus.pillLab")}</span>
 																					)}
 																					{lesson.durable && (
-																						<span className="study-pill study-pill-success">Retida ≥24h</span>
+																						<span className="study-pill study-pill-success">{t("course.syllabus.pillDurable")}</span>
 																					)}
 																					{lesson.isFinale && (
-																						<span className="study-pill study-pill-accent">Missão final</span>
+																						<span className="study-pill study-pill-accent">{t("course.syllabus.pillFinale")}</span>
 																					)}
 																					<span className="text-xs tabular-nums text-muted-foreground">
 																						~{lesson.minutes} min
@@ -1048,7 +1056,7 @@ export function SyllabusView({
 								<div className="space-y-0.5">
 									<div className="flex items-center gap-2">
 										<Icon name="export-cards" size={18} />
-										<h2 className="cel-display text-lg leading-tight">Exportar Flashcards do Domínio</h2>
+										<h2 className="cel-display text-lg leading-tight">{t("course.syllabus.exportFlashcards")}</h2>
 									</div>
 									<p className="text-xs text-muted-foreground">
 										Exporte os cartões gerados nas suas aulas de {domainTitle} para revisão externa em Obsidian ou Anki.
@@ -1163,10 +1171,10 @@ export function SyllabusView({
 															</div>
 															{mistake.quizContext && (
 																<div className="space-y-1 text-muted-foreground">
-																	<p><strong className="text-foreground/90">Pergunta:</strong> {mistake.quizContext.question}</p>
-																	<p><strong className="text-foreground/90">Sua resposta:</strong> {mistake.quizContext.answer}</p>
+																	<p><strong className="text-foreground/90">{t("course.syllabus.question")}</strong> {mistake.quizContext.question}</p>
+																	<p><strong className="text-foreground/90">{t("course.syllabus.yourAnswer")}</strong> {mistake.quizContext.answer}</p>
 																	{mistake.quizContext.expected && (
-																		<p><strong className="text-foreground/90">Esperado:</strong> {mistake.quizContext.expected}</p>
+																		<p><strong className="text-foreground/90">{t("course.syllabus.expected")}</strong> {mistake.quizContext.expected}</p>
 																	)}
 																</div>
 															)}
@@ -1234,8 +1242,8 @@ export function SyllabusView({
 																>
 																	{concept.title}
 																</Link>
-																{concept.mastered && <span className="study-pill study-pill-success">Dominado</span>}
-																{concept.durable && <span className="study-pill study-pill-info">Retida ≥24h</span>}
+																{concept.mastered && <span className="study-pill study-pill-success">{t("course.syllabus.mastered")}</span>}
+																{concept.durable && <span className="study-pill study-pill-info">{t("course.syllabus.pillDurable")}</span>}
 															</div>
 															{concept.summary && (
 																<p className="leading-relaxed text-muted-foreground">{concept.summary}</p>

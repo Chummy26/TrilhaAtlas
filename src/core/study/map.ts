@@ -46,6 +46,12 @@ export interface StudyMaterial {
 	lang: string;
 	nodes: string[];
 	suggested?: boolean;
+	manual?: boolean;
+	manualId?: string;
+	libraryBookId?: string;
+	notes?: string;
+	reputationScore?: number;
+	reputationBadge?: string;
 	bookKey?: string;
 	/** Complete open work, distinct from the section or worksheet in url. */
 	fullBookUrl?: string;
@@ -76,6 +82,8 @@ export function lessonSourceLines(materials: readonly StudyMaterial[]): string[]
 export interface RegionMaterials {
 	region: string;
 	localReadings?: { id: string; title: string; readable: boolean }[];
+	regionNodes?: { id: string; title: string; kind: NodeKind }[];
+	libraryBooks?: { id: string; title: string; format: string; pages?: number }[];
 	materials: StudyMaterial[];
 	references: { title: string; url?: string; parts: string[] }[];
 	videoSearch: boolean;

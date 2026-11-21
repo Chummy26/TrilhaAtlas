@@ -1,0 +1,315 @@
+{
+	"suite": "trilhaatlas_grading_gold",
+	"description": "Conjunto rotulado por especialista com 7 classes críticas de resposta (× 2 domínios: Eletrônica e Inglês) para avaliar SEPARADAMENTE o corretor determinístico (module-exam.ts) e o corretor LLM 0–3 (lesson/grader.md).",
+	"cases": [
+		{
+			"id": "grade-elec-short-correct",
+			"split": "dev",
+			"domain": "electronics",
+			"responseClass": "short_correct",
+			"nodeId": "elec.dc.ohms-law",
+			"prompt": "Em um circuito com fonte de 12 V e resistor de 4 kΩ, calcule a corrente e explique brevemente o porquê.",
+			"reference": "Pela Lei de Ohm, I = V / R = 12 V / 4000 Ω = 3 mA (0,003 A).",
+			"rubricCriteria": [
+				"Aplica a Lei de Ohm I = V / R corretamente",
+				"Converte 4 kΩ para 4000 Ω e obtém 3 mA (ou 0,003 A) com unidade correta"
+			],
+			"expectedTerms": ["ohm", "corrente", "12", "4000", "3 mA"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-unit-slip", "diagnosticSignal": "Esquece o prefixo kilo e responde 3 A em vez de 3 mA" },
+				{ "id": "m-invert-ohm", "diagnosticSignal": "Multiplica V por R ou inverte R/V" }
+			],
+			"learnerAnswer": "Pela Lei de Ohm, I = V/R = 12 V / 4000 Ω = 3 mA.",
+			"goldGrade": 3,
+			"goldCorrect": true,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-elec-synonym-correct",
+			"split": "heldout",
+			"domain": "electronics",
+			"responseClass": "synonym_correct",
+			"nodeId": "elec.dc.ohms-law",
+			"prompt": "Em um circuito com fonte de 12 V e resistor de 4 kΩ, calcule a corrente e explique brevemente o porquê.",
+			"reference": "Pela Lei de Ohm, I = V / R = 12 V / 4000 Ω = 3 mA (0,003 A).",
+			"rubricCriteria": [
+				"Aplica a Lei de Ohm I = V / R corretamente",
+				"Converte 4 kΩ para 4000 Ω e obtém 3 mA (ou 0,003 A) com unidade correta"
+			],
+			"expectedTerms": ["ohm", "corrente", "12", "4000", "3 mA"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-unit-slip", "diagnosticSignal": "Esquece o prefixo kilo e responde 3 A em vez de 3 mA" }
+			],
+			"learnerAnswer": "A intensidade elétrica que atravessa o componente resulta de dividir a diferença de potencial de doze volts pela oposição de quatro mil ohms, produzindo 0,003 ampère (três miliampères).",
+			"goldGrade": 3,
+			"goldCorrect": true,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-elec-partial",
+			"split": "dev",
+			"domain": "electronics",
+			"responseClass": "partial_correct",
+			"nodeId": "elec.dc.voltage-divider",
+			"prompt": "Com Vin = 10 V, R1 = 2 kΩ (superior) e R2 = 8 kΩ (inferior), calcule Vout sobre R2 e diga o que acontece com Vout se R2 dobrar.",
+			"reference": "Vout = 10 · 8 / (2 + 8) = 8 V. Se R2 dobrar para 16 kΩ, Vout sobe para 10 · 16 / 18 ≈ 8,89 V, pois R2 passa a concentrar uma fração maior da resistência total.",
+			"rubricCriteria": [
+				"Calcula Vout = 8 V corretamente",
+				"Explica que Vout aumenta quando R2 dobra porque a fração R2/(R1+R2) cresce"
+			],
+			"expectedTerms": ["8 V", "divisor", "R2", "aumenta", "fração"],
+			"minWords": 12,
+			"misconceptions": [
+				{ "id": "m-swap-r1-r2", "diagnosticSignal": "Coloca R1 no numerador em vez de R2" }
+			],
+			"learnerAnswer": "Usando a relação do divisor de tensão, Vout = 10 V × 8 kΩ / (2 kΩ + 8 kΩ) = 8 V. Não cheguei a analisar o segundo caso com R2 dobrado.",
+			"goldGrade": 2,
+			"goldCorrect": true,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-elec-right-method-wrong-unit",
+			"split": "dev",
+			"domain": "electronics",
+			"responseClass": "right_method_wrong_unit",
+			"nodeId": "elec.dc.ohms-law",
+			"prompt": "Em um circuito com fonte de 12 V e resistor de 4 kΩ, calcule a corrente e explique brevemente o porquê.",
+			"reference": "Pela Lei de Ohm, I = V / R = 12 V / 4000 Ω = 3 mA (0,003 A).",
+			"rubricCriteria": [
+				"Aplica a Lei de Ohm I = V / R corretamente",
+				"Converte 4 kΩ para 4000 Ω e obtém 3 mA (ou 0,003 A) com unidade correta"
+			],
+			"expectedTerms": ["ohm", "corrente", "12", "4000", "3 mA"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-unit-slip", "diagnosticSignal": "Esquece o prefixo kilo e responde 3 A em vez de 3 mA" }
+			],
+			"learnerAnswer": "Pela Lei de Ohm, dividimos a tensão pela resistência: I = 12 / 4 = 3 A de corrente circulando no resistor.",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-unit-slip"
+		},
+		{
+			"id": "grade-elec-right-result-wrong-reasoning",
+			"split": "heldout",
+			"domain": "electronics",
+			"responseClass": "right_result_wrong_reasoning",
+			"nodeId": "elec.dc.parallel",
+			"prompt": "Dois resistores de 4 Ω estão ligados em paralelo. Qual é a resistência equivalente e por quê?",
+			"reference": "Req = (4 × 4) / (4 + 4) = 2 Ω, pois em paralelo as condutâncias se somam (1/Req = 1/4 + 1/4 = 1/2), oferecendo dois caminhos iguais para a corrente.",
+			"rubricCriteria": [
+				"Obtém Req = 2 Ω",
+				"Justifica usando a soma das condutâncias / fórmula de paralelo (1/Req = 1/R1 + 1/R2), não subtração ou divisão arbitrária"
+			],
+			"expectedTerms": ["paralelo", "2", "condutância", "caminhos", "1/Req"],
+			"minWords": 12,
+			"misconceptions": [
+				{ "id": "m-wrong-principle", "diagnosticSignal": "Chega ao número 2 por uma regra inventada ou princípio físico falso" }
+			],
+			"learnerAnswer": "A resistência equivalente é 2 Ω porque quando dois resistores ficam em paralelo a gente subtrai o número de resistores (2) do valor de um resistor (4 - 2 = 2 Ω).",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-wrong-principle"
+		},
+		{
+			"id": "grade-elec-keyword-stuffed-wrong",
+			"split": "dev",
+			"domain": "electronics",
+			"responseClass": "keyword_stuffed_wrong",
+			"nodeId": "elec.dc.ohms-law",
+			"prompt": "Em um circuito com fonte de 12 V e resistor de 4 kΩ, calcule a corrente e explique brevemente o porquê.",
+			"reference": "Pela Lei de Ohm, I = V / R = 12 V / 4000 Ω = 3 mA (0,003 A).",
+			"rubricCriteria": [
+				"Aplica a Lei de Ohm I = V / R corretamente",
+				"Converte 4 kΩ para 4000 Ω e obtém 3 mA (ou 0,003 A) com unidade correta"
+			],
+			"expectedTerms": ["ohm", "corrente", "12", "4000", "3 mA"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-invert-ohm", "diagnosticSignal": "Multiplica V por R ou afirma que maior resistência aumenta a corrente" }
+			],
+			"learnerAnswer": "Pela Lei de Ohm a corrente em 12 V com 4000 Ω aumenta proporcionalmente à resistência, então multiplicando 12 por 4000 temos 48000 A (não 3 mA), pois quanto maior a resistência maior a corrente.",
+			"goldGrade": 0,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-invert-ohm"
+		},
+		{
+			"id": "grade-elec-fluent-plausible-wrong",
+			"split": "heldout",
+			"domain": "electronics",
+			"responseClass": "fluent_plausible_wrong",
+			"nodeId": "elec.dc.voltage-divider",
+			"prompt": "Em um divisor de tensão com Vin = 10 V, R1 = 10 kΩ e R2 = 10 kΩ, ligamos uma carga RL = 10 kΩ em paralelo com R2. O que acontece com Vout?",
+			"reference": "Vout cai de 5 V para 3,33 V porque RL em paralelo com R2 reduz a resistência do ramo inferior para 5 kΩ (10 kΩ || 10 kΩ), diminuindo a fração da tensão sobre a saída.",
+			"rubricCriteria": [
+				"Identifica que a carga em paralelo reduz a resistência equivalente do ramo inferior para 5 kΩ",
+				"Conclui que Vout cai (de 5 V para ~3,33 V)"
+			],
+			"expectedTerms": ["cai", "paralelo", "5 kΩ", "3,33 V", "ramo inferior"],
+			"minWords": 12,
+			"misconceptions": [
+				{ "id": "m-ideal-divider-load", "diagnosticSignal": "Afirma que Vout permanece 5 V ou aumenta ao adicionar carga em paralelo" }
+			],
+			"learnerAnswer": "Como a fonte de alimentação continua regulada em 10 V e o divisor original já estabeleceu uma referência estável de 5 V no nó intermediário, conectar uma carga resistiva de 10 kΩ em paralelo com R2 apenas drena corrente adicional da fonte sem alterar a razão de tensão entre R1 e R2; portanto, Vout permanece exatamente em 5 V devido à conservação de tensão no divisor.",
+			"goldGrade": 0,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-ideal-divider-load"
+		},
+		{
+			"id": "grade-eng-short-correct",
+			"split": "dev",
+			"domain": "english",
+			"responseClass": "short_correct",
+			"nodeId": "en.grammar.a2.past-vs-present-perfect",
+			"prompt": "Explique por que 'I visited Porto Alegre in 2021' usa Past Simple e não Present Perfect.",
+			"reference": "Porque 'in 2021' indica um tempo passado fechado e encerrado, que exige Past Simple ('visited'), não Present Perfect ('have visited').",
+			"rubricCriteria": [
+				"Identifica o marcador de tempo passado concluído ('in 2021')",
+				"Associa tempo passado acabado ao uso obrigatório de Past Simple em vez de Present Perfect"
+			],
+			"expectedTerms": ["2021", "tempo", "fechado", "Past Simple", "Present Perfect"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-perfect-with-date", "diagnosticSignal": "Acredita que Present Perfect pode ser usado com data específica encerrada" }
+			],
+			"learnerAnswer": "'In 2021' marca um tempo passado encerrado, por isso exige Past Simple ('visited') e não Present Perfect.",
+			"goldGrade": 3,
+			"goldCorrect": true,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-eng-synonym-correct",
+			"split": "heldout",
+			"domain": "english",
+			"responseClass": "synonym_correct",
+			"nodeId": "en.grammar.a2.past-vs-present-perfect",
+			"prompt": "Explique por que 'I visited Porto Alegre in 2021' usa Past Simple e não Present Perfect.",
+			"reference": "Porque 'in 2021' indica um tempo passado fechado e encerrado, que exige Past Simple ('visited'), não Present Perfect ('have visited').",
+			"rubricCriteria": [
+				"Identifica o marcador de tempo passado concluído ('in 2021')",
+				"Associa tempo passado acabado ao uso obrigatório de Past Simple em vez de Present Perfect"
+			],
+			"expectedTerms": ["2021", "tempo", "fechado", "Past Simple", "Present Perfect"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-perfect-with-date", "diagnosticSignal": "Acredita que Present Perfect pode ser usado com data específica encerrada" }
+			],
+			"learnerAnswer": "A expressão temporal aponta um ano específico já terminado, desligado do momento atual; em inglês, eventos ancorados em períodos já concluídos pedem o pretérito simples, nunca a forma com 'have'.",
+			"goldGrade": 3,
+			"goldCorrect": true,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-eng-partial",
+			"split": "dev",
+			"domain": "english",
+			"responseClass": "partial_correct",
+			"nodeId": "en.grammar.a1.present-simple-3rd",
+			"prompt": "Corrija 'He don't likes coffee' e explique as duas mudanças necessárias.",
+			"reference": "Forma correta: 'He doesn't like coffee.' Usa-se 'doesn't' na 3ª pessoa do singular e o verbo principal volta à forma base 'like' (sem -s).",
+			"rubricCriteria": [
+				"Escreve 'He doesn't like coffee' corretamente",
+				"Explica tanto o auxiliar 'doesn't' para 3ª pessoa quanto o verbo principal na forma base 'like'"
+			],
+			"expectedTerms": ["doesn't", "like", "3ª pessoa", "forma base", "auxiliar"],
+			"minWords": 12,
+			"misconceptions": [
+				{ "id": "m-double-s", "diagnosticSignal": "Mantém -s no verbo principal depois de doesn't" }
+			],
+			"learnerAnswer": "A frase correta é 'He doesn't like coffee', porque para 'he' (terceira pessoa do singular) usamos o auxiliar 'doesn't'.",
+			"goldGrade": 2,
+			"goldCorrect": true,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-eng-right-method-wrong-unit",
+			"split": "dev",
+			"domain": "english",
+			"responseClass": "right_method_wrong_unit",
+			"nodeId": "en.grammar.a1.present-simple-3rd",
+			"prompt": "Corrija 'He don't likes coffee' e explique as duas mudanças necessárias.",
+			"reference": "Forma correta: 'He doesn't like coffee.' Usa-se 'doesn't' na 3ª pessoa do singular e o verbo principal volta à forma base 'like' (sem -s).",
+			"rubricCriteria": [
+				"Escreve 'He doesn't like coffee' corretamente",
+				"Explica tanto o auxiliar 'doesn't' para 3ª pessoa quanto o verbo principal na forma base 'like'"
+			],
+			"expectedTerms": ["doesn't", "like", "3ª pessoa", "forma base", "auxiliar"],
+			"minWords": 12,
+			"misconceptions": [
+				{ "id": "m-double-s", "diagnosticSignal": "Mantém -s no verbo principal depois de doesn't" }
+			],
+			"learnerAnswer": "Como o sujeito é terceira pessoa do singular ('he'), trocamos 'don't' por 'doesn't': 'He doesn't likes coffee'.",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-double-s"
+		},
+		{
+			"id": "grade-eng-right-result-wrong-reasoning",
+			"split": "heldout",
+			"domain": "english",
+			"responseClass": "right_result_wrong_reasoning",
+			"nodeId": "en.grammar.a2.much-many",
+			"prompt": "Complete 'How ___ advice did she give you?' com 'much' ou 'many' e justifique.",
+			"reference": "'Much', porque 'advice' é um substantivo incontável (uncountable) em inglês.",
+			"rubricCriteria": [
+				"Escolhe 'much'",
+				"Justifica que 'advice' é incontável (uncountable) em inglês"
+			],
+			"expectedTerms": ["much", "advice", "incontável", "uncountable"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-no-s-heuristic", "diagnosticSignal": "Usa a regra falsa de que qualquer palavra sem 's' final leva 'much'" }
+			],
+			"learnerAnswer": "A resposta é 'much' porque em inglês sempre usamos 'much' antes de qualquer substantivo que não termina com a letra 's', e 'many' apenas quando a palavra termina com 's'.",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-no-s-heuristic"
+		},
+		{
+			"id": "grade-eng-keyword-stuffed-wrong",
+			"split": "dev",
+			"domain": "english",
+			"responseClass": "keyword_stuffed_wrong",
+			"nodeId": "en.grammar.a2.past-vs-present-perfect",
+			"prompt": "Explique por que 'I visited Porto Alegre in 2021' usa Past Simple e não Present Perfect.",
+			"reference": "Porque 'in 2021' indica um tempo passado fechado e encerrado, que exige Past Simple ('visited'), não Present Perfect ('have visited').",
+			"rubricCriteria": [
+				"Identifica o marcador de tempo passado concluído ('in 2021')",
+				"Associa tempo passado acabado ao uso obrigatório de Past Simple em vez de Present Perfect"
+			],
+			"expectedTerms": ["2021", "tempo", "fechado", "Past Simple", "Present Perfect"],
+			"minWords": 10,
+			"misconceptions": [
+				{ "id": "m-perfect-with-date", "diagnosticSignal": "Acredita que Present Perfect é obrigatório ou preferível com datas específicas como 2021" }
+			],
+			"learnerAnswer": "Na verdade com 2021 o correto é usar Present Perfect ('I have visited in 2021') porque é um tempo fechado no passado e o Past Simple nunca pode acompanhar um ano fechado.",
+			"goldGrade": 0,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-perfect-with-date"
+		},
+		{
+			"id": "grade-eng-fluent-plausible-wrong",
+			"split": "heldout",
+			"domain": "english",
+			"responseClass": "fluent_plausible_wrong",
+			"nodeId": "en.vocab.b1.false-friends",
+			"prompt": "Explique a diferença entre 'actually' e 'currently' em inglês com um exemplo correto de cada.",
+			"reference": "'Actually' significa 'na verdade / de fato' (contraste ou esclarecimento), enquanto 'currently' significa 'atualmente / no momento'.",
+			"rubricCriteria": [
+				"Define 'actually' como 'na verdade / de fato'",
+				"Define 'currently' como 'atualmente / no momento' com exemplos coerentes"
+			],
+			"expectedTerms": ["actually", "na verdade", "currently", "atualmente"],
+			"minWords": 12,
+			"misconceptions": [
+				{ "id": "m-false-friend-actually", "diagnosticSignal": "Traduz 'actually' como 'atualmente'" }
+			],
+			"learnerAnswer": "Embora ambos sejam advérbios frequentes no inglês formal, 'actually' expressa o momento presente em que uma situação ocorre ('I actually live in São Paulo' = atualmente moro em São Paulo), ao passo que 'currently' enfatiza fluxos contínuos ou hábitos repetitivos de longa duração no discurso profissional.",
+			"goldGrade": 0,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-false-friend-actually"
+		}
+	]
+}

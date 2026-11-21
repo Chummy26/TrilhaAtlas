@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
+import { useT } from "@/components/i18n";
 import type { ModuleExamResult } from "@/src/core";
 
 export interface ModuleExamPanelProps {
@@ -77,6 +78,7 @@ export function ModuleExamPanel({
 	onClose,
 	onGraded,
 }: ModuleExamPanelProps) {
+	const t = useT();
 	const formId = useId();
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
@@ -172,7 +174,7 @@ export function ModuleExamPanel({
 					<div className="flex flex-wrap items-center gap-2">
 						<Icon name="exercise" size={18} />
 						<h3 className="cel-display text-lg leading-tight">{scopeLabel}</h3>
-						<span className="study-pill study-pill-accent">Intercalada</span>
+						<span className="study-pill study-pill-accent">{t("course.exam.interleaved")}</span>
 					</div>
 					<p className="text-xs text-muted-foreground">
 						{targetTitle} · Questões embaralhadas sem identificação de tópico (nota mínima {exam ? formatScore(exam.passingScore10) : "7,5"}/10, sem zerar questão).
@@ -213,7 +215,7 @@ export function ModuleExamPanel({
 
 			{!loading && exam && !result && (
 				exam.questions.length === 0 ? (
-					<p className="text-sm text-muted-foreground">Nenhuma questão elegível disponível para este bloco no momento.</p>
+					<p className="text-sm text-muted-foreground">{t("course.exam.noEligibleQuestions")}</p>
 				) : (
 					<form className="space-y-4" onSubmit={handleSubmit}>
 						<ol className="space-y-4">

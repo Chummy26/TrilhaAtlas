@@ -153,6 +153,9 @@ dmg:
 afterPack: scripts/after-pack.cjs
 win:
   icon: build/icon.ico
+  extraResources:
+    - from: build/icon.ico
+      to: icon.ico
   target:
     - target: nsis
       arch:
@@ -165,6 +168,9 @@ win:
 nsis:
   oneClick: true
   perMachine: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
 linux:
   icon: build/icon.png
   target:

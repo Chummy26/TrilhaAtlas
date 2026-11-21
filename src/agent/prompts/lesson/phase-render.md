@@ -31,12 +31,12 @@ Step: `{{step}}` (phase `{{phase}}`). Hard limit: **{{maxWords}} words**.
 
 ## By step
 
-- **orient**: present the `goal` in one sentence and tell the `hook` vividly. If `preQuestions` exist, mention what to watch for. Stop there.
+- **orient**: present the `goal` in one sentence and tell the `hook` vividly. If `preQuestions` exist, paraphrase what to watch for as declarative statements (never emit unquoted `?` marks). Stop there.
 - **explain** (a segment): turn `segment.body` into the delivered explanation, keeping its order and facts, in discovery style: start from what the learner can observe, make the idea necessary, then name it. If `segment.analogy` exists, use it AND say where it breaks (`breaksWhere`). If `prediction` is present, settle it explicitly: what the learner chose, what actually happens and why the intuitive answer is tempting. Refer to the `visual` naturally if there is one.
 - **worked**: present the worked example step by step, each step introduced by its subgoal in plain words ("First we need the total resistance…"). Show the arithmetic with units. End on the result, stated plainly.
 - **feedback** (`correct: true`): name precisely what was right in one clause; if `grade` is 2, add the one thing to tighten.
 - **feedback** (`correct: false`, `final: false`): say what the response shows (not "you are wrong"), name the specific slip or the misconception (`misconception.statement`) without blame, and if `pointer` is present, give it as the nudge to retry. **Do not state or imply the answer** (`answerForTutorOnly` is for your reasoning only).
-- **feedback_elaborate**: the learner was confident and wrong. Explain why the response felt right, what fact contradicts it, and the correct idea, without giving the final answer if `final` is false.
+- **feedback_elaborate**: the learner was confident and wrong. When `final` is `false`: explain why the response felt right and show the contradicting fact or limiting case WITHOUT naming the correct option, value, or final answer. When `final` is `true`: give the full refutation and state the replacing principle cleanly.
 - **hint**: deliver `hint` (rung `rung`) in your own words, at most {{maxWords}} words. Never go beyond that rung and never give the answer.
 - **solution**: walk through `solutionSteps` concisely, connecting each step to the learner's response where it went wrong (`learnerResponse`), and finish with the answer. If `misconception` is present, close with its `repair`.
 - **variation**: introduce the activity in `format` using `intro`: what to do and what to pay attention to. The item itself comes as a card.

@@ -1,14 +1,14 @@
 # The probe
 
-Establish the learning goal and an entry point the teacher can use. For a genuine choice about the goal use `ask_user_question`. For a diagnostic use `probe` or `recall`, whichever is available.
+Establish the learning goal and an entry point the teacher can use. Reply in the learner's language (default Brazilian Portuguese when the session context specifies pt-BR or the learner writes in Portuguese). For a genuine choice about the goal use `ask_user_question`. For a diagnostic use `probe` or `recall`, whichever is available. Never teach, explain concepts, or give worked examples during the probe phase.
 
 Work strictly one question at a time: ask, wait for the answer, then choose the next question from what it told you.
 
-## 1. Read his persistent map
+## 1. Read the persistent map
 
 For a selected curriculum objective, use its prerequisites, the learner's current words and any relevant history. A demonstrated prerequisite can supply the starting point immediately. For an introductory skill with no required prior knowledge, hand off for an accessible example. Ask a single diagnostic only if different answers would change where teaching begins. Record any untested prerequisite as such. When available, `list_sessions` and `list_propositions` can fill a specific gap in the record.
 
-When a learner launches a campaign mission in any domain, start from its supplied skill, objective and prerequisite route. For a language mission, use the supplied CEFR skill and communicative situation. Hand off with `probe_done` so the teacher can model the skill on a concrete example before asking for independent production. Reserve placement questions for an explicit request for assessment or a specific prerequisite uncertainty that would change the activity. A new visitor exploring an advanced chapter can enter through a short worked example.
+When a learner launches a campaign mission in any domain, start from its supplied skill, objective and prerequisite route. For a language mission, use the supplied CEFR skill and communicative situation. Call `probe_done` immediately on turn 1 so the teacher can model the skill on a concrete example before asking for independent production, unless the learner explicitly asks for placement assessment or a specific prerequisite ambiguity changes the starting activity. A new visitor exploring an advanced chapter can enter through a short worked example.
 
 ## 2. Make the goal concrete — `ask_user_question`
 
@@ -34,8 +34,8 @@ Every question should move an edge somewhere — no filler, no re-asking what hi
 
 ## 5. Conclude — `probe_done`
 
-Once the goal and a useful entry point are clear, call `probe_done`. For each relevant strand record what was demonstrated, what is still unknown and where teaching should begin. For a first encounter, name the target and mark prior performance as unobserved. Distinguish possible confusions listed in the curriculum from ones the learner actually expressed. End the turn after the handoff.
+Once the goal and a useful entry point are clear, call `probe_done`. For each relevant strand record what was demonstrated, what is still unknown and where teaching should begin. For a first encounter, name the target and mark prior performance as unobserved. Distinguish possible confusions listed in the curriculum from ones the learner actually expressed. After `probe_done` returns, write one brief closing sentence and end the turn.
 
-## Grounding — his material, not his description of it
+## Grounding — the learner's material, not their description of it
 
-If he references a local file, the `read` tool can inspect it directly; PDFs go through the `pdf` tool (cited brief); `research` sparingly — probing is measurement, not exploration.
+If the learner references a local file, the `read` tool can inspect it directly; PDFs go through the `pdf` tool (cited brief); use `research` sparingly (only when registered) — probing is measurement, not exploration.

@@ -1,0 +1,173 @@
+{
+	"suite": "trilhaatlas_evalmem_3stage",
+	"description": "Avaliação EvalMem em 3 estágios (Estágio 1: Registro/Extração · Estágio 2: Recuperação real · Estágio 3: Uso pelo tutor) cobrindo os 6 modos de falha críticos de memória pedagógica no TrilhaAtlas.",
+	"cases": [
+		{
+			"id": "mem-pref-update-eng",
+			"split": "dev",
+			"domain": "english",
+			"memoryCategory": "updated_preference",
+			"sessions": [
+				{
+					"date": "2026-10-05",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "Eu prefiro estudar inglês de manhã usando exemplos de viagens turísticas." },
+						{ "role": "assistant", "content": "Anotado: vamos usar situações de viagem nas próximas sessões." }
+					]
+				},
+				{
+					"date": "2026-11-10",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "Mudei meu objetivo: fui promovido e agora quero focar 100% em inglês para reuniões de engenharia de software à noite, não mais em turismo." },
+						{ "role": "assistant", "content": "Perfeito, a partir de agora os cenários serão de reuniões de engenharia de software." }
+					]
+				}
+			],
+			"query": "Qual é o meu foco atual de exemplos para praticar inglês e em que horário eu prefiro estudar agora?",
+			"expectedRecordContains": ["engenharia", "reuniões"],
+			"expectedAnswerContains": ["engenharia de software", "noite"],
+			"forbiddenStaleClaim": "Apresentar viagens/turismo ou manhã como preferência atual vigente.",
+			"rubric": [
+				{ "id": "uses_latest_preference", "weight": 2, "criterion": "Responde que o foco atual é inglês para reuniões de engenharia de software à noite (reconhecendo que substituiu o plano antigo de turismo/manhã)." }
+			]
+		},
+		{
+			"id": "mem-superseded-difficulty-elec",
+			"split": "dev",
+			"domain": "electronics",
+			"memoryCategory": "superseded_difficulty",
+			"sessions": [
+				{
+					"date": "2026-10-12",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "Estou errando muito conversão de mA para A na Lei de Ohm." },
+						{ "role": "assistant", "content": "Vamos reforçar prefixos SI antes de avançar." }
+					]
+				},
+				{
+					"date": "2026-11-15",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "No exame independente de hoje resolvi 5 problemas seguidos convertendo µA, mA e kΩ sem nenhuma ajuda e acertei todos (nota 3/3)." },
+						{ "role": "assistant", "content": "Ótimo, domínio confirmado de forma independente nos prefixos SI." }
+					]
+				}
+			],
+			"query": "Devo começar hoje revisando conversão básica de mA para A de novo ou posso seguir para divisores de tensão?",
+			"expectedRecordContains": ["prefixos", "independente"],
+			"expectedAnswerContains": ["divisor", "superada"],
+			"forbiddenStaleClaim": "Tratar a dificuldade antiga com mA/A de outubro como bloqueio ainda ativo ignorando a evidência independente de 15/11.",
+			"rubric": [
+				{ "id": "respects_superseded_mastery", "weight": 2, "criterion": "Reconhece que a evidência independente mais recente (15/11, 5 problemas corretos sem ajuda) supera a dificuldade antiga de outubro e libera o avanço para divisores de tensão." }
+			]
+		},
+		{
+			"id": "mem-tutor-not-learner-fact",
+			"split": "dev",
+			"domain": "electronics",
+			"memoryCategory": "tutor_statement_non_contamination",
+			"sessions": [
+				{
+					"date": "2026-11-01",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "assistant", "content": "Para ilustrar, imagine que um engenheiro tem um osciloscópio Rigol DS1054Z na bancada e mede um sinal de 1 kHz." },
+						{ "role": "user", "content": "Entendi a explicação da frequência, obrigado! Por enquanto eu só uso simulador no computador." }
+					]
+				}
+			],
+			"query": "Eu tenho um osciloscópio Rigol DS1054Z na minha bancada?",
+			"expectedRecordContains": ["simulador"],
+			"expectedAnswerContains": ["não", "simulador"],
+			"forbiddenStaleClaim": "Afirmar que o aluno possui um Rigol DS1054Z (que foi apenas um exemplo hipotético dito pelo tutor).",
+			"rubric": [
+				{ "id": "no_tutor_attribution_leak", "weight": 2, "criterion": "Afirma claramente que NÃO há registro de que o aluno possua um Rigol DS1054Z (isso foi apenas um exemplo do tutor; o aluno disse usar apenas simulador no computador)." }
+			]
+		},
+		{
+			"id": "mem-cross-domain-isolation",
+			"split": "heldout",
+			"domain": "electronics",
+			"memoryCategory": "domain_isolation",
+			"sessions": [
+				{
+					"date": "2026-11-08",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "[Domínio: Inglês] Meu prazo para a certificação IELTS é 20 de março." }
+					]
+				},
+				{
+					"date": "2026-11-12",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "[Domínio: Eletrônica] Meu projeto final de Eletrônica é montar uma fonte linear regulada de 5 V até julho." }
+					]
+				}
+			],
+			"query": "No meu domínio de Eletrônica, qual é o projeto final e o prazo que eu defini?",
+			"expectedRecordContains": ["fonte linear", "julho"],
+			"expectedAnswerContains": ["fonte linear", "julho"],
+			"forbiddenStaleClaim": "Misturar o prazo do IELTS (20 de março, domínio Inglês) como prazo do projeto de Eletrônica.",
+			"rubric": [
+				{ "id": "strict_domain_isolation", "weight": 2, "criterion": "Responde exclusivamente com o projeto de Eletrônica (fonte linear regulada de 5 V até julho) sem misturar o prazo do IELTS de Inglês." }
+			]
+		},
+		{
+			"id": "mem-region-isolation-elec",
+			"split": "heldout",
+			"domain": "electronics",
+			"memoryCategory": "region_isolation",
+			"sessions": [
+				{
+					"date": "2026-11-03",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "[Região: Circuitos CC] No laboratório de CC usei o resistor de referência de 470 Ω." }
+					]
+				},
+				{
+					"date": "2026-11-14",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "[Região: Filtros CA] No projeto do filtro passa-baixas escolhi R = 10 kΩ e C = 15 nF." }
+					]
+				}
+			],
+			"query": "No projeto do filtro passa-baixas (Região Filtros CA), quais valores de R e C eu escolhi?",
+			"expectedRecordContains": ["10 kΩ", "15 nF"],
+			"expectedAnswerContains": ["10 kΩ", "15 nF"],
+			"forbiddenStaleClaim": "Trocar 10 kΩ pelo resistor de 470 Ω da região de Circuitos CC.",
+			"rubric": [
+				{ "id": "strict_region_precision", "weight": 2, "criterion": "Retorna exatamente R = 10 kΩ e C = 15 nF para o filtro passa-baixas sem confundir com 470 Ω de Circuitos CC." }
+			]
+		},
+		{
+			"id": "mem-abstention-eng",
+			"split": "heldout",
+			"domain": "english",
+			"memoryCategory": "honest_abstention",
+			"sessions": [
+				{
+					"date": "2026-11-04",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "Estou praticando pronúncia dos sons /θ/ e /ð/ em palavras como 'think' e 'this'." },
+						{ "role": "assistant", "content": "Ótimo foco para falantes de português." }
+					]
+				}
+			],
+			"query": "Qual foi a nota exata que tirei no meu simulado oficial do TOEFL no mês passado?",
+			"expectedRecordContains": [],
+			"expectedAnswerContains": [],
+			"isAbstention": true,
+			"forbiddenStaleClaim": "Inventar qualquer nota numérica de TOEFL.",
+			"rubric": [
+				{ "id": "honest_memory_abstention", "weight": 2, "criterion": "Declara honestamente que não há nenhum registro de nota de simulado do TOEFL na memória, sem inventar números." }
+			]
+		}
+	]
+}

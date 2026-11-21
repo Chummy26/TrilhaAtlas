@@ -52,8 +52,8 @@ export function TreeCheckbox({ indeterminate = false, className, ...props }: Omi
 
 export function TreeDisclosure({ open, plain = false, className, ...props }: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "aria-expanded"> & { open: boolean; plain?: boolean }) {
 	return <button {...props} type="button" aria-expanded={open}
-		className={classes("flex h-5 w-3.5 shrink-0 items-center justify-center", plain ? "text-muted-foreground/70" : "rounded text-muted-foreground/70 transition-colors hover:bg-accent hover:text-foreground", className)}>
-		<ChevronRightIcon className={classes("size-3.5", !plain && "transition-transform", open ? "rotate-90" : "")} />
+		className={classes("flex h-5 w-4 shrink-0 items-center justify-center", plain ? "text-muted-foreground/70" : "rounded-md text-muted-foreground/70 transition-colors hover:bg-accent hover:text-foreground", className)}>
+		<ChevronRightIcon className={classes("size-3.5", !plain && "transition-transform duration-200 ease-out active:scale-90", open ? "rotate-90" : "")} />
 	</button>;
 }
 
@@ -71,7 +71,7 @@ export function TreeCell({ widthClassName, grow, align, className, style, ...pro
 }
 
 export function TreeHeader({ sticky = false, className, ...props }: HTMLAttributes<HTMLDivElement> & { sticky?: boolean }) {
-	return <div {...props} className={classes(sticky && "sticky top-0 z-10", "flex shrink-0 items-center gap-1 border-b border-border/60 bg-background/80 px-3 py-1.5 text-xs uppercase tracking-widest text-muted-foreground/70 backdrop-blur", className)} />;
+	return <div {...props} className={classes(sticky && "sticky top-0 z-10", "flex shrink-0 items-center gap-1 border-b border-border/60 bg-background/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/75 backdrop-blur", className)} />;
 }
 
 export function TreeGuide({ depth = 0, selectionColumn, variant = "branch", className, style, ...props }: HTMLAttributes<HTMLDivElement> & {

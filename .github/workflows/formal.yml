@@ -1,0 +1,56 @@
+name: Formal Verification (Lean 4 + Logic Proofs)
+
+on:
+  push:
+    paths:
+      - "formal/**"
+      - "src/core/**"
+      - "src/agent/prompts/**"
+      - "tests/formal-proofs.test.ts"
+      - "tests/system-prompts-benchmark.test.ts"
+      - "scripts/benchmark-formal-harness.ts"
+      - "scripts/benchmark-system-prompts.ts"
+  pull_request:
+    paths:
+      - "formal/**"
+      - "src/core/**"
+      - "src/agent/prompts/**"
+      - "tests/formal-proofs.test.ts"
+      - "tests/system-prompts-benchmark.test.ts"
+      - "scripts/benchmark-formal-harness.ts"
+      - "scripts/benchmark-system-prompts.ts"
+
+jobs:
+  lean4-kernel:
+    name: Lean 4 formal proofs & axiom audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan & Lean toolchain
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build Lean 4 formal kernel and audit axioms
+        working-directory: formal
+        run: |
+          lake build
+          output="$(lake exe lh-check 2>&1)"
+          echo "$output"
+          if echo "$output" | grep -q "sorryAx"; then
+            echo "ERROR: sorryAx detected in formal kernel!"
+            exit 1
+          fi
+
+  runtime-formal-suite:
+    name: Runtime formal verifier & property proofs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run verify:formal
+      - run: node --import tsx scripts/benchmark-formal-harness.ts --no-write
+      - run: node --import tsx scripts/benchmark-system-prompts.ts --no-write

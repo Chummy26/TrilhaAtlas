@@ -13,11 +13,12 @@ import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import type { IconName } from "@/components/icons/generated";
 import { useServerEvent } from "@/components/server-events";
+import { useT } from "@/components/i18n";
 import type { StudyDomainList } from "@/src/core";
 
-const GENERAL = { id: null, title: "Geral", icon: "domain-generic" } as const;
-
 export function DomainSwitcher({ initialList }: { initialList?: StudyDomainList } = {}) {
+	const t = useT();
+	const generalDomain = { id: null, title: t("shell.domain.general"), icon: "domain-generic" } as const;
 	const [list, setList] = useState<StudyDomainList | null>(initialList ?? null);
 	const [open, setOpen] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -69,14 +70,14 @@ export function DomainSwitcher({ initialList }: { initialList?: StudyDomainList 
 			return;
 		}
 		const body = (await res?.json().catch(() => null)) as { error?: string } | null;
-		setError(body?.error ?? "Não foi possível trocar de domínio.");
+		setError(body?.error ?? t("shell.domain.switchError"));
 		setBusy(false);
 	};
 
 	if (!list) return null;
 	const current = list.domains.find((d) => d.id === list.active);
-	const label = current ? current.title.pt : GENERAL.title;
-	const icon = (current?.icon ?? GENERAL.icon) as IconName;
+	const label = current ? current.title.pt : generalDomain.title;
+	const icon = (current?.icon ?? generalDomain.icon) as IconName;
 
 	return (
 		<div ref={rootRef} className="lh-no-drag relative" data-testid="domain-switcher">
@@ -95,8 +96,8 @@ export function DomainSwitcher({ initialList }: { initialList?: StudyDomainList 
 			</button>
 			{open && (
 				<div className="cel-card absolute left-0 top-11 z-30 min-w-56 p-1.5">
-					<ul role="listbox" aria-label="Domínio de estudo" className="max-h-[50dvh] space-y-0.5 overflow-y-auto">
-						{[...list.domains.map((d) => ({ id: d.id as string | null, title: d.title.pt, icon: d.icon })), GENERAL].map((d) => {
+					<ul role="listbox" aria-label={t("shell.domain.switcherLabel")} className="max-h-[50dvh] space-y-0.5 overflow-y-auto">
+						{[...list.domains.map((d) => ({ id: d.id as string | null, title: d.title.pt, icon: d.icon })), generalDomain].map((d) => {
 							const active = d.id === list.active;
 							return (
 								<li key={d.id ?? "geral"}>
@@ -125,7 +126,7 @@ export function DomainSwitcher({ initialList }: { initialList?: StudyDomainList 
 							className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold text-[var(--cel-accent-text,var(--foreground))] transition-colors hover:bg-accent"
 						>
 							<Icon name="plus" size={16} tone={false} />
-							Criar domínio de estudo
+							{t("shell.domain.create")}
 						</Link>
 					</div>
 				</div>

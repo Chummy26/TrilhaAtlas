@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { MaximizeIcon, MinusIcon, PlusIcon, XIcon } from "lucide-react";
-import { lessonDrawing } from "./study/lesson-drawing.ts";
+import { pickStoryMotif, StoryBadgeGlyph } from "./study/comic-art.tsx";
 import { cn } from "@/lib/utils";
 // The placement engine — literally mermaid's: dagre-d3-es, the fork
 // mermaid 11 ships with (owner, plan-graph round 8: same engine as the
@@ -619,7 +619,7 @@ export function PlanDiagram({
 				const h = layout.nodeH.get(n.id) ?? NODE_H;
 				const w = layout.nodeW.get(n.id) ?? NODE_W_MIN;
 				const y0 = (h + 24 - lines.length * LINE_H) / 2 + 10;
-				const Drawing = lessonDrawing(n.title, edges.filter(e => e.to === n.id).length, edges.some(e => e.from === n.id));
+				const motif = pickStoryMotif(n.title, edges.filter(e => e.to === n.id).length, edges.some(e => e.from === n.id));
 				return (
 					<g
 						key={n.id}
@@ -627,10 +627,11 @@ export function PlanDiagram({
 						data-testid={`plan-node-${n.id}`}
 						data-status={status}
 					>
-						{/* Rectangular — no corner rounding (owner). */}
 						<rect
 							width={w}
 							height={h}
+							rx={10}
+							ry={10}
 							className={monochrome ? MONO_BOX : BOX[status]}
 							strokeWidth={STROKE_W}
 						/>
@@ -645,13 +646,14 @@ export function PlanDiagram({
 								y={-GLOW_MARGIN}
 								width={w + 2 * GLOW_MARGIN}
 								height={h + 2 * GLOW_MARGIN}
+								rx={14}
+								ry={14}
 								className="fill-yellow-400/25"
 								filter={`url(#${markerId}-glow)`}
 							/>
 						)}
-						<g aria-hidden="true" transform={`translate(${w / 2 - 11}, 6)`} className="text-foreground">
-							<rect x="-7" width="36" height="24" rx="10" fill="currentColor" opacity="0.09"/>
-							<Drawing x="1" y="2" width="20" height="20" strokeWidth="1.7"/>
+						<g aria-hidden="true" transform={`translate(${w / 2 - 18}, 6)`}>
+							<StoryBadgeGlyph motif={motif} />
 						</g>
 						{lines.map((line, i) => (
 							<text

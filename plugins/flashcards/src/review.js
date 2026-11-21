@@ -1,5 +1,6 @@
 // Page-bound review, using only the public plugin UI and RPC contracts.
 const ratings = ["Again", "Hard", "Good", "Easy"];
+const ratingKeys = ["again", "hard", "good", "easy"];
 const ratingOptions = label => {
   const color = `var(--fc-rating-${label.toLowerCase()})`;
   const tint = percent => `color-mix(in srgb, ${color} ${percent}%, transparent)`;
@@ -22,6 +23,13 @@ const interval = ms => {
   if (ms < 3600000) return `${Math.round(ms / 60000)}m`;
   if (ms < 86400000) return `${Math.round(ms / 3600000)}h`;
   return `${Math.round(ms / 86400000)}d`;
+};
+const formatDuration = ms => {
+  const totalSec = Math.max(1, Math.round(ms / 1000));
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  if (min === 0) return `${sec}s`;
+  return sec === 0 ? `${min}m` : `${min}m ${sec}s`;
 };
 function lifetime(...parents) {
   const controller = new AbortController();
@@ -51,6 +59,10 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
     const session = lifetime(owner.signal);
     // Progress belongs to the logical session, not a replayable presentation.
     let practiceIndex = 0;
+    let sessionReviewed = 0;
+    let sessionInitialTotal = 0;
+    const sessionRatings = [0, 0, 0, 0];
+    const sessionStartedAt = Date.now();
     let handle, closed = false;
     const close = () => {
       if (closed) return;
@@ -67,24 +79,46 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
       const content = lifetime(session.signal, hostSignal);
       const root = el("div", `fc-root fc-review-surface${practice ? " fc-practice-surface" : ""}`);
       root.tabIndex = -1;
+      root.dataset.mode = practice ? "practice" : "review";
+      const progress = el("div", "fc-review-progress");
+      progress.setAttribute("aria-hidden", "true");
+      const progressFill = el("div", "fc-review-progress-fill");
+      progress.append(progressFill);
+      const fxLayer = el("div", "fc-review-fx");
+      fxLayer.setAttribute("aria-hidden", "true");
       const stage = el("div", "fc-review-stage"), title = el("h2", "fc-review-title");
       stage.tabIndex = -1;
       stage.setAttribute("role", "group");
       stage.setAttribute("aria-label", practice ? "Flashcard practice" : "Flashcard review");
       stage.setAttribute("data-plugin-initial-focus", "");
+      stage.dataset.mode = practice ? "practice" : "review";
+      stage.dataset.revealed = "false";
       title.hidden = true;
       const card = el("div", "fc-review-card"), footer = el("div", "fc-review-footer"), bottom = el("div", "fc-review-bottom");
       const practiceNote = practice ? el("p", "fc-review-meta fc-practice-note", "Practice mode does not change your review schedule.") : null;
       stage.append(title, card, bottom, footer);
-      root.append(stage);
+      root.append(progress, fxLayer, stage);
       if (practiceNote) root.append(practiceNote);
       container.append(root);
       let cardScope = null, timer = null, revealAction = null, rateAction = null, advanceAction = null, revealed = false;
+      const setProgress = ratio => {
+        const clamped = Math.max(0, Math.min(1, Number.isFinite(ratio) ? ratio : 0));
+        progressFill.style.width = `${Math.round(clamped * 100)}%`;
+      };
+      const pulseRatingFx = rating => {
+        if (content.signal.aborted) return;
+        const key = ratingKeys[rating - 1];
+        if (!key) return;
+        fxLayer.replaceChildren();
+        const bloom = el("span", `fc-ease-bloom fc-ease-bloom-${key}`);
+        bloom.addEventListener("animationend", () => bloom.remove(), { once: true, signal: content.signal });
+        fxLayer.append(bloom);
+      };
       const focusOwned = () => {
         if (!content.signal.aborted && root.contains(document.activeElement)) root.focus({ preventScroll: true });
       };
       const clearWait = () => { if (timer !== null) clearTimeout(timer); timer = null; };
-      const cleanup = () => { clearWait(); cardScope?.abort(); root.remove(); };
+      const cleanup = () => { clearWait(); cardScope?.abort(); fxLayer.replaceChildren(); root.remove(); };
       content.signal.addEventListener("abort", cleanup, { once: true });
       function reset() {
         // Move focus before removing a currently focused control, never reclaim
@@ -92,6 +126,7 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
         if (card.contains(document.activeElement) || footer.contains(document.activeElement) || title.contains(document.activeElement)) focusOwned();
         clearWait(); cardScope?.abort(); cardScope = lifetime(content.signal);
         revealAction = null; rateAction = null; advanceAction = null; revealed = false;
+        stage.dataset.revealed = "false";
         title.textContent = ""; title.hidden = true;
         card.hidden = true; card.replaceChildren(); footer.replaceChildren();
         bottom.replaceChildren();
@@ -99,6 +134,9 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
       }
       function question(ticket, cs, count) {
         card.hidden = false;
+        card.classList.remove("fc-card-enter");
+        void card.offsetWidth;
+        card.classList.add("fc-card-enter");
         markdown(card, ticket.question, cs);
         const answer = el("div", "fc-answer"), actions = el("div", "fc-actions"), error = el("p", "fc-error");
         error.setAttribute("role", "alert");
@@ -112,18 +150,51 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
         wrapper.append(el("span", "fc-shortcut", hint));
         return handle;
       }
+      function renderDebrief(statusText) {
+        const debrief = el("div", "fc-debrief");
+        const eyebrow = el("p", "fc-debrief-eyebrow", "Session summary");
+        const hero = el("div", "fc-debrief-hero");
+        hero.append(
+          el("span", "fc-debrief-num", String(sessionReviewed)),
+          el("span", "fc-debrief-unit", sessionReviewed === 1 ? "card" : "cards"),
+          el("span", "fc-debrief-sep", "·"),
+          el("span", "fc-debrief-num", formatDuration(Date.now() - sessionStartedAt)),
+        );
+        const bar = el("div", "fc-debrief-bar");
+        bar.setAttribute("aria-hidden", "true");
+        const grid = el("div", "fc-debrief-grid");
+        ratings.forEach((label, index) => {
+          const count = sessionRatings[index];
+          const key = ratingKeys[index];
+          const seg = el("span", `fc-debrief-seg fc-debrief-seg-${key}`);
+          seg.style.width = `${sessionReviewed ? (count / sessionReviewed) * 100 : 0}%`;
+          bar.append(seg);
+          const cell = el("div", `fc-debrief-cell fc-debrief-cell-${key}${count === 0 ? " is-zero" : ""}`);
+          cell.append(el("span", "fc-debrief-cell-n", String(count)), el("span", "fc-debrief-cell-l", label));
+          grid.append(cell);
+        });
+        debrief.append(eyebrow, hero, bar, grid, el("p", "fc-review-meta", statusText));
+        footer.append(debrief);
+      }
       function nextPractice() {
         if (content.signal.aborted) return;
         // Capture this presentation's cue so an overlapping stale control cannot
         // reveal consumed material or advance the shared queue a second time.
         const cs = reset(), index = practiceIndex, cue = practiceCards[index];
-        if (!cue) { footer.append(el("p", "fc-review-meta", "Practice complete.")); return; }
+        if (!cue) {
+          setProgress(1);
+          footer.append(el("p", "fc-review-meta fc-practice-complete", "Practice complete."));
+          return;
+        }
+        setProgress(practiceCards.length ? index / practiceCards.length : 0);
         const remaining = practiceCards.length - index - 1;
         const { answer, actions } = question(cue, cs, `${remaining} ${remaining === 1 ? 'card' : 'cards'} remaining`);
         let revealButton;
         revealAction = () => {
           if (revealed || cs.aborted || index !== practiceIndex) return;
           focusOwned(); revealed = true;
+          stage.dataset.revealed = "true";
+          setProgress(practiceCards.length ? (index + 0.5) / practiceCards.length : 1);
           title.textContent = cue.propositionName; title.hidden = false;
           markdown(answer, cue.answer, cs);
           revealButton.dispose(); actions.replaceChildren();
@@ -139,13 +210,16 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
       async function nextReview() {
         if (content.signal.aborted) return;
         const pending = reset();
-        footer.append(el("p", "fc-review-meta", "Loading next card…"));
+        footer.append(el("p", "fc-review-meta fc-review-loading", "Loading next card…"));
         try {
           const result = await ctx.call("next-review", scope);
           if (pending.aborted) return;
           const cs = reset();
           if (!result.ticket) {
-            footer.append(el("p", "fc-review-meta", result.nextDue ? `No cards ready. Next due ${new Date(result.nextDue).toLocaleString()}.` : "No cards due in this selection."));
+            setProgress(sessionReviewed > 0 ? 1 : 0);
+            const statusText = result.nextDue ? `No cards ready. Next due ${new Date(result.nextDue).toLocaleString()}.` : "No cards due in this selection.";
+            if (sessionReviewed > 0) renderDebrief(statusText);
+            else footer.append(el("p", "fc-review-meta fc-review-empty", statusText));
             if (result.nextDue) {
               const arm = () => {
                 if (cs.aborted) return;
@@ -157,6 +231,11 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
             return;
           }
           const ticket = result.ticket;
+          if (typeof result.remaining === "number") {
+            const totalNow = sessionReviewed + result.remaining;
+            if (totalNow > sessionInitialTotal) sessionInitialTotal = totalNow;
+            setProgress(sessionInitialTotal > 0 ? sessionReviewed / sessionInitialTotal : 0);
+          }
           const { answer, actions, error } = question(ticket, cs, result.remaining === undefined ? undefined : `${result.remaining} ready`);
           let revealButton, retryButton, revealBusy = false, ratingBusy = false;
           const requests = new Map();
@@ -173,10 +252,12 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
               const result = await ctx.call("reveal-review", { ticketId: ticket.id });
               if (cs.aborted) return;
               revealed = true; error.textContent = "";
+              stage.dataset.revealed = "true";
               title.textContent = ticket.propositionName; title.hidden = false;
               markdown(answer, result.answer, cs);
               focusOwned();
               revealButton.dispose(); actions.replaceChildren();
+              actions.classList.add("fc-actions-ratings");
               const ratingButtons = [];
               rateAction = async rating => {
                 if (ratingBusy || cs.aborted) return;
@@ -197,11 +278,22 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
                   ratingBusy = false;
                   if (!cs.aborted && !accepted) ratingButtons.forEach(handle => handle.update({ disabled: false }));
                 }
+                sessionReviewed++;
+                if (rating >= 1 && rating <= 4) sessionRatings[rating - 1]++;
+                pulseRatingFx(rating);
                 // Refresh is independent of whether this surface still exists.
                 try { void Promise.resolve(onRated?.()).catch(() => {}); } catch { /* A refresh cannot undo an accepted grade. */ }
                 if (!cs.aborted) await nextReview();
               };
-              ratings.forEach((label, index) => ratingButtons.push(control(actions, `${label} · ${interval(result.intervals[index + 1])}`, () => rateAction?.(index + 1), cs, String(index + 1), ratingOptions(label))));
+              ratings.forEach((label, index) => {
+                const handle = control(actions, `${label} · ${interval(result.intervals[index + 1])}`, () => rateAction?.(index + 1), cs, String(index + 1), ratingOptions(label));
+                const wrapper = actions.lastElementChild;
+                if (wrapper) {
+                  wrapper.dataset.rating = ratingKeys[index];
+                  if (index === 2) wrapper.dataset.default = "true";
+                }
+                ratingButtons.push(handle);
+              });
             } catch (cause) { failed(cause); }
             finally {
               revealBusy = false;

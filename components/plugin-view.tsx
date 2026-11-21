@@ -32,7 +32,7 @@ export function PluginViewScreen({ pluginId, viewId }: { pluginId: string; viewI
 			<div className="min-w-4 flex-1" aria-hidden="true" />
 			<PluginTopBarActions context={{ placement: "top-bar", surface: "plugin-view", pluginId, viewId }} />
 			<Hint label="Plugin settings" side="bottom">
-				<Button variant="ghost" size="icon" aria-label="Plugin settings" title="Plugin settings" className="shrink-0" onClick={() => open(`plugin:${pluginId}`)}><SettingsIcon className="size-4" /></Button>
+				<Button variant="ghost" size="icon" aria-label="Plugin settings" title="Plugin settings" className="shrink-0" onClick={() => open(`plugin:${pluginId}`)}><SettingsIcon className="onigiri-icon-gear size-4" /></Button>
 			</Hint>
 		</TopBar>
 		<div ref={bodyRef} className="relative flex min-h-0 min-w-0 flex-1 flex-col">

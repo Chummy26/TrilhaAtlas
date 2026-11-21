@@ -126,4 +126,8 @@ export * as memory from "./memory/index.ts";
 export * as resources from "./resources/index.ts";
 export * from "./study/creation.ts";
 export * from "./divider-lab.ts";
+export * from "./formal/index.ts";
 export { englishFinale } from "./study/english-campaign.ts";
+
+// Interface languages (English first): locales, message namespaces, translator.
+export * from "./i18n/index.ts";

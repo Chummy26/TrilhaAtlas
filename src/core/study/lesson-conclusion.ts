@@ -5,7 +5,17 @@ import type { QuestionAnswerData } from "../question-core.ts";
 import { gradeStudyQuiz } from "./quiz.ts";
 
 const field = (minLength: number, maxLength: number) => Type.String({ minLength, maxLength });
-export const lessonExamSchema = Type.Object({ task: field(12, 3600), feedback: Type.Optional(field(12, 1600)) });
+export const lessonExamPartSchema = Type.Object({
+	label: field(3, 240),
+	placeholder: Type.Optional(field(3, 180)),
+	multiline: Type.Optional(Type.Boolean()),
+});
+export type LessonExamPart = Static<typeof lessonExamPartSchema>;
+export const lessonExamSchema = Type.Object({
+	task: field(12, 3600),
+	feedback: Type.Optional(field(12, 1600)),
+	parts: Type.Optional(Type.Array(lessonExamPartSchema, { minItems: 2, maxItems: 6 })),
+});
 export type LessonExam = Static<typeof lessonExamSchema>;
 const examLimit = 2;
 
@@ -192,4 +202,103 @@ export function validateLessonConclusion(messages: readonly LhViewMessage[], inp
 		if (questions.has(q)) throw new Error("Pergunta repetida. Selecione outro alvo ou remova o cartão.");
 		questions.add(q);
 	}
+}
+
+function cleanPartMarkdown(text: string): string {
+	return text
+		.replace(/\*\*([^*]+)\*\*/g, "$1")
+		.replace(/__([^_]+)__/g, "$1")
+		.replace(/\*([^*]+)\*/g, "$1")
+		.replace(/`([^`]+)`/g, "$1")
+		.replace(/\s+/gu, " ")
+		.trim();
+}
+
+/**
+ * Derive structured exam form fields from explicit `parts` or a numbered list
+ * (1., 2., 3., ...) inside the exam task prose. Returns 2–6 parts when the
+ * task clearly asks for multiple items, or [] for a single free-form answer.
+ */
+export function extractExamFormParts(task: string, explicitParts?: readonly LessonExamPart[]): LessonExamPart[] {
+	if (explicitParts && explicitParts.length >= 2) {
+		return explicitParts.slice(0, 6).map(part => ({
+			label: cleanPartMarkdown(part.label),
+			...(part.placeholder ? { placeholder: part.placeholder.trim() } : {}),
+			...(part.multiline !== undefined ? { multiline: part.multiline } : {}),
+		})).filter(part => part.label.length > 0);
+	}
+	const lines = task.replace(/\r\n/g, "\n").split("\n");
+	const items: Array<{ num: number; text: string }> = [];
+	let current: { num: number; text: string } | null = null;
+	let sawBlankAfterItem = false;
+
+	for (const rawLine of lines) {
+		const trimmed = rawLine.trim();
+		const match = /^\s*(\d+)[.)]\s+(.+)$/.exec(rawLine);
+		if (match) {
+			const num = Number(match[1]);
+			const expected = items.length + 1;
+			if (num === expected && expected <= 6) {
+				current = { num, text: match[2]!.trim() };
+				items.push(current);
+				sawBlankAfterItem = false;
+				continue;
+			}
+			// Non-sequential number breaks the list.
+			if (items.length >= 2) break;
+			items.length = 0;
+			current = null;
+			continue;
+		}
+		if (!trimmed) {
+			if (current) sawBlankAfterItem = true;
+			continue;
+		}
+		if (current) {
+			// A new unindented paragraph after a blank line (e.g. "O critério é...") ends the numbered list.
+			if (sawBlankAfterItem && !/^\s{2,}/.test(rawLine)) {
+				current = null;
+				if (items.length >= 2) break;
+			} else {
+				current.text += " " + trimmed;
+			}
+		}
+	}
+
+	if (items.length < 2) return [];
+	return items.map((item, idx) => {
+		const label = cleanPartMarkdown(item.text);
+		const isShort = /ditado|uma frase|palavra|valor|número|n[uú]mero|nome/i.test(label) && !/tr[eê]s informa|explique|justifique|compare/i.test(label);
+		return {
+			label,
+			placeholder: `Responda à parte ${idx + 1}…`,
+			multiline: !isShort,
+		};
+	});
+}
+
+export type ComposedExamAnswer =
+	| { ok: true; text: string }
+	| { ok: false; missing: number[] };
+
+/** Validate every structured exam part and format a clean numbered submission for grading. */
+export function composeExamPartsAnswer(
+	parts: readonly LessonExamPart[],
+	values: readonly string[],
+): ComposedExamAnswer {
+	const missing: number[] = [];
+	const blocks: string[] = [];
+	for (let i = 0; i < parts.length; i++) {
+		const raw = (values[i] ?? "").trim();
+		if (!isLessonExamAnswer(raw)) {
+			missing.push(i);
+			continue;
+		}
+		const shortHeading = parts[i]!.label.length > 90
+			? parts[i]!.label.slice(0, 87).trimEnd() + "…"
+			: parts[i]!.label;
+		blocks.push(`${i + 1}. ${shortHeading}\n${raw}`);
+	}
+	if (missing.length) return { ok: false, missing };
+	return { ok: true, text: blocks.join("\n\n") };
 }

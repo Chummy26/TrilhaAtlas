@@ -1,4 +1,4 @@
-import { findRegionalSource } from "./domain-reading-list.ts";
+import { enrichRegionalCatalog, findRegionalSource } from "./domain-reading-list.ts";
 import { englishMissionMaterials } from "./english-mission-materials.ts";
 import { studyCampaign, campaignFinale } from "../core/study/campaign.ts";
 import path from "node:path";
@@ -11,6 +11,7 @@ import { libraryDir, resourcesDir } from "../core/domains/paths.ts";
 import { LEARNER_CONSTANTS } from "../core/learner/params.ts";
 import { booksForDomain, seedLicense } from "../core/resources/catalog.ts";
 import { bestMatch, rankByMatch } from "../core/resources/match.ts";
+import { scoreEducationalReputation } from "../core/resources/reputation.ts";
 import { rankCandidates } from "../core/resources/playlist.ts";
 import { parseDescriptionChapters } from "../core/resources/segments.ts";
 import { planRegionReading, type BookCandidate } from "../core/resources/setcover.ts";
@@ -29,6 +30,7 @@ import { getChat } from "./chats.ts";
 import { detectFormat, importBookFile, importFromUrl, listLibrary, readLibraryItem, readLibraryChunks, type ImportedBook } from "./resources/user-library.ts";
 import { MAX_BOOK_BODY_BYTES, MAX_BOOK_BYTES } from "../../lib/book-import-limits.ts";
 import { linkRegionalReading, regionalReadingList, unlinkRegionalReading } from "./resources/region-readings.ts";
+import { addManualMaterial, readManualMaterials, removeManualMaterial } from "./resources/manual-materials.ts";
 
 const contents: Record<string, { part: string; url: string; nodes?: string[] }[]> = sections;
 const videos: StudyMaterial[] = [
@@ -184,7 +186,28 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 	const allNodes = view.ids.map(key => snapshot.items[key]!);
 	const members = allNodes.filter(n => ids.has(n.id));
 	const localReadings = regionalReadingList(domain, region.id);
+	const savedLibrary = listLibrary(libraryDir(PATHS.data));
+	const libraryBooks = savedLibrary.map(b => ({ id: b.sha256, title: b.title, format: b.format, ...(b.numPages ? { pages: b.numPages } : {}) }));
+	const regionNodes = members.map(n => ({ id: n.id, title: n.title.pt, kind: n.kind }));
 	const materials = regionalReading(domain, members, new Set(localReadings.map(r => r.id)));
+	// Manual user-curated node/section materials take highest priority.
+	for (const entry of readManualMaterials(domain)) {
+		const matched = entry.nodes.filter(key => ids.has(key));
+		if (!matched.length && entry.regionId !== region.id) continue;
+		materials.unshift({
+			kind: entry.kind,
+			title: entry.title,
+			part: entry.part,
+			url: entry.url,
+			lang: entry.lang,
+			nodes: matched.length ? matched : [region.id],
+			suggested: false,
+			manual: true,
+			manualId: entry.id,
+			...(entry.libraryBookId ? { libraryBookId: entry.libraryBookId } : {}),
+			...(entry.notes ? { notes: entry.notes } : {}),
+		});
+	}
 	if (domain === "english") {
 		for (const source of englishMissionMaterials) {
 			const nodes = source.nodes.filter(key => ids.has(key));
@@ -249,12 +272,14 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 		if (search && !result.materials.length) message = "Nenhum material compatível retornou desta busca. Você pode tentar novamente.";
 	}));
 
-	const [discovered, books, lessons] = await Promise.all([
+	const enrichedStore = new FileTtlCache(path.join(dir, "region-enriched-v1"));
+	const [discovered, books, lessons, enriched] = await Promise.all([
 		cache.valuesWithPrefix<StudyMaterial[]>(prefix, CATALOG_TTL_MS, key => key.startsWith(prefix + "book:") || key.startsWith(prefix + "video:")),
 		shelves.get<StudyMaterial[]>(prefix + "book:" + region.id, CATALOG_TTL_MS),
 		shelves.get<StudyMaterial[]>(prefix + "video:" + region.id, CATALOG_TTL_MS),
+		enrichedStore.get<StudyMaterial[]>(prefix + "enriched:" + region.id, CATALOG_TTL_MS),
 	]);
-	const discoveries = [...discovered, books ?? [], lessons ?? []];
+	const discoveries = [...discovered, books ?? [], lessons ?? [], enriched ?? []];
 	for (const match of discoveries.flat()) {
 		const within = match.nodes.filter(key => ids.has(key));
 		if (!within.length) continue;
@@ -262,15 +287,149 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 		if (same) same.nodes = [...new Set([...same.nodes, ...within])];
 		else materials.push({ ...match, nodes: within });
 	}
+	for (const mat of materials) {
+		const rep = scoreEducationalReputation({ title: mat.title, url: mat.url, part: mat.part, fullBookUrl: mat.fullBookUrl });
+		mat.reputationScore = rep.score;
+		if (rep.badge) mat.reputationBadge = rep.badge;
+	}
 	if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
 	const positions = new Map(members.map((m,i) => [m.id,i]));
 	const firstNode = (m: StudyMaterial) => Math.min(...m.nodes.map(k => positions.get(k) ?? Infinity));
-	materials.sort((a,b) => firstNode(a)-firstNode(b) || Number(!!a.suggested)-Number(!!b.suggested));
-	return { region: region.id, materials, localReadings, references: readingReferences(domain, members), videoSearch, message };
+	materials.sort((a,b) =>
+		Number(!!b.manual) - Number(!!a.manual)
+		|| firstNode(a) - firstNode(b)
+		|| Number(!!a.suggested) - Number(!!b.suggested)
+		|| (b.reputationScore ?? 0) - (a.reputationScore ?? 0),
+	);
+	return { region: region.id, materials, localReadings, regionNodes, libraryBooks, references: readingReferences(domain, members), videoSearch, message };
+}
+
+/**
+ * Expand and upgrade a region/node's materials with higher-reputation academic
+ * textbooks, open PDFs, and university lectures, cross-linked to matching skills.
+ */
+export async function enrichRegionMaterials(
+	domain: string,
+	id: string,
+	fetchMetadata?: Parameters<typeof enrichRegionalCatalog>[3],
+): Promise<RegionMaterials> {
+	const { item, region, snapshot, view, manifest } = current(domain, id);
+	const ids = new Set<string>();
+	function collect(key: string) {
+		ids.add(key);
+		for (const child of view.nodes.get(key)!.children) collect(child);
+	}
+	collect(region.id);
+	const members = view.ids.map(key => snapshot.items[key]!).filter(n => ids.has(n.id));
+	const childSkills = members.filter(n => n.id !== region.id).map(n => ({ id: n.id, title: n.title.pt, titleEn: n.title.en }));
+
+	const before = await readRegionMaterials(domain, id);
+	const beforeUrls = new Set(before.materials.map(m => m.url));
+
+	const subject = manifest.title.en + " " + manifest.title.pt;
+	const focusQueryEn = item.id !== region.id ? `${region.title.en} ${item.title.en}` : region.title.en;
+	const focusQueryPt = item.id !== region.id ? `${region.title.pt} ${item.title.pt}` : region.title.pt;
+
+	const found = await enrichRegionalCatalog(
+		domain,
+		{
+			id: region.id,
+			title: region.title.pt,
+			titleEn: region.title.en,
+			objective: region.summary,
+			bookQuery: focusQueryEn,
+			videoQuery: focusQueryPt,
+			skills: childSkills,
+		},
+		AbortSignal.timeout(25000),
+		fetchMetadata,
+		subject,
+	).catch(() => []);
+
+	const nextItems: StudyMaterial[] = [];
+	const pushEntry = (entry: StudyMaterial) => {
+		const existing = nextItems.find(m => m.url === entry.url);
+		if (existing) existing.nodes = [...new Set([...existing.nodes, ...entry.nodes])];
+		else nextItems.push(entry);
+	};
+
+	for (const row of found) {
+		const url = row.source.url;
+		if (!url || !row.source.kind) continue;
+		const matchedSkillIds = (row.skillAnchors ?? []).map(a => a.skillId).filter(k => ids.has(k));
+		const nodes = [...new Set([region.id, ...(item.id !== region.id ? [item.id] : []), ...matchedSkillIds])];
+		pushEntry({
+			kind: row.source.kind,
+			title: row.source.title,
+			part: row.ref,
+			url,
+			lang: row.source.lang ?? "",
+			nodes,
+			suggested: row.ref.startsWith("Sugestão"),
+			linkOnly: true,
+		});
+		for (const anchor of row.skillAnchors ?? []) {
+			if (!anchor.url || anchor.url === url || !ids.has(anchor.skillId)) continue;
+			pushEntry({
+				kind: row.source.kind,
+				title: row.source.title,
+				part: anchor.ref,
+				url: anchor.url,
+				lang: row.source.lang ?? "",
+				nodes: [anchor.skillId],
+				suggested: false,
+				linkOnly: true,
+			});
+		}
+	}
+
+	// Also match any high-reputation open PDFs/books from the shipped catalog for this domain.
+	for (const book of catalog(domain)) {
+		if (!book.downloadUrl && !book.url) continue;
+		const targetUrl = book.downloadUrl ?? book.url;
+		if (!targetUrl || !/^https:\/\//i.test(targetUrl)) continue;
+		const matchedNodes = members
+			.filter(n => bestMatch({ text: n.title }, book.title) >= 0.5)
+			.map(n => n.id);
+		if (!matchedNodes.length) continue;
+		pushEntry({
+			kind: "book",
+			title: book.title,
+			part: book.downloadUrl ? "Livro completo em PDF aberto" : "Livro-texto de referência",
+			url: book.url ?? targetUrl,
+			fullBookUrl: book.downloadUrl ?? book.url,
+			bookKey: book.downloadUrl ? book.key : undefined,
+			lang: book.lang,
+			nodes: matchedNodes,
+			suggested: false,
+		});
+	}
+
+	const dir = resourcesDir(PATHS.data, domain);
+	const enrichedStore = new FileTtlCache(path.join(dir, "region-enriched-v1"));
+	const prefix = `v${snapshot.version}:`;
+	const cacheKey = prefix + "enriched:" + region.id;
+	const existingCached = (await enrichedStore.get<StudyMaterial[]>(cacheKey, CATALOG_TTL_MS)) ?? [];
+	const merged = [...existingCached];
+	for (const candidate of nextItems) {
+		const same = merged.find(m => m.url === candidate.url);
+		if (same) same.nodes = [...new Set([...same.nodes, ...candidate.nodes])];
+		else merged.push(candidate);
+	}
+	if (merged.length) await enrichedStore.set(cacheKey, merged);
+
+	const after = await readRegionMaterials(domain, id);
+	const addedBooks = after.materials.filter(m => m.kind === "book" && !beforeUrls.has(m.url)).length;
+	const addedVideos = after.materials.filter(m => m.kind === "video" && !beforeUrls.has(m.url)).length;
+	const addedTotal = addedBooks + addedVideos;
+	const summary = addedTotal > 0
+		? `Acervo ampliado e qualificado: +${addedBooks} leitura(s) e +${addedVideos} vídeo(s) vinculados.`
+		: "Acervo verificado: as fontes de referência disponíveis já estão vinculadas nesta região.";
+	return { ...after, message: summary };
 }
 
 export async function updateRegionalReading(domain: string, id: string, request: Request) {
-	const { region } = current(domain, id);
+	const { region, snapshot, view } = current(domain, id);
 	if (request.method === "DELETE") {
 		unlinkRegionalReading(domain, region.id, new URL(request.url).searchParams.get("pdf") ?? "");
 	} else {
@@ -286,6 +445,95 @@ export async function updateRegionalReading(domain: string, id: string, request:
 		catch { throw new StudyError(422, "Não foi possível ler o livro. Confira se ele abre sem senha."); }
 		current(domain, id);
 		linkRegionalReading(domain, region.id, book.meta);
+		const sectionPart = typeof form.get("part") === "string" ? String(form.get("part")).trim() : "";
+		const rawNodes = typeof form.get("nodes") === "string" ? String(form.get("nodes")).trim() : "";
+		let targetNodes: string[] = [];
+		if (rawNodes) {
+			try {
+				const parsed = JSON.parse(rawNodes);
+				if (Array.isArray(parsed)) targetNodes = parsed.filter((n): n is string => typeof n === "string" && view.nodes.has(n));
+			} catch { /* ignore malformed optional nodes */ }
+		}
+		// Link to every region touched by selected nodes so the reader and tutor can recall passages everywhere.
+		for (const nodeId of targetNodes) {
+			let r = snapshot.items[nodeId];
+			while (r && r.kind !== "unit" && r.parentId) r = snapshot.items[r.parentId];
+			if (r?.kind === "unit" && r.id !== region.id) linkRegionalReading(domain, r.id, book.meta);
+		}
+		if (sectionPart || targetNodes.length) {
+			const nodes = targetNodes.length ? targetNodes : [id];
+			const readerUrl = "/ler/" + encodeURIComponent(book.meta.sha256) + "?" + new URLSearchParams({ domain, region: region.id, node: id });
+			addManualMaterial(domain, {
+				kind: "book",
+				title: book.meta.title,
+				part: sectionPart || "Livro completo · leitura no app",
+				url: readerUrl,
+				lang: "pt",
+				nodes,
+				regionId: region.id,
+				libraryBookId: book.meta.sha256,
+			});
+		}
+	}
+	return readRegionMaterials(domain, id);
+}
+
+export async function updateManualNodeMaterial(domain: string, id: string, request: Request) {
+	const { region, snapshot, view } = current(domain, id);
+	if (request.method === "DELETE") {
+		const materialId = new URL(request.url).searchParams.get("id") ?? "";
+		if (!materialId) throw new StudyError(400, "Informe o identificador do material.");
+		removeManualMaterial(domain, materialId);
+		return readRegionMaterials(domain, id);
+	}
+	let body: unknown;
+	try { body = await request.json(); }
+	catch { throw new StudyError(400, "Corpo JSON inválido."); }
+	if (!body || typeof body !== "object") throw new StudyError(400, "Dados do material inválidos.");
+	const data = body as Record<string, unknown>;
+	const kind = data.kind === "book" || data.kind === "video" ? data.kind : undefined;
+	if (!kind) throw new StudyError(400, "Escolha o tipo: livro/PDF ou vídeo.");
+	const requestedNodes = Array.isArray(data.nodes)
+		? data.nodes.filter((n): n is string => typeof n === "string" && view.nodes.has(n))
+		: [];
+	const targetNodes = requestedNodes.length ? [...new Set(requestedNodes)] : [id];
+	const libraryBookId = typeof data.libraryBookId === "string" && /^[a-f0-9]{64}$/i.test(data.libraryBookId.trim())
+		? data.libraryBookId.trim()
+		: undefined;
+	let title = typeof data.title === "string" ? data.title.trim() : "";
+	let url = typeof data.url === "string" ? data.url.trim() : "";
+	const part = typeof data.part === "string" ? data.part.trim() : "";
+	const lang = typeof data.lang === "string" ? data.lang.trim() : "pt";
+	const notes = typeof data.notes === "string" ? data.notes.trim() : undefined;
+
+	if (libraryBookId) {
+		const saved = listLibrary(libraryDir(PATHS.data)).find(b => b.sha256 === libraryBookId);
+		if (!saved) throw new StudyError(404, "Livro da biblioteca não encontrado.");
+		title = title || saved.title;
+		url = "/ler/" + encodeURIComponent(saved.sha256) + "?" + new URLSearchParams({ domain, region: region.id, node: id });
+		// Ensure the PDF is indexed in every region covered by the selected nodes.
+		const touchedRegions = new Set<string>([region.id]);
+		for (const nodeId of targetNodes) {
+			let r = snapshot.items[nodeId];
+			while (r && r.kind !== "unit" && r.parentId) r = snapshot.items[r.parentId];
+			if (r?.kind === "unit") touchedRegions.add(r.id);
+		}
+		for (const regId of touchedRegions) linkRegionalReading(domain, regId, saved);
+	}
+	try {
+		addManualMaterial(domain, {
+			kind: libraryBookId ? "book" : kind,
+			title,
+			part: part || (libraryBookId ? "Seção vinculada · leitura no app" : title),
+			url,
+			lang: lang || "pt",
+			nodes: targetNodes,
+			regionId: region.id,
+			...(libraryBookId ? { libraryBookId } : {}),
+			...(notes ? { notes } : {}),
+		});
+	} catch (error) {
+		throw new StudyError(400, error instanceof Error ? error.message : "Não foi possível salvar o material.");
 	}
 	return readRegionMaterials(domain, id);
 }
@@ -347,7 +595,9 @@ function booksForLessonNode(domain: string, nodeId: string) {
 
 function relevantMaterials(shelf: RegionMaterials, node: string) {
 	return shelf.materials.filter(m => m.nodes.includes(node) || m.nodes.includes(shelf.region))
-		.sort((a, b) => Number(b.nodes.includes(node)) - Number(a.nodes.includes(node)) || Number(!!a.suggested) - Number(!!b.suggested));
+		.sort((a, b) => Number(!!b.manual) - Number(!!a.manual)
+			|| Number(b.nodes.includes(node)) - Number(a.nodes.includes(node))
+			|| Number(!!a.suggested) - Number(!!b.suggested));
 }
 
 /** Resolve attachments on demand. Only links and locators enter the teacher's context. */
@@ -369,29 +619,34 @@ export async function attachStudyMaterials(domain: string | null, node: string |
 		if (book) items.push({ kind: "book", title: book.title, part: "Livro da biblioteca desta região",
 			url: "/ler/" + encodeURIComponent(book.id) + "?" + new URLSearchParams({ domain, region: shelf.region, node }) });
 	}
-	const reading = materials.find(m => m.kind === "book");
-	const whole = materials.find(m => m.kind === "book" && m.fullBookUrl?.startsWith("https://"));
+	const readings = materials.filter(m => m.kind === "book");
+	const whole = readings.find(m => m.fullBookUrl?.startsWith("https://"));
 	if (!items.length && whole?.fullBookUrl) items.push({ kind: "book", title: whole.title, url: whole.fullBookUrl,
 		part: whole.part, sectionUrl: whole.url, suggested: whole.suggested });
-	if (reading && reading.url !== items[0]?.sectionUrl && reading.title !== items[0]?.title) {
+	for (const reading of readings.slice(0, 2)) {
+		if (items.some(i => i.url === reading.url || i.sectionUrl === reading.url || (i.title === reading.title && i.part === reading.part))) continue;
 		items.push({ kind: "reading", title: reading.title, url: reading.url, part: reading.part, suggested: reading.suggested });
 	}
-	const video = materials.find(m => m.kind === "video");
+	const matchedVideos = materials.filter(m => m.kind === "video").slice(0, 2);
 	const query = { domainId: domain ?? "general", text: { pt: topic, en: topic }, langs: ["pt", "en"], maxResults: 5, signal: deadline };
 	const [openBook, foundVideo] = await Promise.all([
-		items.some(item => item.kind === "book") ? undefined : (async () => {
+		items.some(item => item.kind === "book" || item.kind === "reading") ? undefined : (async () => {
 			const fetch = createResourceFetch({ timeoutMs: 5000 });
 			const reg = createDefaultRegistry({ stateDir: path.join(PATHS.data, "catalog-cache"), libraryRoot: libraryDir(PATHS.data),
 				youtubeApiKey: () => undefined, youtubeEnrichedOptIn: () => false, fetch: (url, init) => fetch(url, { ...init, signal: deadline }) });
 			const result = await reg.search({ ...query, kinds: ["book"] }, { providers: ["wikibooks"] });
 			return rankByMatch(result.results.filter(r => r.url?.startsWith("https://")), query, r => ({ title: r.title, body: r.description }))[0];
 		})().catch(() => undefined),
-		video ? undefined : findRegionalSource(domain ?? "general", { id: "topic", title: topic, bookQuery: topic, videoQuery: topic }, "video", deadline).catch(() => undefined),
+		matchedVideos.length ? undefined : findRegionalSource(domain ?? "general", { id: "topic", title: topic, bookQuery: topic, videoQuery: topic }, "video", deadline).catch(() => undefined),
 	]);
 	checkScope();
 	if (openBook?.url) items.unshift({ kind: "book", title: openBook.title, url: openBook.url, part: "Livro aberto no Wikibooks", suggested: true });
-	if (video) items.push({ kind: "video", title: video.title, url: video.url, part: video.part, suggested: video.suggested });
-	else if (foundVideo?.source.url) items.push({ kind: "video", title: foundVideo.source.title, url: foundVideo.source.url, part: foundVideo.ref, suggested: true });
+	for (const video of matchedVideos) {
+		if (!items.some(i => i.url === video.url)) {
+			items.push({ kind: "video", title: video.title, url: video.url, part: video.part, suggested: video.suggested });
+		}
+	}
+	if (!matchedVideos.length && foundVideo?.source.url) items.push({ kind: "video", title: foundVideo.source.title, url: foundVideo.source.url, part: foundVideo.ref, suggested: true });
 	return { items };
 }
 
@@ -408,6 +663,14 @@ export function lessonPdfShelf(domain: string, chat: string, node = lessonNodeOf
 }
 
 async function excerptFor(domain: string, material: StudyMaterial): Promise<string> {
+	if (material.libraryBookId) {
+		const library = libraryDir(PATHS.data);
+		const chunks = readLibraryChunks(library, material.libraryBookId);
+		const match = chunks.map(c => ({ c, score: bestMatch({ text: { pt: material.part, en: material.part } }, c.breadcrumb.join(" "), c.text) }))
+			.sort((a, b) => b.score - a.score)[0];
+		if (match?.c.text) return match.c.text.slice(0, 1600);
+		return "";
+	}
 	if (material.saved && material.bookKey) {
 		const book = catalog(domain).find(b => b.key === material.bookKey);
 		const library = libraryDir(PATHS.data);
@@ -419,6 +682,7 @@ async function excerptFor(domain: string, material: StudyMaterial): Promise<stri
 			if (match && match.score >= 0.65) return match.c.text.slice(0,1600);
 		}
 	}
+	if (!/^https:\/\//i.test(material.url)) return "";
 	const address = new URL(material.url);
 	const anchor = address.hash.slice(1);
 	address.hash = "";

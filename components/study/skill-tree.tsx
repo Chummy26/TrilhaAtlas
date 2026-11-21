@@ -10,6 +10,7 @@ import type { RegionMaterials, SkillMap, SkillNode, StudyNodeBrief } from "@/src
 import type { LessonStart } from "./today-card.tsx";
 import { lessonStatement } from "./lesson-statement.ts";
 import { SkillCanvas } from "./skill-canvas.tsx";
+import { useT } from "@/components/i18n";
 
 const STATUS = { known: "Conhecimento inferido", available: "Disponível", locked: "Pré-requisitos pendentes", group: "Grupo" };
 type NodeDetail = { brief: StudyNodeBrief; minutes: number; sessionId?: string; explorationId?: string; missing: { id: string; title: string }[] };
@@ -22,14 +23,31 @@ function statusPillClass(node: SkillNode): string {
 	return "study-pill";
 }
 
-function Materials({ domain, node, onStart, busy }: { domain: string; node: SkillNode; onStart: (l: LessonStart) => void; busy: boolean }) {
+function Materials({ domain, node, onStart, busy, refreshNonce = 0 }: { domain: string; node: SkillNode; onStart: (l: LessonStart) => void; busy: boolean; refreshNonce?: number }) {
+	const t = useT();
 	const [data, setData] = useState<RegionMaterials>();
 	const [revision, setRevision] = useState(0);
 	useSettingsSaved(section => { if (section === "keys") setRevision(r => r + 1); });
 	const [detail, setDetail] = useState<NodeDetail>();
 	const [error, setError] = useState("");
 	const [searching, setSearching] = useState(false);
+	const [manualMode, setManualMode] = useState<"link" | "library">("link");
+	const [manualKind, setManualKind] = useState<"video" | "book">("video");
+	const [manualTitle, setManualTitle] = useState("");
+	const [manualPart, setManualPart] = useState("");
+	const [manualUrl, setManualUrl] = useState("");
+	const [manualLang, setManualLang] = useState("pt");
+	const [selectedLibraryBook, setSelectedLibraryBook] = useState("");
+	const [pdfSection, setPdfSection] = useState("");
+	const [linkedNodes, setLinkedNodes] = useState<string[]>([node.id]);
 	const endpoint = "/api/study/materials?" + new URLSearchParams({ domain, node: node.id });
+	useEffect(() => {
+		setLinkedNodes([node.id]);
+		setManualTitle("");
+		setManualPart("");
+		setManualUrl("");
+		setPdfSection("");
+	}, [node.id]);
 	useEffect(() => {
 		const ctrl = new AbortController();
 		async function read() {
@@ -42,7 +60,18 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		}
 		void read().catch((e: Error) => { if (!ctrl.signal.aborted) setError(e.message); });
 		return () => ctrl.abort();
-	}, [endpoint, revision]);
+	}, [endpoint, revision, refreshNonce]);
+
+	async function enrichNode() {
+		setSearching(true); setError("");
+		try {
+			const res = await fetch(endpoint + "&enrich=1", { method: "POST" });
+			const result = await res.json();
+			if (!res.ok) throw new Error(result.error ?? "Não foi possível ampliar o acervo.");
+			setData(result);
+		} catch (e) { setError(e instanceof Error ? e.message : "Não foi possível ampliar o acervo."); }
+		finally { setSearching(false); }
+	}
 
 	async function discover(kind: "video" | "book", download?: string) {
 		setSearching(true); setError("");
@@ -59,13 +88,68 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 		setSearching(true); setError("");
 		try {
 			const form = new FormData();
-			if (file) form.set("file", file);
+			if (file) {
+				form.set("file", file);
+				if (pdfSection.trim()) form.set("part", pdfSection.trim());
+				if (linkedNodes.length) form.set("nodes", JSON.stringify(linkedNodes));
+			}
 			const res = await fetch(endpoint + "&pdf=" + encodeURIComponent(removeId), { method: file ? "POST" : "DELETE", body: file ? form : undefined });
 			const result = await res.json();
 			if (!res.ok) throw new Error(result.error ?? "Não foi possível atualizar o livro.");
 			setData(result);
+			if (file) setPdfSection("");
 		} catch (e) { setError(e instanceof Error ? e.message : "Não foi possível atualizar o livro."); }
 		finally { setSearching(false); }
+	}
+	async function saveManualMaterial(e: React.FormEvent) {
+		e.preventDefault();
+		setSearching(true); setError("");
+		try {
+			const payload = manualMode === "library"
+				? {
+					kind: "book" as const,
+					libraryBookId: selectedLibraryBook,
+					title: manualTitle.trim(),
+					part: manualPart.trim() || "Seção vinculada · leitura no app",
+					lang: manualLang,
+					nodes: linkedNodes.length ? linkedNodes : [node.id],
+				}
+				: {
+					kind: manualKind,
+					title: manualTitle.trim(),
+					part: manualPart.trim() || manualTitle.trim(),
+					url: manualUrl.trim(),
+					lang: manualLang,
+					nodes: linkedNodes.length ? linkedNodes : [node.id],
+				};
+			const res = await fetch(endpoint + "&manual=1", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			});
+			const result = await res.json();
+			if (!res.ok) throw new Error(result.error ?? "Não foi possível adicionar o material.");
+			setData(result);
+			setManualTitle(""); setManualPart(""); setManualUrl("");
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Não foi possível adicionar o material.");
+		} finally { setSearching(false); }
+	}
+	async function deleteManualMaterial(materialId: string) {
+		setSearching(true); setError("");
+		try {
+			const res = await fetch(endpoint + "&manual=1&id=" + encodeURIComponent(materialId), { method: "DELETE" });
+			const result = await res.json();
+			if (!res.ok) throw new Error(result.error ?? "Não foi possível remover o material.");
+			setData(result);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Não foi possível remover o material.");
+		} finally { setSearching(false); }
+	}
+	function toggleLinkedNode(targetId: string) {
+		setLinkedNodes(prev => prev.includes(targetId)
+			? (prev.length > 1 ? prev.filter(id => id !== targetId) : prev)
+			: [...prev, targetId]);
 	}
 	function start(exploratory: boolean) {
 		if (detail) onStart({
@@ -98,7 +182,7 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 					</button>
 				)}
 				{detail.explorationId ? (
-					<Link href={"/chat/" + encodeURIComponent(detail.explorationId)} className="cel-button px-3 py-1.5 text-sm">Retomar exploração</Link>
+					<Link href={"/chat/" + encodeURIComponent(detail.explorationId)} className="cel-button px-3 py-1.5 text-sm">{t("map.tree.resumeExploration")}</Link>
 				) : (
 					<button type="button" className="cel-button px-3 py-1.5 text-sm" disabled={busy} onClick={() => start(true)}>
 						{node.reinforcementFor ? "Estudar reforço" : node.leaf ? "Explorar em aula avulsa" : "Explorar em uma aula panorâmica"}
@@ -129,8 +213,11 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 			</div>)}
 			{data && <details className="study-disclosure text-sm">
 				<summary>Livros da região{data.localReadings?.length ? " (" + data.localReadings.length + ")" : ""}</summary>
-				<div className="study-disclosure-body space-y-2">
+				<div className="study-disclosure-body space-y-2.5">
 					<p className="text-xs leading-relaxed text-muted-foreground">O tutor pode enviar trechos relevantes destes livros ao modelo escolhido durante a aula.</p>
+					<label className="block text-xs font-semibold">Capítulo, seção ou páginas para vincular (opcional)
+						<input type="text" value={pdfSection} disabled={searching} onChange={e => setPdfSection(e.target.value)} placeholder="Ex.: Cap. 2 · p. 18–34" className="cel-input mt-1 block w-full px-2.5 py-1.5 text-xs font-normal" />
+					</label>
 					<label className="block text-xs font-semibold">Adicionar PDF ou EPUB de até 64 MiB
 						<input type="file" accept="application/pdf,application/epub+zip,.pdf,.epub" disabled={searching} className="mt-1.5 block w-full text-xs font-normal text-muted-foreground" onChange={e => {
 							const file = e.currentTarget.files?.[0]; e.currentTarget.value = "";
@@ -139,20 +226,117 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 					</label>
 				</div>
 			</details>}
+			{data && <details className="study-disclosure text-sm">
+				<summary>{t("map.tree.addManualMaterial")}</summary>
+				<form className="study-disclosure-body space-y-2.5 pt-2" onSubmit={e => void saveManualMaterial(e)}>
+					<p className="text-xs leading-relaxed text-muted-foreground">
+						Adicione links de vídeos (YouTube com minutagem), PDFs, artigos ou vincule seções de um livro já salvo na biblioteca a um ou vários nós desta região.
+					</p>
+					{!!data.libraryBooks?.length && (
+						<div className="flex flex-wrap gap-1.5" role="group" aria-label="Origem do material manual">
+							<button type="button" className={manualMode === "link" ? "cel-chip text-xs" : "cel-button cel-button-ghost min-h-7 px-2.5 py-1 text-xs"} aria-pressed={manualMode === "link"} onClick={() => setManualMode("link")}>
+								Link (vídeo / livro / PDF)
+							</button>
+							<button type="button" className={manualMode === "library" ? "cel-chip text-xs" : "cel-button cel-button-ghost min-h-7 px-2.5 py-1 text-xs"} aria-pressed={manualMode === "library"} onClick={() => {
+								setManualMode("library");
+								if (!selectedLibraryBook && data.libraryBooks?.[0]) setSelectedLibraryBook(data.libraryBooks[0].id);
+							}}>
+								Seção de PDF da biblioteca ({data.libraryBooks.length})
+							</button>
+						</div>
+					)}
+					{manualMode === "library" && data.libraryBooks?.length ? (
+						<div className="space-y-2">
+							<label className="block text-xs font-semibold">Livro/PDF já salvo na biblioteca
+								<select className="cel-input mt-1 block w-full px-2.5 py-1.5 text-xs font-normal" value={selectedLibraryBook} disabled={searching} onChange={e => setSelectedLibraryBook(e.target.value)}>
+									{data.libraryBooks.map(book => <option key={book.id} value={book.id}>{book.title}{book.pages ? ` (${book.pages} p.)` : ""}</option>)}
+								</select>
+							</label>
+							<label className="block text-xs font-semibold">Seção, capítulo ou páginas
+								<input type="text" required className="cel-input mt-1 block w-full px-2.5 py-1.5 text-xs font-normal" value={manualPart} disabled={searching} onChange={e => setManualPart(e.target.value)} placeholder="Ex.: Cap. 3 · p. 42–58 · Exercícios" />
+							</label>
+						</div>
+					) : (
+						<div className="space-y-2">
+							<div className="grid grid-cols-2 gap-2">
+								<label className="block text-xs font-semibold">Tipo
+									<select className="cel-input mt-1 block w-full px-2 py-1.5 text-xs font-normal" value={manualKind} disabled={searching} onChange={e => setManualKind(e.target.value === "book" ? "book" : "video")}>
+										<option value="video">Vídeo / aula</option>
+										<option value="book">Leitura / PDF / artigo</option>
+									</select>
+								</label>
+								<label className="block text-xs font-semibold">Idioma
+									<select className="cel-input mt-1 block w-full px-2 py-1.5 text-xs font-normal" value={manualLang} disabled={searching} onChange={e => setManualLang(e.target.value)}>
+										<option value="pt">Português (pt)</option>
+										<option value="en">Inglês (en)</option>
+									</select>
+								</label>
+							</div>
+							<label className="block text-xs font-semibold">Título
+								<input type="text" required className="cel-input mt-1 block w-full px-2.5 py-1.5 text-xs font-normal" value={manualTitle} disabled={searching} onChange={e => setManualTitle(e.target.value)} placeholder="Ex.: BBC Learning English · Reception" />
+							</label>
+							<label className="block text-xs font-semibold">Capítulo, seção ou trecho/minutagem
+								<input type="text" required className="cel-input mt-1 block w-full px-2.5 py-1.5 text-xs font-normal" value={manualPart} disabled={searching} onChange={e => setManualPart(e.target.value)} placeholder="Ex.: 02:15 – Perguntas de ficha ou Cap. 1 §2" />
+							</label>
+							<label className="block text-xs font-semibold">Link HTTPS
+								<input type="url" required className="cel-input mt-1 block w-full px-2.5 py-1.5 text-xs font-normal" value={manualUrl} disabled={searching} onChange={e => setManualUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=... ou https://.../apostila.pdf" />
+							</label>
+						</div>
+					)}
+					{!!data.regionNodes?.length && (
+						<fieldset className="space-y-1.5 rounded-lg border border-border/50 bg-background/60 p-2.5">
+							<div className="flex flex-wrap items-center justify-between gap-1">
+								<legend className="text-xs font-semibold">Interligar seções/nós ({linkedNodes.length})</legend>
+								<div className="flex gap-2 text-[11px]">
+									<button type="button" className="underline text-muted-foreground hover:text-foreground" onClick={() => setLinkedNodes(data.regionNodes!.map(n => n.id))}>{t("map.tree.allInRegion")}</button>
+									<button type="button" className="underline text-muted-foreground hover:text-foreground" onClick={() => setLinkedNodes([node.id])}>{t("map.tree.onlyThisNode")}</button>
+								</div>
+							</div>
+							<div className="max-h-32 space-y-1 overflow-y-auto pr-1">
+								{data.regionNodes.map(target => (
+									<label key={target.id} className="flex items-start gap-2 text-xs leading-snug cursor-pointer">
+										<input type="checkbox" className="mt-0.5" checked={linkedNodes.includes(target.id)} onChange={() => toggleLinkedNode(target.id)} />
+										<span>{target.kind === "unit" ? `Região inteira · ${target.title}` : target.title}</span>
+									</label>
+								))}
+							</div>
+						</fieldset>
+					)}
+					<button type="submit" className="cel-button cel-button-primary min-h-8 px-3.5 py-1 text-xs" disabled={searching}>
+						<Icon name="plus" size={14} tone={false} />
+						{searching ? "Salvando…" : "Vincular material"}
+					</button>
+				</form>
+			</details>}
 			{error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-			{!data && !error && <p role="status" className="text-sm text-muted-foreground">Carregando…</p>}
-			{data && !materials.length && !data.localReadings?.length && <p className="text-sm text-muted-foreground">Ainda sem material vinculado.</p>}
+			{!data && !error && <p role="status" className="text-sm text-muted-foreground">{t("common.state.loading")}</p>}
+			{data && !materials.length && !data.localReadings?.length && <p className="text-sm text-muted-foreground">{t("map.tree.noMaterialsYet")}</p>}
 			{[...groups].map(([key, group]) => {
 				const first = group[0]!;
 				return <section key={key} className="space-y-2 rounded-xl border border-border/55 bg-background/55 p-3">
-					<h4 className="flex items-start gap-2 text-sm font-semibold leading-snug">
+					<h4 className="flex flex-wrap items-start gap-1.5 text-sm font-semibold leading-snug">
 						<Icon name={first.kind === "book" ? "book" : "video"} size={17} />
 						<span className="min-w-0 flex-1">{first.kind === "book" ? "Leitura" : "Vídeo"} · {first.title}</span>
+						{first.manual && <span className="study-pill study-pill-accent text-[11px]">{t("map.tree.manualPill")}</span>}
+						{first.reputationBadge && <span className="study-pill study-pill-success text-[11px]">{first.reputationBadge}</span>}
 					</h4>
 					<div className="space-y-1.5 pl-6">
-						{group.map(m => <a key={m.url + !!m.suggested} href={m.url} target="_blank" rel="noreferrer" className="block text-sm leading-snug underline decoration-border underline-offset-2 hover:decoration-foreground">
-							{m.part} <span className="text-xs text-muted-foreground">{m.lang}{m.suggested ? " · Sugestão" : ""}</span>
-						</a>)}
+						{group.map(m => <div key={(m.manualId ?? m.url) + !!m.suggested} className="flex items-start justify-between gap-2">
+							{m.url.startsWith("/ler/") ? (
+								<Link href={m.url} className="block text-sm leading-snug underline decoration-border underline-offset-2 hover:decoration-foreground">
+									{m.part} <span className="text-xs text-muted-foreground">No app{m.nodes.length > 1 ? ` · ${m.nodes.length} nós` : ""}</span>
+								</Link>
+							) : (
+								<a href={m.url} target="_blank" rel="noreferrer" className="block text-sm leading-snug underline decoration-border underline-offset-2 hover:decoration-foreground">
+									{m.part} <span className="text-xs text-muted-foreground">{m.lang}{m.suggested ? " · Sugestão" : ""}{m.nodes.length > 1 ? ` · ${m.nodes.length} nós` : ""}</span>
+								</a>
+							)}
+							{m.manualId && (
+								<button type="button" className="shrink-0 text-xs font-semibold text-muted-foreground underline hover:text-foreground" disabled={searching} onClick={() => void deleteManualMaterial(m.manualId!)}>
+									Remover
+								</button>
+							)}
+						</div>)}
 					</div>
 					{first.bookKey && <button type="button" className="cel-button cel-button-ghost min-h-7 px-2 py-1 text-xs font-semibold" disabled={searching || first.saved} onClick={() => discover("book", first.bookKey)}>
 						{first.saved ? "✓ Na biblioteca" : "↓ Salvar livro na biblioteca"}
@@ -160,6 +344,10 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 				</section>;
 			})}
 			{data && <div className="flex flex-wrap items-center gap-2 pt-1">
+				<button type="button" className="cel-button cel-button-primary min-h-8 px-3 py-1 text-xs" disabled={searching} onClick={() => void enrichNode()}>
+					<Icon name="book" size={14} tone={false} />
+					{searching ? "Buscando referências…" : "Ampliar acervo (PDFs e vídeos)"}
+				</button>
 				<button type="button" className="cel-button min-h-8 px-3 py-1 text-xs" disabled={searching} onClick={() => discover("book")}>
 					<Icon name="search" size={14} tone={false} />
 					{searching ? "Buscando…" : "Buscar livros"}
@@ -195,6 +383,7 @@ function Materials({ domain, node, onStart, busy }: { domain: string; node: Skil
 }
 
 export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; initialNode?: string; onStart: (l: LessonStart) => void; busy: boolean }) {
+	const t = useT();
 	const router = useRouter();
 	useServerEvent("domain-changed", () => router.replace("/"));
 	useServerEvent("curriculum-expanded", event => { if (event.domainId === map.domain) router.refresh(); });
@@ -209,14 +398,40 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 		map.nodes.filter(n => n.parent === scope.id || (selected.leaf && n.region === scope.id && n.leaf)).sort((a, b) => a.order - b.order);
 	const anchor = byId.get(map.position ?? map.next ?? "");
 	const leaves = useMemo(() => map.nodes.filter(n => n.leaf && !n.reinforcementFor), [map.nodes]);
+	const regionUnits = useMemo(() => map.nodes.filter(n => n.kind === "unit"), [map.nodes]);
 	const completed = leaves.filter(n => n.completed).length;
 	const pct = leaves.length > 0 ? Math.round((100 * completed) / leaves.length) : 0;
 	const [locate, setLocate] = useState(0);
+	const [enrichingTree, setEnrichingTree] = useState(false);
+	const [treeEnrichNote, setTreeEnrichNote] = useState("");
+	const [materialsNonce, setMaterialsNonce] = useState(0);
 	const trail: SkillNode[] = [selected];
 	while (trail[0]?.parent && byId.has(trail[0].parent)) trail.unshift(byId.get(trail[0].parent)!);
 	const progress = selected.completed ? "Concluída" : selected.inProgress ? "Em andamento" : undefined;
 	const category = selected.leaf ? selected.level : selected.kind === "domain" ? "Jornada de estudo" : selected.kind === "unit" ? "Região" : "Área de estudo";
 	function pick(key: string) { setId(key); setQuery(""); }
+	async function enrichWholeTree() {
+		if (enrichingTree || !regionUnits.length) return;
+		setEnrichingTree(true);
+		let updated = 0;
+		const targets = selected.region
+			? [regionUnits.find(r => r.id === selected.region), ...regionUnits.filter(r => r.id !== selected.region)].filter((r): r is SkillNode => Boolean(r))
+			: regionUnits;
+		const batch = targets.slice(0, 12);
+		try {
+			for (let i = 0; i < batch.length; i++) {
+				const unit = batch[i]!;
+				setTreeEnrichNote(`Buscando livros e vídeos de referência (${i + 1}/${batch.length})…`);
+				const url = "/api/study/materials?" + new URLSearchParams({ domain: map.domain, node: unit.id, enrich: "1" });
+				const res = await fetch(url, { method: "POST" }).catch(() => null);
+				if (res?.ok) updated++;
+			}
+			setMaterialsNonce(n => n + 1);
+			setTreeEnrichNote(`Acervo ampliado e qualificado em ${updated} ${updated === 1 ? "região" : "regiões"} da árvore.`);
+		} finally {
+			setEnrichingTree(false);
+		}
+	}
 	return <main className="h-dvh overflow-y-auto px-4 py-5 md:px-8">
 		<header className="mb-4 flex flex-wrap items-end justify-between gap-3">
 			<div className="space-y-1">
@@ -255,14 +470,32 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 				</div>
 				<progress aria-label="Progresso do domínio" value={completed} max={leaves.length} className="study-progress study-progress-success block w-full" />
 			</div>
-			{anchor && (
-				<button type="button" className="cel-chip cursor-pointer py-1 text-left text-xs" onClick={() => { pick(anchor.id); setLocate(n => n + 1); }}>
-					<span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-[var(--c-teal,#2ec4b6)] ring-2 ring-[var(--c-teal,#2ec4b6)]/40" />
-					<span className="text-muted-foreground">{map.position ? "Onde parei" : "Ponto de partida"}:</span>
-					<span className="max-w-64 truncate font-semibold text-foreground">{anchor.title}</span>
-				</button>
-			)}
+			<div className="flex flex-wrap items-center gap-2">
+				{regionUnits.length > 0 && (
+					<button
+						type="button"
+						className="cel-button min-h-8 px-3 py-1 text-xs"
+						disabled={enrichingTree}
+						onClick={() => void enrichWholeTree()}
+					>
+						<Icon name="book" size={14} tone={false} />
+						{enrichingTree ? "Ampliando acervo…" : "Enriquecer acervo da árvore"}
+					</button>
+				)}
+				{anchor && (
+					<button type="button" className="cel-chip cursor-pointer py-1 text-left text-xs" onClick={() => { pick(anchor.id); setLocate(n => n + 1); }}>
+						<span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-[var(--c-teal,#2ec4b6)] ring-2 ring-[var(--c-teal,#2ec4b6)]/40" />
+						<span className="text-muted-foreground">{map.position ? "Onde parei" : "Ponto de partida"}:</span>
+						<span className="max-w-64 truncate font-semibold text-foreground">{anchor.title}</span>
+					</button>
+				)}
+			</div>
 		</div>
+		{treeEnrichNote && (
+			<p role="status" className="mb-3 rounded-xl border border-border/55 bg-card/80 px-3.5 py-2 text-xs text-muted-foreground">
+				{treeEnrichNote}
+			</p>
+		)}
 
 		<nav aria-label="Caminho no currículo" className="mb-3.5 flex flex-wrap items-center gap-1.5 text-sm">
 			{trail.map((n, i) => (
@@ -346,7 +579,7 @@ export function SkillTree({ map, initialNode, onStart, busy }: { map: SkillMap; 
 						</div>
 					</details>
 				)}
-				<Materials key={map.domain + id} domain={map.domain} node={selected} busy={busy} onStart={onStart} />
+				<Materials key={map.domain + id} domain={map.domain} node={selected} busy={busy} onStart={onStart} refreshNonce={materialsNonce} />
 			</aside>
 
 			<section aria-label="Habilidades" className="order-3 space-y-2.5 xl:col-start-1">

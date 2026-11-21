@@ -129,6 +129,29 @@ See the [Development guide](docs/development.md), [Desktop release guide](docs/d
 
 ---
 
+<!-- BEGIN:BENCHMARK_RESULTS -->
+## AI Tutor & Memory Benchmarks (6-Front Paired Evaluation)
+
+> **Protocolo de avaliação em 6 frentes (2026-11-21)** — Comparação pareada **Prompt atual − Prompt mínimo (contratos)** no mesmo modelo e contexto congelado, sob **juiz cego cruzado** (`gpt-6.2-sol` ↔ `gpt-6.2-astra`), sem média geral misturada e com **IC 95% pareado**. Relatório auditável item a item em [evals/reports/latest-evaluation.md](evals/reports/latest-evaluation.md) e [docs/impl/ai-tutor-benchmarks.md](docs/impl/ai-tutor-benchmarks.md).
+
+#### Placar Principal — Qualidade dos Prompts do Professor (Tutoria, Planejamento, Correção e Fontes)
+
+| Modelo | TutorMoments: Apoio | TutorMoments: Exigência | TutorMoments: Sem Excesso | TeachArena S0 (Tutoria) | TeachArena S1 (Julgamento NL) | Modos Próprios (Exame 0-Leak) | Planejamento (JSON+Conv) | Corretor LLM MAE (0–3) / False-Pass | Fontes & PDFs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `chatgpt:gpt-6.2-sol` | **100.0%** (+66.7 pp) | **66.7%** (-33.3 pp) | **66.7%** (+33.3 pp) | **57.5%** (+16.7 pp) | **83.3%** (-3.3 pp) | **100.0%** (+100.0 pp) | **100.0%** (+37.7 pp) | **0.14** / **0.0%** | **91.7%** (+33.3 pp) |
+
+#### Placar Separado — Memória e Personalização (EvalMem 3 Estágios + LongMemEval-S) & Diagnóstico Complementar (MathTutorBench)
+
+| Modelo | EvalMem Est. 1 (Registro) | EvalMem Est. 2 (Recuperação) | EvalMem Est. 3 (Uso Tutor) | LongMemEval-S | MathTutorBench (Corr · Loc · Socr · Sem Spoiler) |
+|---|---:|---:|---:|---:|---|
+| `chatgpt:gpt-6.2-sol` | **100.0%** (+0.0 pp) | **100.0%** (n=6) | **100.0%** (+0.0 pp) | **83.3%** (+0.0 pp) | 100% · 100% · 100% · 100% |
+
+- **Corretor determinístico separado (`module-exam.ts` sobre 14 casos rotulados):** concordância exata **21.4%**, MAE **1.36**, aprovações indevidas **87.5%** (comprovando por que respostas abertas usam `lesson/grader.md` em vez de heurística de palavras-chave).
+- **Nota de transparência:** resultados de TeachArena referem-se individualmente a Stage 0 (Tutoria) e Stage 1 (Julgamento); casos PT-BR e de Planejamento são adaptações internas em `evals/`. Reproduza com `npm run verify:formal`, `npm run benchmark:harness`, `npm run benchmark:prompts` e `npm run benchmark:sota`.
+<!-- END:BENCHMARK_RESULTS -->
+
+---
+
 ## Research Behind the Design
 
 TrilhaAtlas translates peer-reviewed cognitive science and intelligent tutoring research directly into code:

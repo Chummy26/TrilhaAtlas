@@ -36,6 +36,7 @@ import type { ModelRole } from "../../config.ts";
 import type { ChatSettings } from "./contracts/chat.ts";
 import { isSearchEngineId, type SearchEngineId } from "./search.ts";
 import { isDictationLanguage, type DictationLanguage } from "./dictation.ts";
+import { DEFAULT_LOCALE, isLocale, type Locale } from "./i18n/locales.ts";
 import { parseFileAccessSettings, type FileAccessSettings } from "./file-access.ts";
 import { COLOR_OVERRIDE_KEYS, isThemeId, type AppearanceColorOverrides } from "./themes.ts";
 
@@ -340,6 +341,8 @@ export const ROLE_SLOT: Readonly<Record<ModelRole, ModelSlotName>> = {
 export interface GeneralSettings {
 	/** Automatic startup/24h update checks (default ON). Manual checks bypass this. */
 	autoUpdate?: boolean;
+	/** Interface language (English when unset); also the language the tutor answers in. */
+	language?: Locale;
 }
 
 /** One app-wide dictation preference, shared by every composer. */
@@ -383,6 +386,10 @@ export interface AgentSettings {
 	 *  the current policy is read per new tool call/job start. Existing
 	 *  sensitive-location/credential denials always win, not a whole-data ban. */
 	fileAccess?: FileAccessSettings;
+	/** Optional voice recording & pronunciation transcription inside lesson and
+	 *  question cards. OFF by default (absent = false). Does not affect composer
+	 *  speech-to-text dictation. */
+	lessonVoicePractice?: boolean;
 }
 
 /** Markdown-rendering knobs — the bare-bones set (owner decision). */
@@ -538,7 +545,7 @@ export interface FactorySettings {
 export const FACTORY_SETTINGS: FactorySettings = {
 	version: CURRENT_SETTINGS_VERSION,
 	agent: { workerRequestConcurrency: 8 },
-	general: { autoUpdate: true },
+	general: { autoUpdate: true, language: DEFAULT_LOCALE },
 	dictation: { language: "en" },
 	appearance: {
 		theme: "cel-noite",
@@ -586,6 +593,7 @@ function sanitizeGeneral(raw: Record<string, unknown>): GeneralSettings {
 	const out: GeneralSettings = {};
 	const autoUpdate = boolOrDrop(raw.autoUpdate);
 	if (autoUpdate !== undefined) out.autoUpdate = autoUpdate;
+	if (isLocale(raw.language)) out.language = raw.language;
 	return out;
 }
 
@@ -762,6 +770,9 @@ function sanitizeAgent(raw: Record<string, unknown>): AgentSettings {
 	if (raw.fileAccess !== undefined) {
 		const parsed = parseFileAccessSettings(raw.fileAccess);
 		out.fileAccess = parsed.ok ? parsed.settings : { restricted: true, folders: [] };
+	}
+	if (typeof raw.lessonVoicePractice === "boolean") {
+		out.lessonVoicePractice = raw.lessonVoicePractice;
 	}
 	return out;
 }

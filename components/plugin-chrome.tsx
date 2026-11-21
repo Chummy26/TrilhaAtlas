@@ -40,10 +40,11 @@ export function pluginActionDisabled(action: PluginAction, context: PluginAction
 	catch { return true; }
 }
 
-function ActionIcon({ action }: { action: PluginAction }) {
+function ActionIcon({ action, animated = false }: { action: PluginAction; animated?: boolean }) {
+	const animClass = animated ? " onigiri-icon-lift" : "";
 	return action.icon
-		? <span aria-hidden="true" className="inline-flex size-4 shrink-0 items-center justify-center [&>svg]:size-full" dangerouslySetInnerHTML={{ __html: action.icon }} />
-		: <PuzzleIcon aria-hidden="true" className="size-4 shrink-0" />;
+		? <span aria-hidden="true" className={`inline-flex size-4 shrink-0 items-center justify-center [&>svg]:size-full${animClass}`} dangerouslySetInnerHTML={{ __html: action.icon }} />
+		: <PuzzleIcon aria-hidden="true" className={`size-4 shrink-0${animClass}`} />;
 }
 
 function ActionButton({ item, context, captureContext, className, iconOnly = false, menuItem = false, onRun }: {
@@ -61,7 +62,7 @@ function ActionButton({ item, context, captureContext, className, iconOnly = fal
 			disabled={item.busy || pluginActionDisabled(item.action, context)} aria-busy={item.busy || undefined}
 			className={`${className} disabled:pointer-events-none disabled:opacity-40`}
 			onClick={() => { void manager?.runAction(item.pluginId, item.action, () => { const captured = captureContext ? captureContext() : context; if (captured) onRun?.(); return captured; }); }}>
-			<ActionIcon action={item.action} />
+			<ActionIcon action={item.action} animated={context.placement === "sidebar"} />
 			{!iconOnly && <span className="min-w-0 truncate">{item.action.name}</span>}
 		</button>
 	</Hint>;
@@ -69,15 +70,17 @@ function ActionButton({ item, context, captureContext, className, iconOnly = fal
 
 const SIDEBAR_CONTEXT = { placement: "sidebar", surface: "sidebar" } as const;
 const GRAPH_CONTEXT = { placement: "graph", surface: "graph" } as const;
-const SIDEBAR_BUTTON = "flex min-w-0 w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+const SIDEBAR_BUTTON = "flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground";
 const TOP_BUTTON = "flex h-9 min-w-0 max-w-48 shrink-0 items-center gap-1.5 rounded-md px-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
 
-/** Core teaching/practice children lead the same row-major grid as placed actions. */
+/** Core teaching/practice children lead the same row-major grid as placed actions.
+ * The cap fits five full rows (core rows are ~40px + 6px gaps), so the core doors
+ * plus a plugin never scroll; only more than ten buttons overflow. */
 export function PluginSidebarActions({ children }: { children: ReactNode }) {
 	const { snapshot } = usePlugins();
 	const actions = placedPluginActions(snapshot.plugins, SIDEBAR_CONTEXT);
 	const count = Children.count(children) + actions.length;
-	return <div data-testid="sidebar-actions" className={`lh-plugin-scroll mx-3 mb-2 grid max-h-[10.25rem] shrink-0 gap-1.5 overflow-y-auto ${count >= 6 ? "grid-cols-2" : "grid-cols-1"}`}>
+	return <div data-testid="sidebar-actions" className={`lh-plugin-scroll mx-3 mb-2 grid max-h-[14rem] shrink-0 gap-1.5 overflow-y-auto ${count >= 6 ? "grid-cols-2" : "grid-cols-1"}`}>
 		{children}
 		{actions.map(item => <ActionButton key={item.key} item={item} context={SIDEBAR_CONTEXT} className={SIDEBAR_BUTTON} />)}
 	</div>;

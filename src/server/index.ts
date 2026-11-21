@@ -30,6 +30,7 @@ export {
 export { promptOverrides } from "../store/prompt-overrides.ts";
 export { themeStore } from "../store/themes.ts";
 export { readThemeBoot, type ThemeBoot } from "./theme-boot.ts";
+export { currentLocale, serverT, serverTranslator } from "./i18n.ts";
 export { isValidSegmentPath } from "../core/prompt-segments.ts";
 // The canonical segment discovery/resolution lives in the agent layer
 // (composition is an agent concern); the barrel re-exports it for the
@@ -51,7 +52,7 @@ export { activeDomainId } from "../../config.ts";
 export { startDomainCreation, domainCreationStatus, cancelDomainCreation } from "./create-study-domain.ts";
 export { studyMap } from "./study.ts";
 export { materialsForEnglishMission } from "./english-mission-materials.ts";
-export { readRegionMaterials, studyMapLesson, downloadRegionalBook, updateRegionalReading, lessonPdfShelf, lessonNodeOfChat } from "./study-materials.ts";
+export { readRegionMaterials, studyMapLesson, downloadRegionalBook, updateRegionalReading, updateManualNodeMaterial, enrichRegionMaterials, lessonPdfShelf, lessonNodeOfChat } from "./study-materials.ts";
 export * from "./turn-runs.ts";
 export * from "./dismissal-park.ts";
 export * from "./compaction.ts";
@@ -104,3 +105,12 @@ export {
 	type DomainPlacementStatus,
 	type PlacementAnswerResult,
 } from "./placement.ts";
+export {
+	StudyBrowserError,
+	assertSafeBrowserUrl,
+	extractStudyBrowserReader,
+	extractYoutubeSearchHits,
+	readStudyBrowserFrame,
+	readStudyBrowserReader,
+	rewriteHtmlForEmbeddedFrame,
+} from "./study-browser.ts";

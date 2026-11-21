@@ -1,0 +1,95 @@
+{
+	"suite": "studentbench_trilhaatlas_planning",
+	"description": "Adaptação inspirada no StudentBench para avaliar planejamento pedagógico e qualidade de exercícios no TrilhaAtlas (rota conversacional teacher/10-planning.md e rota estruturada lesson/lesson-plan.md).",
+	"cases": [
+		{
+			"id": "plan-conv-elec-01",
+			"split": "dev",
+			"domain": "electronics",
+			"route": "teacher_planning",
+			"learnerPrompt": "Tenho apenas 25 minutos hoje. Já domino bem Lei de Ohm (V = R·I) e resistores em série/paralelo (acertei todos os exercícios na prática ontem), mas ainda NÃO estudei leis de Kirchhoff nem capacitor. Quero estudar Divisor de Tensão sem carga até conseguir projetar um divisor para reduzir 12 V para 3 V com corrente menor que 2 mA. Monte o plano desta sessão e proponha 2 exercícios progressivos com gabarito verificado.",
+			"rubric": [
+				{ "id": "diagnostic_fit", "weight": 2, "criterion": "Respeita que o aluno já domina Lei de Ohm e série/paralelo (NÃO repete uma introdução longa de Lei de Ohm básica)." },
+				{ "id": "prerequisites_respected", "weight": 2, "criterion": "NÃO usa conceitos ainda não estudados (não exige Kirchhoff malhas/nós nem capacitores)." },
+				{ "id": "sequence_scaffolding", "weight": 2, "criterion": "Constrói a sequência lógica antes da aplicação independente (conceito → exemplo trabalhado → prática/projeto)." },
+				{ "id": "exercise_quality_non_bypassable", "weight": 2, "criterion": "Propõe exercícios em que o aluno precisa escolher/verificar resistores satisfazendo razão de tensão E restrição de corrente (< 2 mA), sem poder apenas copiar números do exemplo." },
+				{ "id": "answer_correctness", "weight": 2, "criterion": "Todos os cálculos e gabaritos do plano estão 100% corretos matematicamente (Vout = Vin·R2/(R1+R2) = 3 V e I = 12/(R1+R2) < 2 mA => R1+R2 > 6 kΩ)." },
+				{ "id": "time_budget_fit", "weight": 1, "criterion": "O plano cabe realisticamente nos 25 minutos informados." }
+			]
+		},
+		{
+			"id": "plan-conv-eng-01",
+			"split": "heldout",
+			"domain": "english",
+			"route": "teacher_planning",
+			"learnerPrompt": "Tenho 20 minutos hoje. Sou nível A2: já uso bem Simple Present para rotina, mas confundo Past Simple com Present Perfect quando há data fechada (erro recorrente: 'I have seen him yesterday'). Ainda NÃO estudei Past Perfect nem voz passiva. Planeje uma sessão focada nesse contraste com 2 atividades verificáveis e gabarito.",
+			"rubric": [
+				{ "id": "diagnostic_fit", "weight": 2, "criterion": "Foca diretamente no erro diagnosticado (data fechada no passado vs. experiência sem tempo fechado), sem perder tempo revisando Simple Present básico." },
+				{ "id": "prerequisites_respected", "weight": 2, "criterion": "Não introduz Past Perfect nem voz passiva." },
+				{ "id": "sequence_scaffolding", "weight": 2, "criterion": "Mostra o contraste em contexto antes de exigir produção independente." },
+				{ "id": "exercise_quality_non_bypassable", "weight": 2, "criterion": "Os exercícios exigem discriminar o marcador temporal para escolher o tempo verbal (não resolvíveis por padrão fixo ou substituição mecânica)." },
+				{ "id": "answer_correctness", "weight": 2, "criterion": "Todos os exemplos e gabaritos em inglês estão gramaticalmente corretos." },
+				{ "id": "time_budget_fit", "weight": 1, "criterion": "Escopo realista para 20 minutos." }
+			]
+		},
+		{
+			"id": "plan-json-elec-01",
+			"split": "dev",
+			"domain": "electronics",
+			"route": "lesson_plan_template",
+			"lang": "pt-BR",
+			"domainId": "electronics",
+			"context": {
+				"node": {
+					"id": "elec.dc.voltage-divider",
+					"title": "Divisor de Tensão Resistivo",
+					"scope": "Divisor de tensão sem carga com dois resistores em série, razão de tensão e limite de corrente.",
+					"objectives": [
+						"Calcular Vout a partir de Vin, R1 e R2",
+						"Dimensionar R1 e R2 para uma razão de tensão dada respeitando corrente máxima"
+					]
+				},
+				"knownPrerequisites": ["Lei de Ohm (V = R·I)", "Resistores em série"],
+				"pastMisconceptions": ["Inverter R1 e R2 no numerador da fórmula do divisor", "Esquecer o prefixo kΩ ao calcular corrente em mA"],
+				"estimatedMinutes": 15,
+				"recentVariationFormats": ["contrasting_cases"]
+			},
+			"rubric": [
+				{ "id": "valid_json_schema", "weight": 2, "criterion": "Produz JSON válido aderente à estrutura de lesson-plan.md (nodeId, lang, goal, hook, segments, knowledgePoints com workedExample, fadedSteps, items com hints de 3 strings e solution, recap, misconceptions, flashcardCandidates)." },
+				{ "id": "prerequisites_and_misconceptions", "weight": 2, "criterion": "Usa apenas pré-requisitos declarados e incorpora os misconceptions informados nos distratores/buggy values." },
+				{ "id": "exercise_non_bypassable_and_correct", "weight": 2, "criterion": "Números e gabaritos verificados matematicamente corretos e itens independentes não são meras cópias triviais do exemplo." },
+				{ "id": "avoids_recent_variation", "weight": 1, "criterion": "Se incluir variation, evita o formato recente 'contrasting_cases'." }
+			]
+		},
+		{
+			"id": "plan-json-eng-01",
+			"split": "heldout",
+			"domain": "english",
+			"route": "lesson_plan_template",
+			"lang": "pt-BR",
+			"targetLang": "en-US",
+			"domainId": "english",
+			"context": {
+				"node": {
+					"id": "en.grammar.a2.past-vs-present-perfect",
+					"title": "Past Simple vs. Present Perfect (Tempo Fechado vs. Aberto)",
+					"scope": "Distinguir ações em tempo passado acabado (yesterday, in 2021) de experiências ou ações com impacto no presente (ever, already, since).",
+					"objectives": [
+						"Escolher Past Simple diante de marcadores de tempo fechado",
+						"Usar Present Perfect para experiências sem data fechada"
+					]
+				},
+				"knownPrerequisites": ["Simple Present", "Past Simple regular e irregular básico"],
+				"pastMisconceptions": ["Usar Present Perfect com 'yesterday' ou ano específico ('I have gone there in 2020')"],
+				"estimatedMinutes": 15,
+				"recentVariationFormats": ["dictation"]
+			},
+			"rubric": [
+				{ "id": "valid_json_schema", "weight": 2, "criterion": "Produz JSON válido aderente à estrutura de lesson-plan.md com targetLang='en-US', explicações em pt-BR e exemplos em inglês." },
+				{ "id": "zero_spoiler_and_non_translation", "weight": 2, "criterion": "Respeita regra zero-spoiler em dictation/minimal_pair se usados, e não depende apenas de tradução pura." },
+				{ "id": "diagnostic_and_correctness", "weight": 2, "criterion": "Alinha distratores ao misconception passado e mantém 100% de correção gramatical nos gabaritos." },
+				{ "id": "avoids_recent_variation", "weight": 1, "criterion": "Se incluir variation, evita o formato recente 'dictation'." }
+			]
+		}
+	]
+}

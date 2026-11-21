@@ -18,6 +18,7 @@
 import { useEffect, useState } from "react";
 import { CUSTOM_PROVIDER, MODEL_SLOTS, type AuthKeyStatus, type ModelCatalogResponse } from "@/src/core";
 import { classifyKeys, type ProviderKeyInfo } from "@/components/settings/keys-section";
+import { useT } from "@/components/i18n";
 import { useModelCatalog } from "@/components/model-catalog";
 
 /** Pure: does a MODEL-PROVIDER key exist among the statuses? Reuses
@@ -46,13 +47,14 @@ export function savedSlotsConfigured(slots: ModelCatalogResponse["slots"] | unde
 /** Keep the last known completeness during connection invalidation, but
  * follow ordinary slot repairs as soon as their shared snapshot arrives. */
 export function useModelSetup(initialConfigured: boolean) {
+	const t = useT();
 	const { catalog } = useModelCatalog();
 	const [lastConfigured, setLastConfigured] = useState(initialConfigured);
 	const configured = catalog ? savedSlotsConfigured(catalog.slots) : lastConfigured;
 	useEffect(() => { if (catalog) setLastConfigured(savedSlotsConfigured(catalog.slots)); }, [catalog]);
 	const zeroKeys = catalog ? !catalog.providers.some((p) => p.keyPresent) : false;
-	const setupHint = zeroKeys ? "Para começar a aula, conecte um provedor na janela de configuração." :
-		!configured ? "Para começar a aula, selecione e salve os modelos na janela de configuração. Depois, clique novamente para iniciar." : undefined;
+	const setupHint = zeroKeys ? t("pages.setup.ctaZeroKeys") :
+		!configured ? t("pages.setup.ctaNotConfigured") : undefined;
 	return { catalog, configured, zeroKeys, setupHint };
 }
 

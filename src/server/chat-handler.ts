@@ -15,6 +15,7 @@ import { nativeSubscriptionError } from "../agent/subscription-stream.ts";
 import { chatGPTStreamError } from "../agent/chatgpt-stream.ts";
 import { SubscriptionRequestCycle, type SubscriptionDispatchLifecycle } from "../agent/subscription-request-cycle.ts";
 import { reconstructRequestCause } from "../core/native-messages.ts";
+import { LOCALES } from "../core/index.ts";
 import { createJobRunner } from "../agent/subagents/runner.ts";
 import { createExtractionPipeline } from "../agent/subagents/extraction.ts";
 import { activeDomainId, type ModelRole } from "../../config.ts";
@@ -382,7 +383,8 @@ export async function handleChatInput(
 	const contextWindow = catalogContextLimits().get(modelIdForCompaction);
 	const thresholdTokens = effectiveThresholdTokens(effective.compaction?.thresholdTokens, contextWindow);
 	const promptKind = record.kind === "practice" ? "practice" : domainId && !hasTeachingContext(record.messages) ? "prober" : "teacher";
-	let systemPromptTokens = Math.ceil(composeInstructions(promptKind, domainId ? effective.agent.prompts : undefined).length / 4);
+	const dynamicPromptReserveTokens = promptKind === "teacher" && domainId ? 450 : 120;
+	let systemPromptTokens = Math.ceil(composeInstructions(promptKind, domainId ? effective.agent.prompts : undefined).length / 4) + dynamicPromptReserveTokens;
 	const estimateModel = effective.compaction.includeReasoning ? conversationEngine.model : undefined;
 	const fitsSideContext = (messages: readonly LhMessage[]) => {
 		const live = messages.filter((message) => (message as { role: string }).role !== "system");
@@ -724,8 +726,10 @@ export async function handleChatInput(
 		restoreAutomatic: (automaticIds, retainedIds) => restoreUncommittedAutomatic(chatId, constructed, automaticIds, retainedIds),
 	});
 	let pendingSideBudgetError: Error | undefined;
+	const responseLanguage = LOCALES.find((l) => l.code === effective.general.language) ?? LOCALES[0];
 	const agentOpts: AgentBuildOptions = {
 		studyMemory,
+		responseLanguageInstruction: `Interface language: ${responseLanguage.label} (${responseLanguage.code}). Write all learner-facing replies in ${responseLanguage.label}, unless the learner explicitly asks for another language or a language-learning exercise requires target-language examples.`,
 		pluginContributions,
 		engine,
 		callPurpose,

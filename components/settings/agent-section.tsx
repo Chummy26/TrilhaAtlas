@@ -83,6 +83,7 @@ import { composeSlotModel } from "./compose-slot-model.ts";
 export { composeSlotModel } from "./compose-slot-model.ts";
 import { ChatGPTBackgroundAccess } from "./chatgpt-connection";
 import { NativeSubscriptionBackgroundAccess } from "./subscription-connections";
+import { useT } from "@/components/i18n";
 
 /** One slot's display identity — the tier's roster as the row hint rides
  *  with the resolved default (owner: the hint ALWAYS names the default). */
@@ -186,6 +187,11 @@ export function composeQuizMechanics(agent: AgentSettings | undefined, mechanics
  *  explicit-off record stays visible as stored. Pure — exported for tests. */
 export function composeGraphTools(agent: AgentSettings | undefined, on: boolean): AgentSettings {
 	return { ...agent, graphTools: { enabled: on } };
+}
+
+/** Compose the optional lesson/question voice recording toggle (OFF when absent). Pure — exported for tests. */
+export function composeLessonVoicePractice(agent: AgentSettings | undefined, on: boolean): AgentSettings {
+	return { ...agent, lessonVoicePractice: on };
 }
 
 /** Retention is slot-only; selecting Pi default removes the field entirely. */
@@ -345,6 +351,7 @@ export function AgentSection({
 	/** Writes the whole compaction section (replace-PUT discipline). */
 	onCompactionChange: (next: CompactionSettings) => boolean | Promise<boolean>;
 }) {
+	const t = useT();
 	const { catalog: body, failed: catalogFailed, refresh: refreshCatalog } = useModelCatalog();
 	const catalog = body?.models;
 	const slots = body?.slots;
@@ -560,7 +567,7 @@ export function AgentSection({
 				{open && (
 					<div className="mt-1 flex flex-col gap-2">
 						<div>
-							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">Source</p>
+							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">{t("settings.agent.source")}</p>
 							<textarea
 								readOnly
 								value={info.sourceText}
@@ -569,7 +576,7 @@ export function AgentSection({
 							/>
 						</div>
 						<div>
-							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">Override</p>
+							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">{t("settings.agent.override")}</p>
 							<textarea
 								value={segmentDraft[info.path] ?? info.overrideText ?? ""}
 								onChange={(e) => setSegmentDraft({ ...segmentDraft, [info.path]: e.target.value })}
@@ -630,7 +637,7 @@ export function AgentSection({
 
 	return (
 		<>
-			<SettingsGroup label="Models" testid="group-models">
+			<SettingsGroup label={t("settings.agent.models")} testid="group-models">
 				<button
 					type="button"
 					data-testid="models-advanced"
@@ -638,7 +645,7 @@ export function AgentSection({
 					onClick={() => { setAdvancedModels(!advancedModels); setOpenMenu(null); }}
 					className="mb-1 self-start text-xs text-muted-foreground hover:text-foreground"
 				>{advancedModels ? "Hide advanced settings" : "Show advanced settings"}</button>
-				{catalogFailed && <p role="alert" className="text-xs text-error">Model catalog could not be loaded. Check the connection and retry. <button type="button" className="underline" onClick={refreshCatalog}>Retry</button></p>}
+				{catalogFailed && <p role="alert" className="text-xs text-error">{t("settings.agent.catalogFailed")} <button type="button" className="underline" onClick={refreshCatalog}>{t("common.action.retry")}</button></p>}
 				{MODEL_SLOTS.map((slot) => {
 					const override = models?.[slot];
 					const modelId = override?.model?.id ?? "";
@@ -769,8 +776,8 @@ export function AgentSection({
 					);
 				})}
 				<SettingsRow
-					label="Concurrent worker requests"
-					hint="Maximum simultaneous background-worker model requests. Direct conversations are not limited."
+					label={t("settings.agent.concurrentWorkers")}
+					hint={t("settings.agent.concurrentWorkersHint")}
 					testid="worker-request-concurrency-row"
 				>
 					<div
@@ -804,7 +811,7 @@ export function AgentSection({
 				</SettingsRow>
 			</SettingsGroup>
 
-			<SettingsGroup label="Tools" testid="group-tools">
+			<SettingsGroup label={t("settings.agent.tools")} testid="group-tools">
 				{/* The prober's graph tools (wave 7, owner ruling 2026-09-23):
 				    FIRST row of the group — its subject is the map, its
 				    mechanism is agent capability, so it lives in Tools but
@@ -816,8 +823,8 @@ export function AgentSection({
 					const graphOn = graph?.enabled ?? true;
 					return (
 						<SettingsRow
-							label="Graph tools"
-							hint={graphOn ? "Lets the tutor consult your knowledge map between sessions" : "Graph is disabled"}
+							label={t("settings.agent.graphTools")}
+							hint={graphOn ? t("settings.agent.graphToolsHint") : t("settings.agent.graphDisabledHint")}
 							testid="graph-tools-row"
 							dimmed={!graphOn}
 						>
@@ -883,6 +890,17 @@ export function AgentSection({
 						/>
 					</SettingsRow>
 				))}
+				<SettingsRow
+					label={t("settings.agent.voiceRecording")}
+					hint={t("settings.agent.voiceRecordingHint")}
+					testid="lesson-voice-practice-row"
+				>
+					<Toggle
+						checked={agent?.lessonVoicePractice === true}
+						label="gravação de voz nas aulas"
+						onChange={(on) => onSectionChange(composeLessonVoicePractice(agent, on))}
+					/>
+				</SettingsRow>
 				{(() => {
 					const folders = agent?.fileAccess?.folders ?? [];
 					const restricted = Boolean(fileAccessError) || agent?.fileAccess?.restricted === true;
@@ -896,30 +914,30 @@ export function AgentSection({
 					};
 					return (
 						<div data-testid="file-access-row" className="flex flex-col gap-2">
-							<SettingsRow label="File access" hint={!restricted
+							<SettingsRow label={t("settings.agent.fileAccess")} hint={!restricted
 								? "Broad local source access, except protected locations"
 								: folders.length ? "Only listed folders and subfolders."
 									: "Restricted: no folders allowed. Add a folder to enable access."}>
 								<div className="flex items-center gap-2 text-xs">
-									<span>Restrict to listed folders</span>
-									<Toggle checked={restricted} label="Restrict to listed folders" onChange={(on) => onSectionChange(composeFileRestriction(effectiveAgent, on))} />
+									<span>{t("settings.agent.restrictFolders")}</span>
+									<Toggle checked={restricted} label={t("settings.agent.restrictFolders")} onChange={(on) => onSectionChange(composeFileRestriction(effectiveAgent, on))} />
 								</div>
 							</SettingsRow>
 							{fileAccessError && <p role="alert" data-testid="file-access-config-error" className="text-xs text-error">{fileAccessError}</p>}
 							<div className="flex gap-2 pl-3">
-								<input value={folderInput} aria-label="Allowed folder path" data-testid="file-access-add" placeholder="Absolute path or ~/folder"
+								<input value={folderInput} aria-label={t("settings.agent.allowedFolderAria")} data-testid="file-access-add" placeholder={t("settings.agent.allowedFolderPlaceholder")}
 									onChange={(event) => { setFolderInput(event.target.value); setFolderError(null); }}
 									onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addFolder(); } }}
 									className="min-w-0 flex-1 rounded-sm border border-border bg-background px-2 py-1 font-ui text-xs" />
-								<button type="button" data-testid="file-access-add-button" disabled={!folderInput.trim()} onClick={addFolder} className="rounded-sm border border-border px-2 text-xs disabled:opacity-40">Add folder</button>
+								<button type="button" data-testid="file-access-add-button" disabled={!folderInput.trim()} onClick={addFolder} className="rounded-sm border border-border px-2 text-xs disabled:opacity-40">{t("settings.agent.addFolder")}</button>
 							</div>
 							{folderError && <p role="alert" data-testid="file-access-input-error" className="pl-3 text-xs text-error">{folderError}</p>}
 							{folders.map((folder) => (
 								<div key={folder} data-testid="file-access-folder" className="flex items-center justify-between gap-4 pl-3 text-xs">
 									<span title={folder} className="min-w-0 truncate font-ui text-muted-foreground">{folder}</span>
-									<button type="button" aria-label={`Remove ${folder}`} data-testid="file-access-remove"
+									<button type="button" aria-label={`${t("settings.agent.removeFolder")} ${folder}`} data-testid="file-access-remove"
 										onClick={() => onSectionChange(composeRemoveFolder(effectiveAgent, folder))}
-										className="rounded-sm px-1.5 text-muted-foreground hover:text-foreground">Remove</button>
+										className="rounded-sm px-1.5 text-muted-foreground hover:text-foreground">{t("settings.agent.removeFolder")}</button>
 								</div>
 							))}
 						</div>
@@ -931,7 +949,7 @@ export function AgentSection({
 					const open = openMenu?.target === "search";
 					return (
 						<SettingsRow
-							label="Search engine"
+							label={t("settings.agent.searchEngine")}
 							hint={search?.reason ?? undefined}
 							testid="search-engine-row"
 							dimmed={!anyKey}
@@ -973,9 +991,9 @@ export function AgentSection({
 				})()}
 			</SettingsGroup>
 
-			<SettingsGroup label="Context" testid="group-context">
+			<SettingsGroup label={t("settings.agent.context")} testid="group-context">
 				<SettingsRow
-					label="Compaction threshold"
+					label={t("settings.agent.compactionThreshold")}
 					hint={`${resolvedCompaction.thresholdTokens} tok`}
 					testid="compaction-row-threshold"
 				>

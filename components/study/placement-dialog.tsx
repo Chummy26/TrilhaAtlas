@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
+import { useT } from "@/components/i18n";
 import type { PlacementQuestion, PlacementSummary } from "@/src/core";
 
 interface PlacementApiPayload {
@@ -35,6 +36,7 @@ function extractSummary(data: PlacementApiPayload | PlacementSummary | null): Pl
 }
 
 export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps) {
+	const t = useT();
 	const [loading, setLoading] = useState(true);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
@@ -245,7 +247,7 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 				<div className="flex items-start gap-3">
 					<Icon name="frontier" size={24} className="mt-0.5 shrink-0" />
 					<div className="min-w-0 space-y-1">
-						<h2 className="cel-display text-xl leading-tight">Teste de Nivelamento Adaptativo (KST)</h2>
+						<h2 className="cel-display text-xl leading-tight">{t("course.placement.title")}</h2>
 						<p className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
 							Em até 15 perguntas adaptativas, o sistema estima o que você já domina e posiciona sua fronteira exata na ementa, evitando repetir fundamentos que você já conhece com segurança.
 						</p>
@@ -254,15 +256,15 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 
 				<ul className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
 					<li className="rounded-xl border border-border/45 bg-background/60 p-3">
-						<strong className="block text-sm text-foreground">Adaptação em tempo real</strong>
+						<strong className="block text-sm text-foreground">{t("course.placement.featRealtime")}</strong>
 						Cada resposta refina toda a árvore de pré-requisitos via filtro de partículas KST.
 					</li>
 					<li className="rounded-xl border border-border/45 bg-background/60 p-3">
-						<strong className="block text-sm text-foreground">Sem penalidade</strong>
+						<strong className="block text-sm text-foreground">{t("course.placement.featNoPenalty")}</strong>
 						Marque com sinceridade: habilidades posicionadas permanecem verificáveis depois.
 					</li>
 					<li className="rounded-xl border border-border/45 bg-background/60 p-3">
-						<strong className="block text-sm text-foreground">Encerramento flexível</strong>
+						<strong className="block text-sm text-foreground">{t("course.placement.featFlexible")}</strong>
 						Você pode finalizar a partir da 4ª pergunta ou seguir até convergir.
 					</li>
 				</ul>
@@ -304,7 +306,7 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 
 			<div className="space-y-1.5">
 				<div className="flex items-center justify-between text-xs text-muted-foreground tabular-nums">
-					<span>Convergência do mapa</span>
+					<span>{t("course.placement.convergence")}</span>
 					<span>{question.confidencePct}%</span>
 				</div>
 				<progress

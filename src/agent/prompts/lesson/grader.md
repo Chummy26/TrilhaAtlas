@@ -10,7 +10,7 @@ Variables: {{lang}} {{context}}
 
 # Task
 
-Grade ONE learner response against the reference and rubric below. Output a single JSON object and nothing else (no code fence, no commentary).
+Grade ONE learner response against `reference`, optional `accepted` equivalent forms, and `rubric` below. Output a single JSON object and nothing else (no code fence, no commentary).
 
 ```json
 {{context}}
@@ -28,7 +28,8 @@ Grade the idea, not the style. A response that reaches the right result for a wr
 ## Misconceptions and attribution
 
 - If the response matches the `diagnosticSignal` of one of the listed `misconceptions`, set `misconceptionId` to that id.
-- If it shows a clear wrong idea that is NOT listed, describe it in one sentence in `newMisconception` (in {{lang}}), and leave `misconceptionId` null.
+- If it shows a clear wrong idea that is NOT listed, describe it in one sentence (≤ 200 characters) in `newMisconception` (in {{lang}}), and leave `misconceptionId` null.
+- When `grade >= 2` (correct), set `misconceptionId: null`, `newMisconception: null`, and `attributions: []`.
 - `attributions`: which node(s) in `relatedNodes` the error comes from, with `blame` weights in [0,1] summing to about 1 (e.g. an arithmetic slip in a prerequisite skill blames that prerequisite). Use an empty list for a correct response.
 
 ## Output
@@ -38,11 +39,11 @@ Grade the idea, not the style. A response that reaches the right result for a wr
   "grade": 0 | 1 | 2 | 3,
   "confidence": number between 0 and 1 (how sure you are of the grade),
   "correct": true when grade >= 2, else false,
-  "misconceptionId": "<listed id>" | null,
-  "newMisconception": "<one sentence>" | null,
-  "attributions": [ { "nodeId": "<id from relatedNodes>", "blame": 0..1, "misconceptionId": "<listed id>" | null } ],
-  "rationale": "<at most two sentences in {{lang}}, citing the rubric criterion that decided the grade>"
+  "misconceptionId": "<non-empty listed id>" | null,
+  "newMisconception": "<one sentence, 1..200 chars>" | null,
+  "attributions": [ { "nodeId": "<id from relatedNodes>", "blame": 0..1, "misconceptionId": "<non-empty listed id>" | null } ],
+  "rationale": "<1..600 chars, at most two sentences in {{lang}}, citing the rubric criterion that decided the grade>"
 }
 ```
 
-Use exactly these keys. Never include the reference answer in `rationale`.
+Use exactly these keys. Never emit empty string `""` for nullable fields (use `null`). Never include the reference answer in `rationale`.

@@ -43,15 +43,15 @@ Stay inside the node's `scope`. Teach toward its `objectives`. Assume only `know
 
 ## Item format (every item)
 
-Common fields: `id` (unique in the plan, e.g. `kp1.i2`), `kind`, `stem`, `difficulty` (1|2|3), `hints` (exactly three, each ≤35 words: **cue** → **principle** → **next step**; never the final answer), `solution` (verified steps; the last step states the answer), `verifiedBy` (`solver` if you computed it step by step, `simulator` for circuit results, `key` for factual keys, `judge` for open answers). Optional: `level` (1–5, Bloom-like), `media`.
+Common fields: `id` (unique ASCII slug matching `^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$`, e.g. `kp1.i2`), `kind`, `stem`, `difficulty` (1|2|3), `hints` (**JSON array of exactly 3 strings**, each ≤35 words: `["cue", "principle", "next step"]`; never the final answer), `solution` (**JSON array of 1–10 strings** with verified steps; the last string states the final answer), `verifiedBy` (`solver` if you computed it step by step, `simulator` for circuit results, `key` for factual keys, `judge` for open answers). Optional: `level` (1–5, Bloom-like), `media` (strict object `{ "kind": "svg" | "circuit" | "table" | "audio", "spec": "...", "alt": "..." }` — use `spec`, never `content`/`svg`/`code`).
 
 Per kind:
 - `mcq`: `options` 2–6 of `{ "id", "text", "correct", "misconceptionId"? }`, EXACTLY one `"correct": true`. Each wrong option should be a plausible error; tie it to a declared misconception when it is one. Do not put the correct option first by habit. The app shuffles the options and re-labels them a, b, c… on screen, so your option ids are internal: in stems, hints and solutions refer to an option by its text, never by its id, letter or position.
-- `numeric`: `answer` `{ "value", "unit", "tolerance"? }`. Units: V, A, Ω (or ohm), F, H, Hz, W, s, with prefixes p n µ m k M G (e.g. `"unit": "mA"`). Default tolerance is 1% relative; give `{"abs": …}` when the target is 0. `answerUnit` (optional) prints a unit next to the input box (must be the same quantity). `buggy`: the values typical errors would produce, `{ "value", "unit"?, "misconceptionId" }`.
+- `numeric`: `answer` `{ "value", "unit", "tolerance"? }`. Use `"unit": null` for dimensionless quantities; otherwise use V, A, Ω (or ohm), F, H, Hz, W, s, with prefixes p n µ m k M G (e.g. `"unit": "mA"`). Default tolerance is 1% relative; give `{"abs": …}` when the target is 0. `answerUnit` (optional) prints a unit next to the input box (must be the same quantity). `buggy`: the values typical errors would produce, `{ "value", "unit"?, "misconceptionId" }`.
 - `short`: `answer` `{ "accepted": [...exact forms], "reference", "rubric": [...] }`, `maxWords` (default 25).
 - `explain`: `answer` `{ "reference", "rubric": [1–6 criteria] }`, `maxWords` (default 60).
-- `dictation`: `text` (the sentence the app will speak), `lang`.
-- `minimal_pair`: like `mcq` (two options: the two words), plus `lang` and `contrast` (e.g. "/ɪ/ vs /iː/").
+- `dictation`: `text` (the sentence the app will speak), `lang`. **Zero-spoiler rule:** NEVER include `text` (or its verbatim words) inside `stem` or `hints`.
+- `minimal_pair`: like `mcq` (two options: the two words), plus `lang` and `contrast` (e.g. "/ɪ/ vs /iː/"). **Zero-spoiler rule:** NEVER reveal which word is spoken inside `stem` or `hints`.
 - `speak`: `target` (what to say), `accepted` (other acceptable wordings), `display` (text shown, if any), `lang`.
 - `sim`: `circuit` (netlist text), `probe` (e.g. `V(out)`), `answer` as in numeric.
 
@@ -61,13 +61,13 @@ Per kind:
 {
   "nodeId": "<node.id>",
   "lang": "{{lang}}",
-  "targetLang": "<only for a language domain>",
+  "targetLang": "<omit this key entirely when not a language domain; never emit empty string or null>",
   "goal": "...",
   "estimatedMinutes": 8-30,
   "hook": { "kind": "puzzle|phenomenon|story|use_case|contrast", "text": "..." },
   "prediction": { <mcq item> },
-  "segments": [ { "id", "idea", "body", "visual"?, "analogy"?: { "source", "mapping", "breaksWhere" }, "socratic"?: { "item": {...}, "maxRounds": 1 }, "resolvesPrediction": false } ],
-  "knowledgePoints": [ { "id", "title", "statement", "workedExample": { "problem", "steps": [ { "subgoal", "text" } ] }, "fadedSteps": { "problem", "given": [ { "subgoal", "text" } ], "blankSubgoal", "blank": {...} }, "items": [ {...} ] } ],
+  "segments": [ { "id", "idea", "body", "visual"?: { "kind", "spec", "alt" }, "analogy"?: { "source", "mapping", "breaksWhere" }, "socratic"?: { "item": {...}, "maxRounds": 1 }, "resolvesPrediction": false } ],
+  "knowledgePoints": [ { "id", "title", "statement", "workedExample": { "problem", "steps": [ { "subgoal", "text" } ] }, "fadedSteps": { "problem", "given": [ { "subgoal", "text" } ], "blankSubgoal", "blank": {...} }, "items": [ { "id": "kp1.i1", "kind": "mcq", "stem": "...", "difficulty": 1, "options": [...], "hints": ["cue", "principle", "next step"], "solution": ["step 1", "final answer"], "verifiedBy": "key" } ] } ],
   "selfExplanation": { "kpId", "stepIndex", "item": { <explain item> } },
   "variation": { "format", "intro", "item"? },
   "recap": { "bullets": [ ... ], "unlocks": [ ... ] },
@@ -75,11 +75,11 @@ Per kind:
   "misconceptions": [ { "id", "statement", "diagnosticSignal", "repair", "bridgeItem"? } ],
   "flashcardCandidates": [ { "proposition", "cues": [ ... ], "type": "basic|cloze|reverse", "kpId"?, "misconceptionId"? } ],
   "encompasses": [ { "nodeId", "weight" } ],
-  "sources": [ { "kind": "video|book|web", "ref", "start"?, "end"?, "preQuestions": [ ... ] } ]
+  "sources": [ { "kind": "video|book|web", "ref", "start"?, "end"?, "preQuestions": [ "<at most 2 items>" ] } ]
 }
 ```
 
-Use only these keys (unknown keys are rejected). Omit optional blocks rather than filling them with placeholders.
+Use only these keys (unknown keys are rejected). Respect array limits: `sources` ≤ 4, `preQuestions` ≤ 2 per source, `hints` = 3 strings, `solution` = 1–10 strings. Omit optional blocks rather than filling them with placeholders or `null`.
 
 ## Writing rules
 

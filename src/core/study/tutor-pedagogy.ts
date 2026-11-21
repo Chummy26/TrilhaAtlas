@@ -42,12 +42,36 @@ export interface MissionPedagogyObjective {
 	misconceptions?: readonly string[];
 	/** Enables the advanced oral-defense / panel cross-examination protocol (Banca Examinadora). */
 	isAdvancedDefense?: boolean;
+	/** Mandates attaching and assigning a targeted reading from a high-reputation textbook/PDF (advanced nodes only). */
+	requiresQualityReading?: boolean;
 	/** Optional level label (e.g., "Graduação", "Avançado", "Pesquisa", "C1", "C2"). */
 	levelLabel?: string;
 }
 
 const DEFENSE_KINDS = new Set(["design_project", "checkpoint"]);
 const DEFENSE_TAGS = new Set([regionExitTag, "design_project", "checkpoint", "capstone", "defense"]);
+const ADVANCED_READING_TAGS = new Set(["research", "capstone", "defense", "advanced", "design_project"]);
+
+/**
+ * Identify genuinely advanced/research nodes where assigning a mandatory reading
+ * from a high-reputation textbook or academic PDF is pedagogically warranted
+ * (never triggered on routine A1–B2 or foundational nodes to avoid bureaucracy).
+ */
+export function isAdvancedReadingRequiredNode(
+	item: {
+		level: CurriculumItem["level"];
+		tags?: readonly string[];
+		kind?: string;
+		atomType?: CurriculumItem["atomType"];
+	},
+	isFinale?: boolean,
+): boolean {
+	if (isAdvancedDefenseNode(item, isFinale)) return true;
+	if (item.tags?.some((tag) => ADVANCED_READING_TAGS.has(tag))) return true;
+	if (item.level.scheme === "cefr") return item.level.cefr === "C1" || item.level.cefr === "C2";
+	if (item.level.scheme === "ee") return item.level.band >= 3;
+	return item.level.band >= 3;
+}
 
 /**
  * Identify advanced landmark/defense nodes where the formal exam runs as a
@@ -99,12 +123,13 @@ export interface LessonPedagogyState {
 	lastQuizOutcome: "none" | "correct" | "wrong" | "dont-know";
 }
 
-const CONFUSION_RE = /\b(n[aã]o entendi|n[aã]o sei|n[aã]o consigo|confuso|confusa|perdid[oa]|travei|dif[ií]cil|i don't know|don't understand|confused|stuck)\b/iu;
+const CONFUSION_RE = /\b(n[aã]o entendi|n[aã]o saquei|n[aã]o sei|n[aã]o consigo|confus[oa]|perdid[oa]|me perdi|travei|buguei|boiando|deu branco|dif[ií]cil|ainda errei|n[aã]o fechou|i don't know|don't understand|confused|stuck)\b/iu;
 const WHY_SIMPLER_RE = /(\bpor\s*qu[eê]\b|\bcomo assim\b|\bmais simples\b|\bpasso a passo\b|\bexplica melhor\b|\bdetalha\b|\bwhy\b|\bsimpler\b)/iu;
 const ASK_ANSWER_RE = /\b(d[aá] a resposta|qual [eé] a resposta|me diz a resposta|resolve (?:pra|para) mim|faz (?:pra|para) mim|just tell me|give me the answer|solve it for me)\b/iu;
 const ASK_EXAM_RE = /\b(aplicar? a prova|fazer a prova|ir (?:direto )?(?:pra|para) a prova|pode testar|j[aá] domino|j[aá] sei isso|quero a prova|take the exam|ready for the exam)\b/iu;
-const ASK_MATERIALS_RE = /\b(livro|leitura|cap[ií]tulo|v[ií]deo|youtube|material|materiais|apostila|refer[eê]ncia|aprofundar|book|video|reading)\b/iu;
+const ASK_MATERIALS_RE = /\b(?:(?:indica|sugere|recomenda|manda|passa|mostra|quero|preciso|tem|onde|qual|quais|buscar?|ver|ler|estudar|aprofundar)[^.?!\n]{0,40}(?:livro|leitura|cap[ií]tulo|v[ií]deo|youtube|material|materiais|apostila|refer[eê]ncia|pdf|book|video|reading)|(?:livro|leitura|v[ií]deo|youtube|material|materiais|apostila|refer[eê]ncia|pdf)\s+(?:para|pra|sobre|de\s+estudo|recomendad[oa]|bom|boa))\b/iu;
 const READY_RE = /\b(entendi|ficou claro|agora quero tentar|entendido|faz sentido|got it|makes sense)\b/iu;
+const NON_TEACHING_GREETING_RE = /^(?:ol[aá]|oi|bom dia|boa tarde|boa noite|vamos l[aá]|vamos come[cç]ar|plano da aula|confirm[ae]\s+o\s+plano)(?![a-z\p{L}])/iu;
 
 function textOf(message: LhViewMessage): string {
 	return message.parts
@@ -161,18 +186,22 @@ export function analyzeLessonPedagogy(messages: readonly LhViewMessage[]): Lesso
 	for (const message of messages) {
 		if (message.role === "assistant") {
 			const prose = textOf(message);
+			const hasActivity = message.parts.some((p) => p.type === "tool-study_activity");
 			if (prose.length > 0) assistantTurns++;
-			if (prose.length >= 160) hasWorkedExplanation = true;
-			if (message.parts.some((p) => p.type === "tool-study_activity")) hasInteractiveActivity = true;
+			const looksLikeSubstantialTeaching = prose.length >= 160 && !(NON_TEACHING_GREETING_RE.test(prose) && prose.length < 220);
+			if (looksLikeSubstantialTeaching || (hasActivity && prose.length >= 80)) hasWorkedExplanation = true;
+			if (hasActivity) hasInteractiveActivity = true;
 			if (message.parts.some((p) => p.type === "tool-attach_study_materials")) hasAttachedMaterials = true;
 		} else if (message.role === "user") {
 			const prose = textOf(message);
 			if (!prose) continue;
 			learnerTurns++;
 			lastUserText = prose;
-			if (CONFUSION_RE.test(prose) || ASK_ANSWER_RE.test(prose)) {
+			const hasConfusion = CONFUSION_RE.test(prose) || ASK_ANSWER_RE.test(prose);
+			const hasWhy = WHY_SIMPLER_RE.test(prose);
+			if (hasConfusion) {
 				impasseCount++;
-			} else if (READY_RE.test(prose) || ASK_EXAM_RE.test(prose)) {
+			} else if (!hasWhy && (READY_RE.test(prose) || ASK_EXAM_RE.test(prose))) {
 				impasseCount = 0;
 			}
 		}
@@ -249,6 +278,12 @@ export function buildMissionPedagogyDirective(
 		? `Modo Banca Examinadora / Arguição${objective.levelLabel ? ` (${objective.levelLabel})` : ""}:`
 		: "";
 
+	const advancedReadingMandate = objective.requiresQualityReading
+		? !state.hasAttachedMaterials
+			? " MANDATORY ADVANCED READING: Because this is an advanced/research-level skill, you MUST call attach_study_materials (useLesson=true) in this turn and require the learner to read a specific section/chapter from a high-reputation textbook or academic PDF (naming work, chapter/section, and 1–2 critical reading checks) before moving to the formal exam/defense. (Do NOT skip this for advanced nodes; reserve mandatory textbook reading strictly for advanced nodes like this one.)"
+			: " ADVANCED READING FOLLOW-UP: Verify that the learner engaged with the required high-reputation textbook/PDF section (asking them to justify one key claim, derivation, or limitation from the reading) before advancing to the formal exam/defense."
+		: "";
+
 	switch (state.stage) {
 		case "exam-awaiting":
 			return "A formal exam is already displayed. Only a response submitted in its form is an attempt. Ordinary chat is for logistics or clarifying the wording. If needed, point to the form. Do not grade messages from the chat, give a hint, reveal solutions, or replace this exam.";
@@ -293,6 +328,7 @@ export function buildMissionPedagogyDirective(
 				`Campaign lesson opening for "${objective.title}".`,
 				"Do not spend this turn on a bureaucracy plan or confirmation loop. Start from a concrete situation, teach the essential principle with one complete worked example (naming the cause and observable consequence), and manage cognitive load (one core contrast at a time).",
 				"Pre-empt the main confusion and end with ONE short faded step or interactive exploration for the learner to try before the formal exam.",
+				advancedReadingMandate.trim(),
 				misconceptions,
 				priorGap,
 			].filter(Boolean).join(" ");
@@ -336,14 +372,14 @@ export function buildMissionPedagogyDirective(
 					state.askedForExam
 						? "The learner explicitly requested the formal defense exam—honor their initiative."
 						: "The essential objectives are covered; move directly to the advanced defense.",
-					"Call present_lesson_exam in this turn with a substantiated defense task requiring explicit hypotheses/assumptions, justification of key trade-offs, and observable deliverables across every essential objective, with zero hints or solutions.",
+					"Call present_lesson_exam in this turn with a substantiated defense task (using `parts` whenever there are 2–6 distinct deliverables) requiring explicit hypotheses/assumptions, justification of key trade-offs, and observable deliverables across every essential objective, with zero hints or solutions.",
 				].join(" ");
 			}
 			return [
 				state.askedForExam
 					? "The learner explicitly requested the formal exam—honor their initiative."
 					: "The essential objectives are covered; avoid extending the lesson with repetitive drills.",
-				"Call present_lesson_exam in this turn with one compact, independent transfer task covering every essential objective, with observable deliverables and zero hints or solutions.",
+				"Call present_lesson_exam in this turn with one compact, independent transfer task covering every essential objective (supplying `parts` whenever there are 2–6 deliverables, and never printing hidden blind-listening audio transcripts), with observable deliverables and zero hints or solutions.",
 			].join(" ");
 
 		case "scaffolding":
@@ -351,6 +387,7 @@ export function buildMissionPedagogyDirective(
 			return [
 				"Active campaign teaching turn:",
 				"Respond directly to the learner's latest move, diagnose any subtle slip without softening false premises, and fade support as soon as they apply the principle independently.",
+				objective.requiresQualityReading && !state.hasAttachedMaterials ? advancedReadingMandate.trim() : "",
 				state.askedForMaterials ? attachMaterialsHint.trim() : "",
 				"Keep at most one focused task per turn; move to present_lesson_exam as soon as the essential objectives have been taught and tried.",
 				misconceptions,

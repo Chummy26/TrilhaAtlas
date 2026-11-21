@@ -3,7 +3,8 @@
 import { useContext, useState } from "react";
 import { ChatActionsContext } from "@/components/chat";
 import { PronunciationPractice } from "./pronunciation-practice.tsx";
-import { lessonDrawing } from "./lesson-drawing.ts";
+import { ComicStrip } from "./comic-strip.tsx";
+import { pickStoryMotif, StoryBadge } from "./comic-art.tsx";
 import { CircuitFigure } from "@/components/study/circuit-figure";
 import { currentReadings, dividerLab, falstadExperiments, parseLessonActivity, type ArtifactPartProps, type LessonActivity } from "@/src/core";
 
@@ -89,11 +90,15 @@ function LessonPanel({ activity }: { activity: LessonActivity }) {
 	const circuit = kind === "circuit" || kind === "notation";
 	const scene = scenes[index] ?? scenes[1]!;
 	const step = activity.steps?.[index];
+	const comicPanel = activity.panels?.[index];
 	const context = circuit ? `${volts} V, ${resistance} kΩ, chave ${closed ? "fechada" : "aberta"}, ${board ? "protoboard" : "esquema"}. Corrente: ${readings[formatKeys[format]!]}. `
-		: kind === "timeline" ? `Ligação às ${scene.time}. ${scene.phrase}` : `${step?.label} — ${step?.detail}`;
+		: kind === "timeline" ? `Ligação às ${scene.time}. ${scene.phrase}`
+		: kind === "comic" && comicPanel
+			? `Quadrinho ${index + 1} (${comicPanel.speaker}: "${comicPanel.speech}"${comicPanel.reply ? ` / ${comicPanel.replySpeaker ?? "Você"}: "${comicPanel.reply}"` : ""}).${comicPanel.cue ? ` Pista: ${comicPanel.cue}.` : ""} ${comicPanel.caption}`
+		: `${step?.label} — ${step?.detail}`;
 	const source = preset?.url ?? activity.source;
 	const inline = !preset && activity.presentation === "inline";
-	return <section className="study-lab" data-presentation={inline ? "inline" : "panel"} aria-label={title}
+	return <section className="study-lab" data-presentation={inline ? "inline" : "panel"} data-kind={kind} aria-label={title}
 		onKeyDown={e => { if (e.key === "Enter") e.stopPropagation(); }}>
 		<header><h2>{title}</h2>{preset && <p>{preset.instruction}</p>}</header>
 		{circuit ? <div className="lab-grid">
@@ -113,12 +118,23 @@ function LessonPanel({ activity }: { activity: LessonActivity }) {
 			<div className="lab-time"><div className="lab-duration">Leitura · 9h–10h</div><span className="lab-event" style={{ left: scene.position + "%" }}>☎ {scene.time}</span></div>
 			<label className="lab-range-label">Momento da ligação<input type="range" min="0" max="2" value={index} aria-valuetext={scene.time} onChange={e => setIndex(+e.target.value)} /></label>
 			<div aria-live="polite"><strong lang="en">{scene.phrase}</strong><p>{scene.meaning}</p></div>
+		</div> : kind === "comic" && activity.panels?.length ? <div className="lab-body">
+			<ComicStrip panels={activity.panels} selected={index} onSelect={setIndex} language={activity.language} />
 		</div> : <div className="lab-body">
-			{kind === "diagram" ? <ol className="lab-chain" aria-label="Relações entre etapas">{activity.steps?.map((s, i, steps) => {
-				const Drawing = lessonDrawing(s.label, i, i < steps.length - 1, s.illustration);
-				return <li key={i}><button type="button" aria-pressed={i === index} onClick={() => setIndex(i)}>
-					<Drawing aria-hidden="true" size={24} className="mx-auto mb-1"/>{s.label}</button></li>;
-			})}</ol> : <Choices label={kind === "comparison" ? "Comparação" : "Etapas"} selected={index} choose={setIndex} items={activity.steps?.map(s => s.label) ?? []} />}
+			{kind === "diagram" ? <ol className="lab-chain lab-story-cards" aria-label="Relações entre etapas">{activity.steps?.map((s, i, steps) => {
+				const motif = pickStoryMotif(s.label, i, i < steps.length - 1, s.illustration);
+				return <li key={i}><button type="button" className="lab-story-btn" aria-pressed={i === index} onClick={() => setIndex(i)}>
+					<span className="lab-story-num" aria-hidden="true">{i + 1}</span>
+					<StoryBadge motif={motif} width={44} height={30} className="mx-auto mb-1" />
+					<span>{s.label}</span>
+				</button></li>;
+			})}</ol> : <div className="lab-choices lab-story-choices" role="group" aria-label={kind === "comparison" ? "Comparação" : "Etapas"}>{activity.steps?.map((s, i, steps) => {
+				const motif = pickStoryMotif(s.label, i, i < steps.length - 1, s.illustration ?? (kind === "comparison" ? "compare" : undefined));
+				return <button type="button" key={i} className="lab-story-chip" aria-pressed={i === index} onClick={() => setIndex(i)}>
+					<StoryBadge motif={motif} width={32} height={22} />
+					<span>{s.label}</span>
+				</button>;
+			})}</div>}
 			<div aria-live="polite">{!inline && <strong>{step?.label}</strong>}<p>{step?.detail}</p></div>
 		</div>}
 		<footer>

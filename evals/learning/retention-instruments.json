@@ -1,0 +1,57 @@
+{
+	"suite": "trilhaatlas_learning_retention_instruments",
+	"description": "Instrumentos estruturados de pré-teste, pós-teste de transferência imediata e retenção tardia (7 e 28 dias) para avaliação empírica com alunos reais, alinhados a docs/impl/study-evaluation.md.",
+	"protocol": {
+		"scheduleDays": [0, 7, 28],
+		"primaryMetrics": [
+			"normalized_learning_gain = (post - pre) / (1 - pre)",
+			"retention_7d_ratio = score_d7 / score_post",
+			"retention_28d_ratio = score_d28 / score_post",
+			"independent_transfer_pass_rate (grade == 3 without hints)"
+		]
+	},
+	"cohorts": [
+		{
+			"id": "learn-elec-divider",
+			"domain": "electronics",
+			"nodeId": "elec.dc.voltage-divider",
+			"preTest": {
+				"prompt": "Sem consulta: com Vin = 9 V, R1 = 2 kΩ (topo) e R2 = 1 kΩ (base), qual é a tensão Vout sobre R2 e a corrente no divisor?",
+				"expected": "Vout = 3 V, I = 3 mA"
+			},
+			"immediateTransferPostTest": {
+				"prompt": "Transferência imediata (nova restrição): projete R1 e R2 para reduzir 15 V para 5 V garantindo corrente total ≤ 1 mA. Justifique por que uma carga de 10 kΩ ligada na saída altera Vout.",
+				"expected": "R1 = 2·R2 com R1+R2 >= 15 kΩ (ex.: R1 = 10 kΩ, R2 = 5 kΩ ou R1 = 20 kΩ, R2 = 10 kΩ); carga em paralelo reduz Req inferior e derruba Vout."
+			},
+			"retentionDay7": {
+				"prompt": "Retenção D+7: um sensor exige 2,5 V a partir de 10 V. Um colega montou R1 = 300 Ω e R2 = 100 Ω; outro montou R1 = 30 kΩ e R2 = 10 kΩ. Compare consumo e sensibilidade a uma carga de 10 kΩ.",
+				"expected": "Ambos dão 2,5 V sem carga, mas 300/100 Ω consome 25 mA e cai pouco com 10 kΩ; 30k/10k consome 0,25 mA mas cai drasticamente com carga de 10 kΩ."
+			},
+			"retentionDay28": {
+				"prompt": "Retenção D+28: ao medir um divisor 10 V com R1 = R2 = 100 kΩ usando um multímetro de resistência interna 1 MΩ, o visor marca ~4,76 V em vez de 5,00 V. Explique o porquê.",
+				"expected": "A resistência interna de 1 MΩ do multímetro entra em paralelo com R2 (100 kΩ || 1 MΩ ≈ 90,9 kΩ), reduzindo Vout para 10·90,9/190,9 ≈ 4,76 V."
+			}
+		},
+		{
+			"id": "learn-eng-past-perfect-contrast",
+			"domain": "english",
+			"nodeId": "en.grammar.a2.past-vs-present-perfect",
+			"preTest": {
+				"prompt": "Sem consulta: complete em inglês (1) 'I ___ (start) this job in 2023.' e (2) 'I ___ (work) here since 2023.'",
+				"expected": "(1) started (Past Simple — data fechada); (2) have worked (Present Perfect — continuidade até o presente)."
+			},
+			"immediateTransferPostTest": {
+				"prompt": "Transferência imediata: escreva um parágrafo curto (4 frases) para uma entrevista em inglês combinando 2 conquistas com data fechada e 2 experiências contínuas até hoje.",
+				"expected": "Uso consistente de Past Simple nas datas fechadas e Present Perfect nas experiências abertas/contínuas."
+			},
+			"retentionDay7": {
+				"prompt": "Retenção D+7: identifique e corrija os 2 erros de tempo verbal em 'I have graduated from university last year and since then I worked on three embedded systems.'",
+				"expected": "'I graduated from university last year and since then I have worked on three embedded systems.'"
+			},
+			"retentionDay28": {
+				"prompt": "Retenção D+28: produza 2 perguntas naturais de follow-up para um colega: uma sobre experiência geral ('already/ever') e outra perguntando quando exatamente ocorreu.",
+				"expected": "Ex.: 'Have you ever deployed to production?' + 'When did you deploy your first release?'"
+			}
+		}
+	]
+}

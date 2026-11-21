@@ -27,6 +27,7 @@ import { PluginSidebarActions } from "@/components/plugin-chrome";
 import { HostContentRootContext, HostRouteLifetimeProvider } from "@/components/host-content-root";
 import { isInteractionScopeEligible } from "@/components/plugin-input-focus";
 import { InteractionLayersProvider, useInteractionLayers, useOptionalInteractionLayers } from "@/components/interaction-layers";
+import { useT } from "@/components/i18n";
 
 /**
  * Toggleable sidebar — NOT a modal drawer: no backdrop, no focus theft. It
@@ -56,6 +57,7 @@ const STORAGE_KEY = "lh:sidebar-open";
 import type { ChatGPTControlBridge, NativeSubscriptionControlBridge } from "@/src/core";
 import type { UpdateState } from "@/components/settings/update-settings.tsx";
 import { FilePathDropZone } from "@/components/file-path-drop-zone";
+import { StudyBrowserProvider } from "@/components/study/embedded-browser";
 const SIDEBAR_AUTOCLOSE = 928;
 
 // Module scope, guarded for SSR (the server has no navigator).
@@ -193,10 +195,11 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 		return () => window.removeEventListener(event, onToggle);
 	}, [toggle]);
 
+	const t = useT();
 	return (
 		<SidebarContext.Provider value={{ open: mobile ? mobileOpen : open && !narrow, toggle }}>
 			<div className="flex h-dvh">
-				{mobile && mobileOpen && <button className="fixed inset-0 z-30 bg-black/50" aria-label="Fechar navegação" onClick={toggle} />}
+				{mobile && mobileOpen && <button className="fixed inset-0 z-30 bg-black/50" aria-label={t("shell.sidebar.closeNav")} onClick={toggle} />}
 				{children}
 			</div>
 		</SidebarContext.Provider>
@@ -208,6 +211,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
  *  The mounted slot and the sidebar switch widths together in one layout.
  *  Interpolating those widths reflows the whole lesson on every frame. */
 export function SidebarToggle() {
+	const t = useT();
 	const { open, toggle } = useSidebar();
 	return (
 		<span
@@ -216,11 +220,11 @@ export function SidebarToggle() {
 				open ? "w-0 -mr-3" : "w-9 mr-0 lh-closed-toggle",
 			)}
 		>
-			<Hint label="Open sidebar" action="toggle-sidebar">
+			<Hint label={t("shell.sidebar.open")} action="toggle-sidebar">
 			<Button
 				variant="ghost"
 				size="icon"
-				aria-label="Open sidebar"
+				aria-label={t("shell.sidebar.open")}
 				aria-hidden={open}
 				tabIndex={open ? -1 : 0}
 				onClick={toggle}
@@ -310,6 +314,7 @@ export function SessionRow({
 	/** Right-click opens the context menu (wave 6: Rename / Delete). */
 	onContextMenu?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }) {
+	const t = useT();
 	const [intent, setIntent] = useState(false);
 	return (
 		<Link
@@ -341,7 +346,7 @@ export function SessionRow({
 			    was left of the name; right-aligned keeps the titles flush with
 			    the teaching rows and reads cleaner. */}
 			{(chat.kind ?? "teach") === "practice" && (
-				<DumbbellIcon className="size-3.5 shrink-0 text-muted-foreground/70" aria-label="Practice session" />
+				<DumbbellIcon className="size-3.5 shrink-0 text-muted-foreground/70" aria-label={t("shell.sidebar.practiceSessionAria")} />
 			)}
 		</Link>
 	);
@@ -352,6 +357,7 @@ export function SessionRow({
  *  "replace", the header rename's rule), Enter/blur commits, Esc discards.
  *  The meta line stays so the row never changes height mid-edit. */
 export function RenameRow({ chat, onCommit, onCancel }: { chat: ChatListItem; onCommit: (next: string) => void; onCancel: () => void }) {
+	const t = useT();
 	const [draft, setDraft] = useState(chat.title);
 	const interactions = useOptionalInteractionLayers();
 	const inputRef = useRef<HTMLInputElement | null>(null);
@@ -390,7 +396,7 @@ export function RenameRow({ chat, onCommit, onCancel }: { chat: ChatListItem; on
 							onCancel();
 						}
 					}}
-					aria-label="Rename session"
+					aria-label={t("shell.sidebar.renameSessionAria")}
 					data-testid="session-rename-input"
 					className="lh-input w-full min-w-0 truncate border-0 border-b border-border bg-transparent px-0 text-foreground outline-none"
 				/>
@@ -407,6 +413,7 @@ export type SessionKindFilter = "teach" | "all" | "practice";
 const KIND_FILTER_KEY = "lh:session-kind-filter";
 
 function SessionsSidebar({ domain }: { domain: string | null }) {
+	const t = useT();
 	const interactions = useInteractionLayers();
 	const { open, toggle } = useSidebar();
 	const [chats, setChats] = useState<ChatListItem[] | null>(null);
@@ -676,23 +683,23 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 						// of the logo, carrying its real shortcut: ⌘G jumps to
 						// the graph view (keyboard-shortcuts routes it to "/",
 						// the same destination as this logo).
-						label="Home"
+						label={t("shell.sidebar.home")}
 						action="jump-graph"
 						side="right"
 					>
 						<Link
 							href="/"
-							aria-label="Home"
+							aria-label={t("shell.sidebar.home")}
 							className="lh-no-drag flex size-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
 						>
 							<TrilhaAtlasMark className="size-6" />
 						</Link>
 					</Hint>
-					<Hint label="Close sidebar" action="toggle-sidebar">
+					<Hint label={t("shell.sidebar.close")} action="toggle-sidebar">
 						<Button
 							variant="ghost"
 							size="icon"
-							aria-label="Close sidebar"
+							aria-label={t("shell.sidebar.close")}
 							onClick={toggle}
 							className="lh-no-drag"
 						>
@@ -706,49 +713,49 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 					<button
 						type="button"
 						data-testid="new-session"
-						title="Estudar"
+						title={t("shell.sidebar.study")}
 						onClick={() => void newSession()}
-						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
-						<PlusIcon className="size-4 shrink-0" />
-						<span className="min-w-0 truncate">Estudar</span>
-						<span className="sr-only">criar uma sessão de estudo</span>
+						<PlusIcon className="onigiri-icon-plus size-4 shrink-0" />
+						<span className="min-w-0 truncate">{t("shell.sidebar.study")}</span>
+						<span className="sr-only">{t("shell.sidebar.studySr")}</span>
 					</button>
 					<button
 						type="button"
 						data-testid="new-session-practice"
-						title="Praticar"
+						title={t("shell.sidebar.practice")}
 						onClick={() => router.push("/chat/new?mode=practice")}
-						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
-						<DumbbellIcon className="size-4 shrink-0" />
-						<span className="min-w-0 truncate">Praticar</span>
-						<span className="sr-only">criar uma sessão de prática</span>
+						<DumbbellIcon className="onigiri-icon-lift size-4 shrink-0" />
+						<span className="min-w-0 truncate">{t("shell.sidebar.practice")}</span>
+						<span className="sr-only">{t("shell.sidebar.practiceSr")}</span>
 					</button>
 					{domain && <Link
 						href={{ pathname: "/mapa", query: { dominio: domain } }}
 						prefetch={false}
 						aria-current={pathname === "/mapa" ? "page" : undefined}
-						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
 					>
-						<NetworkIcon aria-hidden="true" className="size-4 shrink-0" />
-						<span className="min-w-0 truncate">Árvore</span>
+						<NetworkIcon aria-hidden="true" className="onigiri-icon-lift size-4 shrink-0" />
+						<span className="min-w-0 truncate">{t("shell.sidebar.tree")}</span>
 					</Link>}
 					{domain && <Link
 						href={{ pathname: "/ementa", query: { dominio: domain } }}
 						prefetch={false}
 						aria-current={pathname === "/ementa" ? "page" : undefined}
-						className="flex min-w-0 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
 					>
-						<BookOpenIcon aria-hidden="true" className="size-4 shrink-0" />
-						<span className="min-w-0 truncate">Ementa</span>
+						<BookOpenIcon aria-hidden="true" className="onigiri-icon-lift size-4 shrink-0" />
+						<span className="min-w-0 truncate">{t("shell.sidebar.syllabus")}</span>
 					</Link>}
 				</PluginSidebarActions>
 
 				<div className="mx-3 mb-2 flex items-center gap-2">
-					<span className="text-xs uppercase tracking-widest text-muted-foreground/70">Sessões</span>
-					<Hint label="Pesquisar sessões" action="sessions-search" side="bottom">
-					<span className="relative flex-1">
+					<span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/75">{t("shell.sidebar.sessions")}</span>
+					<Hint label={t("shell.sidebar.searchLabel")} action="sessions-search" side="bottom">
+					<span className="onigiri-search-wrap relative flex-1">
 						<Input
 							ref={searchRef}
 							data-testid="session-search"
@@ -799,11 +806,11 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 									e.currentTarget.blur();
 								}
 							}}
-							placeholder="Pesquisar…"
-							aria-label="Pesquisar sessões"
-							className="h-6 rounded-sm border-border bg-background pl-6 text-xs placeholder:text-muted-foreground/60"
+							placeholder={t("shell.sidebar.searchPlaceholder")}
+							aria-label={t("shell.sidebar.searchLabel")}
+							className="h-7 rounded-lg border-border/70 bg-background/80 pl-6.5 text-xs placeholder:text-muted-foreground/60 transition-colors focus:border-ring"
 						/>
-						<SearchIcon className="pointer-events-none absolute left-1.5 top-1/2 size-3 -translate-y-1/2 text-muted-foreground/70" />
+						<SearchIcon className="onigiri-icon-search pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 text-muted-foreground/70" />
 					</span>
 					</Hint>
 				</div>
@@ -815,7 +822,7 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 				    Practice / All — the real modes first, "All" as the escape
 				    hatch on the right, mirroring the create-buttons above.
 				    Persisted client-side. */}
-				<div className="mx-3 flex items-center gap-0.5 rounded-md border border-border/60 bg-background p-0.5" data-testid="session-kind-filter">
+				<div className="mx-3 flex items-center gap-0.5 rounded-lg border border-border/60 bg-background/80 p-0.5" data-testid="session-kind-filter">
 					{(["teach", "practice", "all"] as const).map((f) => (
 						<button
 							key={f}
@@ -823,23 +830,23 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 							data-testid={`kind-filter-${f}`}
 							onClick={() => setFilter(f)}
 							className={cn(
-								"flex-1 rounded-sm px-2 py-1 text-sm font-medium transition-colors",
+								"flex-1 rounded-[6px] px-2 py-1 text-xs font-semibold transition-all duration-150",
 								kindFilter === f
-									? "bg-accent text-foreground"
+									? "bg-accent text-foreground shadow-xs"
 									: "text-muted-foreground hover:text-foreground",
 							)}
 						>
-							{f === "teach" ? "Aulas" : f === "all" ? "Todas" : "Prática"}
+							{f === "teach" ? t("shell.sidebar.filterTeach") : f === "all" ? t("shell.sidebar.filterAll") : t("shell.sidebar.filterPractice")}
 						</button>
 					))}
 				</div>
 
 				<div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
 					{shown === null ? (
-						<div className="px-2 py-4 text-xs text-muted-foreground">Loading…</div>
+						<div className="px-2 py-4 text-xs text-muted-foreground">{t("common.state.loading")}</div>
 					) : shown.length === 0 ? (
 						<div className="px-2 py-4 text-xs text-muted-foreground">
-							{query.trim() ? "Nenhuma sessão encontrada." : "Ainda não há sessões."}
+							{query.trim() ? t("shell.sidebar.emptySearch") : t("shell.sidebar.empty")}
 						</div>
 					) : (
 						shown.map((c, i) =>
@@ -879,20 +886,20 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 						<Link
 							href="/profile"
 							aria-current={pathname === "/profile" ? "page" : undefined}
-							className="lh-no-drag flex min-h-10 items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
+							className="lh-no-drag flex min-h-10 items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
 						>
-							<UserIcon aria-hidden="true" className="size-4 shrink-0" />
-							Perfil e XP
+							<UserIcon aria-hidden="true" className="onigiri-icon-lift size-4 shrink-0" />
+							{t("shell.sidebar.profileXp")}
 						</Link>
-						<Hint label="Configurações" action="open-settings" side="right">
+						<Hint label={t("shell.sidebar.settings")} action="open-settings" side="right">
 							<button
 								type="button"
 								onClick={() => openSettings("appearance")}
 								data-testid="settings-entry"
-								className="flex min-h-10 w-full items-center gap-2.5 rounded-md px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
+								className="flex min-h-10 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 							>
-								<SettingsIcon className="size-4 shrink-0" />
-								Configurações
+								<SettingsIcon className="onigiri-icon-gear size-4 shrink-0" />
+								{t("shell.sidebar.settings")}
 							</button>
 						</Hint>
 					</div>
@@ -924,7 +931,7 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 							}}
 							className="flex items-center rounded-lg px-2.5 py-1.5 text-left text-foreground transition-colors hover:bg-accent"
 						>
-							Rename
+							{t("shell.sidebar.ctxRename")}
 						</button>
 						{/* Export as Markdown (owner, release polish 2026-10-06): the
 					    session-markdown engine's user-facing debut — same-origin
@@ -946,7 +953,7 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 							}}
 							className="flex items-center rounded-lg px-2.5 py-1.5 text-left text-foreground transition-colors hover:bg-accent"
 						>
-							Export as Markdown…
+							{t("shell.sidebar.ctxExportMd")}
 						</button>
 						<button
 							type="button"
@@ -958,7 +965,7 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 							}}
 							className="flex items-center rounded-lg px-2.5 py-1.5 text-left text-muted-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
 						>
-							Delete…
+							{t("shell.sidebar.ctxDelete")}
 						</button>
 						<div className="my-0.5 border-t border-border/60" aria-hidden="true" />
 						<CoverageMenuBlock chatId={ctxChatId} />
@@ -985,7 +992,9 @@ export function AppShell({ children, initialSettings, domain = null }: { childre
 		<HostContentRootContext.Provider value={contentRoot}>
 			<InteractionLayersProvider><SettingsDialogProvider initialSettings={initialSettings}>
 				<SessionsSidebar domain={domain} />
-				<FilePathDropZone className="study-frame relative isolate min-w-0 flex-1" onContentRoot={setContentRoot}>{children}</FilePathDropZone>
+				<StudyBrowserProvider>
+					<FilePathDropZone className="study-frame relative isolate min-w-0 flex-1" onContentRoot={setContentRoot}>{children}</FilePathDropZone>
+				</StudyBrowserProvider>
 				{/* The single document-level keydown listener (keyboard wave A) —
 				    after the content in the tree, but it's window-level so order only
 				    matters for the events it dispatches, never for DOM priority. */}

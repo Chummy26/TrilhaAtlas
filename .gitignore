@@ -32,3 +32,6 @@ xai-credentials.json*
 
 # Reference repos (read-only research material)
 _refs/
+
+# Downloaded official benchmark dataset caches (reproducible via npm run benchmark:sota)
+.cache/

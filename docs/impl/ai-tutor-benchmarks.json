@@ -1,0 +1,1370 @@
+{
+  "bundle": {
+    "generatedAt": "2026-11-21",
+    "promptHashes": [
+      {
+        "key": "production:teacher",
+        "chars": 40025,
+        "sha256": "6042be4fdab70c70898ecaff8703d28183b48309164358fd68b9de74bf3f8ac3"
+      },
+      {
+        "key": "production:practice",
+        "chars": 21280,
+        "sha256": "bf30faa3056c600d913e6819d3d68c925b6e2cd533b1ab87df002ea5a3863fac"
+      },
+      {
+        "key": "production:side-chat",
+        "chars": 6555,
+        "sha256": "5849c1fa70a32b7ed637c37917fd02a7f1780b037f60e299e7c71d85f4b6d80f"
+      },
+      {
+        "key": "production:lesson/lesson-plan.md",
+        "chars": 11308,
+        "sha256": "8353b38b8f159e8a1ff1d7a1d7a794ff479ece91316d61e87188e5222c68f77d"
+      },
+      {
+        "key": "production:lesson/grader.md",
+        "chars": 2754,
+        "sha256": "e18cbecfedb52bc638de52956f8d99bb2471849c53f3c9ddd4de2eaacd6f50dd"
+      },
+      {
+        "key": "production:memory/extract.md",
+        "chars": 6187,
+        "sha256": "b585e59e3c379c8a95534800950d0f24d5810e34edef3b7c200f7e97883bc604"
+      },
+      {
+        "key": "minimal_contract:teacher",
+        "chars": 178,
+        "sha256": "147d7976474754e0d68b17426b94d1962094a0b6743a2315dc5996c51d7483cb"
+      },
+      {
+        "key": "minimal_contract:practice",
+        "chars": 191,
+        "sha256": "af78340ef5445bf7f915009aa48ae989f58b0ae6d9b81f98a963626a71187218"
+      },
+      {
+        "key": "minimal_contract:side-chat",
+        "chars": 184,
+        "sha256": "b50415079d2ea740c17b5bd268696a1d5f832fda27b22afe60085d7025be2acc"
+      },
+      {
+        "key": "minimal_contract:grader",
+        "chars": 306,
+        "sha256": "d612f5c3d0299a4d6fe9aee8337e7a36615253814037369c6a06fac583a7a0d7"
+      }
+    ],
+    "deterministicModuleExamGrader": {
+      "graderName": "module-exam.ts (determinístico)",
+      "n": 14,
+      "exactAgreementPct": 21.4,
+      "withinOneGradePct": 64.3,
+      "mae0to3": 1.36,
+      "falsePassRatePct": 87.5,
+      "falseFailRatePct": 16.7,
+      "misconceptionDiagnosisPct": 0,
+      "parseFailures": 0
+    },
+    "models": [
+      {
+        "modelSpec": "chatgpt:gpt-6.2-sol",
+        "judgeSpec": "chatgpt:gpt-6.2-astra",
+        "tutorMoments": {
+          "appropriateScaffolding": {
+            "n": 3,
+            "baselinePct": 33.3,
+            "productionPct": 100,
+            "deltaPp": 66.7,
+            "ci95HalfWidthPp": 143.4,
+            "ci95LowPp": -76.8,
+            "ci95HighPp": 210.1,
+            "baselineLatencyMs": 9037,
+            "productionLatencyMs": 14155,
+            "technicalFailures": 0
+          },
+          "appropriateRigor": {
+            "n": 3,
+            "baselinePct": 100,
+            "productionPct": 66.7,
+            "deltaPp": -33.3,
+            "ci95HalfWidthPp": 143.4,
+            "ci95LowPp": -176.8,
+            "ci95HighPp": 110.1,
+            "baselineLatencyMs": 8473,
+            "productionLatencyMs": 15018,
+            "technicalFailures": 0
+          },
+          "avoidsOverScaffolding": {
+            "n": 6,
+            "baselinePct": 33.3,
+            "productionPct": 66.7,
+            "deltaPp": 33.3,
+            "ci95HalfWidthPp": 85.7,
+            "ci95LowPp": -52.4,
+            "ci95HighPp": 119,
+            "baselineLatencyMs": 8755,
+            "productionLatencyMs": 14587,
+            "technicalFailures": 0
+          }
+        },
+        "teachArenaStage0Tutoring": {
+          "n": 6,
+          "baselinePct": 40.8,
+          "productionPct": 57.5,
+          "deltaPp": 16.7,
+          "ci95HalfWidthPp": 21.4,
+          "ci95LowPp": -4.8,
+          "ci95HighPp": 38.1,
+          "baselineLatencyMs": 16108,
+          "productionLatencyMs": 23030,
+          "technicalFailures": 0
+        },
+        "teachArenaStage1Judgment": {
+          "deterministicChecks": {
+            "n": 6,
+            "baselinePct": 74.6,
+            "productionPct": 73.3,
+            "deltaPp": -1.4,
+            "ci95HalfWidthPp": 3.6,
+            "ci95LowPp": -5,
+            "ci95HighPp": 2.2,
+            "baselineLatencyMs": 10942,
+            "productionLatencyMs": 14804,
+            "technicalFailures": 0
+          },
+          "nlAssertions": {
+            "n": 6,
+            "baselinePct": 86.7,
+            "productionPct": 83.3,
+            "deltaPp": -3.3,
+            "ci95HalfWidthPp": 8.6,
+            "ci95LowPp": -11.9,
+            "ci95HighPp": 5.2,
+            "baselineLatencyMs": 10942,
+            "productionLatencyMs": 14804,
+            "technicalFailures": 0
+          }
+        },
+        "mathTutorBenchBySkill": {
+          "subjectCorrectness": {
+            "n": 6,
+            "baselinePct": 100,
+            "productionPct": 100,
+            "deltaPp": 0,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 0,
+            "ci95HighPp": 0,
+            "baselineLatencyMs": 4184,
+            "productionLatencyMs": 6822,
+            "technicalFailures": 0
+          },
+          "mistakeLocation": {
+            "n": 6,
+            "baselinePct": 100,
+            "productionPct": 100,
+            "deltaPp": 0,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 0,
+            "ci95HighPp": 0,
+            "baselineLatencyMs": 4184,
+            "productionLatencyMs": 6822,
+            "technicalFailures": 0
+          },
+          "socraticScaffolding": {
+            "n": 6,
+            "baselinePct": 0,
+            "productionPct": 100,
+            "deltaPp": 100,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 100,
+            "ci95HighPp": 100,
+            "baselineLatencyMs": 4184,
+            "productionLatencyMs": 6822,
+            "technicalFailures": 0
+          },
+          "noSpoilerTact": {
+            "n": 6,
+            "baselinePct": 0,
+            "productionPct": 100,
+            "deltaPp": 100,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 100,
+            "ci95HighPp": 100,
+            "baselineLatencyMs": 4184,
+            "productionLatencyMs": 6822,
+            "technicalFailures": 0
+          }
+        },
+        "trilhaAtlasModes": {
+          "teachingHintLevel": {
+            "n": 2,
+            "baselinePct": 50,
+            "productionPct": 100,
+            "deltaPp": 50,
+            "ci95HalfWidthPp": 127.1,
+            "ci95LowPp": -77.1,
+            "ci95HighPp": 177.1,
+            "baselineLatencyMs": 4975,
+            "productionLatencyMs": 6948,
+            "technicalFailures": 0
+          },
+          "practiceNoUnrequestedClose": {
+            "n": 2,
+            "baselinePct": 50,
+            "productionPct": 80,
+            "deltaPp": 30,
+            "ci95HalfWidthPp": 381.2,
+            "ci95LowPp": -351.2,
+            "ci95HighPp": 411.2,
+            "baselineLatencyMs": 4661,
+            "productionLatencyMs": 3970,
+            "technicalFailures": 0
+          },
+          "examZeroLeak": {
+            "n": 2,
+            "baselinePct": 0,
+            "productionPct": 100,
+            "deltaPp": 100,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 100,
+            "ci95HighPp": 100,
+            "baselineLatencyMs": 7939,
+            "productionLatencyMs": 3356,
+            "technicalFailures": 0
+          },
+          "sideChatBoundaries": {
+            "n": 2,
+            "baselinePct": 50,
+            "productionPct": 100,
+            "deltaPp": 50,
+            "ci95HalfWidthPp": 635.3,
+            "ci95LowPp": -585.3,
+            "ci95HighPp": 685.3,
+            "baselineLatencyMs": 7550,
+            "productionLatencyMs": 5300,
+            "technicalFailures": 0
+          },
+          "tutorMomentsPtBrAdaptation": {
+            "n": 4,
+            "baselinePct": 37.5,
+            "productionPct": 75,
+            "deltaPp": 37.5,
+            "ci95HalfWidthPp": 39.8,
+            "ci95LowPp": -2.3,
+            "ci95HighPp": 77.3,
+            "baselineLatencyMs": 6544,
+            "productionLatencyMs": 9132,
+            "technicalFailures": 0
+          }
+        },
+        "planning": {
+          "conversationalPlanning": {
+            "n": 2,
+            "baselinePct": 81.8,
+            "productionPct": 100,
+            "deltaPp": 18.2,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 18.2,
+            "ci95HighPp": 18.2,
+            "baselineLatencyMs": 20059,
+            "productionLatencyMs": 29589,
+            "technicalFailures": 0
+          },
+          "lessonPlanTemplateJson": {
+            "n": 2,
+            "baselinePct": 42.9,
+            "productionPct": 100,
+            "deltaPp": 57.1,
+            "ci95HalfWidthPp": 363,
+            "ci95LowPp": -305.9,
+            "ci95HighPp": 420.2,
+            "baselineLatencyMs": 39346,
+            "productionLatencyMs": 126386,
+            "technicalFailures": 0
+          }
+        },
+        "llmGraderProduction": {
+          "graderName": "lesson/grader.md production (chatgpt:gpt-6.2-sol)",
+          "n": 14,
+          "exactAgreementPct": 85.7,
+          "withinOneGradePct": 100,
+          "mae0to3": 0.14,
+          "falsePassRatePct": 0,
+          "falseFailRatePct": 33.3,
+          "misconceptionDiagnosisPct": 100,
+          "parseFailures": 0
+        },
+        "llmGraderMinimal": {
+          "graderName": "lesson/grader.md minimal (chatgpt:gpt-6.2-sol)",
+          "n": 14,
+          "exactAgreementPct": 85.7,
+          "withinOneGradePct": 100,
+          "mae0to3": 0.14,
+          "falsePassRatePct": 0,
+          "falseFailRatePct": 0,
+          "misconceptionDiagnosisPct": 100,
+          "parseFailures": 0
+        },
+        "groundingAndTools": {
+          "n": 6,
+          "baselinePct": 58.3,
+          "productionPct": 91.7,
+          "deltaPp": 33.3,
+          "ci95HalfWidthPp": 42.9,
+          "ci95LowPp": -9.5,
+          "ci95HighPp": 76.2,
+          "baselineLatencyMs": 5461,
+          "productionLatencyMs": 5780,
+          "technicalFailures": 0
+        },
+        "memorySeparate": {
+          "evalMemStage1Record": {
+            "n": 6,
+            "baselinePct": 100,
+            "productionPct": 100,
+            "deltaPp": 0,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 0,
+            "ci95HighPp": 0,
+            "baselineLatencyMs": 4657,
+            "productionLatencyMs": 13024,
+            "technicalFailures": 0
+          },
+          "evalMemStage2RetrieveDeterministicPct": 100,
+          "evalMemStage2RetrieveN": 6,
+          "evalMemStage3TutorUse": {
+            "n": 6,
+            "baselinePct": 100,
+            "productionPct": 100,
+            "deltaPp": 0,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 0,
+            "ci95HighPp": 0,
+            "baselineLatencyMs": 3007,
+            "productionLatencyMs": 3748,
+            "technicalFailures": 0
+          },
+          "longMemEvalS": {
+            "n": 6,
+            "baselinePct": 83.3,
+            "productionPct": 83.3,
+            "deltaPp": 0,
+            "ci95HalfWidthPp": 0,
+            "ci95LowPp": 0,
+            "ci95HighPp": 0,
+            "baselineLatencyMs": 4778,
+            "productionLatencyMs": 6058,
+            "technicalFailures": 0
+          }
+        }
+      }
+    ]
+  },
+  "audit": {
+    "generatedAt": "2026-11-21",
+    "promptHashes": [
+      {
+        "key": "production:teacher",
+        "chars": 40025,
+        "sha256": "6042be4fdab70c70898ecaff8703d28183b48309164358fd68b9de74bf3f8ac3"
+      },
+      {
+        "key": "production:practice",
+        "chars": 21280,
+        "sha256": "bf30faa3056c600d913e6819d3d68c925b6e2cd533b1ab87df002ea5a3863fac"
+      },
+      {
+        "key": "production:side-chat",
+        "chars": 6555,
+        "sha256": "5849c1fa70a32b7ed637c37917fd02a7f1780b037f60e299e7c71d85f4b6d80f"
+      },
+      {
+        "key": "production:lesson/lesson-plan.md",
+        "chars": 11308,
+        "sha256": "8353b38b8f159e8a1ff1d7a1d7a794ff479ece91316d61e87188e5222c68f77d"
+      },
+      {
+        "key": "production:lesson/grader.md",
+        "chars": 2754,
+        "sha256": "e18cbecfedb52bc638de52956f8d99bb2471849c53f3c9ddd4de2eaacd6f50dd"
+      },
+      {
+        "key": "production:memory/extract.md",
+        "chars": 6187,
+        "sha256": "b585e59e3c379c8a95534800950d0f24d5810e34edef3b7c200f7e97883bc604"
+      },
+      {
+        "key": "minimal_contract:teacher",
+        "chars": 178,
+        "sha256": "147d7976474754e0d68b17426b94d1962094a0b6743a2315dc5996c51d7483cb"
+      },
+      {
+        "key": "minimal_contract:practice",
+        "chars": 191,
+        "sha256": "af78340ef5445bf7f915009aa48ae989f58b0ae6d9b81f98a963626a71187218"
+      },
+      {
+        "key": "minimal_contract:side-chat",
+        "chars": 184,
+        "sha256": "b50415079d2ea740c17b5bd268696a1d5f832fda27b22afe60085d7025be2acc"
+      },
+      {
+        "key": "minimal_contract:grader",
+        "chars": 306,
+        "sha256": "d612f5c3d0299a4d6fe9aee8337e7a36615253814037369c6a06fac583a7a0d7"
+      }
+    ],
+    "deterministicModuleExamGrader": {
+      "summary": {
+        "graderName": "module-exam.ts (determinístico)",
+        "n": 14,
+        "exactAgreementPct": 21.4,
+        "withinOneGradePct": 64.3,
+        "mae0to3": 1.36,
+        "falsePassRatePct": 87.5,
+        "falseFailRatePct": 16.7,
+        "misconceptionDiagnosisPct": 0,
+        "parseFailures": 0
+      },
+      "predictions": [
+        {
+          "caseId": "grade-elec-short-correct",
+          "responseClass": "short_correct",
+          "goldGrade": 3,
+          "predictedGrade": 2,
+          "goldMisconceptionId": null,
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-elec-synonym-correct",
+          "responseClass": "synonym_correct",
+          "goldGrade": 3,
+          "predictedGrade": 0,
+          "goldMisconceptionId": null,
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-elec-partial",
+          "responseClass": "partial_correct",
+          "goldGrade": 2,
+          "predictedGrade": 2,
+          "goldMisconceptionId": null,
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-elec-right-method-wrong-unit",
+          "responseClass": "right_method_wrong_unit",
+          "goldGrade": 1,
+          "predictedGrade": 2,
+          "goldMisconceptionId": "m-unit-slip",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-elec-right-result-wrong-reasoning",
+          "responseClass": "right_result_wrong_reasoning",
+          "goldGrade": 1,
+          "predictedGrade": 2,
+          "goldMisconceptionId": "m-wrong-principle",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-elec-keyword-stuffed-wrong",
+          "responseClass": "keyword_stuffed_wrong",
+          "goldGrade": 0,
+          "predictedGrade": 3,
+          "goldMisconceptionId": "m-invert-ohm",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-elec-fluent-plausible-wrong",
+          "responseClass": "fluent_plausible_wrong",
+          "goldGrade": 0,
+          "predictedGrade": 2,
+          "goldMisconceptionId": "m-ideal-divider-load",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-eng-short-correct",
+          "responseClass": "short_correct",
+          "goldGrade": 3,
+          "predictedGrade": 3,
+          "goldMisconceptionId": null,
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-eng-synonym-correct",
+          "responseClass": "synonym_correct",
+          "goldGrade": 3,
+          "predictedGrade": 2,
+          "goldMisconceptionId": null,
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-eng-partial",
+          "responseClass": "partial_correct",
+          "goldGrade": 2,
+          "predictedGrade": 3,
+          "goldMisconceptionId": null,
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-eng-right-method-wrong-unit",
+          "responseClass": "right_method_wrong_unit",
+          "goldGrade": 1,
+          "predictedGrade": 2,
+          "goldMisconceptionId": "m-double-s",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-eng-right-result-wrong-reasoning",
+          "responseClass": "right_result_wrong_reasoning",
+          "goldGrade": 1,
+          "predictedGrade": 1,
+          "goldMisconceptionId": "m-no-s-heuristic",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-eng-keyword-stuffed-wrong",
+          "responseClass": "keyword_stuffed_wrong",
+          "goldGrade": 0,
+          "predictedGrade": 3,
+          "goldMisconceptionId": "m-perfect-with-date",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        },
+        {
+          "caseId": "grade-eng-fluent-plausible-wrong",
+          "responseClass": "fluent_plausible_wrong",
+          "goldGrade": 0,
+          "predictedGrade": 2,
+          "goldMisconceptionId": "m-false-friend-actually",
+          "predictedMisconceptionId": null,
+          "diagnosisCorrect": false
+        }
+      ]
+    },
+    "evalMemStage2Retrieval": {
+      "pct": 100,
+      "n": 6,
+      "details": [
+        {
+          "id": "mem-pref-update-eng",
+          "passed": true,
+          "note": "matched 2/2 expected tokens"
+        },
+        {
+          "id": "mem-superseded-difficulty-elec",
+          "passed": true,
+          "note": "matched 2/2 expected tokens"
+        },
+        {
+          "id": "mem-tutor-not-learner-fact",
+          "passed": true,
+          "note": "matched 1/1 expected tokens"
+        },
+        {
+          "id": "mem-cross-domain-isolation",
+          "passed": true,
+          "note": "strict domain isolation (electronics only, zero IELTS leak)"
+        },
+        {
+          "id": "mem-region-isolation-elec",
+          "passed": true,
+          "note": "matched 2/2 expected tokens"
+        },
+        {
+          "id": "mem-abstention-eng",
+          "passed": true,
+          "note": "zero false retrieval on abstention query"
+        }
+      ]
+    },
+    "runs": {
+      "chatgpt:gpt-6.2-sol": {
+        "tutorMoments": [
+          {
+            "id": "balanced_520:09264613-5009-5557-87c6-d590c3d6c391_02020d06-7b55-5b35-b27f-18b334d8c8c3_ffa4bb37-6dd8-5c9a-a2ae-4c6f746ff82c__hum_356_361",
+            "dim": "rigor",
+            "base": {
+              "appropriate_rigor": 1,
+              "avoids_over_scaffolding": 0
+            },
+            "prod": {
+              "appropriate_rigor": 1,
+              "avoids_over_scaffolding": 0
+            }
+          },
+          {
+            "id": "balanced_520:056dd847-9f7b-5cda-9370-269452f8d083_c425fbf6-427c-50e6-876b-36191e9e18bf_8563c470-c67d-5182-b1f5-c7943e88305a__hum_198_227",
+            "dim": "scaffolding",
+            "base": {
+              "appropriate_scaffolding": 0,
+              "avoids_over_scaffolding": 0
+            },
+            "prod": {
+              "appropriate_scaffolding": 1,
+              "avoids_over_scaffolding": 1
+            }
+          },
+          {
+            "id": "balanced_520:09264613-5009-5557-87c6-d590c3d6c391_02020d06-7b55-5b35-b27f-18b334d8c8c3_ffa4bb37-6dd8-5c9a-a2ae-4c6f746ff82c__hum_95_103",
+            "dim": "rigor",
+            "base": {
+              "appropriate_rigor": 1,
+              "avoids_over_scaffolding": 1
+            },
+            "prod": {
+              "appropriate_rigor": 0,
+              "avoids_over_scaffolding": 1
+            }
+          },
+          {
+            "id": "balanced_520:056dd847-9f7b-5cda-9370-269452f8d083_c425fbf6-427c-50e6-876b-36191e9e18bf_b09cc93d-7bbf-5d3d-b22f-eb3efc51e344__hum_244_258",
+            "dim": "scaffolding",
+            "base": {
+              "appropriate_scaffolding": 0,
+              "avoids_over_scaffolding": 0
+            },
+            "prod": {
+              "appropriate_scaffolding": 1,
+              "avoids_over_scaffolding": 1
+            }
+          },
+          {
+            "id": "balanced_520:0f01be53-9998-5223-b931-9ff6ed42ad20_c0f67d80-f8de-5977-8c5e-50a273e69cd4_30e294b8-d5ab-5a47-80cb-7a7f3e9618db__hum_119_122",
+            "dim": "rigor",
+            "base": {
+              "appropriate_rigor": 1,
+              "avoids_over_scaffolding": 1
+            },
+            "prod": {
+              "appropriate_rigor": 1,
+              "avoids_over_scaffolding": 0
+            }
+          },
+          {
+            "id": "balanced_520:056dd847-9f7b-5cda-9370-269452f8d083_c425fbf6-427c-50e6-876b-36191e9e18bf_b09cc93d-7bbf-5d3d-b22f-eb3efc51e344__hum_325_334",
+            "dim": "scaffolding",
+            "base": {
+              "appropriate_scaffolding": 1,
+              "avoids_over_scaffolding": 0
+            },
+            "prod": {
+              "appropriate_scaffolding": 1,
+              "avoids_over_scaffolding": 1
+            }
+          }
+        ],
+        "teachArenaStage0": [
+          {
+            "id": "S0-01",
+            "base": 0.75,
+            "prod": 1
+          },
+          {
+            "id": "S0-04",
+            "base": 0,
+            "prod": 0
+          },
+          {
+            "id": "S0-05",
+            "base": 0.2,
+            "prod": 0.2
+          },
+          {
+            "id": "S0-06",
+            "base": 0.25,
+            "prod": 0.75
+          },
+          {
+            "id": "S0-08",
+            "base": 0.75,
+            "prod": 0.75
+          },
+          {
+            "id": "S0-09",
+            "base": 0.5,
+            "prod": 0.75
+          }
+        ],
+        "teachArenaStage1": [
+          {
+            "id": "EI-AFFECT-01",
+            "detBase": 0.8,
+            "detProd": 0.8,
+            "nlBase": 0.8,
+            "nlProd": 0.6
+          },
+          {
+            "id": "EI-ALIGN-01",
+            "detBase": 1,
+            "detProd": 1,
+            "nlBase": 1,
+            "nlProd": 1
+          },
+          {
+            "id": "EI-ATTRIB-01",
+            "detBase": 1,
+            "detProd": 1,
+            "nlBase": 0.8,
+            "nlProd": 0.8
+          },
+          {
+            "id": "EI-C01",
+            "detBase": 1,
+            "detProd": 1,
+            "nlBase": 1,
+            "nlProd": 1
+          },
+          {
+            "id": "EI-C02",
+            "detBase": 0.42857142857142855,
+            "detProd": 0.42857142857142855,
+            "nlBase": 1,
+            "nlProd": 1
+          },
+          {
+            "id": "EI-C03",
+            "detBase": 0.25,
+            "detProd": 0.16666666666666666,
+            "nlBase": 0.6,
+            "nlProd": 0.6
+          }
+        ],
+        "mathTutorBench": [
+          {
+            "id": "mtb-0",
+            "base": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 0,
+              "no_spoiler_tact": 0
+            },
+            "prod": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 1,
+              "no_spoiler_tact": 1
+            }
+          },
+          {
+            "id": "mtb-1",
+            "base": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 0,
+              "no_spoiler_tact": 0
+            },
+            "prod": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 1,
+              "no_spoiler_tact": 1
+            }
+          },
+          {
+            "id": "mtb-2",
+            "base": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 0,
+              "no_spoiler_tact": 0
+            },
+            "prod": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 1,
+              "no_spoiler_tact": 1
+            }
+          },
+          {
+            "id": "mtb-3",
+            "base": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 0,
+              "no_spoiler_tact": 0
+            },
+            "prod": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 1,
+              "no_spoiler_tact": 1
+            }
+          },
+          {
+            "id": "mtb-4",
+            "base": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 0,
+              "no_spoiler_tact": 0
+            },
+            "prod": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 1,
+              "no_spoiler_tact": 1
+            }
+          },
+          {
+            "id": "mtb-5",
+            "base": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 0,
+              "no_spoiler_tact": 0
+            },
+            "prod": {
+              "subject_correctness": 1,
+              "mistake_location": 1,
+              "socratic_scaffolding": 1,
+              "no_spoiler_tact": 1
+            }
+          }
+        ],
+        "modes": [
+          {
+            "id": "mode-teach-elec-01",
+            "mode": "teacher",
+            "base": 0.4,
+            "prod": 1
+          },
+          {
+            "id": "mode-teach-eng-01",
+            "mode": "teacher",
+            "base": 0.6,
+            "prod": 1
+          },
+          {
+            "id": "mode-practice-elec-01",
+            "mode": "practice",
+            "base": 0.6,
+            "prod": 0.6
+          },
+          {
+            "id": "mode-practice-eng-01",
+            "mode": "practice",
+            "base": 0.4,
+            "prod": 1
+          },
+          {
+            "id": "mode-exam-elec-01",
+            "mode": "exam",
+            "base": 0,
+            "prod": 1
+          },
+          {
+            "id": "mode-exam-eng-01",
+            "mode": "exam",
+            "base": 0,
+            "prod": 1
+          },
+          {
+            "id": "mode-sidechat-eng-01",
+            "mode": "side-chat",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mode-sidechat-elec-01",
+            "mode": "side-chat",
+            "base": 0,
+            "prod": 1
+          },
+          {
+            "id": "tm-ptbr-scaf-01",
+            "mode": "teacher",
+            "base": 0,
+            "prod": 0.5
+          },
+          {
+            "id": "tm-ptbr-rigor-01",
+            "mode": "teacher",
+            "base": 0,
+            "prod": 0.5
+          },
+          {
+            "id": "tm-ptbr-scaf-02",
+            "mode": "teacher",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "tm-ptbr-rigor-02",
+            "mode": "teacher",
+            "base": 0.5,
+            "prod": 1
+          }
+        ],
+        "planning": [
+          {
+            "id": "plan-conv-elec-01",
+            "route": "teacher_planning",
+            "base": 0.8181818181818182,
+            "prod": 1
+          },
+          {
+            "id": "plan-conv-eng-01",
+            "route": "teacher_planning",
+            "base": 0.8181818181818182,
+            "prod": 1
+          },
+          {
+            "id": "plan-json-elec-01",
+            "route": "lesson_plan_template",
+            "base": 0.14285714285714285,
+            "prod": 1
+          },
+          {
+            "id": "plan-json-eng-01",
+            "route": "lesson_plan_template",
+            "base": 0.7142857142857143,
+            "prod": 1
+          }
+        ],
+        "grading": [
+          {
+            "id": "grade-elec-short-correct",
+            "basePred": {
+              "caseId": "grade-elec-short-correct",
+              "responseClass": "short_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-elec-short-correct",
+              "responseClass": "short_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-elec-synonym-correct",
+            "basePred": {
+              "caseId": "grade-elec-synonym-correct",
+              "responseClass": "synonym_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-elec-synonym-correct",
+              "responseClass": "synonym_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-elec-partial",
+            "basePred": {
+              "caseId": "grade-elec-partial",
+              "responseClass": "partial_correct",
+              "goldGrade": 2,
+              "predictedGrade": 2,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-elec-partial",
+              "responseClass": "partial_correct",
+              "goldGrade": 2,
+              "predictedGrade": 1,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-elec-right-method-wrong-unit",
+            "basePred": {
+              "caseId": "grade-elec-right-method-wrong-unit",
+              "responseClass": "right_method_wrong_unit",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-unit-slip",
+              "predictedMisconceptionId": "m-unit-slip",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-elec-right-method-wrong-unit",
+              "responseClass": "right_method_wrong_unit",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-unit-slip",
+              "predictedMisconceptionId": "m-unit-slip",
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-elec-right-result-wrong-reasoning",
+            "basePred": {
+              "caseId": "grade-elec-right-result-wrong-reasoning",
+              "responseClass": "right_result_wrong_reasoning",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-wrong-principle",
+              "predictedMisconceptionId": "m-wrong-principle",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-elec-right-result-wrong-reasoning",
+              "responseClass": "right_result_wrong_reasoning",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-wrong-principle",
+              "predictedMisconceptionId": "m-wrong-principle",
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-elec-keyword-stuffed-wrong",
+            "basePred": {
+              "caseId": "grade-elec-keyword-stuffed-wrong",
+              "responseClass": "keyword_stuffed_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-invert-ohm",
+              "predictedMisconceptionId": "m-invert-ohm",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-elec-keyword-stuffed-wrong",
+              "responseClass": "keyword_stuffed_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 0,
+              "goldMisconceptionId": "m-invert-ohm",
+              "predictedMisconceptionId": "m-invert-ohm",
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-elec-fluent-plausible-wrong",
+            "basePred": {
+              "caseId": "grade-elec-fluent-plausible-wrong",
+              "responseClass": "fluent_plausible_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 0,
+              "goldMisconceptionId": "m-ideal-divider-load",
+              "predictedMisconceptionId": "m-ideal-divider-load",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-elec-fluent-plausible-wrong",
+              "responseClass": "fluent_plausible_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 0,
+              "goldMisconceptionId": "m-ideal-divider-load",
+              "predictedMisconceptionId": "m-ideal-divider-load",
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-eng-short-correct",
+            "basePred": {
+              "caseId": "grade-eng-short-correct",
+              "responseClass": "short_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-eng-short-correct",
+              "responseClass": "short_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-eng-synonym-correct",
+            "basePred": {
+              "caseId": "grade-eng-synonym-correct",
+              "responseClass": "synonym_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-eng-synonym-correct",
+              "responseClass": "synonym_correct",
+              "goldGrade": 3,
+              "predictedGrade": 3,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-eng-partial",
+            "basePred": {
+              "caseId": "grade-eng-partial",
+              "responseClass": "partial_correct",
+              "goldGrade": 2,
+              "predictedGrade": 2,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-eng-partial",
+              "responseClass": "partial_correct",
+              "goldGrade": 2,
+              "predictedGrade": 1,
+              "goldMisconceptionId": null,
+              "predictedMisconceptionId": null,
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-eng-right-method-wrong-unit",
+            "basePred": {
+              "caseId": "grade-eng-right-method-wrong-unit",
+              "responseClass": "right_method_wrong_unit",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-double-s",
+              "predictedMisconceptionId": "m-double-s",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-eng-right-method-wrong-unit",
+              "responseClass": "right_method_wrong_unit",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-double-s",
+              "predictedMisconceptionId": "m-double-s",
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-eng-right-result-wrong-reasoning",
+            "basePred": {
+              "caseId": "grade-eng-right-result-wrong-reasoning",
+              "responseClass": "right_result_wrong_reasoning",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-no-s-heuristic",
+              "predictedMisconceptionId": "m-no-s-heuristic",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-eng-right-result-wrong-reasoning",
+              "responseClass": "right_result_wrong_reasoning",
+              "goldGrade": 1,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-no-s-heuristic",
+              "predictedMisconceptionId": "m-no-s-heuristic",
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-eng-keyword-stuffed-wrong",
+            "basePred": {
+              "caseId": "grade-eng-keyword-stuffed-wrong",
+              "responseClass": "keyword_stuffed_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 1,
+              "goldMisconceptionId": "m-perfect-with-date",
+              "predictedMisconceptionId": "m-perfect-with-date",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-eng-keyword-stuffed-wrong",
+              "responseClass": "keyword_stuffed_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 0,
+              "goldMisconceptionId": "m-perfect-with-date",
+              "predictedMisconceptionId": "m-perfect-with-date",
+              "diagnosisCorrect": true
+            }
+          },
+          {
+            "id": "grade-eng-fluent-plausible-wrong",
+            "basePred": {
+              "caseId": "grade-eng-fluent-plausible-wrong",
+              "responseClass": "fluent_plausible_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 0,
+              "goldMisconceptionId": "m-false-friend-actually",
+              "predictedMisconceptionId": "m-false-friend-actually",
+              "diagnosisCorrect": true
+            },
+            "prodPred": {
+              "caseId": "grade-eng-fluent-plausible-wrong",
+              "responseClass": "fluent_plausible_wrong",
+              "goldGrade": 0,
+              "predictedGrade": 0,
+              "goldMisconceptionId": "m-false-friend-actually",
+              "predictedMisconceptionId": "m-false-friend-actually",
+              "diagnosisCorrect": true
+            }
+          }
+        ],
+        "grounding": [
+          {
+            "id": "ground-pdf-page-elec",
+            "base": 0.5,
+            "prod": 1
+          },
+          {
+            "id": "ground-catalog-only-eng",
+            "base": 0.5,
+            "prod": 0.5
+          },
+          {
+            "id": "ground-unavailable-page-elec",
+            "base": 0.5,
+            "prod": 1
+          },
+          {
+            "id": "ground-interactive-divider-elec",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "ground-figure-unseen-elec",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "ground-open-exam-clarification-eng",
+            "base": 0,
+            "prod": 1
+          }
+        ],
+        "memoryStage1": [
+          {
+            "id": "mem-pref-update-eng",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-superseded-difficulty-elec",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-tutor-not-learner-fact",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-cross-domain-isolation",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-region-isolation-elec",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-abstention-eng",
+            "base": 1,
+            "prod": 1
+          }
+        ],
+        "memoryStage3": [
+          {
+            "id": "mem-pref-update-eng",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-superseded-difficulty-elec",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-tutor-not-learner-fact",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-cross-domain-isolation",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-region-isolation-elec",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "mem-abstention-eng",
+            "base": 1,
+            "prod": 1
+          }
+        ],
+        "longMemEvalS": [
+          {
+            "id": "gpt4_70e84552_abs",
+            "cat": "abstention",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "6a1eabeb",
+            "cat": "knowledge-update",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "0a995998",
+            "cat": "multi-session",
+            "base": 0,
+            "prod": 0
+          },
+          {
+            "id": "7161e7e2",
+            "cat": "single-session-assistant",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "8a2466db",
+            "cat": "single-session-preference",
+            "base": 1,
+            "prod": 1
+          },
+          {
+            "id": "e47becba",
+            "cat": "single-session-user",
+            "base": 1,
+            "prod": 1
+          }
+        ]
+      }
+    }
+  }
+}

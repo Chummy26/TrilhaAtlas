@@ -376,6 +376,10 @@ export const streamdownRehypePlugins = Object.values({
   harden: [hardenPlugin, { ...hardenOptions, allowedImagePrefixes: [] }],
 }) as NonNullable<StreamdownProps["rehypePlugins"]>;
 
+// Disable Streamdown's external-link confirmation modal so links open directly
+// in the app's right-hand embedded study browser sidebar.
+export const streamdownLinkSafety = { enabled: false };
+
 export const MessageResponse = memo(
   ({ className, children, ...props }: MessageResponseProps) => {
     // Legacy backslash delimiters are converted in a single linear scan;
@@ -395,6 +399,7 @@ export const MessageResponse = memo(
           className
         )}
         components={mdComponents}
+        linkSafety={streamdownLinkSafety}
         plugins={streamdownPlugins}
         rehypePlugins={streamdownRehypePlugins}
         remend={streamdownRemend}

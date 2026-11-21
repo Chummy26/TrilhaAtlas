@@ -31,6 +31,7 @@ const { attachChatGPTChild, trustedSender, chatGPTControl } = require("./chatgpt
 const { createSubscriptions, loadSubscriptionSDK } = require("./subscriptions.cjs");
 const { attachSubscriptionChild, subscriptionControl } = require("./subscription-ipc.cjs");
 const { desktopAPIHeaders } = require("./desktop-api.cjs");
+const { cleanChromeUserAgent, embeddedSubframeResponseHeaders } = require("./embedded-browser-headers.cjs");
 const { startBrowserGateway } = require("./browser-gateway.cjs");
 const { openWebSubscriptionBrowser } = require("./web-subscription-browser.cjs");
 const { randomBytes } = require("node:crypto");
@@ -316,11 +317,25 @@ function openExternalLink(target) {
  *  - will-navigate pinned to the app origin; window.open always denied —
  *    external links go to the real browser via shell.openExternal, for
  *    http, https and mailto only (openExternalLink). */
+function windowIconPath() {
+	if (process.platform === "darwin" || typeof fs.existsSync !== "function") return undefined;
+	const filename = process.platform === "win32" ? "icon.ico" : "icon.png";
+	const candidates = [
+		app.isPackaged && typeof process.resourcesPath === "string"
+			? path.join(process.resourcesPath, filename)
+			: null,
+		path.join(__dirname, "..", "build", filename),
+	];
+	return candidates.find((candidate) => candidate && fs.existsSync(candidate));
+}
+
 function createWindow(url) {
+	const icon = windowIconPath();
 	const win = new BrowserWindow({
 		width: 1440,
 		height: 900,
 		title: PRODUCT_NAME,
+		...(icon ? { icon } : {}),
 		// Merged chrome (owner, 2026-09-17): the system title bar is gone;
 		// the app's own 60px header bands ARE the title bar. The traffic
 		// lights float over the sidebar's LH wordmark band, vertically
@@ -389,6 +404,13 @@ function createWindow(url) {
 	});
 	session.defaultSession.setPermissionCheckHandler((_wc, permission, origin) => {
 		return fromOwnOrigin(origin, permission);
+	});
+	if (typeof session.defaultSession.getUserAgent === "function" && typeof session.defaultSession.setUserAgent === "function") {
+		const cleanUa = cleanChromeUserAgent(session.defaultSession.getUserAgent());
+		if (cleanUa) session.defaultSession.setUserAgent(cleanUa);
+	}
+	session.defaultSession.webRequest?.onHeadersReceived?.({ urls: ["<all_urls>"] }, (details, callback) => {
+		callback({ responseHeaders: embeddedSubframeResponseHeaders(details, allowedOrigin()) });
 	});
 
 	win.webContents.on("will-navigate", (event, target) => {

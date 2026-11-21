@@ -61,7 +61,7 @@ import { addDays, dayKey } from "../core/stats/dates.ts";
 import { parseActivityEvent } from "../core/stats/schema.ts";
 import { chatsDir, isUsableDomainId, learnerDir } from "../core/domains/paths.ts";
 import { buildDomainTranscript } from "../core/study/transcript.ts";
-import { isAdvancedDefenseNode } from "../core/study/tutor-pedagogy.ts";
+import { isAdvancedDefenseNode, isAdvancedReadingRequiredNode } from "../core/study/tutor-pedagogy.ts";
 import { STUDY_HEARTBEAT_SEC, WORKSPACE_SCOPE } from "../core/stats/types.ts";
 import { createStatsStore, type StatsStore } from "../store/stats-store.ts";
 import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents, studyLogRevision } from "./study-log.ts";
@@ -515,6 +515,7 @@ export function lessonConclusionObjective(domainId: string, sessionId: string) {
 	const campaign = studyCampaign(cur.snapshot, cur.view, structuralState(snap, cur.view).known);
 	const isFinale = campaign.journey.some(chapter => chapter.finale === state.exposure.nodeId);
 	const isAdvancedDefense = isAdvancedDefenseNode(item, isFinale);
+	const requiresQualityReading = isAdvancedReadingRequiredNode(item, isFinale);
 	const levelLabel = item.level.scheme === "cefr"
 		? item.level.cefr
 		: item.level.scheme === "ee"
@@ -526,6 +527,7 @@ export function lessonConclusionObjective(domainId: string, sessionId: string) {
 		assessment: item.assess,
 		misconceptions: item.misconceptions ?? [],
 		...(isAdvancedDefense ? { isAdvancedDefense: true } : {}),
+		...(requiresQualityReading ? { requiresQualityReading: true } : {}),
 		...(levelLabel ? { levelLabel } : {}),
 		...(priorReinforcement?.kind === "lesson-finished" && priorReinforcement.feedback ? { priorReinforcement: priorReinforcement.feedback } : {}),
 	};

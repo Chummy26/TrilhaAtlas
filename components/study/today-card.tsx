@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
+import { useT } from "@/components/i18n";
 import { lessonStatement } from "./lesson-statement.ts";
 import type { StudyToday } from "@/src/core";
 
@@ -48,6 +49,7 @@ const CHECK_GRADES = [
 ] as const;
 
 export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?: string; onStart: (lesson: LessonStart) => void; disabled?: boolean }) {
+	const t = useT();
 	const [today, setToday] = useState<StudyToday | null>(null);
 	const [pending, setPending] = useState(false);
 	const [reviewFeedback, setReviewFeedback] = useState<{ domain: string; ok: boolean; text: string }>();
@@ -92,11 +94,11 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 				</div>
 				<Link href={`/mapa?dominio=${encodeURIComponent(today.domain.id)}`} className="cel-button cel-button-ghost min-h-7 px-2 py-0.5 text-xs">
 					<Icon name="map" size={14} tone={false} />
-					Explorar árvore
+					{t("shell.sidebar.tree")}
 				</Link>
 				<Link href={`/ementa?dominio=${encodeURIComponent(today.domain.id)}`} className="cel-button cel-button-ghost min-h-7 px-2 py-0.5 text-xs">
 					<Icon name="book" size={14} tone={false} />
-					Ementa
+					{t("shell.sidebar.syllabus")}
 				</Link>
 				<Link href={`/ementa?dominio=${encodeURIComponent(today.domain.id)}&aba=nivelamento`} className="cel-button cel-button-ghost min-h-7 px-2 py-0.5 text-xs">
 					<Icon name="exercise" size={14} tone={false} />
@@ -110,7 +112,7 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 			{today.chapters && (
 				<div className="mb-3 rounded-xl border border-border/45 bg-background/55 px-3 py-2">
 					<p className="cel-display text-sm leading-snug">
-						{today.campaignGoal ? `Sua meta · ${today.campaignGoal}` : chapter ? `${chapter.level} · ${chapter.title}` : "Percurso concluído · continue praticando pelo mapa"}
+						{today.campaignGoal ? t("pages.today.goalPrefix", { goal: today.campaignGoal }) : chapter ? `${chapter.level} · ${chapter.title}` : t("pages.today.courseCompleted")}
 					</p>
 					{chapter && (
 						<p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
@@ -183,8 +185,8 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 						>
 							<Icon name="play" size={16} />
 							{today.reinforceHint?.nodeId === next.nodeId
-								? "Praticar reforço"
-								: chapter ? (started ? "Continuar campanha" : "Iniciar campanha") : "Começar aula"}
+								? t("pages.today.practiceRemediation")
+								: chapter ? (started ? t("pages.today.continueCampaign") : t("pages.today.startCampaign")) : t("pages.today.startLesson")}
 						</button>
 						{next.kind === "new" && (
 							<button
@@ -200,7 +202,7 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 					{setupHint && <p className="pt-1 text-xs text-muted-foreground">{setupHint}</p>}
 				</div>
 			) : (
-				<p className="cel-display text-base">Por hoje é isso. Volte amanhã para as revisões.</p>
+				<p className="cel-display text-base">{t("pages.today.doneForToday")}</p>
 			)}
 
 			{today.currentModule && (
@@ -220,7 +222,7 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 						className="study-progress mt-1.5 w-full"
 					/>
 					<details className="study-disclosure mt-2 text-xs">
-						<summary>Aulas deste módulo</summary>
+						<summary>{t("pages.today.moduleLessons")}</summary>
 						<div className="study-disclosure-body">
 							<ol className="study-missions">
 								{today.currentModule.lessons.map((lesson, idx) => (
@@ -234,7 +236,7 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 										>
 											{idx + 1}. {lesson.title}
 										</Link>
-										{lesson.isFinale && <span className="study-pill study-pill-accent">missão final</span>}
+										{lesson.isFinale && <span className="study-pill study-pill-accent">{t("pages.today.finalePill")}</span>}
 										<span className="ml-auto tabular-nums text-muted-foreground">~{lesson.minutes} min</span>
 									</li>
 								))}
@@ -282,7 +284,7 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 							});
 							const result = await res.json();
 							if (!res.ok) throw new Error(result.error);
-							setReviewFeedback({ domain: today.domain.id, ok: Boolean(result.correct), text: (result.correct ? "Correto. " : "Confira a resolução. ") + result.explanation });
+							setReviewFeedback({ domain: today.domain.id, ok: Boolean(result.correct), text: (result.correct ? t("pages.today.correctPrefix") : t("pages.today.reviewSolutionPrefix")) + result.explanation });
 							read();
 						} catch (error) {
 							setReviewFeedback({ domain: today.domain.id, ok: false, text: error instanceof Error ? error.message : "Falha ao registrar resposta." });
@@ -294,7 +296,7 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 							<span className="leading-relaxed">{today.review.prompt}</span>
 							<input name="answer" className="cel-input block w-full px-3 py-2 text-sm" maxLength={150} required autoComplete="off" />
 						</label>
-						<button type="submit" disabled={pending} className="cel-button min-h-8 px-3.5 py-1 text-xs">Conferir resposta</button>
+						<button type="submit" disabled={pending} className="cel-button min-h-8 px-3.5 py-1 text-xs">{t("pages.today.checkAnswer")}</button>
 					</form>
 				</details>
 			)}
@@ -306,8 +308,8 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 			)}
 
 			{today.chapters && (
-				<div className="study-campaign" aria-label="Percurso da campanha">
-					<nav aria-label="Capítulos da campanha">
+				<div className="study-campaign" aria-label={t("pages.today.campaignAria")}>
+					<nav aria-label={t("pages.today.chaptersAria")}>
 						{today.chapters.map(c => (
 							<Link
 								key={c.level}
@@ -324,7 +326,7 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 					{chapter && (
 						<div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
 							<progress max={chapter.total} value={chapter.known} aria-label={`Progresso em ${chapter.level}`} className="study-progress w-28" />
-							<span className="tabular-nums" title="Inclui nós concluídos pelo professor, habilidades alcançadas, colocação por nivelamento e pré-requisitos inferidos.">
+							<span className="tabular-nums" title={t("pages.today.progressTitle")}>
 								<strong className="font-semibold text-foreground">{chapter.known}/{chapter.total}</strong> habilidades no percurso
 							</span>
 						</div>
@@ -338,12 +340,12 @@ export function TodayCard({ onStart, disabled = false, setupHint }: { setupHint?
 										<li key={step.id} data-reached={step.known}>
 											<span className="study-mission-marker" aria-hidden="true">{step.known ? "✓" : step.id === chapter.finale ? "⚑" : "•"}</span>
 											<Link className="font-medium underline decoration-border underline-offset-2 hover:decoration-foreground" href={mapLink(step.id)}>{step.title}</Link>
-											{step.id === chapter.finale && <span className="study-pill study-pill-accent">missão final</span>}
-											{step.known && <span className="text-xs text-[var(--cel-success-text,var(--lh-success))]">alcançada</span>}
+											{step.id === chapter.finale && <span className="study-pill study-pill-accent">{t("pages.today.finalePill")}</span>}
+											{step.known && <span className="text-xs text-[var(--cel-success-text,var(--lh-success))]">{t("pages.today.known")}</span>}
 										</li>
 									))}
 								</ol>
-								<p className="mt-2 text-xs text-muted-foreground">Entre essas missões, o plano inclui habilidades do capítulo e revisões conforme sua prática.</p>
+								<p className="mt-2 text-xs text-muted-foreground">{t("pages.today.betweenMissions")}</p>
 							</div>
 						</details>
 					)}

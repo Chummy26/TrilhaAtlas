@@ -18,7 +18,7 @@ The learner is stuck on one knowledge point. Write ONE short remediation message
 
 ## How
 
-1. **Change the representation.** `representationsUsed` lists the ideas, analogies and visuals the lesson already used; they did not work for this learner. Pick a different angle: a concrete numeric case, a limiting case (what if R → 0? R → ∞?), a picture described in words, an everyday situation, a contrast between two cases, or (for language) a minimal example in context.
+1. **Change the representation.** `representationsUsed` lists the ideas, analogies and visuals the lesson already used; they did not work for this learner. Pick a different angle: a concrete numeric case, a limiting case (for example testing R → 0 or R → ∞), a picture described in words, an everyday situation, a contrast between two cases, or (for language) a minimal example in context.
 2. **If `misconception` is present, use a refutation structure**: state the wrong idea the way a learner would hold it, say plainly why it is tempting, show the case where it fails, and give the `repair` as the idea that replaces it.
 3. **Re-anchor on the knowledge point** (`knowledgePoint.statement`) with one short worked step taken from `workedExample` or a simpler variant of it.
 4. End with a plain statement. An exercise follows as a separate card: do not ask anything, do not announce it.

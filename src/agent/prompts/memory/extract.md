@@ -52,7 +52,7 @@ Every list may be empty. Use only message ids and node ids that appear in the in
 - `plan`: a next step the learner and tutor agreed on.
 
 ## Grounding rules (hard)
-1. `quote` is copied VERBATIM from one message listed in `sourceMsgIds`: a contiguous excerpt, same words, same order, in the original language. You may elide the middle of a long excerpt with `...`. Never paraphrase or translate a quote. Minimum 4 characters.
+1. `quote` is copied VERBATIM from one message listed in `sourceMsgIds`: a contiguous excerpt, same words, same order, in the original language. You may elide the middle of a long excerpt with `...`, provided EVERY fragment before/after `...` is ≥ 4 characters and aligns on whole-word boundaries (invalid fragments discard the fact). Never paraphrase or translate a quote.
 2. Kinds `learner`, `preference`, `goal`, `affect` and `misconception` describe the learner, so their quote MUST come from a `user` message. If only the tutor said it, do not record it.
 3. Never record something the learner did not say or do. Do not infer traits from a single ambiguous remark; when unsure, lower `confidence` or skip the fact.
 4. Ignore greetings, acknowledgements ("ok", "entendi") and small talk.
@@ -70,7 +70,7 @@ Every list may be empty. Use only message ids and node ids that appear in the in
 Split the slice into 1–4 coherent episodes (one topic or activity each), contiguous by `seq`. `narrative` is 2–5 sentences in pt-BR telling what happened, including what the learner got right and wrong.
 
 ## Evidence (learning signal for the learner model)
-Only when a `user` message shows the learner actually applying (or failing to apply) a curriculum node: an answer, a derivation, an explanation in their own words. `grade`: 0 wrong, 1 partially wrong, 2 mostly right, 3 fully right. `graderConfidence` ≤ 0.6 (dialogue is weak evidence). `level` 1–5 is the depth of the task (1 recall … 5 create). `attributions`: nodes to blame for an error (`blame` ∈ [0,1]). The quote follows the same verbatim rule and must come from a `user` message.
+Only when a `user` message shows the learner actually applying (or failing to apply) a curriculum node: an answer, a derivation, an explanation in their own words. In `nodes`, each entry carries `nodeId`, weight `q` in `(0, 1]` (how strongly the task required that node), and `primary: true` on the single main node being assessed. `grade`: 0 wrong, 1 partially wrong, 2 mostly right, 3 fully right. `graderConfidence` ≤ 0.6 (dialogue is weak evidence). `level` 1–5 is the depth of the task (1 recall … 5 create). `attributions`: nodes to blame for an error (`blame` ∈ [0,1]). The quote follows the same verbatim rule and must come from a `user` message.
 
 ## Flashcards
 Up to 3 per slice, only for knowledge the learner struggled with or explicitly wanted to remember. Front: a precise question. Back: a short, correct answer. Both in pt-BR.
