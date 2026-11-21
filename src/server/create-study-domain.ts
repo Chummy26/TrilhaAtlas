@@ -21,7 +21,7 @@ const userMaterialSchema = z.strictObject({
 
 const inputSchema = z.strictObject({
 	requestId: z.uuid(),
-	topic: z.string().trim().min(3).max(1600),
+	topic: z.string().trim().min(3).max(12_000),
 	pace: z.enum(["focused", "semester", "extended"]).optional(),
 	model: z.strictObject({ provider: z.string().min(1).max(160), id: z.string().min(1).max(256) }).optional(),
 	initialMaterials: z.array(userMaterialSchema).max(24).optional(),
@@ -69,7 +69,7 @@ function availablePrefix(requestId: string) {
 
 export function startDomainCreation(body: unknown, schedule: (run: () => Promise<void>) => void): DomainCreationStatus {
 	const input = inputSchema.safeParse(body);
-	if (!input.success) throw new StudyError(400, "Descreva o que quer estudar em 3 a 1600 caracteres e selecione um modelo válido.");
+	if (!input.success) throw new StudyError(400, "Descreva o que quer estudar em 3 a 12.000 caracteres e selecione um modelo válido.");
 	const { requestId, topic, model, pace, initialMaterials } = input.data;
 	const { domainId, key } = ids(requestId);
 	const fingerprint = createHash("sha256").update(JSON.stringify([topic, model, ...(pace ? [pace] : []), ...(initialMaterials?.length ? [initialMaterials] : [])])).digest("hex");

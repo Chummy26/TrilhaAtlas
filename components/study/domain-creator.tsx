@@ -213,17 +213,27 @@ export function DomainCreator() {
 			) : (
 				<form className="cel-card space-y-5 p-6" onSubmit={event => { event.preventDefault(); void create(); }}>
 					<label className="block space-y-2">
-						<span className="text-sm font-semibold">{t("pages.creator.goalLabel")}</span>
+						<span className="flex items-baseline justify-between gap-3">
+							<span className="text-sm font-semibold">{t("pages.creator.goalLabel")}</span>
+							<span
+								className={
+									"text-xs tabular-nums " +
+									(topic.length >= 11_000 ? "font-semibold text-destructive" : "text-muted-foreground")
+								}
+							>
+								{topic.length.toLocaleString("pt-BR")} / 12.000
+							</span>
+						</span>
 						<textarea
 							className="cel-input block w-full resize-y p-3 text-[15px] leading-relaxed"
-							rows={4}
+							rows={6}
 							value={topic}
 							minLength={3}
-							maxLength={1600}
+							maxLength={12_000}
 							required
 							disabled={working || busy}
 							onChange={event => setTopic(event.target.value)}
-							placeholder="Ex.: Quero aprender astronomia do zero até interpretar dados de um telescópio."
+							placeholder="Ex.: Quero aprender astronomia do zero até interpretar dados de um telescópio. Você pode colar uma ementa inteira, lista de tópicos, objetivos ou livros de referência."
 						/>
 					</label>
 

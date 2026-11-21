@@ -170,6 +170,39 @@ function trashStamp(now: Date): string {
 	return now.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 }
 
+// ─── stat-backed global cache ────────────────────────────────────────────────
+
+type DomainsCacheState = {
+	manifests: Map<string, { stamp: string; id: DomainId; manifest: DomainManifest }>;
+	profiles: Map<string, { stamp: string; id: DomainId; profile: DomainProfile }>;
+};
+
+const DOMAINS_CACHE_KEY = Symbol.for("learnharness.store.domains");
+const MAX_DOMAINS_CACHE_ENTRIES = 256;
+
+function domainsCache(): DomainsCacheState {
+	const g = globalThis as typeof globalThis & { [DOMAINS_CACHE_KEY]?: DomainsCacheState };
+	return (g[DOMAINS_CACHE_KEY] ??= { manifests: new Map(), profiles: new Map() });
+}
+
+function statStamp(file: string): { found: false } | { found: true; isFile: boolean; stamp: string } {
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!stat) return { found: false };
+	return {
+		found: true,
+		isFile: stat.isFile(),
+		stamp: `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`,
+	};
+}
+
+function setBounded<K, V>(map: Map<K, V>, key: K, value: V): void {
+	if (map.size >= MAX_DOMAINS_CACHE_ENTRIES && !map.has(key)) {
+		const oldest = map.keys().next().value;
+		if (oldest !== undefined) map.delete(oldest);
+	}
+	map.set(key, value);
+}
+
 // ─── store ───────────────────────────────────────────────────────────────────
 
 /** Domains store rooted at `root` (= LH_DATA_DIR). */
@@ -179,14 +212,30 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 	domainsDir(root); // validates the root eagerly
 
 	function readManifest(id: DomainId): DomainManifest | null {
-		const file = domainManifestFile(root, id);
+		const file = path.resolve(domainManifestFile(root, id));
+		const cache = domainsCache().manifests;
+		const st = statStamp(file);
+		if (!st.found) {
+			cache.delete(file);
+			return null;
+		}
+		if (st.isFile) {
+			const cached = cache.get(file);
+			if (cached && cached.stamp === st.stamp && cached.id === id) {
+				return structuredClone(cached.manifest);
+			}
+		}
 		const read = readJsonIfExists(file);
-		if (!read.found) return null;
+		if (!read.found) {
+			cache.delete(file);
+			return null;
+		}
 		const manifest = parseDomainManifest(read.value, `domains/${id}/domain.json`);
 		if (manifest.id !== id) {
 			throw new DomainStoreError("id-mismatch", `domains/${id}/domain.json declara o id "${manifest.id}"; o id deve ser igual ao nome da pasta.`);
 		}
-		return manifest;
+		if (st.isFile) setBounded(cache, file, { stamp: st.stamp, id, manifest });
+		return structuredClone(manifest);
 	}
 
 	function requireManifest(id: DomainId): DomainManifest {
@@ -196,13 +245,30 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 	}
 
 	function readProfile(id: DomainId): DomainProfile | null {
-		const read = readJsonIfExists(domainProfileFile(root, id));
-		if (!read.found) return null;
+		const file = path.resolve(domainProfileFile(root, id));
+		const cache = domainsCache().profiles;
+		const st = statStamp(file);
+		if (!st.found) {
+			cache.delete(file);
+			return null;
+		}
+		if (st.isFile) {
+			const cached = cache.get(file);
+			if (cached && cached.stamp === st.stamp && cached.id === id) {
+				return structuredClone(cached.profile);
+			}
+		}
+		const read = readJsonIfExists(file);
+		if (!read.found) {
+			cache.delete(file);
+			return null;
+		}
 		const profile = parseDomainProfile(read.value, `domains/${id}/profile.json`);
 		if (profile.domainId !== id) {
 			throw new DomainStoreError("id-mismatch", `domains/${id}/profile.json pertence ao domínio "${profile.domainId}".`);
 		}
-		return profile;
+		if (st.isFile) setBounded(cache, file, { stamp: st.stamp, id, profile });
+		return structuredClone(profile);
 	}
 
 	function scanDomains(): DomainScan {
@@ -213,14 +279,29 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 			if ((error as NodeJS.ErrnoException).code === "ENOENT") return { manifests: [], problems: [] };
 			throw error;
 		}
+		const cache = domainsCache().manifests;
 		const manifests: DomainManifest[] = [];
 		const problems: DomainProblem[] = [];
 		for (const entry of entries) {
 			if (!entry.isDirectory() || !isDomainId(entry.name)) continue;
 			const id = entry.name;
+			const file = path.resolve(domainManifestFile(root, id));
+			const st = statStamp(file);
+			if (!st.found) {
+				cache.delete(file);
+				problems.push({ id, issues: ["domain.json ausente"] });
+				continue;
+			}
+			if (st.isFile) {
+				const cached = cache.get(file);
+				if (cached && cached.stamp === st.stamp && cached.id === id) {
+					manifests.push(structuredClone(cached.manifest));
+					continue;
+				}
+			}
 			let read: ReturnType<typeof readJsonIfExists>;
 			try {
-				read = readJsonIfExists(domainManifestFile(root, id));
+				read = readJsonIfExists(file);
 			} catch (error) {
 				problems.push({ id, issues: error instanceof DomainManifestError ? error.issues : [(error as Error).message] });
 				continue;
@@ -232,7 +313,10 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 			const checked = checkDomainManifest(read.value);
 			if (!checked.ok) problems.push({ id, issues: checked.issues });
 			else if (checked.manifest.id !== id) problems.push({ id, issues: [`id "${checked.manifest.id}" difere do nome da pasta`] });
-			else manifests.push(checked.manifest);
+			else {
+				if (st.isFile) setBounded(cache, file, { stamp: st.stamp, id, manifest: checked.manifest });
+				manifests.push(structuredClone(checked.manifest));
+			}
 		}
 		manifests.sort((a, b) => builtinIndex(a.id) - builtinIndex(b.id) || compareInstants(a.createdAt, b.createdAt) || compareStrings(a.id, b.id));
 		problems.sort((a, b) => compareStrings(a.id, b.id));
@@ -254,6 +338,25 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 		return profile;
 	}
 
+	const removedBuiltinsFile = path.join(root, "profile", "removed-builtins.json");
+	function readRemovedBuiltins(): Set<DomainId> {
+		let read: ReturnType<typeof readJsonIfExists>;
+		try {
+			read = readJsonIfExists(removedBuiltinsFile);
+		} catch {
+			return new Set();
+		}
+		if (!read.found || !Array.isArray(read.value)) return new Set();
+		return new Set(read.value.filter((item): item is DomainId => isDomainId(item) && (BUILTIN_DOMAIN_IDS as readonly string[]).includes(item)));
+	}
+	function writeRemovedBuiltins(ids: Set<DomainId>): void {
+		if (ids.size === 0) {
+			fs.rmSync(removedBuiltinsFile, { force: true });
+			return;
+		}
+		writeJson(removedBuiltinsFile, [...ids].sort(compareStrings));
+	}
+
 	function ensureDomain(id: DomainId, ensureOptions: EnsureDomainOptions = {}): DomainManifest {
 		const tree = domainTree(root, id); // validates the id
 		let manifest = readManifest(id);
@@ -270,10 +373,16 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 			assertPrefixFree(manifest);
 			for (const dir of tree) fs.mkdirSync(dir, { recursive: true });
 			writeJson(domainManifestFile(root, id), manifest);
+			domainsCache().manifests.delete(path.resolve(domainManifestFile(root, id)));
 		} else {
 			for (const dir of tree) fs.mkdirSync(dir, { recursive: true });
 		}
-		if (profile) writeJson(domainProfileFile(root, id), profile);
+		if (profile) {
+			writeJson(domainProfileFile(root, id), profile);
+			domainsCache().profiles.delete(path.resolve(domainProfileFile(root, id)));
+		}
+		const removed = readRemovedBuiltins();
+		if (removed.delete(id)) writeRemovedBuiltins(removed);
 		return manifest;
 	}
 
@@ -281,14 +390,18 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 		const valid = parseDomainManifest(manifest, `manifest de "${String(manifest?.id)}"`);
 		requireManifest(valid.id);
 		assertPrefixFree(valid);
-		writeJson(domainManifestFile(root, valid.id), valid);
+		const file = domainManifestFile(root, valid.id);
+		writeJson(file, valid);
+		domainsCache().manifests.delete(path.resolve(file));
 		return valid;
 	}
 
 	function writeProfile(profile: DomainProfile): DomainProfile {
 		const valid = parseDomainProfile(profile, `perfil de "${String(profile?.domainId)}"`);
 		requireManifest(valid.domainId);
-		writeJson(domainProfileFile(root, valid.domainId), valid);
+		const file = domainProfileFile(root, valid.domainId);
+		writeJson(file, valid);
+		domainsCache().profiles.delete(path.resolve(file));
 		return valid;
 	}
 
@@ -316,7 +429,8 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 		},
 		ensureDomain,
 		seedBuiltinDomains() {
-			return BUILTIN_DOMAIN_IDS.map((id) => ensureDomain(id));
+			const removed = readRemovedBuiltins();
+			return BUILTIN_DOMAIN_IDS.filter((id) => !removed.has(id)).map((id) => ensureDomain(id));
 		},
 		hasDomain(id) {
 			return exists(domainManifestFile(root, id));
@@ -362,6 +476,13 @@ export function createDomainsStore(root: string, options: DomainsStoreOptions = 
 				fs.renameSync(dir, target);
 			} catch (error) {
 				throw new Error(`Não foi possível mover o domínio "${id}" para a lixeira (arquivos em uso?): ${(error as Error).message}`, { cause: error });
+			}
+			domainsCache().manifests.delete(path.resolve(domainManifestFile(root, id)));
+			domainsCache().profiles.delete(path.resolve(domainProfileFile(root, id)));
+			if ((BUILTIN_DOMAIN_IDS as readonly string[]).includes(id)) {
+				const removed = readRemovedBuiltins();
+				removed.add(id);
+				writeRemovedBuiltins(removed);
 			}
 			return target;
 		},

@@ -30,7 +30,7 @@ export {
 export { promptOverrides } from "../store/prompt-overrides.ts";
 export { themeStore } from "../store/themes.ts";
 export { readThemeBoot, type ThemeBoot } from "./theme-boot.ts";
-export { currentLocale, serverT, serverTranslator } from "./i18n.ts";
+export { currentLocale, localeDictionary, serverT, serverTranslator } from "./i18n.ts";
 export { isValidSegmentPath } from "../core/prompt-segments.ts";
 // The canonical segment discovery/resolution lives in the agent layer
 // (composition is an agent concern); the barrel re-exports it for the
@@ -41,16 +41,20 @@ export { effectivePromptSegments, allSegmentPaths, readPromptOverride } from "..
 // key catalog + the env-reflecting store behind GET/PUT/DELETE /api/keys.
 // Importing this module runs the idempotent boot fill-gap — every consumer
 // keeps its plain process.env reads (that seam is the point).
+import { keyValue } from "./keys.ts";
 export * from "./keys.ts";
+export function hasDictationKey(): boolean {
+	return Boolean(keyValue("DEEPGRAM_API_KEY"));
+}
 export * from "./search.ts";
 export { authStore } from "../store/auth.ts";
 export * from "./settings-body.ts";
 export { fileAccessConfigurationError } from "./file-access.ts";
 export * from "./turn-liveness.ts";
-export { StudyError, finishStudyLesson, lessonCompletionState, validateStudyLesson, saveStudyLesson, recordStudyActivity, studyAccountSummary, studyProfile, listStudyDomains, switchStudyDomain, studyToday, recordStudyEvent, parseStudyEvent } from "./study.ts";
+export { StudyError, finishStudyLesson, lessonCompletionState, validateStudyLesson, saveStudyLesson, recordStudyActivity, studyAccountSummary, studyProfile, listStudyDomains, switchStudyDomain, removeStudyDomain, studyToday, recordStudyEvent, parseStudyEvent } from "./study.ts";
 export { activeDomainId } from "../../config.ts";
 export { startDomainCreation, domainCreationStatus, cancelDomainCreation } from "./create-study-domain.ts";
-export { studyMap } from "./study.ts";
+export { studyMap, setStudyMapStyle } from "./study.ts";
 export { materialsForEnglishMission } from "./english-mission-materials.ts";
 export { readRegionMaterials, studyMapLesson, downloadRegionalBook, updateRegionalReading, updateManualNodeMaterial, enrichRegionMaterials, lessonPdfShelf, lessonNodeOfChat } from "./study-materials.ts";
 export * from "./turn-runs.ts";
@@ -80,7 +84,7 @@ export {
 // No import side effects; the boot sync lives in stores.ts.
 export * from "./custom-provider.ts";
 export { customProviderGet, customProviderMutation } from "./custom-provider-http.ts";
-export { regionalBookUnit, regionalBookImage, prepareReadingScreenshot } from "./book-reader.ts";
+export { regionalBookUnit, regionalBookImage, warmRegionalBookImage, prepareReadingScreenshot } from "./book-reader.ts";
 export { answerCampaignReview } from "./study.ts";
 export {
 	readModuleScoreMap,
@@ -88,6 +92,7 @@ export {
 	readPrepNote,
 	readFormattedPrepNote,
 	studySyllabus,
+	studyCoursePageData,
 	studyTranscript,
 	studyNotebook,
 	getModuleExam,

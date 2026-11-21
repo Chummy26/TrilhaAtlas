@@ -196,7 +196,7 @@ async function authorRegion(engine: PiEngine, prompt: string, brief: { region: s
 export async function generateDomainCurriculum(request: DomainGenerationRequest, engineFor = domainAuthoringEngine) {
 	const { domainId, prefix, signal } = request;
 	const topic = request.topic.trim();
-	if (!topic || topic.length > 4000 || !isDomainId(domainId) || !/^[a-z]{2,4}$/.test(prefix))
+	if (!topic || topic.length > 12_000 || !isDomainId(domainId) || !/^[a-z]{2,4}$/.test(prefix))
 		throw new Error("Tema ou identificador de domínio inválido.");
 	signal?.throwIfAborted();
 	const engine = await engineFor(domainId, request.model);
