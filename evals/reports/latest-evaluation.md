@@ -7,7 +7,7 @@
 
 | Componente / Condição | Tamanho (chars) | SHA-256 (16 hex) |
 |---|---:|---|
-| `production:teacher` | 40025 | `6042be4fdab70c70` |
+| `production:teacher` | 40786 | `b451efeb12c6fda1` |
 | `production:practice` | 21280 | `bf30faa3056c600d` |
 | `production:side-chat` | 6555 | `5849c1fa70a32b7e` |
 | `production:lesson/lesson-plan.md` | 11308 | `8353b38b8f159e8a` |
@@ -24,32 +24,32 @@
 
 | Dimensão / Avaliação | Prompt mínimo | Prompt atual | Δ Pareado (IC 95%) | Casos (n) | Latência |
 |---|---:|---:|---:|---:|---:|
-| **TutorMoments (AllenAI)** · Apoio adequado | 33.3% | **100.0%** | +66.7 pp (±143.4) | 3 | 14155 ms |
-| **TutorMoments (AllenAI)** · Exigência adequada | 100.0% | **66.7%** | -33.3 pp (±143.4) | 3 | 15018 ms |
-| **TutorMoments (AllenAI)** · Evita excesso de ajuda | 33.3% | **66.7%** | +33.3 pp (±85.7) | 6 | 14587 ms |
-| **TeachArena** · Stage 0: Tutoria Situada (individual) | 40.8% | **57.5%** | +16.7 pp (±21.4) | 6 | 23030 ms |
-| **TeachArena** · Stage 1: Julgamento (checks determinísticos) | 74.6% | **73.3%** | -1.4 pp (±3.6) | 6 | 14804 ms |
-| **TeachArena** · Stage 1: Julgamento (asserções NL) | 86.7% | **83.3%** | -3.3 pp (±8.6) | 6 | 14804 ms |
-| **TrilhaAtlas Próprio** · Modo Ensino (nível de pista) | 50.0% | **100.0%** | +50.0 pp (±127.1) | 2 | 6948 ms |
-| **TrilhaAtlas Próprio** · Modo Prática (não fecha sem pedido) | 50.0% | **80.0%** | +30.0 pp (±381.2) | 2 | 3970 ms |
-| **TrilhaAtlas Próprio** · Modo Exame (zero vazamento) | 0.0% | **100.0%** | +100.0 pp (±0.0) | 2 | 3356 ms |
-| **TrilhaAtlas Próprio** · Dúvida Lateral (áudio cego / exame) | 50.0% | **100.0%** | +50.0 pp (±635.3) | 2 | 5300 ms |
-| **Adaptação Interna PT-BR** (inspirada em TutorMoments) | 37.5% | **75.0%** | +37.5 pp (±39.8) | 4 | 9132 ms |
+| **TutorMoments (AllenAI)** · Apoio adequado | 33.3% | **100.0%** | +66.7 pp (±143.4) | 3 | 15556 ms |
+| **TutorMoments (AllenAI)** · Exigência adequada | 66.7% | **100.0%** | +33.3 pp (±143.4) | 3 | 10698 ms |
+| **TutorMoments (AllenAI)** · Evita excesso de ajuda | 33.3% | **66.7%** | +33.3 pp (±85.7) | 6 | 13127 ms |
+| **TeachArena** · Stage 0: Tutoria Situada (individual) | 45.0% | **65.8%** | +20.8 pp (±19.8) | 6 | 20054 ms |
+| **TeachArena** · Stage 1: Julgamento (checks determinísticos) | 76.6% | **74.6%** | -1.9 pp (±9.9) | 6 | 14550 ms |
+| **TeachArena** · Stage 1: Julgamento (asserções NL) | 83.3% | **83.3%** | +0.0 pp (±13.3) | 6 | 14550 ms |
+| **TrilhaAtlas Próprio** · Modo Ensino (nível de pista) | 50.0% | **100.0%** | +50.0 pp (±127.1) | 2 | 3661 ms |
+| **TrilhaAtlas Próprio** · Modo Prática (não fecha sem pedido) | 30.0% | **80.0%** | +50.0 pp (±127.1) | 2 | 3641 ms |
+| **TrilhaAtlas Próprio** · Modo Exame (zero vazamento) | 0.0% | **100.0%** | +100.0 pp (±0.0) | 2 | 3396 ms |
+| **TrilhaAtlas Próprio** · Dúvida Lateral (áudio cego / exame) | 50.0% | **100.0%** | +50.0 pp (±635.3) | 2 | 5577 ms |
+| **Adaptação Interna PT-BR** (inspirada em TutorMoments) | 25.0% | **100.0%** | +75.0 pp (±45.9) | 4 | 6650 ms |
 
 #### Diagnóstico Complementar — MathTutorBench (separado por habilidade, sem nota única)
 
 | Habilidade Pedagógica (eth-lre/mathtutorbench) | Prompt mínimo | Prompt atual | Δ Pareado (IC 95%) | Casos (n) | Latência |
 |---|---:|---:|---:|---:|---:|
-| Correção matemática | 100.0% | **100.0%** | +0.0 pp (±0.0) | 6 | 6822 ms |
-| Localização do erro | 100.0% | **100.0%** | +0.0 pp (±0.0) | 6 | 6822 ms |
-| Apoio socrático | 0.0% | **100.0%** | +100.0 pp (±0.0) | 6 | 6822 ms |
-| Tato sem revelar resposta | 0.0% | **100.0%** | +100.0 pp (±0.0) | 6 | 6822 ms |
+| Correção matemática | 100.0% | **100.0%** | +0.0 pp (±0.0) | 6 | 4597 ms |
+| Localização do erro | 100.0% | **100.0%** | +0.0 pp (±0.0) | 6 | 4597 ms |
+| Apoio socrático | 0.0% | **100.0%** | +100.0 pp (±0.0) | 6 | 4597 ms |
+| Tato sem revelar resposta | 0.0% | **100.0%** | +100.0 pp (±0.0) | 6 | 4597 ms |
 
 ### Frente 2 — Planejamento e Criação de Exercícios (Adaptação StudentBench)
 
 | Rota Avaliada | Prompt mínimo | Prompt atual | Δ Pareado (IC 95%) | Casos (n) | Latência |
 |---|---:|---:|---:|---:|---:|
-| Planejamento conversacional (`teacher/10-planning.md`) | 81.8% | **100.0%** | +18.2 pp (±0.0) | 2 | 29589 ms |
+| Planejamento conversacional (`teacher/10-planning.md`) | 81.8% | **100.0%** | +18.2 pp (±0.0) | 2 | 29713 ms |
 | Plano estruturado JSON (`lesson/lesson-plan.md`) | 42.9% | **100.0%** | +57.1 pp (±363.0) | 2 | 126386 ms |
 
 ### Frente 3 — Correção e Feedback (Corretores Separados · 14 casos rotulados)
@@ -64,7 +64,7 @@
 
 | Avaliação | Prompt mínimo | Prompt atual | Δ Pareado (IC 95%) | Casos (n) | Latência |
 |---|---:|---:|---:|---:|---:|
-| Citações de página física, catálogo vs. lido, atividades e prova | 58.3% | **91.7%** | +33.3 pp (±42.9) | 6 | 5780 ms |
+| Citações de página física, catálogo vs. lido, atividades e prova | 75.0% | **91.7%** | +16.7 pp (±42.9) | 6 | 5624 ms |
 
 ### Frente 5 — Memória e Personalização (Placar Separado · EvalMem 3 Estágios + LongMemEval-S)
 
@@ -73,8 +73,8 @@
 | Estágio / Dataset de Memória | Prompt mínimo | Prompt atual | Δ Pareado (IC 95%) | Casos (n) | Latência |
 |---|---:|---:|---:|---:|---:|
 | EvalMem Estágio 1 · Registro/Extração (`memory/extract.md`) | 100.0% | **100.0%** | +0.0 pp (±0.0) | 6 | 13024 ms |
-| EvalMem Estágio 3 · Uso pelo tutor (isolamento e atualização) | 100.0% | **100.0%** | +0.0 pp (±0.0) | 6 | 3748 ms |
-| **LongMemEval-S** (`xiaowu0162/longmemeval-cleaned`) | 83.3% | **83.3%** | +0.0 pp (±0.0) | 6 | 6058 ms |
+| EvalMem Estágio 3 · Uso pelo tutor (isolamento e atualização) | 100.0% | **100.0%** | +0.0 pp (±0.0) | 6 | 3530 ms |
+| **LongMemEval-S** (`xiaowu0162/longmemeval-cleaned`) | 83.3% | **83.3%** | +0.0 pp (±0.0) | 6 | 4931 ms |
 
 ## Frente 6 — Aprendizagem e Retenção (Protocolo Empírico com Alunos)
 

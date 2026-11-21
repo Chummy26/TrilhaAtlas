@@ -4,8 +4,8 @@
     "promptHashes": [
       {
         "key": "production:teacher",
-        "chars": 40025,
-        "sha256": "6042be4fdab70c70898ecaff8703d28183b48309164358fd68b9de74bf3f8ac3"
+        "chars": 40786,
+        "sha256": "b451efeb12c6fda15c83c8006696dc54cbaf6cc28d97996fe3322737fdc45546"
       },
       {
         "key": "production:practice",
@@ -77,20 +77,20 @@
             "ci95HalfWidthPp": 143.4,
             "ci95LowPp": -76.8,
             "ci95HighPp": 210.1,
-            "baselineLatencyMs": 9037,
-            "productionLatencyMs": 14155,
+            "baselineLatencyMs": 10677,
+            "productionLatencyMs": 15556,
             "technicalFailures": 0
           },
           "appropriateRigor": {
             "n": 3,
-            "baselinePct": 100,
-            "productionPct": 66.7,
-            "deltaPp": -33.3,
+            "baselinePct": 66.7,
+            "productionPct": 100,
+            "deltaPp": 33.3,
             "ci95HalfWidthPp": 143.4,
-            "ci95LowPp": -176.8,
-            "ci95HighPp": 110.1,
-            "baselineLatencyMs": 8473,
-            "productionLatencyMs": 15018,
+            "ci95LowPp": -110.1,
+            "ci95HighPp": 176.8,
+            "baselineLatencyMs": 7444,
+            "productionLatencyMs": 10698,
             "technicalFailures": 0
           },
           "avoidsOverScaffolding": {
@@ -101,46 +101,46 @@
             "ci95HalfWidthPp": 85.7,
             "ci95LowPp": -52.4,
             "ci95HighPp": 119,
-            "baselineLatencyMs": 8755,
-            "productionLatencyMs": 14587,
+            "baselineLatencyMs": 9061,
+            "productionLatencyMs": 13127,
             "technicalFailures": 0
           }
         },
         "teachArenaStage0Tutoring": {
           "n": 6,
-          "baselinePct": 40.8,
-          "productionPct": 57.5,
-          "deltaPp": 16.7,
-          "ci95HalfWidthPp": 21.4,
-          "ci95LowPp": -4.8,
-          "ci95HighPp": 38.1,
-          "baselineLatencyMs": 16108,
-          "productionLatencyMs": 23030,
+          "baselinePct": 45,
+          "productionPct": 65.8,
+          "deltaPp": 20.8,
+          "ci95HalfWidthPp": 19.8,
+          "ci95LowPp": 1.1,
+          "ci95HighPp": 40.6,
+          "baselineLatencyMs": 14502,
+          "productionLatencyMs": 20054,
           "technicalFailures": 0
         },
         "teachArenaStage1Judgment": {
           "deterministicChecks": {
             "n": 6,
-            "baselinePct": 74.6,
-            "productionPct": 73.3,
-            "deltaPp": -1.4,
-            "ci95HalfWidthPp": 3.6,
-            "ci95LowPp": -5,
-            "ci95HighPp": 2.2,
-            "baselineLatencyMs": 10942,
-            "productionLatencyMs": 14804,
+            "baselinePct": 76.6,
+            "productionPct": 74.6,
+            "deltaPp": -1.9,
+            "ci95HalfWidthPp": 9.9,
+            "ci95LowPp": -11.9,
+            "ci95HighPp": 8,
+            "baselineLatencyMs": 12164,
+            "productionLatencyMs": 14550,
             "technicalFailures": 0
           },
           "nlAssertions": {
             "n": 6,
-            "baselinePct": 86.7,
+            "baselinePct": 83.3,
             "productionPct": 83.3,
-            "deltaPp": -3.3,
-            "ci95HalfWidthPp": 8.6,
-            "ci95LowPp": -11.9,
-            "ci95HighPp": 5.2,
-            "baselineLatencyMs": 10942,
-            "productionLatencyMs": 14804,
+            "deltaPp": 0,
+            "ci95HalfWidthPp": 13.3,
+            "ci95LowPp": -13.3,
+            "ci95HighPp": 13.3,
+            "baselineLatencyMs": 12164,
+            "productionLatencyMs": 14550,
             "technicalFailures": 0
           }
         },
@@ -153,8 +153,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 0,
             "ci95HighPp": 0,
-            "baselineLatencyMs": 4184,
-            "productionLatencyMs": 6822,
+            "baselineLatencyMs": 5333,
+            "productionLatencyMs": 4597,
             "technicalFailures": 0
           },
           "mistakeLocation": {
@@ -165,8 +165,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 0,
             "ci95HighPp": 0,
-            "baselineLatencyMs": 4184,
-            "productionLatencyMs": 6822,
+            "baselineLatencyMs": 5333,
+            "productionLatencyMs": 4597,
             "technicalFailures": 0
           },
           "socraticScaffolding": {
@@ -177,8 +177,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 100,
             "ci95HighPp": 100,
-            "baselineLatencyMs": 4184,
-            "productionLatencyMs": 6822,
+            "baselineLatencyMs": 5333,
+            "productionLatencyMs": 4597,
             "technicalFailures": 0
           },
           "noSpoilerTact": {
@@ -189,8 +189,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 100,
             "ci95HighPp": 100,
-            "baselineLatencyMs": 4184,
-            "productionLatencyMs": 6822,
+            "baselineLatencyMs": 5333,
+            "productionLatencyMs": 4597,
             "technicalFailures": 0
           }
         },
@@ -203,20 +203,20 @@
             "ci95HalfWidthPp": 127.1,
             "ci95LowPp": -77.1,
             "ci95HighPp": 177.1,
-            "baselineLatencyMs": 4975,
-            "productionLatencyMs": 6948,
+            "baselineLatencyMs": 4174,
+            "productionLatencyMs": 3661,
             "technicalFailures": 0
           },
           "practiceNoUnrequestedClose": {
             "n": 2,
-            "baselinePct": 50,
+            "baselinePct": 30,
             "productionPct": 80,
-            "deltaPp": 30,
-            "ci95HalfWidthPp": 381.2,
-            "ci95LowPp": -351.2,
-            "ci95HighPp": 411.2,
-            "baselineLatencyMs": 4661,
-            "productionLatencyMs": 3970,
+            "deltaPp": 50,
+            "ci95HalfWidthPp": 127.1,
+            "ci95LowPp": -77.1,
+            "ci95HighPp": 177.1,
+            "baselineLatencyMs": 8798,
+            "productionLatencyMs": 3641,
             "technicalFailures": 0
           },
           "examZeroLeak": {
@@ -227,8 +227,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 100,
             "ci95HighPp": 100,
-            "baselineLatencyMs": 7939,
-            "productionLatencyMs": 3356,
+            "baselineLatencyMs": 8170,
+            "productionLatencyMs": 3396,
             "technicalFailures": 0
           },
           "sideChatBoundaries": {
@@ -239,20 +239,20 @@
             "ci95HalfWidthPp": 635.3,
             "ci95LowPp": -585.3,
             "ci95HighPp": 685.3,
-            "baselineLatencyMs": 7550,
-            "productionLatencyMs": 5300,
+            "baselineLatencyMs": 5835,
+            "productionLatencyMs": 5577,
             "technicalFailures": 0
           },
           "tutorMomentsPtBrAdaptation": {
             "n": 4,
-            "baselinePct": 37.5,
-            "productionPct": 75,
-            "deltaPp": 37.5,
-            "ci95HalfWidthPp": 39.8,
-            "ci95LowPp": -2.3,
-            "ci95HighPp": 77.3,
-            "baselineLatencyMs": 6544,
-            "productionLatencyMs": 9132,
+            "baselinePct": 25,
+            "productionPct": 100,
+            "deltaPp": 75,
+            "ci95HalfWidthPp": 45.9,
+            "ci95LowPp": 29.1,
+            "ci95HighPp": 120.9,
+            "baselineLatencyMs": 6374,
+            "productionLatencyMs": 6650,
             "technicalFailures": 0
           }
         },
@@ -265,8 +265,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 18.2,
             "ci95HighPp": 18.2,
-            "baselineLatencyMs": 20059,
-            "productionLatencyMs": 29589,
+            "baselineLatencyMs": 20682,
+            "productionLatencyMs": 29713,
             "technicalFailures": 0
           },
           "lessonPlanTemplateJson": {
@@ -306,14 +306,14 @@
         },
         "groundingAndTools": {
           "n": 6,
-          "baselinePct": 58.3,
+          "baselinePct": 75,
           "productionPct": 91.7,
-          "deltaPp": 33.3,
+          "deltaPp": 16.7,
           "ci95HalfWidthPp": 42.9,
-          "ci95LowPp": -9.5,
-          "ci95HighPp": 76.2,
-          "baselineLatencyMs": 5461,
-          "productionLatencyMs": 5780,
+          "ci95LowPp": -26.2,
+          "ci95HighPp": 59.5,
+          "baselineLatencyMs": 4281,
+          "productionLatencyMs": 5624,
           "technicalFailures": 0
         },
         "memorySeparate": {
@@ -339,8 +339,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 0,
             "ci95HighPp": 0,
-            "baselineLatencyMs": 3007,
-            "productionLatencyMs": 3748,
+            "baselineLatencyMs": 3633,
+            "productionLatencyMs": 3530,
             "technicalFailures": 0
           },
           "longMemEvalS": {
@@ -351,8 +351,8 @@
             "ci95HalfWidthPp": 0,
             "ci95LowPp": 0,
             "ci95HighPp": 0,
-            "baselineLatencyMs": 4778,
-            "productionLatencyMs": 6058,
+            "baselineLatencyMs": 5050,
+            "productionLatencyMs": 4931,
             "technicalFailures": 0
           }
         }
@@ -364,8 +364,8 @@
     "promptHashes": [
       {
         "key": "production:teacher",
-        "chars": 40025,
-        "sha256": "6042be4fdab70c70898ecaff8703d28183b48309164358fd68b9de74bf3f8ac3"
+        "chars": 40786,
+        "sha256": "b451efeb12c6fda15c83c8006696dc54cbaf6cc28d97996fe3322737fdc45546"
       },
       {
         "key": "production:practice",
@@ -597,7 +597,7 @@
             "id": "balanced_520:09264613-5009-5557-87c6-d590c3d6c391_02020d06-7b55-5b35-b27f-18b334d8c8c3_ffa4bb37-6dd8-5c9a-a2ae-4c6f746ff82c__hum_356_361",
             "dim": "rigor",
             "base": {
-              "appropriate_rigor": 1,
+              "appropriate_rigor": 0,
               "avoids_over_scaffolding": 0
             },
             "prod": {
@@ -625,7 +625,7 @@
               "avoids_over_scaffolding": 1
             },
             "prod": {
-              "appropriate_rigor": 0,
+              "appropriate_rigor": 1,
               "avoids_over_scaffolding": 1
             }
           },
@@ -684,26 +684,26 @@
           },
           {
             "id": "S0-06",
-            "base": 0.25,
+            "base": 0.5,
             "prod": 0.75
           },
           {
             "id": "S0-08",
             "base": 0.75,
-            "prod": 0.75
+            "prod": 1
           },
           {
             "id": "S0-09",
             "base": 0.5,
-            "prod": 0.75
+            "prod": 1
           }
         ],
         "teachArenaStage1": [
           {
             "id": "EI-AFFECT-01",
-            "detBase": 0.8,
+            "detBase": 1,
             "detProd": 0.8,
-            "nlBase": 0.8,
+            "nlBase": 0.6,
             "nlProd": 0.6
           },
           {
@@ -711,7 +711,7 @@
             "detBase": 1,
             "detProd": 1,
             "nlBase": 1,
-            "nlProd": 1
+            "nlProd": 0.8
           },
           {
             "id": "EI-ATTRIB-01",
@@ -736,10 +736,10 @@
           },
           {
             "id": "EI-C03",
-            "detBase": 0.25,
-            "detProd": 0.16666666666666666,
+            "detBase": 0.16666666666666666,
+            "detProd": 0.25,
             "nlBase": 0.6,
-            "nlProd": 0.6
+            "nlProd": 0.8
           }
         ],
         "mathTutorBench": [
@@ -850,7 +850,7 @@
           {
             "id": "mode-practice-elec-01",
             "mode": "practice",
-            "base": 0.6,
+            "base": 0.2,
             "prod": 0.6
           },
           {
@@ -887,18 +887,18 @@
             "id": "tm-ptbr-scaf-01",
             "mode": "teacher",
             "base": 0,
-            "prod": 0.5
+            "prod": 1
           },
           {
             "id": "tm-ptbr-rigor-01",
             "mode": "teacher",
             "base": 0,
-            "prod": 0.5
+            "prod": 1
           },
           {
             "id": "tm-ptbr-scaf-02",
             "mode": "teacher",
-            "base": 1,
+            "base": 0.5,
             "prod": 1
           },
           {
@@ -1233,7 +1233,7 @@
         "grounding": [
           {
             "id": "ground-pdf-page-elec",
-            "base": 0.5,
+            "base": 1,
             "prod": 1
           },
           {
@@ -1243,7 +1243,7 @@
           },
           {
             "id": "ground-unavailable-page-elec",
-            "base": 0.5,
+            "base": 1,
             "prod": 1
           },
           {

@@ -247,11 +247,12 @@ export function parseTeachArenaStage0(rows: readonly RawTeachArenaTask[]): Teach
 		const ins = r.user_scenario?.instructions;
 		const assertions = (r.evaluation_criteria?.nl_assertions ?? []).filter(Boolean);
 		if (!r.id || !ins?.reason_for_call || !assertions.length) continue;
-		const initialLearnerTurn = [
-			ins.reason_for_call.trim(),
-			ins.known_info ? `What I already know: ${ins.known_info.trim()}` : "",
-			ins.task_instructions ? ins.task_instructions.trim() : "",
-		].filter(Boolean).join("\n\n");
+		const initialLearnerTurn = ins.task_instructions?.trim()
+			? ins.task_instructions.trim()
+			: [
+				ins.reason_for_call.trim(),
+				ins.known_info ? `What I already know: ${ins.known_info.trim()}` : "",
+			].filter(Boolean).join("\n\n");
 		out.push({
 			id: r.id,
 			persona: String(r.user_scenario?.persona ?? "Student seeking tutoring help."),

@@ -138,7 +138,7 @@ See the [Development guide](docs/development.md), [Desktop release guide](docs/d
 
 | Modelo | TutorMoments: Apoio | TutorMoments: Exigência | TutorMoments: Sem Excesso | TeachArena S0 (Tutoria) | TeachArena S1 (Julgamento NL) | Modos Próprios (Exame 0-Leak) | Planejamento (JSON+Conv) | Corretor LLM MAE (0–3) / False-Pass | Fontes & PDFs |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `chatgpt:gpt-6.2-sol` | **100.0%** (+66.7 pp) | **66.7%** (-33.3 pp) | **66.7%** (+33.3 pp) | **57.5%** (+16.7 pp) | **83.3%** (-3.3 pp) | **100.0%** (+100.0 pp) | **100.0%** (+37.7 pp) | **0.14** / **0.0%** | **91.7%** (+33.3 pp) |
+| `chatgpt:gpt-6.2-sol` | **100.0%** (+66.7 pp) | **100.0%** (+33.3 pp) | **66.7%** (+33.3 pp) | **65.8%** (+20.8 pp) | **83.3%** (+0.0 pp) | **100.0%** (+100.0 pp) | **100.0%** (+37.7 pp) | **0.14** / **0.0%** | **91.7%** (+16.7 pp) |
 
 #### Placar Separado — Memória e Personalização (EvalMem 3 Estágios + LongMemEval-S) & Diagnóstico Complementar (MathTutorBench)
 
