@@ -51,6 +51,12 @@ Most AI chat tools forget what you mastered last week, skip prerequisites, or ha
 
 ## Interface & Screenshots
 
+### Multi-LOD Skill Tree — Overview to Close-Up & Interactive Minimap
+
+Zoom out to track mastery across all regions at a glance (completed skills in emerald, active progress in amber, available frontier highlighted, pending skills recessed). Zoom in to inspect unit progress counters, 2-line skill cards, semantic prerequisite/unlock curves, cel-shaded status glyphs, and an interactive minimap.
+
+![TrilhaAtlas zoomed-in skill tree showing unit counters, 2-line skill labels, unlock curves, and interactive minimap](docs/assets/trilhaatlas-map-zoom.png)
+
 ### Guided Daily Campaign & Adaptive Study Plan
 
 Each domain opens with one clear next step — balancing due reviews, campaign chapters, placement shortcuts, and free-form exploration in a clean cel-shaded interface.
