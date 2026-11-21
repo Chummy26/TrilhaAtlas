@@ -7,7 +7,10 @@ export async function GET(request: Request) {
 	try {
 		if (params.has("image")) {
 			const png = await regionalBookImage(...args);
-			return new Response(new Uint8Array(png), { headers: { ...headers, "Content-Type": "image/png" } });
+			// Content-addressed by verified SHA-256 + unit: safe to cache privately across page toggles/Back/Next.
+			return new Response(new Uint8Array(png), {
+				headers: { "Cache-Control": "private, max-age=3600", "Content-Type": "image/png" },
+			});
 		}
 		return Response.json(await regionalBookUnit(...args), { headers });
 	} catch (error) {

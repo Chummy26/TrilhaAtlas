@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useId, useMemo, useState } from "react";
-import { ChatActionsContext } from "@/components/chat";
+import { ChatActionsContext, LessonExamStateContext } from "@/components/chat-actions-context";
 import { Icon } from "@/components/icons/icon";
 import {
 	composeExamPartsAnswer,
@@ -16,6 +16,9 @@ import { useT } from "@/components/i18n";
 export function LessonExamCard({ part }: ArtifactPartProps) {
 	const t = useT();
 	const actions = useContext(ChatActionsContext);
+	const examState = useContext(LessonExamStateContext);
+	const activeExamId = examState ? examState.activeExamId : actions?.activeExamId;
+	const examBusy = examState ? examState.examBusy : actions?.examBusy;
 	const exam = part.output as
 		| {
 			task?: string;
@@ -38,7 +41,7 @@ export function LessonExamCard({ part }: ArtifactPartProps) {
 	const [error, setError] = useState("");
 	const label = useId();
 	if (part.state !== "output-available" || !exam?.task) return null;
-	const open = actions?.activeExamId === part.toolCallId && !!actions?.submitExam;
+	const open = activeExamId === part.toolCallId && !!actions?.submitExam;
 	const structured = parts.length >= 2 && !freeMode;
 	const filledCount = structured
 		? parts.reduce((acc, _, idx) => acc + (isLessonExamAnswer(partAnswers[idx] ?? "") ? 1 : 0), 0)
@@ -257,7 +260,7 @@ export function LessonExamCard({ part }: ArtifactPartProps) {
 						<p className="text-xs text-muted-foreground">{t("lesson.examCard.submitNote")}</p>
 						<button
 							className="cel-button cel-button-primary px-4 py-2 text-sm"
-							disabled={actions.examBusy || delivering || !canSubmit}
+							disabled={examBusy || delivering || !canSubmit}
 						>
 							{t("lesson.examCard.submit")}
 						</button>

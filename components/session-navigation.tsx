@@ -76,17 +76,10 @@ export function SessionMessageNavigation() {
 	// anchor (a deleted message) — the session simply opens where it opens.
 	useEffect(() => {
 		if (!window.location.hash) return;
+		if (jump()) return;
 		let ticks = 0;
 		const id = window.setInterval(() => {
-			// Keep watching PAST the first success: hydration / record adoption
-			// can REPLACE the node that was just jumped to (observed on cold
-			// dev loads, 2026-10-13) — jump() re-targets the fresh node and
-			// re-flashes it, while steady-state ticks are no-ops via the
-			// lastJump guard. ~20s watchdog covers a cold compile (observed
-			// 6.8s SSR flush) or slow first load; a deleted-message anchor
-			// gives up and the session opens as-is.
-			if (++ticks > 300) window.clearInterval(id);
-			else jump();
+			if (jump() || ++ticks > 300) window.clearInterval(id);
 		}, 64);
 		return () => window.clearInterval(id);
 	}, [jump]);

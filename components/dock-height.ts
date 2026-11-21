@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
@@ -104,6 +104,7 @@ export function useDockHeight({
 	/** Constraints are applied before notifying an active opening morph. */
 	onLayout?: () => void;
 }) {
+	const constraintsAppliedRef = useRef(false);
 	const measure = useCallback(() => {
 		const column = scrollRef.current;
 		const block = blockRef.current;
@@ -113,12 +114,15 @@ export function useDockHeight({
 		const content = contentRef.current;
 		if (!column || !block || !viewport || !body || !shell || !content) return;
 		onScrollbarInset(Math.round((column.offsetWidth - column.clientWidth) / 2));
-		if (enabled) syncDockHeight({ column, block, viewport, body, shell, content }, expanded);
-		else {
+		if (enabled) {
+			syncDockHeight({ column, block, viewport, body, shell, content }, expanded);
+			constraintsAppliedRef.current = true;
+		} else if (constraintsAppliedRef.current) {
 			block.style.removeProperty("--dock-max-h");
 			viewport.style.removeProperty("max-height");
 			viewport.style.removeProperty("overflow-y");
 			shell.style.removeProperty("max-height");
+			constraintsAppliedRef.current = false;
 		}
 		onLayout?.();
 		// ResizeObserver runs even when only a child field changed and React
@@ -129,7 +133,11 @@ export function useDockHeight({
 
 	// Imperative constraints land before the overlay's later layout effect
 	// measures its morph target/reserve, and before paint (including reveal).
-	useIsoLayoutEffect(measure);
+	// ResizeObserver handles dynamic content height changes without running
+	// synchronous geometry reads on unrelated parent renders.
+	useIsoLayoutEffect(() => {
+		measure();
+	}, [measure, mode, expanded, enabled]);
 	useIsoLayoutEffect(() => {
 		// Ignore already-queued deliveries after variant replacement or Activity
 		// cleanup: old observers must never retarget a newer height animation.

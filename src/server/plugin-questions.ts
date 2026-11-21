@@ -8,6 +8,7 @@ import {
 	type PluginQuestionSnapshot, type PluginQuestionGradingOutcome,
 } from "../core/plugin-questions.ts";
 import type { NativePluginQuestionDefinition } from "../agent/plugin-question-tools.ts";
+import type { ChatRecord } from "../core/contracts.ts";
 import type { ChatStore } from "../core/ports.ts";
 import { emit } from "../core/events.ts";
 import { isTurnRunning } from "./turn-liveness.ts";
@@ -224,18 +225,20 @@ export function pluginQuestionCompatibilityAppends(record: { messages: LhMessage
 	return unreadable?.quietEligible ? [cancellation(unreadable.occurrence, unreadable.questionId, "unreadable-protocol")] : [];
 }
 
-/** Re-read after startup awaits; never write over an active native turn. No migration or wake. */
-export async function reconcilePluginQuestionCompatibility(chatStore: ChatStore, chatId: string): Promise<void> {
-	if (isTurnRunning(chatId)) return;
+/** Re-read after startup awaits; never write over an active native turn. No migration or wake.
+ * Returns the latest ChatRecord so callers avoid a redundant second disk read. */
+export async function reconcilePluginQuestionCompatibility(chatStore: ChatStore, chatId: string): Promise<ChatRecord | null> {
+	if (isTurnRunning(chatId)) return chatStore.getChat(chatId);
 	const initial = chatStore.getChat(chatId);
-	if (!initial || (!pendingPluginQuestionOf(initial.messages) && !unreadablePending(initial.messages))) return;
+	if (!initial || (!pendingPluginQuestionOf(initial.messages) && !unreadablePending(initial.messages))) return initial;
 	let host: Awaited<ReturnType<typeof getPluginHost>>;
-	try { host = await getPluginHost(); } catch { return; } // unavailable keeps the saved question pending
-	if (isTurnRunning(chatId)) return;
+	try { host = await getPluginHost(); } catch { return initial; } // unavailable keeps the saved question pending
+	if (isTurnRunning(chatId)) return chatStore.getChat(chatId);
 	const record = chatStore.getChat(chatId);
-	if (!record) return;
+	if (!record) return null;
 	const appends = pluginQuestionCompatibilityAppends(record, (pluginId, typeId, version) => host.resolveQuestionType(pluginId, typeId, version));
-	if (!appends.length) return;
+	if (!appends.length) return record;
 	chatStore.saveMessages(chatId, [...record.messages, ...appends]);
 	emit("record-changed", { chatId });
+	return chatStore.getChat(chatId);
 }

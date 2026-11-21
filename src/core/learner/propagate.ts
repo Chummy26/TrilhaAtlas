@@ -63,6 +63,8 @@ export interface ProjectionOptions {
 	tolerance: number;
 	/** Value assumed for ids missing from the map (materialized when moved). */
 	fallback: ProjectionValue;
+	/** Skip the final maxConsistencyViolation scan when the caller ignores maxViolation. */
+	skipViolationCheck?: boolean;
 }
 
 export interface ProjectionResult {
@@ -91,8 +93,21 @@ export function bestClause(clauses: readonly (readonly NodeId[])[], valueOf: (id
 /** The scope's ids in topological order (the whole order when unscoped). */
 export function scopedOrder(graph: LearnerGraphView, scope?: ReadonlySet<NodeId>): readonly NodeId[] {
 	if (!scope) return graph.ids;
+	if (scope.size >= graph.ids.length) {
+		let allIn = true;
+		for (let i = 0; i < graph.ids.length; i++) {
+			if (!scope.has(graph.ids[i] as NodeId)) {
+				allIn = false;
+				break;
+			}
+		}
+		if (allIn) return graph.ids;
+	}
 	const pos = graphIndex(graph).pos;
-	return [...scope].filter((id) => pos.has(id)).sort((a, b) => (pos.get(a) as number) - (pos.get(b) as number));
+	const ids: NodeId[] = [];
+	for (const id of scope) if (pos.has(id)) ids.push(id);
+	ids.sort((a, b) => (pos.get(a) as number) - (pos.get(b) as number));
+	return ids;
 }
 
 function sweep(
@@ -103,18 +118,21 @@ function sweep(
 	changed: Set<NodeId>,
 ): number {
 	let moves = 0;
-	const get = (id: NodeId): ProjectionValue => values.get(id) ?? opts.fallback;
-	for (const b of order) {
+	const { eps, tolerance, fallback, scope } = opts;
+	const pOf = (id: NodeId): number => (values.get(id) ?? fallback).p;
+	for (let i = 0; i < order.length; i++) {
+		const b = order[i] as NodeId;
 		const node = graph.nodes.get(b);
 		if (!node || !node.isLeaf || node.clauses.length === 0) continue;
-		const clause = bestClause(expandedClauses(graph, b), (id) => get(id).p);
+		const clause = bestClause(expandedClauses(graph, b), pOf);
 		if (!clause) continue;
-		for (const a of clause) {
-			if (opts.scope && !opts.scope.has(a)) continue;
-			const va = get(a);
-			const vb = get(b);
-			const v = vb.p - va.p - opts.eps;
-			if (!(v > opts.tolerance)) continue;
+		for (let j = 0; j < clause.length; j++) {
+			const a = clause[j] as NodeId;
+			if (scope && !scope.has(a)) continue;
+			const va = values.get(a) ?? fallback;
+			const vb = values.get(b) ?? fallback;
+			const v = vb.p - va.p - eps;
+			if (!(v > tolerance)) continue;
 			const total = va.n + vb.n;
 			values.set(a, { p: Math.min(1, va.p + (v * vb.n) / total), n: va.n });
 			values.set(b, { p: Math.max(0, vb.p - (v * va.n) / total), n: vb.n });
@@ -153,24 +171,28 @@ export function maxConsistencyViolation(
 export function projectConsistency(values: Map<NodeId, ProjectionValue>, graph: LearnerGraphView, opts: ProjectionOptions): ProjectionResult {
 	const changed = new Set<NodeId>();
 	const forward = scopedOrder(graph, opts.scope);
-	const backward = [...forward].reverse();
+	let backward: readonly NodeId[] | null = null;
 	let passes = 0;
 	while (passes < opts.maxPasses) {
-		const order = passes % 2 === 0 ? forward : backward;
+		const order = passes % 2 === 0 ? forward : (backward ??= [...forward].reverse());
 		passes++;
 		if (sweep(values, graph, order, opts, changed) === 0) break;
 	}
-	return { changed, passes, maxViolation: Math.max(0, maxConsistencyViolation(values, graph, opts.eps, opts.fallback, opts.scope)) };
+	const maxViolation = opts.skipViolationCheck
+		? 0
+		: Math.max(0, maxConsistencyViolation(values, graph, opts.eps, opts.fallback, opts.scope));
+	return { changed, passes, maxViolation };
 }
 
 /**
- * Undirected h-hop ball over the clause graph (prerequisites ∪ dependents).
- * Containers are traversed for free (they are milestones, not learning
- * steps), so a leaf behind a unit-level prerequisite is as close as a direct
- * prerequisite — matching the expanded clauses the projection uses.
+ * Undirected h-hop ball over the expanded leaf-to-leaf prerequisite graph
+ * (a <-> b iff leaf a appears in expandedClauses(graph, b)). Walking the
+ * expanded leaf adjacency directly looks through containers without V-turning
+ * up a container hierarchy and back down into unrelated branches.
  */
 export function neighborhood(graph: LearnerGraphView, seeds: Iterable<NodeId>, hops: number): Set<NodeId> {
 	const index = graphIndex(graph);
+	const leafNeighbors = index.leafNeighbors;
 	const seen = new Set<NodeId>();
 	let layer: NodeId[] = [];
 	for (const s of seeds) {
@@ -182,11 +204,43 @@ export function neighborhood(graph: LearnerGraphView, seeds: Iterable<NodeId>, h
 		const next: NodeId[] = [];
 		for (let i = 0; i < layer.length; i++) {
 			const id = layer[i] as NodeId;
-			for (const nb of [...(index.prereqs.get(id) ?? []), ...(index.dependents.get(id) ?? [])]) {
+			const node = graph.nodes.get(id);
+			if (node && !node.isLeaf) {
+				// Non-leaf seed: step directly to its expanded member leaves and studyable leaf dependents.
+				for (const clause of expandedClauses(graph, id)) {
+					for (let j = 0; j < clause.length; j++) {
+						const nb = clause[j] as NodeId;
+						if (seen.has(nb) || !graph.nodes.has(nb)) continue;
+						seen.add(nb);
+						next.push(nb);
+					}
+				}
+				const stack = [...(index.dependents.get(id) ?? [])];
+				const visited = new Set<NodeId>([id]);
+				while (stack.length > 0) {
+					const d = stack.pop() as NodeId;
+					if (visited.has(d)) continue;
+					visited.add(d);
+					const dn = graph.nodes.get(d);
+					if (!dn) continue;
+					if (dn.isLeaf) {
+						if (!seen.has(d)) {
+							seen.add(d);
+							next.push(d);
+						}
+					} else {
+						for (const dep of index.dependents.get(d) ?? []) stack.push(dep);
+					}
+				}
+				continue;
+			}
+			const nbs = leafNeighbors.get(id);
+			if (!nbs) continue;
+			for (let j = 0; j < nbs.length; j++) {
+				const nb = nbs[j] as NodeId;
 				if (seen.has(nb)) continue;
 				seen.add(nb);
-				if (graph.nodes.get(nb)?.isLeaf === false) layer.push(nb);
-				else next.push(nb);
+				next.push(nb);
 			}
 		}
 		layer = next;
@@ -216,15 +270,50 @@ function boundedMaxProduct(start: NodeId, edges: EdgeLookup, hops: number, minWe
 	return best;
 }
 
+type WeightCache = WeakMap<LearnerGraphView, Map<string, Map<NodeId, ReadonlyMap<NodeId, number>>>>;
+const encompassCache: WeightCache = new WeakMap();
+const encompassingCache: WeightCache = new WeakMap();
+
+function cachedWeights(
+	cache: WeightCache,
+	graph: LearnerGraphView,
+	start: NodeId,
+	edges: EdgeLookup,
+	hops: number,
+	minWeight: number,
+): ReadonlyMap<NodeId, number> {
+	let byCfg = cache.get(graph);
+	if (!byCfg) cache.set(graph, (byCfg = new Map()));
+	const cfgKey = `${hops}|${minWeight}`;
+	let byNode = byCfg.get(cfgKey);
+	if (!byNode) byCfg.set(cfgKey, (byNode = new Map()));
+	let result = byNode.get(start);
+	if (!result) {
+		result = boundedMaxProduct(start, edges, hops, minWeight);
+		byNode.set(start, result);
+	}
+	return result;
+}
+
+/** Cached readonly w*_{nk}: max over ≤ hops paths of the product of encompass weights. */
+export function encompassWeightsCached(graph: LearnerGraphView, n: NodeId, hops: number, minWeight: number): ReadonlyMap<NodeId, number> {
+	return cachedWeights(encompassCache, graph, n, (id) => graph.nodes.get(id)?.encompasses ?? [], hops, minWeight);
+}
+
+/** Cached readonly reverse w*: nodes n whose practice implicitly reviews k. */
+export function encompassingWeightsCached(graph: LearnerGraphView, k: NodeId, hops: number, minWeight: number): ReadonlyMap<NodeId, number> {
+	const index = graphIndex(graph);
+	return cachedWeights(encompassingCache, graph, k, (id) => index.encompassedBy.get(id) ?? [], hops, minWeight);
+}
+
 /** w*_{nk}: max over ≤ hops paths of the product of encompass weights (k encompassed by n). */
 export function encompassWeights(graph: LearnerGraphView, n: NodeId, hops: number, minWeight: number): Map<NodeId, number> {
-	return boundedMaxProduct(n, (id) => graph.nodes.get(id)?.encompasses ?? [], hops, minWeight);
+	return new Map(encompassWeightsCached(graph, n, hops, minWeight));
 }
 
 /** Reverse w*: nodes n whose practice implicitly reviews k (for upward penalties and planner vehicles). */
 export function encompassingWeights(graph: LearnerGraphView, k: NodeId, hops: number, minWeight: number): Map<NodeId, number> {
-	const index = graphIndex(graph);
-	return boundedMaxProduct(k, (id) => index.encompassedBy.get(id) ?? [], hops, minWeight);
+	return new Map(encompassingWeightsCached(graph, k, hops, minWeight));
 }
 
 export class FireLedgerError extends Error {
@@ -338,10 +427,15 @@ export function deriveCredits(
 	const empty: CreditDerivation = { mode, credits: [], shadow: [] };
 	const f = LEARNER_CONSTANTS.fire;
 	if (mode === "off" || !source.success || source.pL < f.minSourceP || !graph.nodes.has(source.nodeId)) return empty;
-	const weights = encompassWeights(graph, source.nodeId, params.propagationHops, params.fireMinWeight);
-	for (const co of source.coNodes) {
-		if (co.nodeId === source.nodeId || !graph.nodes.has(co.nodeId)) continue;
-		weights.set(co.nodeId, Math.max(weights.get(co.nodeId) ?? 0, Math.min(1, Math.max(0, co.q))));
+	const baseWeights = encompassWeightsCached(graph, source.nodeId, params.propagationHops, params.fireMinWeight);
+	let weights: ReadonlyMap<NodeId, number> = baseWeights;
+	if (source.coNodes.length > 0) {
+		const merged = new Map(baseWeights);
+		for (const co of source.coNodes) {
+			if (co.nodeId === source.nodeId || !graph.nodes.has(co.nodeId)) continue;
+			merged.set(co.nodeId, Math.max(merged.get(co.nodeId) ?? 0, Math.min(1, Math.max(0, co.q))));
+		}
+		weights = merged;
 	}
 	const candidates: CreditCandidate[] = [];
 	for (const [id, w] of weights) {
@@ -397,7 +491,7 @@ export function addBlame(state: NodeState, amount: number, at: string, halfLifeD
 export function upwardPenalties(graph: LearnerGraphView, k: NodeId, blameK: number, params: LearnerParams): { nodeId: NodeId; factor: number }[] {
 	if (!(blameK > 0)) return [];
 	const out: { nodeId: NodeId; factor: number }[] = [];
-	for (const [n, w] of encompassingWeights(graph, k, params.propagationHops, params.fireMinWeight)) {
+	for (const [n, w] of encompassingWeightsCached(graph, k, params.propagationHops, params.fireMinWeight)) {
 		out.push({ nodeId: n, factor: Math.max(0, 1 - w * Math.min(1, blameK)) });
 	}
 	return out.sort((a, b) => compareIds(a.nodeId, b.nodeId));

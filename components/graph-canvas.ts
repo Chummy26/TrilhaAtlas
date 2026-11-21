@@ -563,14 +563,17 @@ function drawNameLines(
 	y: number,
 	lines: string[],
 	world: WorldSizes,
-	color: string,
+	color?: string,
 ): void {
-	context.fillStyle = color;
-	context.textAlign = "center";
-	context.textBaseline = "top";
+	if (color !== undefined) {
+		context.fillStyle = color;
+		context.textAlign = "center";
+		context.textBaseline = "top";
+	}
 	const firstTop = y + world.nodeR + world.labelGap;
+	const lineStep = world.labelSize * LABEL_LINE_HEIGHT;
 	for (let i = 0; i < lines.length; i++) {
-		context.fillText(lines[i]!, x, firstTop + i * world.labelSize * LABEL_LINE_HEIGHT);
+		context.fillText(lines[i]!, x, firstTop + i * lineStep);
 	}
 }
 
@@ -589,6 +592,9 @@ export class GraphCanvasRenderer {
 	 *  callbacks already see the NEW size in clientWidth/Height). */
 	private viewW = 0;
 	private viewH = 0;
+	private dpr = 1;
+	private canvasRect: DOMRect | null = null;
+	private lastCursor = "";
 	/** The k that frames the whole graph — the label-gate's "1×". */
 	private kFit = 1;
 	/** World-space bounds of the current nodes — fit() and the resize-time
@@ -652,15 +658,22 @@ export class GraphCanvasRenderer {
 	// changes (geoVersion). Camera moves just re-rasterize the same paths.
 	private geoVersion = 0; // bump = geometry inputs changed
 	private builtVersion = -1; // version the cache was built at
+	private labelVersion = 0; // bump = node labels or visibility changed (not drag positions)
+	private builtLabelVersion = -1;
 	private nodesPath: Path2D | null = null;
 	private shaftsPath: Path2D = new Path2D();
 	private headsPath: Path2D = new Path2D();
 	private regionCanvas: HTMLCanvasElement | null = null;
+	private blurA: Float32Array | null = null;
+	private blurB: Float32Array | null = null;
+	private blurTmp: Float32Array | null = null;
 	private edgesByCluster: CanvasEdge[][] = [];
 	/** World rect the bitmap covers (drawImage target coords). */
 	private regionRect: { minX: number; minY: number; w: number; h: number } | null = null;
 	/** Region labels: cluster centroid + hue, computed at splat build. */
 	private regionMeta: { id: string; label: string | null; lines: string[] | null; cx: number; cy: number; hue: number }[] = [];
+	private wrappedRegionLabels = new Map<string, string[] | null>();
+	private regionLabelFont = "";
 	private regionTuning: RegionTuning = DEFAULT_REGION_TUNING;
 	private physicsTuning: PhysicsTuning = DEFAULT_PHYSICS_TUNING;
 	/** Gravity center for the live sim (graph bbox centroid at setData). */
@@ -716,6 +729,7 @@ export class GraphCanvasRenderer {
 		// preventDefault: the native menu on a full-bleed custom canvas is
 		// never useful; the caller decides what (if anything) opens.
 		canvas.addEventListener("contextmenu", this.onContextMenu);
+		window.addEventListener("scroll", this.onScroll, { capture: true, passive: true });
 
 		// The persisted camera: replace the default with wherever the user
 		// left the graph. Applied through the zoom behavior so d3's internal
@@ -772,6 +786,7 @@ export class GraphCanvasRenderer {
 	setData(data: CanvasData): void {
 		this.data = data;
 		this.wrappedLabels.clear();
+		this.wrappedRegionLabels.clear();
 		const clusterOf = new Map<string, number>();
 		this.edgesByCluster = data.clusters.map((cluster, index) => {
 			for (const id of cluster.members) clusterOf.set(id, index);
@@ -809,12 +824,14 @@ export class GraphCanvasRenderer {
 		this.simMoved = false;
 		this.simCenter = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
 		this.buildSim();
+		this.labelVersion++;
 		this.geoVersion++; // new data → rebuild world geometry
 		this.markDirty();
 	}
 
 	setSettings(settings: GraphRenderSettings): void {
 		this.settings = settings;
+		this.labelVersion++;
 		this.geoVersion++; // sizes/wrap width changed → rebuild geometry
 		this.markDirty();
 	}
@@ -887,11 +904,17 @@ export class GraphCanvasRenderer {
 			(s) => ctx.measureText(s).width,
 		);
 		ctx.font = prevFont;
-		if (changed) this.markDirty();
+		if (changed) {
+			for (const rm of this.regionMeta) {
+				if (labels.has(rm.id)) this.wrappedRegionLabels.set(rm.id, rm.lines);
+			}
+			this.markDirty();
+		}
 	}
 
 	setVisible(visible: ReadonlySet<string> | null): void {
 		this.visible = visible;
+		this.labelVersion++;
 		this.geoVersion++; // member visibility changes hulls + paths
 		this.markDirty();
 	}
@@ -901,8 +924,8 @@ export class GraphCanvasRenderer {
 	 *  first-ever open; afterwards the caller-persisted camera wins). */
 	fit(): void {
 		if (!this.data || this.data.nodes.length === 0 || !this.worldBBox) return;
-		const w = this.canvas.clientWidth;
-		const h = this.canvas.clientHeight;
+		const w = this.viewW || this.canvas.clientWidth;
+		const h = this.viewH || this.canvas.clientHeight;
 		if (w < 10 || h < 10) return; // layout not ready yet; the ResizeObserver retries
 		const t = fitTransform(this.worldBBox, w, h, 40);
 		this.kFit = t.k;
@@ -918,14 +941,15 @@ export class GraphCanvasRenderer {
 	 *  removed it from geometry) — so this never touches geoVersion. */
 	private refreshFitZoom(): void {
 		if (!this.worldBBox) return;
-		const w = this.canvas.clientWidth;
-		const h = this.canvas.clientHeight;
+		const w = this.viewW || this.canvas.clientWidth;
+		const h = this.viewH || this.canvas.clientHeight;
 		if (w >= 10 && h >= 10) this.kFit = fitTransform(this.worldBBox, w, h, 40).k;
 	}
 
 	destroy(): void {
 		document.fonts?.removeEventListener("loadingdone", this.onFontsChanged);
 		document.fonts?.removeEventListener("loadingerror", this.onFontsChanged);
+		window.removeEventListener("scroll", this.onScroll, true);
 		if (this.frameId !== null) cancelAnimationFrame(this.frameId);
 		if (this.commitTimer) clearTimeout(this.commitTimer);
 		this.sim = null;
@@ -939,13 +963,19 @@ export class GraphCanvasRenderer {
 		this.canvas.removeEventListener("pointerup", this.onPointerUp);
 		this.canvas.removeEventListener("pointerleave", this.onPointerLeave);
 		this.canvas.removeEventListener("contextmenu", this.onContextMenu);
-		this.canvas.style.cursor = "";
+		this.setCursor("");
 	}
 
 	// ── Event handlers (state mutation only — never draw) ──
 
+	private onScroll = () => {
+		this.canvasRect = null;
+	};
+
 	private onFontsChanged = () => {
 		this.wrappedLabels.clear();
+		this.wrappedRegionLabels.clear();
+		this.labelVersion++;
 		this.geoVersion++;
 		this.markDirty();
 	};
@@ -991,7 +1021,7 @@ export class GraphCanvasRenderer {
 		}
 		const node = this.pickAt(pos.x, pos.y);
 		if ((node?.id ?? null) !== this.hoverId) this.setHover(node?.id ?? null);
-		this.canvas.style.cursor = node ? "pointer" : "";
+		this.setCursor(node ? "pointer" : "");
 	};
 
 	private onPointerDown = (e: PointerEvent) => {
@@ -1021,7 +1051,7 @@ export class GraphCanvasRenderer {
 				n.fx = n.x;
 				n.fy = n.y;
 			}
-			this.canvas.style.cursor = "grabbing";
+			this.setCursor("grabbing");
 			this.markDirty();
 			return;
 		}
@@ -1041,7 +1071,7 @@ export class GraphCanvasRenderer {
 			} catch {
 				/* already released */
 			}
-			this.canvas.style.cursor = "";
+			this.setCursor("");
 			const n = this.simById.get(id);
 			if (n) {
 				n.fx = null;
@@ -1085,30 +1115,41 @@ export class GraphCanvasRenderer {
 
 	// ── Internals ──
 
+	private setCursor(cursor: string): void {
+		if (this.lastCursor !== cursor) {
+			this.lastCursor = cursor;
+			this.canvas.style.cursor = cursor;
+		}
+	}
+
 	private eventPos(e: { clientX: number; clientY: number }): Pt {
-		const rect = this.canvas.getBoundingClientRect();
+		const rect = this.canvasRect ?? (this.canvasRect = this.canvas.getBoundingClientRect());
 		return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 	}
 
 	private pickAt(px: number, py: number): CanvasNode | null {
 		if (!this.data || !this.settings) return null;
-		// Screen positions, filtered to visible nodes.
+		// Invert screen coords to world coords once and scan in-place with
+		// squared distances — zero per-move array or object allocations.
 		const { x: tx, y: ty, k } = this.transform;
-		// Discs scale with the camera now: their screen radius is
-		// nodeSize × k/kFit; the halo pad stays a constant screen pad.
-		// nodeSize is world units now (2026-09-15): the on-screen hit radius
-		// is the disc's world radius × the camera zoom, plus the constant
-		// screen pad — the whole halo stays hit-testable.
-		const maxDist = this.settings.nodeSize * k + PICKING_PAD;
-		const projected: { id: string; x: number; y: number }[] = [];
+		const wx = (px - tx) / k;
+		const wy = (py - ty) / k;
+		const maxWorldDist = this.settings.nodeSize + PICKING_PAD / k;
+		let best: CanvasNode | null = null;
+		let bestD = maxWorldDist * maxWorldDist;
+		const visible = this.visible;
 		for (const n of this.data.nodes) {
-			if (this.visible && !this.visible.has(n.id)) continue;
+			if (visible && !visible.has(n.id)) continue;
 			if (isImpNodeId(n.id)) continue; // pure geometry — never picked
-			projected.push({ id: n.id, x: n.x * k + tx, y: n.y * k + ty });
+			const dx = n.x - wx;
+			const dy = n.y - wy;
+			const d = dx * dx + dy * dy;
+			if (d < bestD) {
+				bestD = d;
+				best = n;
+			}
 		}
-		const hit = pickNearest(projected, px, py, maxDist);
-		if (!hit) return null;
-		return this.nodeById.get(hit.id) ?? null;
+		return best;
 	}
 
 	private setHover(nodeId: string | null): void {
@@ -1235,12 +1276,13 @@ export class GraphCanvasRenderer {
 		return !done;
 	}
 
-	/** Resize the backing store to the CSS box × devicePixelRatio; all
-	 *  drawing then happens in CSS pixels through the DPR transform. */
+	/** Resize the backing store to the CSS box × devicePixelRatio (capped at 2);
+	 *  all drawing then happens in CSS pixels through the DPR transform. */
 	private syncSize(): void {
 		const w = this.canvas.clientWidth;
 		const h = this.canvas.clientHeight;
-		const dpr = window.devicePixelRatio || 1;
+		const dpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+		this.dpr = dpr;
 		const bw = Math.max(1, Math.round(w * dpr));
 		const bh = Math.max(1, Math.round(h * dpr));
 		if (this.canvas.width !== bw || this.canvas.height !== bh) {
@@ -1250,6 +1292,7 @@ export class GraphCanvasRenderer {
 		this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 		this.viewW = w;
 		this.viewH = h;
+		this.canvasRect = this.canvas.getBoundingClientRect();
 	}
 
 	/** Derive ALL world geometry from data + visibility + settings.
@@ -1326,7 +1369,20 @@ export class GraphCanvasRenderer {
 		// low-res bitmap (see buildRegions), on their own rebuild schedule
 		// (live-sim frames skip 2 of 3 rebuilds and blit the last bitmap).
 
-		// Position changes during a drag leave text metrics unchanged.
+		// Position-only ticks during live drag leave text metrics and visibility
+		// unchanged, so only rebuild labelLines when labelVersion advances.
+		if (this.builtLabelVersion !== this.labelVersion) {
+			this.buildLabelLines();
+		}
+	}
+
+	private buildLabelLines(): void {
+		this.builtLabelVersion = this.labelVersion;
+		const data = this.data;
+		const settings = this.settings;
+		if (!data || !settings) return;
+		const visible = this.visible;
+		const isVisible = (id: string) => !visible || visible.has(id);
 		this.labelLines = new Map();
 		const ctx = this.ctx;
 		const prevFont = ctx.font;
@@ -1342,6 +1398,43 @@ export class GraphCanvasRenderer {
 			this.labelLines.set(n.id, lines);
 		}
 		ctx.font = prevFont;
+	}
+
+	private wrapRegionLabels(): void {
+		const data = this.data;
+		const settings = this.settings;
+		if (!data || !settings) return;
+		const font = `${LABEL_WEIGHT} ${settings.clusterLabelSize}px ${data.fontFamily}`;
+		if (font !== this.regionLabelFont) {
+			this.wrappedRegionLabels.clear();
+			this.regionLabelFont = font;
+		}
+		const ctx = this.ctx;
+		let prevFont: string | null = null;
+		for (const rm of this.regionMeta) {
+			if (!rm.label) {
+				rm.lines = null;
+				continue;
+			}
+			const cached = this.wrappedRegionLabels.get(rm.id);
+			if (cached !== undefined) {
+				rm.lines = cached;
+				continue;
+			}
+			if (prevFont === null) {
+				prevFont = ctx.font;
+				ctx.font = font;
+			}
+			const wrapped = wrapRegionLabel(
+				rm.label,
+				REGION_LABEL_MAX_WIDTH,
+				REGION_LABEL_MAX_LINES,
+				(s) => ctx.measureText(s).width,
+			);
+			this.wrappedRegionLabels.set(rm.id, wrapped);
+			rm.lines = wrapped;
+		}
+		if (prevFont !== null) ctx.font = prevFont;
 	}
 
 	/** (Re)create the live sim from data.nodes at their current
@@ -1457,23 +1550,9 @@ export class GraphCanvasRenderer {
 			}
 		});
 
-		// Wrap the region labels ONCE per geometry build, at their
-		// SCREEN-fixed size (viewer-relative labels — this px size is what
-		// lands on screen at any zoom, so the wrap never goes stale mid-
-		// camera-move). Session names are short; file paths are not (wave
-		// 7) — the cap + ellipsis keeps the footprint bounded.
-		const settings = this.settings;
-		if (settings) {
-			const ctx = this.ctx;
-			const prevFont = ctx.font;
-			ctx.font = `${LABEL_WEIGHT} ${settings.clusterLabelSize}px ${data.fontFamily}`;
-			for (const rm of this.regionMeta) {
-				rm.lines = rm.label
-					? wrapRegionLabel(rm.label, REGION_LABEL_MAX_WIDTH, REGION_LABEL_MAX_LINES, (s) => ctx.measureText(s).width)
-					: null;
-			}
-			ctx.font = prevFont;
-		}
+		// Reuse cached region-label wraps across drag ticks; wrap only on first
+		// encounter, rename, font change, or clusterLabelSize change.
+		this.wrapRegionLabels();
 
 		// THE off switch (user 2026-09-15): compute is skipped, not just
 		// paint hidden — no splat, no blur, no readback, no bitmap, no
@@ -1598,7 +1677,14 @@ export class GraphCanvasRenderer {
 			const blurPx = tuning.blur > 0 ? Math.max(1, Math.round(blurW / cell)) : 0;
 			const img = rctx.getImageData(0, 0, bw, bh);
 			const n = bw * bh * 4;
-			const a = new Float32Array(n);
+			if (!this.blurA || this.blurA.length < n) {
+				this.blurA = new Float32Array(n);
+				this.blurB = new Float32Array(n);
+				this.blurTmp = new Float32Array(n);
+			}
+			const a = this.blurA.length === n ? this.blurA : this.blurA.subarray(0, n);
+			const b = this.blurB!.length === n ? this.blurB! : this.blurB!.subarray(0, n);
+			const tmp = this.blurTmp!.length === n ? this.blurTmp! : this.blurTmp!.subarray(0, n);
 			for (let i = 0; i < n; i += 4) {
 				const alpha = img.data[i + 3]! / 255;
 				a[i] = img.data[i]! * alpha;
@@ -1606,8 +1692,6 @@ export class GraphCanvasRenderer {
 				a[i + 2] = img.data[i + 2]! * alpha;
 				a[i + 3] = img.data[i + 3]!;
 			}
-			const b = new Float32Array(n);
-			const tmp = new Float32Array(n); // scratch inside each round only
 			boxBlurRound(a, tmp, b, bw, bh, blurPx); // a → b
 			boxBlurRound(b, tmp, a, bw, bh, blurPx); // b → a
 			boxBlurRound(a, tmp, b, bw, bh, blurPx); // a → b (result)
@@ -1642,9 +1726,10 @@ export class GraphCanvasRenderer {
 		const data = this.data;
 		const settings = this.settings;
 		if (!data || !settings) return;
-		const w = this.canvas.clientWidth;
-		const h = this.canvas.clientHeight;
-		const dpr = window.devicePixelRatio || 1;
+		const w = this.viewW;
+		const h = this.viewH;
+		if (w <= 0 || h <= 0) return;
+		const dpr = this.dpr;
 		const ctx = this.ctx;
 
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1667,6 +1752,12 @@ export class GraphCanvasRenderer {
 		// THE camera: one transform, then everything is world coordinates.
 		ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * tx, dpr * ty);
 
+		// World-space viewport bounds for text frustum culling.
+		const viewMinX = -tx / k;
+		const viewMaxX = (w - tx) / k;
+		const viewMinY = -ty / k;
+		const viewMaxY = (h - ty) / k;
+
 		const ratio = zoomRatioOf(this.kFit, k);
 		const nodeAlpha = labelAlpha(ratio, settings.labelZoom);
 		const regionAlpha = 1 - nodeAlpha;
@@ -1677,9 +1768,9 @@ export class GraphCanvasRenderer {
 		//    source-over where they overlap (decided: multiply is invisible
 		//    on the dark background).
 		if (this.regionCanvas && this.regionRect) {
-			const { minX, minY, w, h } = this.regionRect;
+			const { minX, minY, w: rw, h: rh } = this.regionRect;
 			ctx.imageSmoothingEnabled = true;
-			ctx.drawImage(this.regionCanvas, minX, minY, w, h);
+			ctx.drawImage(this.regionCanvas, minX, minY, rw, rh);
 		}
 
 		// 3. Edges: shafts + arrowheads from cached paths; width constant on
@@ -1707,10 +1798,20 @@ export class GraphCanvasRenderer {
 			ctx.save();
 			ctx.globalAlpha = nodeAlpha;
 			ctx.font = this.worldLabelFont;
+			ctx.fillStyle = data.colors.label;
+			ctx.textAlign = "center";
+			ctx.textBaseline = "top";
+			const labelPadX = LABEL_MAX_WIDTH * (settings.labelSize / LABEL_SIZE) * 0.6;
+			const labelPadY = this.world.nodeR + this.world.labelGap + this.world.labelSize * LABEL_LINE_HEIGHT * 4;
+			const cullMinX = viewMinX - labelPadX;
+			const cullMaxX = viewMaxX + labelPadX;
+			const cullMinY = viewMinY - labelPadY;
+			const cullMaxY = viewMaxY + labelPadY;
 			for (const [id, lines] of this.labelLines) {
 				const n = this.nodeById.get(id);
 				if (!n) continue;
-				drawNameLines(ctx, n.x, n.y, lines, this.world, data.colors.label);
+				if (n.x < cullMinX || n.x > cullMaxX || n.y < cullMinY || n.y > cullMaxY) continue;
+				drawNameLines(ctx, n.x, n.y, lines, this.world);
 			}
 			ctx.restore();
 		}
@@ -1759,8 +1860,15 @@ export class GraphCanvasRenderer {
 			// Screen px ÷ k = world units — the lines stay evenly spaced
 			// at a constant on-screen pitch at any zoom.
 			const lineH = (settings.clusterLabelSize * REGION_LABEL_LINE_HEIGHT) / k;
+			const cPadX = (REGION_LABEL_MAX_WIDTH * 0.6) / k;
+			const cPadY = lineH * REGION_LABEL_MAX_LINES;
+			const cullMinX = viewMinX - cPadX;
+			const cullMaxX = viewMaxX + cPadX;
+			const cullMinY = viewMinY - cPadY;
+			const cullMaxY = viewMaxY + cPadY;
 			for (const rm of this.regionMeta) {
 				if (!rm.lines) continue;
+				if (rm.cx < cullMinX || rm.cx > cullMaxX || rm.cy < cullMinY || rm.cy > cullMaxY) continue;
 				ctx.fillStyle = `hsla(${rm.hue}, 55%, ${data.colors.clusterLightness.label}%, 0.85)`;
 				const firstOffset = (-(rm.lines.length - 1) / 2) * lineH;
 				for (let i = 0; i < rm.lines.length; i++) {

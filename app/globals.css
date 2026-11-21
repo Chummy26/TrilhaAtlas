@@ -3,7 +3,6 @@
 @source ".";
 @source "../components";
 @source "../lib";
-@source "../src";
 @source "../core-plugins";
 @source "../plugins";
 
@@ -254,15 +253,15 @@ body {
 	line-height: 1.25;
 }
 
-/* Thin dark native scrollbar (app-wide): dark thumb, transparent track. */
+/* Thin native scrollbar (app-wide): floating pill thumb, transparent track. */
 * {
 	scrollbar-width: thin;
 	scrollbar-color: var(--color-border) transparent;
 }
 
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+	width: 9px;
+	height: 9px;
 }
 
 ::-webkit-scrollbar-track {
@@ -270,12 +269,16 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-	background: var(--color-border);
-	border-radius: 8px;
+	background: color-mix(in srgb, var(--color-border) 82%, transparent);
+	background-clip: padding-box;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	transition: background-color 160ms ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--color-muted-foreground);
+	background-clip: padding-box;
 }
 
 /* Dock variant swap — quick fade/rise on content change; the shell's HEIGHT
@@ -1101,4 +1104,30 @@ body {
 		65% { opacity: 1; transform: scale(1.24) rotate(8deg); }
 		to { transform: scale(1) rotate(0); }
 	}
+}
+
+/* Pure CSS text shimmer (zero-JS runtime alternative for Shimmer). */
+@keyframes lh-shimmer {
+	from {
+		background-position: 100% center;
+	}
+	to {
+		background-position: 0% center;
+	}
+}
+
+.lh-shimmer {
+	animation: lh-shimmer var(--lh-shimmer-duration, 2s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lh-shimmer {
+		animation: none;
+	}
+}
+
+/* Offscreen transcript entries skip layout and paint until scrolled near viewport. */
+.lh-transcript-item {
+	content-visibility: auto;
+	contain-intrinsic-size: auto 160px;
 }

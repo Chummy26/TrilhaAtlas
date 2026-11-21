@@ -56,17 +56,19 @@ export function sessionFindHasForegroundLayer(doc: Document, scope?: HTMLElement
 /** Mounted for the lifetime of ONE Chat (which is keyed by chatId). Closing
  * keeps the query/reading position; changing sessions resets all local state.
  * The bar lives outside scopeRef, so it never finds its own query or count. */
-export function SessionFind({ scopeRef, scrollContextRef }: {
+export function SessionFind({ scopeRef, scrollContextRef, defaultOpen = false, initialPreviousFocus = null }: {
 	scopeRef: RefObject<HTMLDivElement | null>;
 	scrollContextRef: RefObject<SessionScrollContext | null>;
+	defaultOpen?: boolean;
+	initialPreviousFocus?: HTMLElement | null;
 }) {
 	const controller = useOptionalInteractionLayers();
-	const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(defaultOpen);
 	const [query, setQuery] = useState("");
 	const [result, setResult] = useState({ index: -1, count: 0 });
 	useEffect(injectFindStyles, []);
 	const inputRef = useRef<HTMLInputElement | null>(null);
-	const previousFocus = useRef<HTMLElement | null>(null);
+	const previousFocus = useRef<HTMLElement | null>(initialPreviousFocus);
 	const rangesRef = useRef<Range[]>([]);
 	const indexRef = useRef(-1);
 	const identityRef = useRef<SessionRangeIdentity | null>(null);
@@ -108,6 +110,16 @@ export function SessionFind({ scopeRef, scrollContextRef }: {
 	useEffect(() => {
 		if (!open || !scopeRef.current) return;
 		const scope = scopeRef.current;
+		if (!query.trim()) {
+			rangesRef.current = [];
+			indexRef.current = -1;
+			identityRef.current = null;
+			lastQueryRef.current = query;
+			setResult((old) => (old.index === -1 && old.count === 0 ? old : { index: -1, count: 0 }));
+			clearSessionFindHighlights();
+			return;
+		}
+		let timer: number | null = null;
 		let frame: number | null = null;
 		const refresh = (selectFirst: boolean) => {
 			const ranges = sessionFindRanges(scope, query);
@@ -126,8 +138,12 @@ export function SessionFind({ scopeRef, scrollContextRef }: {
 		refresh(lastQueryRef.current !== query);
 		lastQueryRef.current = query;
 		const schedule = () => {
-			if (frame !== null) return;
-			frame = window.requestAnimationFrame(() => { frame = null; refresh(false); });
+			if (timer !== null) window.clearTimeout(timer);
+			timer = window.setTimeout(() => {
+				timer = null;
+				if (frame !== null) return;
+				frame = window.requestAnimationFrame(() => { frame = null; refresh(false); });
+			}, 180);
 		};
 		const observer = new MutationObserver(schedule);
 		observer.observe(scope, { subtree: true, childList: true, characterData: true, attributes: true,
@@ -136,6 +152,7 @@ export function SessionFind({ scopeRef, scrollContextRef }: {
 		return () => {
 			observer.disconnect();
 			window.removeEventListener("resize", schedule);
+			if (timer !== null) window.clearTimeout(timer);
 			if (frame !== null) window.cancelAnimationFrame(frame);
 			clearSessionFindHighlights();
 		};

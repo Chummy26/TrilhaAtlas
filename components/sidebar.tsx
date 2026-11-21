@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { MenuShell } from "@/components/menu-shell";
@@ -13,6 +13,7 @@ import { TrilhaAtlasMark } from "@/components/lh-mark";
 import { BrailleSpinner } from "@/components/braille-spinner";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { SettingsDialogProvider, useSettingsDialog } from "@/components/settings/settings-dialog.tsx";
+import { SettingsSeedProvider } from "@/components/settings-seed";
 import { Hint } from "@/components/ui/hint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,13 +106,26 @@ export function useSidebar() {
 	return useContext(SidebarContext);
 }
 
+/** Tiny leaf subscriber so pathname changes never re-render SidebarProvider. */
+function MobileSidebarRouteReset({ onClose }: { onClose: () => void }) {
+	const pathname = usePathname();
+	const onCloseRef = useRef(onClose);
+	onCloseRef.current = onClose;
+	const prevPathnameRef = useRef(pathname);
+	useEffect(() => {
+		if (prevPathnameRef.current !== pathname) {
+			prevPathnameRef.current = pathname;
+			onCloseRef.current();
+		}
+	}, [pathname]);
+	return null;
+}
+
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		const bridge = window.lh?.chatgpt;
 		if (!bridge) return;
-		const off = bridge.onChange(() => notifySettingsSaved("keys"));
-		notifySettingsSaved("keys"); // cover changes missed before this root-lifetime subscription
-		return off;
+		return bridge.onChange(() => notifySettingsSaved("keys"));
 	}, []);
 	// Start closed so server and client first-render agree (no hydration
 	// mismatch); the stored value is applied after mount.
@@ -119,8 +133,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 	const [narrow, setNarrow] = useState(false);
 	const [mobile, setMobile] = useState(false);
 	const [mobileOpen, setMobileOpen] = useState(false);
-	const pathname = usePathname();
-	useEffect(() => { setMobileOpen(false); }, [pathname]);
+	const closeMobile = useCallback(() => setMobileOpen(false), []);
 
 	useEffect(() => {
 		// Electron shell detection (merged chrome, 2026-09-17): keys the
@@ -196,9 +209,12 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 	}, [toggle]);
 
 	const t = useT();
+	const effectiveOpen = mobile ? mobileOpen : open && !narrow;
+	const sidebarValue = useMemo(() => ({ open: effectiveOpen, toggle }), [effectiveOpen, toggle]);
 	return (
-		<SidebarContext.Provider value={{ open: mobile ? mobileOpen : open && !narrow, toggle }}>
+		<SidebarContext.Provider value={sidebarValue}>
 			<div className="flex h-dvh">
+				{mobileOpen && <MobileSidebarRouteReset onClose={closeMobile} />}
 				{mobile && mobileOpen && <button className="fixed inset-0 z-30 bg-black/50" aria-label={t("shell.sidebar.closeNav")} onClick={toggle} />}
 				{children}
 			</div>
@@ -298,7 +314,7 @@ function sessionMeta(chat: ChatListItem): string {
  * state-aware meta. Exported for render tests — pure function of the
  * list item.
  */
-export function SessionRow({
+export const SessionRow = memo(function SessionRow({
 	chat,
 	active,
 	onOpen,
@@ -319,6 +335,7 @@ export function SessionRow({
 	return (
 		<Link
 			href={`/chat/${chat.id}`}
+			data-chat-id={chat.id}
 			prefetch={intent ? null : false}
 			onMouseEnter={() => setIntent(true)}
 			onFocus={() => setIntent(true)}
@@ -350,7 +367,7 @@ export function SessionRow({
 			)}
 		</Link>
 	);
-}
+});
 
 /** The inline-rename row (wave 6): same geometry as SessionRow, but the
  *  title line becomes a text input — select-all on entry (the click means
@@ -430,14 +447,8 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { open: openSettings } = useSettingsDialog();
-
-	/* New session (owner, 2026-09-13): NO POST — the button opens the
-	   sessionless draft view; the session is created only when the first
-	   message is sent (and that message becomes its title). Search: a
-	   client-side filter over the poll snapshot — no server round trip. */
-	const newSession = useCallback(() => {
-		router.push("/chat/new");
-	}, [router]);
+	const openRef = useRef(open);
+	openRef.current = open;
 
 	/* FUZZY (owner round 8, 2026-10-05): subsequence match ranked by
 	 * fuzzyScore — prefix beats word-boundary beats scattered. Empty query
@@ -531,17 +542,20 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 	refreshRef.current = refresh;
 	const eventDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const scheduleEventRefresh = () => {
+		if (!openRef.current) return;
 		if (eventDebounceRef.current) clearTimeout(eventDebounceRef.current);
 		eventDebounceRef.current = setTimeout(() => {
 			eventDebounceRef.current = undefined;
-			void refreshRef.current();
+			if (openRef.current) void refreshRef.current();
 		}, 250);
 	};
 	useServerEvent("chats-changed", scheduleEventRefresh);
 	useServerEvent("turn-started", scheduleEventRefresh);
 	useServerEvent("turn-settled", scheduleEventRefresh);
 	useServerEvent("compaction-changed", scheduleEventRefresh);
-	useServerResync(() => void refreshRef.current());
+	useServerResync(() => {
+		if (openRef.current) void refreshRef.current();
+	});
 	useEffect(
 		() => () => {
 			if (eventDebounceRef.current) clearTimeout(eventDebounceRef.current);
@@ -576,11 +590,14 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 	const [renamingId, setRenamingId] = useState<string | null>(null);
 	const [deleting, setDeleting] = useState<ChatListItem | null>(null);
 
-	const openContext = (e: React.MouseEvent<HTMLAnchorElement>, chat: ChatListItem) => {
+	const openContext = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+		const chatId = e.currentTarget.dataset.chatId;
+		if (!chatId) return;
 		e.preventDefault(); // suppress the native menu
 		ctxAnchorRef.current = e.currentTarget;
-		setCtxChatId(chat.id);
-	};
+		setCtxChatId(chatId);
+	}, []);
+	const clearKbdIndex = useCallback(() => setKbdIndex(null), []);
 
 	// The menu contract (agent-section's): any pointerdown outside the menu
 	// or its row closes it; Esc is CLAIMED so it never also aborts a turn
@@ -657,9 +674,9 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 	useEffect(() => {
 		if (!open) return;
 		void refresh();
-		// Opening + navigation refetch; while open, the events channel owns
-		// freshness (S6) — no interval, nothing standing.
-	}, [open, pathname, refresh]);
+		// Opening refetches; while open, the events channel owns freshness (S6)
+		// so route navigations never trigger redundant /api/chats fetches.
+	}, [open, refresh]);
 
 	return (
 		<aside
@@ -710,31 +727,28 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 
 				{/* Core doors always lead explicit plugin sidebar placements. */}
 				<PluginSidebarActions>
-					<button
-						type="button"
+					<Link
+						href="/chat/new"
 						data-testid="new-session"
 						title={t("shell.sidebar.study")}
-						onClick={() => void newSession()}
 						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
 						<PlusIcon className="onigiri-icon-plus size-4 shrink-0" />
 						<span className="min-w-0 truncate">{t("shell.sidebar.study")}</span>
 						<span className="sr-only">{t("shell.sidebar.studySr")}</span>
-					</button>
-					<button
-						type="button"
+					</Link>
+					<Link
+						href="/chat/new?mode=practice"
 						data-testid="new-session-practice"
 						title={t("shell.sidebar.practice")}
-						onClick={() => router.push("/chat/new?mode=practice")}
 						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
 						<DumbbellIcon className="onigiri-icon-lift size-4 shrink-0" />
 						<span className="min-w-0 truncate">{t("shell.sidebar.practice")}</span>
 						<span className="sr-only">{t("shell.sidebar.practiceSr")}</span>
-					</button>
+					</Link>
 					{domain && <Link
 						href={{ pathname: "/mapa", query: { dominio: domain } }}
-						prefetch={false}
 						aria-current={pathname === "/mapa" ? "page" : undefined}
 						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
 					>
@@ -743,7 +757,6 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 					</Link>}
 					{domain && <Link
 						href={{ pathname: "/ementa", query: { dominio: domain } }}
-						prefetch={false}
 						aria-current={pathname === "/ementa" ? "page" : undefined}
 						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
 					>
@@ -863,8 +876,8 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 									chat={c}
 									active={pathname === `/chat/${c.id}`}
 									kbdSelected={i === kbdIndex}
-									onOpen={() => setKbdIndex(null)}
-									onContextMenu={(e) => openContext(e, c)}
+									onOpen={clearKbdIndex}
+									onContextMenu={openContext}
 								/>
 							),
 						)
@@ -984,10 +997,21 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 }
 
 /** The app frame: sidebar inline + content. Rendered once in the root layout. */
-export function AppShell({ children, initialSettings, domain = null }: { children: React.ReactNode; initialSettings?: UserSettings | null; domain?: string | null }) {
+export function AppShell({
+	children,
+	initialSettings,
+	hasDictationKey,
+	domain = null,
+}: {
+	children: React.ReactNode;
+	initialSettings?: UserSettings | null;
+	hasDictationKey?: boolean;
+	domain?: string | null;
+}) {
 	const [contentRoot, setContentRoot] = useState<HTMLElement | null>(null);
 	const pathname = usePathname();
 	return (
+		<SettingsSeedProvider initialSettings={initialSettings} hasDictationKey={hasDictationKey}>
 		<HostRouteLifetimeProvider pathname={pathname}>
 		<HostContentRootContext.Provider value={contentRoot}>
 			<InteractionLayersProvider><SettingsDialogProvider initialSettings={initialSettings}>
@@ -1003,5 +1027,6 @@ export function AppShell({ children, initialSettings, domain = null }: { childre
 			</SettingsDialogProvider></InteractionLayersProvider>
 		</HostContentRootContext.Provider>
 		</HostRouteLifetimeProvider>
+		</SettingsSeedProvider>
 	);
 }

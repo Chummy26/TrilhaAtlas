@@ -11,6 +11,8 @@ interface State {
 	controllers: Map<AbortController, { providerId: NativeSubscriptionProviderId; background: boolean }>;
 	listeners: Set<() => void>;
 	counter: number;
+	inFlightRefresh?: Promise<void>;
+	lastRefreshedAt: number;
 }
 const KEY = Symbol.for("lh.subscriptions.bridge");
 export function nativeSubscriptionId(logicalId: string): NativeSubscriptionProviderId | undefined {
@@ -22,6 +24,7 @@ function desktopConnected(): boolean {
 function runtimeConnected(): boolean { return desktopConnected() || webSubscriptionsEnabled(); }
 function notify(state: State) { for (const listener of state.listeners) { try { listener(); } catch { /* observer isolation */ } } }
 function invalidate(state: State, providerId?: NativeSubscriptionProviderId) {
+	state.lastRefreshedAt = 0;
 	for (const [controller, owner] of state.controllers) if (!providerId || owner.providerId === providerId) controller.abort("all");
 	if (providerId) { state.models.delete(providerId); state.statuses.delete(providerId); }
 	else { state.models.clear(); state.statuses.clear(); }
@@ -44,12 +47,13 @@ function accept(state: State, snapshot: NativeSubscriptionSnapshot) {
 		state.models.set(entry.providerId, entry.available && entry.connected ? (snapshot.models[entry.providerId] ?? []).filter((m) => m.provider === entry.providerId).map((m) => ({ ...m, provider: descriptor.logicalId })) : []);
 		changed ||= !previous || entry.revision !== previous.revision;
 	}
+	state.lastRefreshedAt = Date.now();
 	if (changed) notify(state);
 }
 function bridge(): State {
 	const global = globalThis as typeof globalThis & { [KEY]?: State };
 	if (!global[KEY]) {
-		const state: State = { statuses: new Map(), models: new Map(), pending: new Map(), controllers: new Map(), listeners: new Set(), counter: 0 };
+		const state: State = { statuses: new Map(), models: new Map(), pending: new Map(), controllers: new Map(), listeners: new Set(), counter: 0, lastRefreshedAt: 0 };
 		global[KEY] = state;
 		process.on("message", (raw: unknown) => {
 			const message = raw as { channel?: string; op?: string; id?: string; ok?: boolean; value?: unknown; error?: string; snapshot?: NativeSubscriptionSnapshot };
@@ -72,6 +76,7 @@ function bridge(): State {
 			state.pending.clear(); notify(state);
 		});
 	}
+	global[KEY].lastRefreshedAt ??= 0;
 	return global[KEY];
 }
 export function subscriptionRequest<T>(op: "snapshot" | "lease", fields: Record<string, unknown> = {}): Promise<T> {
@@ -87,11 +92,20 @@ export function subscriptionRequest<T>(op: "snapshot" | "lease", fields: Record<
 		});
 	});
 }
-export async function refreshSubscriptionModels(): Promise<void> {
+export async function refreshSubscriptionModels(options?: { maxAgeMs?: number }): Promise<void> {
 	const state = bridge();
 	if (!runtimeConnected()) { invalidate(state); return; }
-	try { accept(state, await subscriptionRequest<NativeSubscriptionSnapshot>("snapshot")); }
-	catch { invalidate(state); notify(state); }
+	if (options?.maxAgeMs && state.lastRefreshedAt > 0 && Date.now() - state.lastRefreshedAt < options.maxAgeMs) {
+		return;
+	}
+	if (state.inFlightRefresh) return state.inFlightRefresh;
+	const run = (async () => {
+		try { accept(state, await subscriptionRequest<NativeSubscriptionSnapshot>("snapshot")); }
+		catch { invalidate(state); notify(state); }
+	})();
+	state.inFlightRefresh = run;
+	try { await run; }
+	finally { if (state.inFlightRefresh === run) state.inFlightRefresh = undefined; }
 }
 export function nativeSubscriptionStatus(providerId: NativeSubscriptionProviderId): NativeSubscriptionStatus | undefined { return bridge().statuses.get(providerId); }
 export function nativeSubscriptionConnected(providerId: NativeSubscriptionProviderId): boolean {

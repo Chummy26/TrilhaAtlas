@@ -8,7 +8,7 @@
  * Hidden in "Geral" (no study domain → /api/study/today answers 409).
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
@@ -50,17 +50,19 @@ function kindLabel(t: Translator, kind: string): string {
 	}
 }
 
-export function TodayCard({
+export const TodayCard = memo(function TodayCard({
+	initialToday,
 	onStart,
 	disabled = false,
 	setupHint,
 }: {
+	initialToday?: StudyToday | null;
 	setupHint?: string;
 	onStart: (lesson: LessonStart) => void;
 	disabled?: boolean;
 }) {
 	const { t, intl } = useI18n();
-	const [today, setToday] = useState<StudyToday | null>(null);
+	const [today, setToday] = useState<StudyToday | null>(initialToday ?? null);
 	const [pending, setPending] = useState(false);
 	const [startingReview, setStartingReview] = useState(false);
 	const [reviewFeedback, setReviewFeedback] = useState<{ domain: string; ok: boolean; text: string }>();
@@ -71,13 +73,19 @@ export function TodayCard({
 		[intl],
 	);
 
+	useEffect(() => {
+		if (initialToday !== undefined) setToday(initialToday);
+	}, [initialToday]);
+
 	const read = useCallback(() => {
 		fetch("/api/study/today")
 			.then((r) => (r.ok ? (r.json() as Promise<StudyToday>) : null))
 			.then(setToday)
 			.catch(() => setToday(null));
 	}, []);
-	useEffect(read, [read]);
+	useEffect(() => {
+		if (initialToday === undefined) read();
+	}, [initialToday, read]);
 	useServerEvent("domain-changed", read);
 	useServerEvent("curriculum-expanded", read);
 
@@ -825,4 +833,4 @@ export function TodayCard({
 			)}
 		</section>
 	);
-}
+});

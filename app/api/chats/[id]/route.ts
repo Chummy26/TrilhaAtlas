@@ -3,8 +3,7 @@ import { pendingPluginQuestionOf, activeProblemOf } from "@/src/core";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
-	await reconcilePluginQuestionCompatibility(stores.chatStore, id);
-	let chat = getChat(id);
+	let chat = await reconcilePluginQuestionCompatibility(stores.chatStore, id);
 	if (!chat) return Response.json({ error: "Not found" }, { status: 404 });
 	const view = new URL(req.url).searchParams.get("view");
 	if (view === "usage") return Response.json({ turns: chat.turns ?? [], pricing: sessionCost(chat) });

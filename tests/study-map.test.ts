@@ -8,10 +8,11 @@ const temp = mkdtempSync(path.join(os.tmpdir(), "lh-study-map-"));
 process.env.LH_DATA_DIR = temp;
 process.env.LH_AUTH_FILE = path.join(temp, "auth.json");
 process.env.YOUTUBE_API_KEY = "fixture-key-for-discovery";
-const { switchStudyDomain, studyMap } = await import("../src/server/study.ts");
+const { switchStudyDomain, studyMap, setStudyMapStyle } = await import("../src/server/study.ts");
 const { attachStudyMaterials, downloadRegionalBook, readRegionMaterials, studyMapLesson } = await import("../src/server/study-materials.ts");
 const { mapVideoItem, YoutubeDataProvider } = await import("../src/server/resources/youtube-data.ts");
 const { layoutSkillMap } = await import("../src/core/study/map-layout.ts");
+const { SKILL_MAP_STYLES, isSkillMapStyle, pickRandomSkillMapStyle } = await import("../src/core/study/map-style.ts");
 const { appendStudyEvent } = await import("../src/server/study-log.ts");
 after(() => rmSync(temp, { recursive: true, force: true }));
 
@@ -81,4 +82,50 @@ it("keeps the whole domain in the atlas as real evidence changes the learner's p
 	const english = studyMap();
 	assert.equal(layoutSkillMap(english.nodes).points.size, 925);
 	assert.ok(english.nodes.every(n => !n.completed && !n.inProgress));
+});
+
+it("lays out all 5 tree styles cleanly without overlaps and persists random/custom style per domain", () => {
+	switchStudyDomain("english");
+	const english = studyMap();
+	assert.ok(isSkillMapStyle(english.mapStyle), "new domain receives a valid default map style");
+	assert.equal(studyMap().mapStyle, english.mapStyle, "persisted style stays stable across reads");
+
+	for (const style of SKILL_MAP_STYLES) {
+		const layout = layoutSkillMap(english.nodes, style);
+		assert.equal(layout.style, style);
+		assert.equal(layout.points.size, 925, `${style} keeps all 925 nodes`);
+		assert.equal(new Set([...layout.points.values()].map(p => p.x + "," + p.y)).size, 925, `${style} has unique coordinates`);
+		assert.ok(layout.width > 400 && layout.height > 300, `${style} has positive canvas bounds`);
+		for (const pt of layout.points.values()) {
+			assert.ok(Number.isFinite(pt.x) && Number.isFinite(pt.y), `${style} finite coords for ${pt.id}`);
+		}
+		if (style === "constellation") {
+			assert.ok(layout.wheels.length >= 60 && layout.rings.length >= 3);
+		} else if (style === "hextech") {
+			assert.ok(layout.gears.length >= 10);
+		} else if (style === "citadel") {
+			assert.ok(layout.hexClusters.length >= 9);
+		} else if (style === "clarity") {
+			assert.ok(layout.lanes.length >= 9);
+		}
+	}
+
+	// Deterministic random picker covers every style
+	const picked = new Set([0, 0.25, 0.45, 0.65, 0.9].map(v => pickRandomSkillMapStyle(() => v)));
+	assert.equal(picked.size, SKILL_MAP_STYLES.length);
+
+	// Switching style persists per domain without affecting electronics
+	const updated = setStudyMapStyle("english", "clarity");
+	assert.equal(updated.mapStyle, "clarity");
+	assert.equal(studyMap().mapStyle, "clarity");
+	assert.throws(() => setStudyMapStyle("english", "invalid-style"));
+
+	switchStudyDomain("electronics");
+	const electronics = studyMap();
+	assert.ok(isSkillMapStyle(electronics.mapStyle));
+	for (const style of SKILL_MAP_STYLES) {
+		const layout = layoutSkillMap(electronics.nodes, style);
+		assert.equal(layout.points.size, 1010, `${style} keeps all 1010 electronics nodes`);
+		assert.equal(new Set([...layout.points.values()].map(p => p.x + "," + p.y)).size, 1010, `${style} electronics unique coords`);
+	}
 });

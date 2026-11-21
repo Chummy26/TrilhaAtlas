@@ -62,13 +62,33 @@ export interface StatsStore {
 const MONTH_FILE = /^(usage|activity)-(\d{4}-(?:0[1-9]|1[0-2]))\.jsonl$/;
 
 interface StreamSpec<T extends { at: string; domain: string }> {
+	stream: StatsStream;
 	fileFor(root: string, month: string): string;
 	assert(value: unknown): T;
 	parse(value: unknown): T | null;
 }
 
-const USAGE: StreamSpec<UsageEvent> = { fileFor: usageLogFile, assert: assertUsageEvent, parse: parseUsageEvent };
-const ACTIVITY: StreamSpec<ActivityEvent> = { fileFor: activityLogFile, assert: assertActivityEvent, parse: parseActivityEvent };
+const USAGE: StreamSpec<UsageEvent> = { stream: "usage", fileFor: usageLogFile, assert: assertUsageEvent, parse: parseUsageEvent };
+const ACTIVITY: StreamSpec<ActivityEvent> = { stream: "activity", fileFor: activityLogFile, assert: assertActivityEvent, parse: parseActivityEvent };
+
+type ParsedMonthEntry = {
+	stamp: string;
+	stream: StatsStream;
+	parsed: readonly { event: unknown; atMs: number }[];
+	skippedLines: number;
+};
+
+const STATS_CACHE_KEY = Symbol.for("learnharness.store.stats");
+const MAX_STATS_CACHE_ENTRIES = 128;
+
+function statsCache(): Map<string, ParsedMonthEntry> {
+	const g = globalThis as typeof globalThis & { [STATS_CACHE_KEY]?: Map<string, ParsedMonthEntry> };
+	return (g[STATS_CACHE_KEY] ??= new Map());
+}
+
+function statsStatStamp(stat: fs.BigIntStats): string {
+	return `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`;
+}
 
 function asList<T>(events: T | readonly T[]): readonly T[] {
 	return Array.isArray(events) ? (events as readonly T[]) : [events as T];
@@ -101,18 +121,41 @@ function readTextIfExists(file: string): string | null {
 	}
 }
 
-function appendLines(file: string, lines: readonly string[]): void {
+function appendLinesAtomic(file: string, lines: readonly string[]): void {
 	fs.mkdirSync(path.dirname(file), { recursive: true });
 	const current = readTextIfExists(file) ?? "";
 	// A hand-edited file may lack the final newline: never glue two records.
 	const prefix = current === "" || current.endsWith("\n") ? current : `${current}\n`;
 	writeFileAtomicSync(file, `${prefix}${lines.join("\n")}\n`);
+	statsCache().delete(path.resolve(file));
+}
+
+/** Fast O(1) append for high-frequency activity heartbeats while still guarding
+ * against a missing trailing newline in hand-edited files. */
+function appendLinesDirect(file: string, lines: readonly string[]): void {
+	fs.mkdirSync(path.dirname(file), { recursive: true });
+	let needsLeadingNewline = false;
+	const stat = fs.statSync(file, { throwIfNoEntry: false });
+	if (stat && stat.size > 0) {
+		const fd = fs.openSync(file, "r");
+		try {
+			const tail = Buffer.allocUnsafe(1);
+			if (fs.readSync(fd, tail, 0, 1, stat.size - 1) === 1 && tail[0] !== 0x0a) {
+				needsLeadingNewline = true;
+			}
+		} finally {
+			fs.closeSync(fd);
+		}
+	}
+	fs.appendFileSync(file, `${needsLeadingNewline ? "\n" : ""}${lines.join("\n")}\n`, "utf-8");
+	statsCache().delete(path.resolve(file));
 }
 
 function append<T extends { at: string; domain: string }>(root: string, spec: StreamSpec<T>, events: readonly unknown[]): number {
 	const byMonth = groupByMonth(spec, events);
+	const writeLines = spec.stream === "activity" ? appendLinesDirect : appendLinesAtomic;
 	for (const [month, list] of [...byMonth].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
-		appendLines(
+		writeLines(
 			spec.fileFor(root, month),
 			list.map((event) => JSON.stringify(event)),
 		);
@@ -128,26 +171,60 @@ function parseLine<T extends { at: string; domain: string }>(spec: StreamSpec<T>
 	}
 }
 
+function readMonthCached<T extends { at: string; domain: string }>(file: string, spec: StreamSpec<T>): { parsed: readonly { event: T; atMs: number }[]; skippedLines: number } | null {
+	const resolved = path.resolve(file);
+	const cache = statsCache();
+	const stat = fs.statSync(/* turbopackIgnore: true */ resolved, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) {
+		cache.delete(resolved);
+		return null;
+	}
+	const stamp = statsStatStamp(stat);
+	const cached = cache.get(resolved);
+	if (cached && cached.stamp === stamp && cached.stream === spec.stream) {
+		return { parsed: cached.parsed as readonly { event: T; atMs: number }[], skippedLines: cached.skippedLines };
+	}
+	const text = readTextIfExists(resolved);
+	if (text === null) {
+		cache.delete(resolved);
+		return null;
+	}
+	const parsed: { event: T; atMs: number }[] = [];
+	let skippedLines = 0;
+	for (const raw of text.split("\n")) {
+		const line = raw.trim();
+		if (line === "") continue;
+		const event = parseLine(spec, line);
+		if (!event) {
+			skippedLines += 1;
+			continue;
+		}
+		parsed.push({ event, atMs: Date.parse(event.at) });
+	}
+	if (cache.size >= MAX_STATS_CACHE_ENTRIES && !cache.has(resolved)) {
+		const oldest = cache.keys().next().value;
+		if (oldest !== undefined) cache.delete(oldest);
+	}
+	cache.set(resolved, { stamp, stream: spec.stream, parsed, skippedLines });
+	return { parsed, skippedLines };
+}
+
 function read<T extends { at: string; domain: string }>(root: string, spec: StreamSpec<T>, range: TimeRange, filter: StatsReadFilter = {}): StatsReadResult<T> {
 	const fromMs = toEpochMs(range.from);
 	const toMs = toEpochMs(range.to);
+	const existingMonths = new Set(listMonths(root, spec.stream));
+	if (existingMonths.size === 0) return { events: [], skippedLines: 0 };
 	const kept: { event: T; atMs: number; index: number }[] = [];
 	let skippedLines = 0;
 	for (const month of monthsInRange(fromMs, toMs)) {
-		const text = readTextIfExists(spec.fileFor(root, month));
-		if (text === null) continue;
-		for (const raw of text.split("\n")) {
-			const line = raw.trim();
-			if (line === "") continue;
-			const event = parseLine(spec, line);
-			if (!event) {
-				skippedLines += 1;
-				continue;
-			}
-			const atMs = Date.parse(event.at);
-			if (atMs < fromMs || atMs >= toMs) continue;
-			if (filter.domain !== undefined && event.domain !== filter.domain) continue;
-			kept.push({ event, atMs, index: kept.length });
+		if (!existingMonths.has(month)) continue;
+		const entry = readMonthCached(spec.fileFor(root, month), spec);
+		if (!entry) continue;
+		skippedLines += entry.skippedLines;
+		for (const item of entry.parsed) {
+			if (item.atMs < fromMs || item.atMs >= toMs) continue;
+			if (filter.domain !== undefined && item.event.domain !== filter.domain) continue;
+			kept.push({ event: item.event, atMs: item.atMs, index: kept.length });
 		}
 	}
 	kept.sort((a, b) => a.atMs - b.atMs || a.index - b.index);

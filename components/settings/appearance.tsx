@@ -209,9 +209,19 @@ export function AppearanceProvider({
 	}, [key, vars]);
 
 	// The desktop shell's native chrome (window background, Windows/Linux
-	// control overlay) follows the theme — absent in a browser.
+	// control overlay) follows the theme — absent in a browser. The main
+	// process already resolves the same saved record before creating the
+	// window, so skip echoing the initial SSR boot values on mount.
 	const background = colors.background;
+	const [bootChrome] = useState(() => ({
+		mode: initialTheme.mode,
+		background: effectiveColors(initialTheme, resolveAppearance(initialAppearance)).background,
+	}));
+	const syncedChromeRef = useRef<{ mode: RenderedMode; background: string }>(bootChrome);
 	useEffect(() => {
+		const prev = syncedChromeRef.current;
+		if (prev.mode === mode && prev.background === background) return;
+		syncedChromeRef.current = { mode, background };
 		window.lh?.setAppearance?.({ mode, background });
 	}, [mode, background]);
 

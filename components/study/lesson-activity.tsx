@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useState } from "react";
-import { ChatActionsContext } from "@/components/chat";
+import { ChatActionsContext } from "@/components/chat-actions-context";
 import { PronunciationPractice } from "./pronunciation-practice.tsx";
 import { ComicStrip } from "./comic-strip.tsx";
 import { pickStoryMotif, StoryBadge } from "./comic-art.tsx";

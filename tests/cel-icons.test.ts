@@ -31,9 +31,10 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { compileAll, compileIcon, fnv1a, renderedBytes, syncOutputs, type CompiledIcon } from "../scripts/icons/compile.ts";
 import { ICON_ALIASES as DEF_ALIASES, ICON_DEFS } from "../scripts/icons/defs/index.ts";
-import { emitGenerated, emitSprite, standaloneSvg } from "../scripts/icons/emit.ts";
+import { emitGenerated, emitMeta, emitSprite, standaloneSvg } from "../scripts/icons/emit.ts";
 import type { IconSpec } from "../scripts/icons/spec.ts";
 import { ICON_ALIASES, ICON_NAMES, ICONS, isIconName, resolveIconName } from "../components/icons/generated.ts";
+import { ICON_META } from "../components/icons/meta.ts";
 import { Icon, sizeFromClassName } from "../components/icons/icon.tsx";
 import * as compat from "../components/icons/lucide-compat.ts";
 import { ICON_TONE_NAMES, isIconTone, layerPaint, METAL_TONES, toneVars } from "../components/icons/tones.ts";
@@ -177,6 +178,7 @@ describe("compiler — determinism", () => {
 
 	it("the committed outputs are fresh (npx tsx scripts/icons/compile.ts --check)", () => {
 		assert.equal(read("components/icons/generated.ts"), emitGenerated(icons, DEF_ALIASES), "generated.ts is stale");
+		assert.equal(read("components/icons/meta.ts"), emitMeta(icons, DEF_ALIASES), "meta.ts is stale");
 		assert.equal(read("public/icons/sprite.svg"), emitSprite(icons), "sprite.svg is stale");
 	});
 
@@ -410,11 +412,24 @@ describe("outputs — colors come only from the theme", () => {
 	const sprite = read("public/icons/sprite.svg");
 	const generated = read("components/icons/generated.ts");
 
-	it("the sprite has one titled <symbol> per icon with its viewBox, and no stroke", () => {
+	it("the sprite has titled <symbol> entries per icon (+ --micro / --boil variants) with its viewBox, and no stroke", () => {
+		let expectedSymbols = 0;
 		for (const icon of icons) {
+			expectedSymbols++;
 			assert.ok(sprite.includes(`<symbol id="${icon.name}" viewBox="0 0 ${icon.grid} ${icon.grid}"><title>`), icon.name);
+			if (icon.micro !== undefined) {
+				expectedSymbols++;
+				assert.ok(sprite.includes(`<symbol id="${icon.name}--micro" viewBox="0 0 ${icon.grid} ${icon.grid}"><title>`), `${icon.name}--micro`);
+			}
+			if (icon.boil) {
+				expectedSymbols++;
+				const start = sprite.indexOf(`<symbol id="${icon.name}--boil"`);
+				assert.ok(start >= 0, `${icon.name}--boil`);
+				const body = sprite.slice(start, sprite.indexOf("</symbol>", start));
+				assert.ok(body.includes('<g class="cel-boil">'), `${icon.name}--boil wraps boil frames in .cel-boil`);
+			}
 		}
-		assert.equal(sprite.match(/<symbol /g)?.length, icons.length);
+		assert.equal(sprite.match(/<symbol /g)?.length, expectedSymbols);
 		assert.doesNotMatch(sprite, /\bstroke[=:-]/);
 	});
 
@@ -458,7 +473,26 @@ describe("outputs — colors come only from the theme", () => {
 
 describe("<Icon> — server-rendered", () => {
 	const html = (props: Parameters<typeof Icon>[0]) => renderToStaticMarkup(createElement(Icon, props));
-	const paths = (markup: string) => [...markup.matchAll(/<path d="([^"]+)"/g)].map((m) => m[1]!);
+	const sprite = read("public/icons/sprite.svg");
+	const useHref = (markup: string) => {
+		const m = /<use href="([^"]+)"/.exec(markup);
+		assert.ok(m, `missing <use href> in: ${markup}`);
+		return m[1]!;
+	};
+	const symbolMarkup = (id: string) => {
+		const start = sprite.indexOf(`<symbol id="${id}"`);
+		assert.ok(start >= 0, `missing symbol #${id} in sprite.svg`);
+		return sprite.slice(start, sprite.indexOf("</symbol>", start));
+	};
+	const symbolPaths = (id: string) => [...symbolMarkup(id).matchAll(/\bd="([^"]+)"/g)].map((m) => m[1]!);
+
+	it("renders via sprite <use> without importing generated.ts paths into JS", () => {
+		assert.doesNotMatch(read("components/icons/icon.tsx"), /generated\.ts/);
+		assert.equal(Object.keys(ICON_META).length, icons.length);
+		const markup = html({ name: "xp" });
+		assert.equal(useHref(markup), "/icons/sprite.svg#xp");
+		assert.doesNotMatch(markup, /<path\b/);
+	});
 
 	it("is decorative by default and announced with a title", () => {
 		const deco = html({ name: "search" });
@@ -470,56 +504,70 @@ describe("<Icon> — server-rendered", () => {
 		assert.match(named, /<title>Atenção<\/title>/);
 	});
 
-	it("picks the LOD by size: micro ink at ≤ 16 px (size-N class or prop), no specular below 20 px", () => {
+	it("picks the LOD by size: micro symbol at ≤ 16 px (size-N class or prop), --icon-hl:transparent below 20 px", () => {
 		assert.equal(sizeFromClassName("flex size-4 text-muted"), 16);
 		assert.equal(sizeFromClassName("size-3.5"), 14);
 		assert.equal(sizeFromClassName(undefined), undefined);
 		const small = html({ name: "search", className: "size-4" });
 		assert.match(small, /width="16"/);
-		assert.deepEqual(paths(small), [ICONS.search.micro]);
-		assert.deepEqual(paths(html({ name: "search" })), [ICONS.search.ink]);
+		assert.equal(useHref(small), "/icons/sprite.svg#search--micro");
+		assert.deepEqual(symbolPaths("search--micro"), [ICONS.search.micro]);
+		assert.equal(useHref(html({ name: "search" })), "/icons/sprite.svg#search");
+		assert.deepEqual(symbolPaths("search"), [ICONS.search.ink]);
 		const xp = ICONS.xp;
-		assert.deepEqual(paths(html({ name: "xp", size: 24 })), [xp.fill, xp.shade, xp.ink, xp.hl]);
-		assert.equal(paths(html({ name: "xp", size: 18 })).length, 3);
+		const xp24 = html({ name: "xp", size: 24 });
+		assert.equal(useHref(xp24), "/icons/sprite.svg#xp");
+		assert.doesNotMatch(xp24, /--icon-hl:transparent/);
+		assert.deepEqual(symbolPaths("xp"), [xp.fill, xp.shade, xp.ink, xp.hl]);
+		const xp18 = html({ name: "xp", size: 18 });
+		assert.equal(useHref(xp18), "/icons/sprite.svg#xp");
+		assert.match(xp18, /--icon-hl:transparent/);
 	});
 
-	it("tone={false} draws ink only; a pinned tone sets the --icon-* variables", () => {
-		assert.deepEqual(paths(html({ name: "xp", tone: false })), [ICONS.xp.ink]);
+	it("tone={false} zeroes fills/hl and restores plain ink for on-fill; a pinned tone sets the --icon-* variables", () => {
+		const bareXp = html({ name: "xp", tone: false });
+		assert.equal(useHref(bareXp), "/icons/sprite.svg#xp");
+		assert.match(bareXp, /--icon-fill:transparent/);
+		assert.match(bareXp, /--icon-shade:transparent/);
+		assert.match(bareXp, /--icon-hl:transparent/);
+		assert.match(bareXp, /--icon-ink-on-fill:var\(--icon-ink, currentColor\)/);
 		const coral = html({ name: "book", tone: "coral" });
 		assert.match(coral, /--icon-fill:var\(--c-coral\)/);
 		assert.match(coral, /--icon-shade:var\(--c-coral-shade\)/);
-		assert.match(html({ name: "xp" }), /fill:var\(--icon-fill, var\(--cel-xp, transparent\)\)/);
+		assert.match(symbolMarkup("xp"), /fill:var\(--icon-fill, var\(--cel-xp, transparent\)\)/);
 	});
 
-	it("draws on-fill ink between the tones and the outline; without tones it is plain ink", () => {
+	it("draws on-fill ink between the tones and the outline; without tones or on neutral it is plain ink", () => {
 		const en = ICONS["domain-english"];
-		const styles = (markup: string) => [...markup.matchAll(/<path d="[^"]+" style="fill:([^"]+)"/g)].map((m) => m[1]!);
-		const toned = html({ name: "domain-english" });
-		assert.deepEqual(paths(toned), [en.fill, en.shade, en.inkOnFill, en.ink]);
-		assert.match(styles(toned)[2]!, /^var\(--icon-ink-on-fill, var\(--cel-on-fill/);
+		assert.equal(useHref(html({ name: "domain-english" })), "/icons/sprite.svg#domain-english");
+		assert.deepEqual(symbolPaths("domain-english"), [en.fill, en.shade, en.inkOnFill, en.ink]);
 		const bare = html({ name: "domain-english", tone: false });
-		assert.deepEqual(paths(bare), [en.inkOnFill, en.ink], "tone={false} still draws every stroke");
-		assert.deepEqual(styles(bare), ["var(--icon-ink, currentColor)", "var(--icon-ink, currentColor)"]);
+		assert.match(bare, /--icon-fill:transparent/);
+		assert.match(bare, /--icon-ink-on-fill:var\(--icon-ink, currentColor\)/);
 		// A pinned neutral tone is a surface, not a color: the strokes stay ink.
-		assert.equal(styles(html({ name: "domain-english", tone: "neutral" }))[2], "var(--icon-ink, currentColor)");
+		const neutral = html({ name: "domain-english", tone: "neutral" });
+		assert.match(neutral, /--icon-fill:var\(--cel-surface-1\)/);
+		assert.match(neutral, /--icon-ink-on-fill:var\(--icon-ink, currentColor\)/);
 		const lock = ICONS["node-locked"];
-		assert.deepEqual(paths(html({ name: "node-locked" })), [lock.fill, lock.inkOnFill, lock.ink]);
-		assert.equal(styles(html({ name: "node-locked" }))[1], "var(--icon-ink, currentColor)", "own neutral tone keeps ink");
-		// ≤ 16 px: the micro pair (cost keeps its non-detail inner stroke).
+		assert.equal(useHref(html({ name: "node-locked" })), "/icons/sprite.svg#node-locked");
+		assert.deepEqual(symbolPaths("node-locked"), [lock.fill, lock.inkOnFill, lock.ink]);
+		// ≤ 16 px: the micro symbol pair (cost keeps its non-detail inner stroke).
 		const cost = ICONS.cost;
 		assert.ok(cost.micro && cost.microOnFill);
-		assert.deepEqual(paths(html({ name: "cost", size: 16 })), [cost.fill, cost.shade, cost.microOnFill, cost.micro]);
+		assert.equal(useHref(html({ name: "cost", size: 16 })), "/icons/sprite.svg#cost--micro");
+		assert.deepEqual(symbolPaths("cost--micro"), [cost.fill, cost.shade, cost.microOnFill, cost.micro]);
 	});
 
-	it("live icons boil through three stacked ink frames", () => {
+	it("live icons reference the --boil symbol containing three stacked ink frames", () => {
 		const mic = html({ name: "mic", live: true });
-		assert.match(mic, /<g class="cel-boil">/);
-		assert.deepEqual(paths(mic), [ICONS.mic.ink, ...ICONS.mic.boil!]);
-		assert.equal(paths(html({ name: "mic" })).length, 1);
+		assert.equal(useHref(mic), "/icons/sprite.svg#mic--boil");
+		assert.match(symbolMarkup("mic--boil"), /<g class="cel-boil">/);
+		assert.deepEqual(symbolPaths("mic--boil"), [ICONS.mic.ink, ...ICONS.mic.boil!]);
+		assert.equal(useHref(html({ name: "mic" })), "/icons/sprite.svg#mic");
 	});
 
 	it("resolves aliases and refuses unknown names", () => {
-		assert.deepEqual(paths(html({ name: "x" })), [ICONS.close.ink]);
+		assert.equal(useHref(html({ name: "x" })), "/icons/sprite.svg#close");
 		assert.match(html({ name: "x" }), /data-icon="x"/);
 		assert.throws(() => html({ name: "nope" as "x" }), /Ícone desconhecido/);
 	});
@@ -529,6 +577,6 @@ describe("<Icon> — server-rendered", () => {
 		assert.match(markup, /data-icon="close"/);
 		assert.match(markup, /color:red/);
 		assert.doesNotMatch(markup, /stroke/i);
-		assert.deepEqual(paths(markup), [ICONS.close.micro]);
+		assert.equal(useHref(markup), "/icons/sprite.svg#close--micro");
 	});
 });

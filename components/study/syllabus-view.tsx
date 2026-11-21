@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons/icon";
@@ -13,15 +14,17 @@ import {
 	type FlippedReadingGuide,
 	type StudyNodeBrief,
 	type StudySyllabus,
+	type SyllabusChapter,
 	type SyllabusLesson,
 	type SyllabusModule,
 	type Translator,
 } from "@/src/core";
 import { SessionStarter, studyLessonRequest } from "../start-session.ts";
 import { lessonStatement } from "./lesson-statement.ts";
-import { ModuleExamPanel } from "./module-exam-panel.tsx";
-import { PlacementDialog } from "./placement-dialog.tsx";
-import { ProblemSetPanel } from "./problem-set-panel.tsx";
+
+const ModuleExamPanel = dynamic(() => import("./module-exam-panel.tsx").then((m) => m.ModuleExamPanel));
+const PlacementDialog = dynamic(() => import("./placement-dialog.tsx").then((m) => m.PlacementDialog));
+const ProblemSetPanel = dynamic(() => import("./problem-set-panel.tsx").then((m) => m.ProblemSetPanel));
 
 export type SyllabusTab = "ementa" | "caderno" | "nivelamento";
 type SyllabusFilter = "all" | "pending" | "lab" | "exams";
@@ -34,7 +37,7 @@ type InlinePanelState =
 
 export interface SyllabusViewProps {
 	initialSyllabus: StudySyllabus;
-	initialNotebook: DomainNotebook;
+	initialNotebook?: DomainNotebook | null;
 	domainTitle: string;
 	initialTab?: SyllabusTab;
 	initialModule?: string;
@@ -454,6 +457,659 @@ function FlippedPrepDrawer({
 	);
 }
 
+interface SyllabusLessonRowProps {
+	domainId: string;
+	lesson: SyllabusLesson;
+	index: number;
+	flippedOpen: boolean;
+	isStarting: boolean;
+	isOpeningPast: boolean;
+	anyStarting: boolean;
+	t: Translator;
+	onToggleFlipped: (lessonId: string) => void;
+	onCloseFlipped: () => void;
+	onOpenPast: (lesson: SyllabusLesson) => Promise<void>;
+	onStartLesson: (lesson: SyllabusLesson, preReadingNote?: string) => Promise<void>;
+}
+
+const SyllabusLessonRow = memo(function SyllabusLessonRow({
+	domainId,
+	lesson,
+	index,
+	flippedOpen,
+	isStarting,
+	isOpeningPast,
+	anyStarting,
+	t,
+	onToggleFlipped,
+	onCloseFlipped,
+	onOpenPast,
+	onStartLesson,
+}: SyllabusLessonRowProps) {
+	const lessonStatusText = statusLabel(t, lesson.status);
+	const studyActionLabel =
+		lesson.status === "done"
+			? t("course.syllabus.practiceReview")
+			: lesson.status === "in-progress"
+				? t("course.syllabus.continue")
+				: lesson.status === "locked"
+					? t("course.syllabus.explore")
+					: t("course.syllabus.study");
+	const nodeHref = `/mapa?dominio=${encodeURIComponent(domainId)}&no=${encodeURIComponent(lesson.id)}`;
+
+	return (
+		<li
+			data-reached={lesson.status === "done"}
+			className="flex-col items-stretch gap-1.5 py-1.5"
+		>
+			<div className="flex flex-wrap items-center gap-2">
+				<span
+					className="study-mission-marker"
+					title={lessonStatusText}
+					aria-label={lessonStatusText}
+				>
+					{STATUS_MARKER[lesson.status]}
+				</span>
+				<Link
+					href={nodeHref}
+					className={`min-w-0 text-sm underline decoration-border underline-offset-2 hover:decoration-foreground ${lesson.status === "in-progress" ? "font-semibold text-foreground" : "font-medium"}`}
+				>
+					{index + 1}. {lesson.title}
+				</Link>
+				{lesson.hasLab && (
+					<span className="study-pill study-pill-info">
+						{t("course.syllabus.pillLab")}
+					</span>
+				)}
+				{lesson.durable && (
+					<span className="study-pill study-pill-success">
+						{t("course.syllabus.pillDurable")}
+					</span>
+				)}
+				{lesson.isFinale && (
+					<span className="study-pill study-pill-accent">
+						{t("course.syllabus.pillFinale")}
+					</span>
+				)}
+				<span className="text-xs tabular-nums text-muted-foreground">
+					~{lesson.minutes} min
+				</span>
+				<div className="ml-auto flex flex-wrap items-center gap-1.5">
+					<button
+						type="button"
+						aria-expanded={flippedOpen}
+						className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
+						onClick={() => onToggleFlipped(lesson.id)}
+					>
+						<Icon name="book" size={13} tone={false} />
+						{t("course.syllabus.preReading")}
+					</button>
+					{lesson.status === "done" && (
+						<button
+							type="button"
+							className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
+							disabled={anyStarting}
+							onClick={() => void onOpenPast(lesson)}
+						>
+							{isOpeningPast
+								? t("course.syllabus.opening")
+								: t("course.syllabus.viewPastLesson")}
+						</button>
+					)}
+					<button
+						type="button"
+						className={`cel-button min-h-7 px-2.5 py-0.5 text-xs ${lesson.status === "in-progress" || lesson.status === "available" ? "cel-button-primary" : ""}`}
+						disabled={anyStarting}
+						onClick={() => void onStartLesson(lesson)}
+					>
+						<Icon name="play" size={12} tone={false} />
+						{isStarting ? t("course.syllabus.opening") : studyActionLabel}
+					</button>
+				</div>
+			</div>
+
+			{flippedOpen && (
+				<FlippedPrepDrawer
+					domainId={domainId}
+					lesson={lesson}
+					starting={isStarting}
+					onClose={onCloseFlipped}
+					onStartWithPrep={onStartLesson}
+				/>
+			)}
+		</li>
+	);
+});
+
+interface SyllabusModuleCardProps {
+	domainId: string;
+	mod: SyllabusModule;
+	filter: SyllabusFilter;
+	isCurrentModule: boolean;
+	activePanelKind: "prova" | "lista" | null;
+	activeFlippedNodeId: string | null;
+	activeStartingNodeId: string | null;
+	anyStarting: boolean;
+	decFmt: Intl.NumberFormat;
+	dateFmt: Intl.DateTimeFormat;
+	t: Translator;
+	onToggleModulePanel: (moduleId: string, kind: "prova" | "lista") => void;
+	onCloseInlinePanel: () => void;
+	onRefresh: () => void;
+	onToggleFlipped: (lessonId: string) => void;
+	onCloseFlipped: () => void;
+	onOpenPast: (lesson: SyllabusLesson) => Promise<void>;
+	onStartLesson: (lesson: SyllabusLesson, preReadingNote?: string) => Promise<void>;
+}
+
+const SyllabusModuleCard = memo(function SyllabusModuleCard({
+	domainId,
+	mod,
+	filter,
+	isCurrentModule,
+	activePanelKind,
+	activeFlippedNodeId,
+	activeStartingNodeId,
+	anyStarting,
+	decFmt,
+	dateFmt,
+	t,
+	onToggleModulePanel,
+	onCloseInlinePanel,
+	onRefresh,
+	onToggleFlipped,
+	onCloseFlipped,
+	onOpenPast,
+	onStartLesson,
+}: SyllabusModuleCardProps) {
+	const visibleLessons = useMemo(
+		() => (filter === "all" || filter === "exams" ? mod.lessons : mod.lessons.filter((l) => lessonMatchesFilter(l, filter))),
+		[mod.lessons, filter],
+	);
+	const modPct = mod.total > 0 ? Math.round((100 * mod.completed) / mod.total) : 0;
+	const firstPendingLesson =
+		mod.lessons.find((l) => l.status === "in-progress" || l.status === "available") ??
+		mod.lessons[0];
+	const arcSteps = [
+		{
+			id: "prep",
+			label: t("course.syllabus.arcPrep"),
+			done: mod.completed > 0,
+			active: mod.books.length > 0 || mod.videos.length > 0,
+			onClick: firstPendingLesson ? () => onToggleFlipped(firstPendingLesson.id) : undefined,
+		},
+		{
+			id: "lesson",
+			label: `${t("course.syllabus.arcLesson")} ${mod.completed}/${mod.total}`,
+			done: mod.total > 0 && mod.completed >= mod.total,
+			active: mod.completed > 0 && mod.completed < mod.total,
+		},
+		{
+			id: "pset",
+			label: t("course.syllabus.arcProblemSet"),
+			done: Boolean(mod.problemSetPassed),
+			active: !mod.problemSetPassed && mod.completed > 0,
+			onClick: () => onToggleModulePanel(mod.id, "lista"),
+		},
+		{
+			id: "exam",
+			label: t("course.syllabus.arcExam"),
+			done: Boolean(mod.examPassed),
+			active: Boolean(mod.examUnlocked && !mod.examPassed),
+			onClick: () => onToggleModulePanel(mod.id, "prova"),
+		},
+		{
+			id: "review",
+			label: t("course.syllabus.arcReview"),
+			done: mod.avgRetention !== null && mod.avgRetention >= 0.85,
+			active: mod.avgRetention !== null && mod.avgRetention < 0.85,
+		},
+	];
+
+	return (
+		<article
+			id={`modulo-${mod.id}`}
+			data-testid={`syllabus-module-${mod.id}`}
+			className="study-cv-block space-y-3 rounded-xl border border-border/60 bg-card p-4"
+		>
+			<div className="flex flex-wrap items-start justify-between gap-3">
+				<div className="min-w-0 flex-1 space-y-1.5">
+					<div className="flex flex-wrap items-center gap-2">
+						<h3 className="cel-display text-base leading-snug">
+							{t("course.syllabus.moduleTitle", { index: mod.index, title: mod.title })}
+						</h3>
+						{isCurrentModule && (
+							<span className="study-pill study-pill-accent">{t("course.syllabus.inFocus")}</span>
+						)}
+						{mod.avgRetention !== null && (
+							<span
+								className="study-pill study-pill-info tabular-nums"
+								title={t("course.syllabus.retentionTitle")}
+							>
+								{t("course.syllabus.retentionPill", { pct: Math.round(mod.avgRetention * 100) })}
+							</span>
+						)}
+						{mod.problemSetScore !== undefined && (
+							<span
+								className={
+									mod.problemSetPassed
+										? "study-pill study-pill-success tabular-nums"
+										: "study-pill study-pill-warning tabular-nums"
+								}
+								title={
+									mod.problemSetAt
+										? t("course.syllabus.takenOn", { date: formatIsoDate(mod.problemSetAt, dateFmt) })
+										: undefined
+								}
+							>
+								{t("course.syllabus.problemSetScoreBadge", {
+									score: decFmt.format(mod.problemSetScore),
+									status: mod.problemSetPassed
+										? t("course.syllabus.statusPassed")
+										: t("course.syllabus.statusReview"),
+								})}
+							</span>
+						)}
+						{mod.examScore !== undefined && (
+							<span
+								className={
+									mod.examPassed
+										? "study-pill study-pill-success tabular-nums"
+										: "study-pill study-pill-warning tabular-nums"
+								}
+								title={
+									mod.examAt
+										? t("course.syllabus.takenOn", { date: formatIsoDate(mod.examAt, dateFmt) })
+										: undefined
+								}
+							>
+								{t("course.syllabus.examScoreBadge", {
+									score: decFmt.format(mod.examScore),
+									status: mod.examPassed
+										? t("course.syllabus.statusPassed")
+										: t("course.syllabus.statusReinforce"),
+								})}
+							</span>
+						)}
+					</div>
+					<div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground tabular-nums">
+						<span>
+							{t("course.syllabus.chapterLessons", {
+								completed: mod.completed,
+								total: mod.total,
+								pct: modPct,
+							})}
+						</span>
+						<span>
+							{t("course.syllabus.hoursRemainingOf", {
+								remaining: decFmt.format(mod.hoursRemaining),
+								total: decFmt.format(mod.hoursTotal),
+							})}
+						</span>
+						{mod.examUnlocked && mod.examScore === undefined && (
+							<span className="text-[var(--cel-success-text,var(--lh-success))]">
+								{t("course.syllabus.examUnlocked")}
+							</span>
+						)}
+					</div>
+					<progress
+						className="study-progress block w-full max-w-md"
+						max={Math.max(1, mod.total)}
+						value={mod.completed}
+						aria-label={t("course.syllabus.moduleProgressAria", { title: mod.title })}
+					/>
+					<ol
+						aria-label={t("course.syllabus.arcAria")}
+						data-testid={`module-arc-${mod.id}`}
+						className="flex flex-wrap items-center gap-1 pt-1 text-[11px]"
+					>
+						{arcSteps.map((step, stepIdx) => {
+							const pillCls = step.done
+								? "border-[var(--cel-success,var(--lh-success))]/45 bg-[var(--cel-success,var(--lh-success))]/10 text-foreground"
+								: step.active
+									? "border-[var(--cel-accent,var(--primary))]/50 bg-[var(--cel-accent,var(--primary))]/10 text-foreground"
+									: "border-border/50 bg-background/50 text-muted-foreground";
+							return (
+								<li key={step.id} className="inline-flex items-center gap-1">
+									{stepIdx > 0 && (
+										<span aria-hidden="true" className="text-muted-foreground/60">
+											→
+										</span>
+									)}
+									{step.onClick ? (
+										<button
+											type="button"
+											onClick={step.onClick}
+											className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-1.5 py-0.5 font-medium transition-colors hover:border-foreground/50 ${pillCls}`}
+										>
+											<span aria-hidden="true">{step.done ? "✓" : step.active ? "●" : "○"}</span>
+											{step.label}
+										</button>
+									) : (
+										<span
+											className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-medium ${pillCls}`}
+										>
+											<span aria-hidden="true">{step.done ? "✓" : step.active ? "●" : "○"}</span>
+											{step.label}
+										</span>
+									)}
+								</li>
+							);
+						})}
+					</ol>
+				</div>
+
+				<div className="flex flex-wrap items-center gap-2">
+					<button
+						type="button"
+						data-testid={`open-exam-${mod.id}`}
+						aria-expanded={activePanelKind === "prova"}
+						className={`cel-button min-h-9 px-3 py-1.5 text-xs ${mod.examUnlocked && !mod.examPassed ? "cel-button-primary" : ""}`}
+						title={
+							mod.examUnlocked
+								? t("course.syllabus.moduleExamTitleUnlocked")
+								: t("course.syllabus.moduleExamTitleLocked")
+						}
+						onClick={() => onToggleModulePanel(mod.id, "prova")}
+					>
+						<Icon name="exercise" size={14} tone={false} />
+						{t("course.syllabus.moduleExamButton")}
+					</button>
+					<button
+						type="button"
+						data-testid={`open-pset-${mod.id}`}
+						aria-expanded={activePanelKind === "lista"}
+						className="cel-button min-h-9 px-3 py-1.5 text-xs"
+						onClick={() => onToggleModulePanel(mod.id, "lista")}
+					>
+						<Icon name="activity" size={14} tone={false} />
+						{t("course.syllabus.problemSetButton")}
+					</button>
+				</div>
+			</div>
+
+			{(mod.books.length > 0 || mod.videos.length > 0) && (
+				<div className="flex flex-wrap gap-2 border-t border-border/45 pt-2.5 text-xs">
+					{mod.books.map((book) => (
+						<a
+							key={`book-${book.url}-${book.part}`}
+							href={book.url}
+							target="_blank"
+							rel="noreferrer"
+							className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/60 px-2.5 py-1 hover:bg-accent"
+						>
+							<Icon name="book" size={13} tone={false} />
+							<span className="font-medium">{book.title}</span>
+							{book.part && <span className="text-muted-foreground">· {book.part}</span>}
+						</a>
+					))}
+					{mod.videos.map((video) => (
+						<a
+							key={`video-${video.url}-${video.part}`}
+							href={video.url}
+							target="_blank"
+							rel="noreferrer"
+							className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/60 px-2.5 py-1 hover:bg-accent"
+						>
+							<Icon name="video" size={13} tone={false} />
+							<span className="font-medium">{video.title}</span>
+							{video.part && <span className="text-muted-foreground">· {video.part}</span>}
+						</a>
+					))}
+				</div>
+			)}
+
+			{activePanelKind === "prova" && (
+				<div className="pt-1">
+					<ModuleExamPanel
+						domainId={domainId}
+						scope="module"
+						targetId={mod.id}
+						targetTitle={mod.title}
+						onClose={onCloseInlinePanel}
+						onGraded={onRefresh}
+					/>
+				</div>
+			)}
+
+			{activePanelKind === "lista" && (
+				<div className="pt-1">
+					<ProblemSetPanel
+						domainId={domainId}
+						moduleId={mod.id}
+						moduleTitle={mod.title}
+						onClose={onCloseInlinePanel}
+						onGraded={onRefresh}
+					/>
+				</div>
+			)}
+
+			<ol className="study-missions border-t border-border/45 pt-2.5">
+				{visibleLessons.map((lesson, idx) => (
+					<SyllabusLessonRow
+						key={lesson.id}
+						domainId={domainId}
+						lesson={lesson}
+						index={idx}
+						flippedOpen={activeFlippedNodeId === lesson.id}
+						isStarting={activeStartingNodeId === lesson.id}
+						isOpeningPast={activeStartingNodeId === `past:${lesson.id}`}
+						anyStarting={anyStarting}
+						t={t}
+						onToggleFlipped={onToggleFlipped}
+						onCloseFlipped={onCloseFlipped}
+						onOpenPast={onOpenPast}
+						onStartLesson={onStartLesson}
+					/>
+				))}
+			</ol>
+		</article>
+	);
+});
+
+interface SyllabusChapterCardProps {
+	domainId: string;
+	chapter: SyllabusChapter;
+	isOpen: boolean;
+	chapterExamOpen: boolean;
+	activeModuleId: string | null;
+	chapterInlineModulePanel: { moduleId: string; kind: "prova" | "lista" } | null;
+	chapterFlippedNodeId: string | null;
+	chapterStartingNodeId: string | null;
+	anyStarting: boolean;
+	filter: SyllabusFilter;
+	decFmt: Intl.NumberFormat;
+	dateFmt: Intl.DateTimeFormat;
+	t: Translator;
+	onToggleChapter: (chapterIndex: number) => void;
+	onToggleChapterExam: (chapterLevel: string) => void;
+	onToggleModulePanel: (moduleId: string, kind: "prova" | "lista") => void;
+	onCloseInlinePanel: () => void;
+	onRefresh: () => void;
+	onToggleFlipped: (lessonId: string) => void;
+	onCloseFlipped: () => void;
+	onOpenPast: (lesson: SyllabusLesson) => Promise<void>;
+	onStartLesson: (lesson: SyllabusLesson, preReadingNote?: string) => Promise<void>;
+}
+
+const SyllabusChapterCard = memo(function SyllabusChapterCard({
+	domainId,
+	chapter,
+	isOpen,
+	chapterExamOpen,
+	activeModuleId,
+	chapterInlineModulePanel,
+	chapterFlippedNodeId,
+	chapterStartingNodeId,
+	anyStarting,
+	filter,
+	decFmt,
+	dateFmt,
+	t,
+	onToggleChapter,
+	onToggleChapterExam,
+	onToggleModulePanel,
+	onCloseInlinePanel,
+	onRefresh,
+	onToggleFlipped,
+	onCloseFlipped,
+	onOpenPast,
+	onStartLesson,
+}: SyllabusChapterCardProps) {
+	const chapterPct = chapter.total > 0 ? Math.round((100 * chapter.completed) / chapter.total) : 0;
+
+	return (
+		<section
+			data-testid={`syllabus-chapter-${chapter.index}`}
+			className="study-cv-block cel-card overflow-hidden"
+		>
+			<div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
+				<button
+					type="button"
+					aria-expanded={isOpen}
+					onClick={() => onToggleChapter(chapter.index)}
+					className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center justify-between gap-3 rounded-lg text-left transition-colors hover:bg-accent/30"
+				>
+					<div className="min-w-0 flex-1 space-y-1">
+						<div className="flex flex-wrap items-center gap-2">
+							<span className="study-pill study-pill-accent">{chapter.level}</span>
+							<h2 className="cel-display text-base leading-snug sm:text-lg">{chapter.title}</h2>
+							{chapter.active && (
+								<span className="study-pill study-pill-info">{t("course.syllabus.statusCurrent")}</span>
+							)}
+							{chapter.total > 0 && chapter.completed === chapter.total && (
+								<span className="study-pill study-pill-success">{t("course.syllabus.statusCompleted")}</span>
+							)}
+							{chapter.examScore !== undefined && (
+								<span
+									className={
+										chapter.examPassed
+											? "study-pill study-pill-success tabular-nums"
+											: "study-pill study-pill-warning tabular-nums"
+									}
+									title={
+										chapter.examAt
+											? t("course.syllabus.takenOn", { date: formatIsoDate(chapter.examAt, dateFmt) })
+											: undefined
+									}
+								>
+									{t("course.syllabus.chapterExamScore", {
+										score: decFmt.format(chapter.examScore),
+										status: chapter.examPassed
+											? t("course.syllabus.statusPassed")
+											: t("course.syllabus.statusReinforce"),
+									})}
+								</span>
+							)}
+							{chapter.examUnlocked && chapter.examScore === undefined && (
+								<span className="study-pill study-pill-info">
+									{t("course.syllabus.chapterExamUnlocked")}
+								</span>
+							)}
+						</div>
+						{chapter.mission && (
+							<p className="max-w-[65ch] text-xs leading-relaxed text-muted-foreground">
+								{chapter.mission}
+							</p>
+						)}
+					</div>
+					<div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
+						<div className="text-right">
+							<p className="font-semibold text-foreground">
+								{t("course.syllabus.chapterLessons", {
+									completed: chapter.completed,
+									total: chapter.total,
+									pct: chapterPct,
+								})}
+							</p>
+							<p>
+								{t("course.syllabus.hoursRemaining", {
+									hours: decFmt.format(chapter.hoursRemaining),
+								})}
+							</p>
+						</div>
+						<Icon name={isOpen ? "chevron-up" : "chevron-down"} size={16} tone={false} />
+					</div>
+				</button>
+
+				<button
+					type="button"
+					data-testid={`open-chapter-exam-${chapter.index}`}
+					aria-expanded={chapterExamOpen}
+					className={`cel-button min-h-9 shrink-0 px-3 py-1.5 text-xs ${chapter.examUnlocked && !chapter.examPassed ? "cel-button-primary" : ""}`}
+					title={
+						chapter.examUnlocked
+							? t("course.syllabus.chapterExamTitleUnlocked")
+							: t("course.syllabus.chapterExamTitleLocked")
+					}
+					onClick={() => onToggleChapterExam(chapter.level)}
+				>
+					<Icon name="trophy" size={14} tone={false} />
+					{t("course.syllabus.chapterExamButton")}
+				</button>
+			</div>
+
+			{chapterExamOpen && (
+				<div className="border-t border-border/50 bg-background/45 p-3.5 sm:p-5">
+					<ModuleExamPanel
+						domainId={domainId}
+						scope="chapter"
+						targetId={chapter.level}
+						targetTitle={`${chapter.level} · ${chapter.title}`}
+						onClose={onCloseInlinePanel}
+						onGraded={onRefresh}
+					/>
+				</div>
+			)}
+
+			{isOpen && (
+				<div className="space-y-3.5 border-t border-border/50 bg-background/35 p-3.5 sm:p-5">
+					{chapter.modules.map((mod) => {
+						const modFlipped =
+							chapterFlippedNodeId && mod.lessons.some((l) => l.id === chapterFlippedNodeId)
+								? chapterFlippedNodeId
+								: null;
+						const modStarting =
+							chapterStartingNodeId &&
+							mod.lessons.some(
+								(l) => chapterStartingNodeId === l.id || chapterStartingNodeId === `past:${l.id}`,
+							)
+								? chapterStartingNodeId
+								: null;
+						return (
+							<SyllabusModuleCard
+								key={mod.id}
+								domainId={domainId}
+								mod={mod}
+								filter={filter}
+								isCurrentModule={activeModuleId === mod.id}
+								activePanelKind={
+									chapterInlineModulePanel?.moduleId === mod.id
+										? chapterInlineModulePanel.kind
+										: null
+								}
+								activeFlippedNodeId={modFlipped}
+								activeStartingNodeId={modStarting}
+								anyStarting={anyStarting}
+								decFmt={decFmt}
+								dateFmt={dateFmt}
+								t={t}
+								onToggleModulePanel={onToggleModulePanel}
+								onCloseInlinePanel={onCloseInlinePanel}
+								onRefresh={onRefresh}
+								onToggleFlipped={onToggleFlipped}
+								onCloseFlipped={onCloseFlipped}
+								onOpenPast={onOpenPast}
+								onStartLesson={onStartLesson}
+							/>
+						);
+					})}
+				</div>
+			)}
+		</section>
+	);
+});
+
 export function SyllabusView({
 	initialSyllabus,
 	initialNotebook,
@@ -465,11 +1121,15 @@ export function SyllabusView({
 }: SyllabusViewProps) {
 	const { t, intl } = useI18n();
 	const router = useRouter();
-	const starterRef = useRef(new SessionStarter());
+	const starterRef = useRef<SessionStarter | null>(null);
 	const [tab, setTab] = useState<SyllabusTab>(initialTab);
 	const [filter, setFilter] = useState<SyllabusFilter>("all");
 	const [syllabus, setSyllabus] = useState<StudySyllabus>(initialSyllabus);
-	const [notebook, setNotebook] = useState<DomainNotebook>(initialNotebook);
+	const [notebook, setNotebook] = useState<DomainNotebook | null>(initialNotebook ?? null);
+	const [notebookLoading, setNotebookLoading] = useState(false);
+	const [notebookError, setNotebookError] = useState("");
+
+	const handleRefresh = useCallback(() => router.refresh(), [router]);
 
 	const decFmt = useMemo(
 		() => new Intl.NumberFormat(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
@@ -485,12 +1145,35 @@ export function SyllabusView({
 	}, [initialSyllabus]);
 
 	useEffect(() => {
-		setNotebook(initialNotebook);
+		if (initialNotebook !== undefined) setNotebook(initialNotebook);
 	}, [initialNotebook]);
+
+	// Lazily fetch the domain notebook only when the user opens the "caderno" tab
+	// and the server omitted it on initial render.
+	useEffect(() => {
+		if (tab !== "caderno" || notebook !== null) return;
+		const ctrl = new AbortController();
+		setNotebookLoading(true);
+		setNotebookError("");
+		fetch(`/api/study/notebook?domain=${encodeURIComponent(syllabus.domainId)}`, { signal: ctrl.signal })
+			.then(async (res) => {
+				const data = (await res.json().catch(() => null)) as (DomainNotebook & { error?: string }) | null;
+				if (!res.ok || !data) throw new Error(data?.error ?? t("common.state.loading"));
+				if (!ctrl.signal.aborted) setNotebook(data);
+			})
+			.catch((err: unknown) => {
+				if (ctrl.signal.aborted) return;
+				setNotebookError(err instanceof Error ? err.message : "");
+			})
+			.finally(() => {
+				if (!ctrl.signal.aborted) setNotebookLoading(false);
+			});
+		return () => ctrl.abort();
+	}, [tab, notebook, syllabus.domainId, t]);
 
 	useServerEvent("domain-changed", () => router.replace("/"));
 	useServerEvent("curriculum-expanded", (event) => {
-		if (event.domainId === syllabus.domainId) router.refresh();
+		if (event.domainId === syllabus.domainId) handleRefresh();
 	});
 
 	const matchedInitialChapter = useMemo(() => {
@@ -527,6 +1210,8 @@ export function SyllabusView({
 	});
 	const [openFlippedNodeId, setOpenFlippedNodeId] = useState<string | null>(null);
 	const [startingNodeId, setStartingNodeId] = useState<string | null>(null);
+	const startingNodeIdRef = useRef<string | null>(null);
+	startingNodeIdRef.current = startingNodeId;
 	const [launchError, setLaunchError] = useState("");
 
 	const [exportBusy, setExportBusy] = useState<FlashcardExportMode | null>(null);
@@ -547,18 +1232,61 @@ export function SyllabusView({
 	const { schedule } = syllabus;
 	const reviewReservePct = Math.round(schedule.reviewReserveShare * 100);
 
-	const toggleChapter = (chapterIndex: number) => {
+	const toggleChapter = useCallback((chapterIndex: number) => {
 		setOpenChapters((prev) => {
 			const next = new Set(prev);
 			if (next.has(chapterIndex)) next.delete(chapterIndex);
 			else next.add(chapterIndex);
 			return next;
 		});
-	};
+	}, []);
+
+	const handleFilterChange = useCallback(
+		(nextFilter: SyllabusFilter) => {
+			setFilter(nextFilter);
+			if (nextFilter === "all") return;
+			const matching = syllabus.chapters.filter(
+				(chapter) =>
+					chapter.modules.some((mod) => moduleMatchesFilter(mod, nextFilter)) ||
+					(nextFilter === "exams" && Boolean(chapter.examUnlocked)),
+			);
+			// Open the active chapter + first 2 matching chapters instead of forcing
+			// every chapter open simultaneously; users can still expand any chapter.
+			const nextOpen = new Set<number>();
+			const activeMatch = matching.find((c) => c.active);
+			if (activeMatch) nextOpen.add(activeMatch.index);
+			for (const c of matching.slice(0, 2)) nextOpen.add(c.index);
+			setOpenChapters(nextOpen);
+		},
+		[syllabus.chapters],
+	);
+
+	const toggleChapterExam = useCallback((chapterLevel: string) => {
+		setInlinePanel((curr) =>
+			curr?.scope === "chapter" && curr.chapterLevel === chapterLevel
+				? null
+				: { scope: "chapter", chapterLevel },
+		);
+	}, []);
+
+	const toggleModulePanel = useCallback((moduleId: string, kind: "prova" | "lista") => {
+		setInlinePanel((curr) =>
+			curr?.scope === "module" && curr.moduleId === moduleId && curr.kind === kind
+				? null
+				: { scope: "module", moduleId, kind },
+		);
+	}, []);
+
+	const closeInlinePanel = useCallback(() => setInlinePanel(null), []);
+	const toggleFlippedNode = useCallback(
+		(lessonId: string) => setOpenFlippedNodeId((curr) => (curr === lessonId ? null : lessonId)),
+		[],
+	);
+	const closeFlippedNode = useCallback(() => setOpenFlippedNodeId(null), []);
 
 	const startLessonForNode = useCallback(
 		async (lesson: SyllabusLesson, preReadingNote?: string) => {
-			if (startingNodeId) return;
+			if (startingNodeIdRef.current) return;
 			setStartingNodeId(lesson.id);
 			setLaunchError("");
 			try {
@@ -589,6 +1317,7 @@ export function SyllabusView({
 				const baseStatement = lessonStatement(detail.brief, minutes);
 				const statement = preReadingNote ? `${baseStatement}\n\n${preReadingNote}` : baseStatement;
 				const opening = preReadingNote ? `${lesson.title}\n\n${preReadingNote}` : lesson.title;
+				starterRef.current ??= new SessionStarter();
 				const target = await starterRef.current.start(
 					studyLessonRequest({
 						domainId: syllabus.domainId,
@@ -611,12 +1340,12 @@ export function SyllabusView({
 				setStartingNodeId(null);
 			}
 		},
-		[router, startingNodeId, syllabus.domainId, t],
+		[router, syllabus.domainId, t],
 	);
 
 	const openPastLessonForNode = useCallback(
 		async (lesson: SyllabusLesson) => {
-			if (startingNodeId) return;
+			if (startingNodeIdRef.current) return;
 			setStartingNodeId(`past:${lesson.id}`);
 			setLaunchError("");
 			try {
@@ -643,7 +1372,7 @@ export function SyllabusView({
 				setStartingNodeId(null);
 			}
 		},
-		[router, startingNodeId, syllabus.domainId, t],
+		[router, syllabus.domainId, t],
 	);
 
 	const handleExportFlashcards = async (mode: FlashcardExportMode) => {
@@ -894,7 +1623,7 @@ export function SyllabusView({
 									type="button"
 									aria-pressed={filter === item}
 									className="cel-chip min-h-8 cursor-pointer px-3 py-1 text-xs"
-									onClick={() => setFilter(item)}
+									onClick={() => handleFilterChange(item)}
 								>
 									{filterLabel(t, item)}
 								</button>
@@ -908,526 +1637,51 @@ export function SyllabusView({
 						) : (
 							<div className="space-y-3.5">
 								{filteredChapters.map((chapter) => {
-									const isOpen = openChapters.has(chapter.index) || filter !== "all";
-									const chapterPct = chapter.total > 0 ? Math.round((100 * chapter.completed) / chapter.total) : 0;
+									const isOpen = openChapters.has(chapter.index);
 									const chapterExamOpen =
 										inlinePanel?.scope === "chapter" && inlinePanel.chapterLevel === chapter.level;
-
+									const chapterInlineModulePanel =
+										inlinePanel?.scope === "module" && chapter.modules.some((m) => m.id === inlinePanel.moduleId)
+											? { moduleId: inlinePanel.moduleId, kind: inlinePanel.kind }
+											: null;
+									const chapterFlippedNodeId =
+										openFlippedNodeId &&
+										chapter.modules.some((m) => m.lessons.some((l) => l.id === openFlippedNodeId))
+											? openFlippedNodeId
+											: null;
+									const chapterStartingNodeId =
+										startingNodeId &&
+										chapter.modules.some((m) =>
+											m.lessons.some((l) => startingNodeId === l.id || startingNodeId === `past:${l.id}`),
+										)
+											? startingNodeId
+											: null;
 									return (
-										<section
+										<SyllabusChapterCard
 											key={`${chapter.level}-${chapter.index}`}
-											data-testid={`syllabus-chapter-${chapter.index}`}
-											className="cel-card overflow-hidden"
-										>
-											<div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
-												<button
-													type="button"
-													aria-expanded={isOpen}
-													onClick={() => toggleChapter(chapter.index)}
-													className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center justify-between gap-3 rounded-lg text-left transition-colors hover:bg-accent/30"
-												>
-													<div className="min-w-0 flex-1 space-y-1">
-														<div className="flex flex-wrap items-center gap-2">
-															<span className="study-pill study-pill-accent">{chapter.level}</span>
-															<h2 className="cel-display text-base leading-snug sm:text-lg">{chapter.title}</h2>
-															{chapter.active && (
-																<span className="study-pill study-pill-info">{t("course.syllabus.statusCurrent")}</span>
-															)}
-															{chapter.total > 0 && chapter.completed === chapter.total && (
-																<span className="study-pill study-pill-success">{t("course.syllabus.statusCompleted")}</span>
-															)}
-															{chapter.examScore !== undefined && (
-																<span
-																	className={
-																		chapter.examPassed
-																			? "study-pill study-pill-success tabular-nums"
-																			: "study-pill study-pill-warning tabular-nums"
-																	}
-																	title={
-																		chapter.examAt
-																			? t("course.syllabus.takenOn", { date: formatIsoDate(chapter.examAt, dateFmt) })
-																			: undefined
-																	}
-																>
-																	{t("course.syllabus.chapterExamScore", {
-																		score: decFmt.format(chapter.examScore),
-																		status: chapter.examPassed
-																			? t("course.syllabus.statusPassed")
-																			: t("course.syllabus.statusReinforce"),
-																	})}
-																</span>
-															)}
-															{chapter.examUnlocked && chapter.examScore === undefined && (
-																<span className="study-pill study-pill-info">
-																	{t("course.syllabus.chapterExamUnlocked")}
-																</span>
-															)}
-														</div>
-														{chapter.mission && (
-															<p className="max-w-[65ch] text-xs leading-relaxed text-muted-foreground">
-																{chapter.mission}
-															</p>
-														)}
-													</div>
-													<div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
-														<div className="text-right">
-															<p className="font-semibold text-foreground">
-																{t("course.syllabus.chapterLessons", {
-																	completed: chapter.completed,
-																	total: chapter.total,
-																	pct: chapterPct,
-																})}
-															</p>
-															<p>
-																{t("course.syllabus.hoursRemaining", {
-																	hours: decFmt.format(chapter.hoursRemaining),
-																})}
-															</p>
-														</div>
-														<Icon name={isOpen ? "chevron-up" : "chevron-down"} size={16} tone={false} />
-													</div>
-												</button>
-
-												<button
-													type="button"
-													data-testid={`open-chapter-exam-${chapter.index}`}
-													aria-expanded={chapterExamOpen}
-													className={`cel-button min-h-9 shrink-0 px-3 py-1.5 text-xs ${chapter.examUnlocked && !chapter.examPassed ? "cel-button-primary" : ""}`}
-													title={
-														chapter.examUnlocked
-															? t("course.syllabus.chapterExamTitleUnlocked")
-															: t("course.syllabus.chapterExamTitleLocked")
-													}
-													onClick={() => {
-														setInlinePanel((curr) =>
-															curr?.scope === "chapter" && curr.chapterLevel === chapter.level
-																? null
-																: { scope: "chapter", chapterLevel: chapter.level },
-														);
-													}}
-												>
-													<Icon name="trophy" size={14} tone={false} />
-													{t("course.syllabus.chapterExamButton")}
-												</button>
-											</div>
-
-											{chapterExamOpen && (
-												<div className="border-t border-border/50 bg-background/45 p-3.5 sm:p-5">
-													<ModuleExamPanel
-														domainId={syllabus.domainId}
-														scope="chapter"
-														targetId={chapter.level}
-														targetTitle={`${chapter.level} · ${chapter.title}`}
-														onClose={() => setInlinePanel(null)}
-														onGraded={() => router.refresh()}
-													/>
-												</div>
-											)}
-
-											{isOpen && (
-												<div className="space-y-3.5 border-t border-border/50 bg-background/35 p-3.5 sm:p-5">
-													{chapter.modules.map((mod) => {
-														const visibleLessons = mod.lessons.filter((l) => lessonMatchesFilter(l, filter));
-														const modPct = mod.total > 0 ? Math.round((100 * mod.completed) / mod.total) : 0;
-														const activePanelKind =
-															inlinePanel?.scope === "module" && inlinePanel.moduleId === mod.id
-																? inlinePanel.kind
-																: null;
-														const isCurrentModule = syllabus.activeModuleId === mod.id;
-														const firstPendingLesson =
-															mod.lessons.find((l) => l.status === "in-progress" || l.status === "available") ??
-															mod.lessons[0];
-														const arcSteps = [
-															{
-																id: "prep",
-																label: t("course.syllabus.arcPrep"),
-																done: mod.completed > 0,
-																active: mod.books.length > 0 || mod.videos.length > 0,
-																onClick: firstPendingLesson
-																	? () =>
-																		setOpenFlippedNodeId((curr) =>
-																			curr === firstPendingLesson.id ? null : firstPendingLesson.id,
-																		)
-																	: undefined,
-															},
-															{
-																id: "lesson",
-																label: `${t("course.syllabus.arcLesson")} ${mod.completed}/${mod.total}`,
-																done: mod.total > 0 && mod.completed >= mod.total,
-																active: mod.completed > 0 && mod.completed < mod.total,
-															},
-															{
-																id: "pset",
-																label: t("course.syllabus.arcProblemSet"),
-																done: Boolean(mod.problemSetPassed),
-																active: !mod.problemSetPassed && mod.completed > 0,
-																onClick: () =>
-																	setInlinePanel((curr) =>
-																		curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "lista"
-																			? null
-																			: { scope: "module", moduleId: mod.id, kind: "lista" },
-																	),
-															},
-															{
-																id: "exam",
-																label: t("course.syllabus.arcExam"),
-																done: Boolean(mod.examPassed),
-																active: Boolean(mod.examUnlocked && !mod.examPassed),
-																onClick: () =>
-																	setInlinePanel((curr) =>
-																		curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "prova"
-																			? null
-																			: { scope: "module", moduleId: mod.id, kind: "prova" },
-																	),
-															},
-															{
-																id: "review",
-																label: t("course.syllabus.arcReview"),
-																done: mod.avgRetention !== null && mod.avgRetention >= 0.85,
-																active: mod.avgRetention !== null && mod.avgRetention < 0.85,
-															},
-														];
-
-														return (
-															<article
-																key={mod.id}
-																id={`modulo-${mod.id}`}
-																data-testid={`syllabus-module-${mod.id}`}
-																className="space-y-3 rounded-xl border border-border/60 bg-card p-4"
-															>
-																<div className="flex flex-wrap items-start justify-between gap-3">
-																	<div className="min-w-0 flex-1 space-y-1.5">
-																		<div className="flex flex-wrap items-center gap-2">
-																			<h3 className="cel-display text-base leading-snug">
-																				{t("course.syllabus.moduleTitle", { index: mod.index, title: mod.title })}
-																			</h3>
-																			{isCurrentModule && (
-																				<span className="study-pill study-pill-accent">{t("course.syllabus.inFocus")}</span>
-																			)}
-																			{mod.avgRetention !== null && (
-																				<span
-																					className="study-pill study-pill-info tabular-nums"
-																					title={t("course.syllabus.retentionTitle")}
-																				>
-																					{t("course.syllabus.retentionPill", { pct: Math.round(mod.avgRetention * 100) })}
-																				</span>
-																			)}
-																			{mod.problemSetScore !== undefined && (
-																				<span
-																					className={
-																						mod.problemSetPassed
-																							? "study-pill study-pill-success tabular-nums"
-																							: "study-pill study-pill-warning tabular-nums"
-																					}
-																					title={
-																						mod.problemSetAt
-																							? t("course.syllabus.takenOn", { date: formatIsoDate(mod.problemSetAt, dateFmt) })
-																							: undefined
-																					}
-																				>
-																					{t("course.syllabus.problemSetScoreBadge", {
-																						score: decFmt.format(mod.problemSetScore),
-																						status: mod.problemSetPassed
-																							? t("course.syllabus.statusPassed")
-																							: t("course.syllabus.statusReview"),
-																					})}
-																				</span>
-																			)}
-																			{mod.examScore !== undefined && (
-																				<span
-																					className={
-																						mod.examPassed
-																							? "study-pill study-pill-success tabular-nums"
-																							: "study-pill study-pill-warning tabular-nums"
-																					}
-																					title={
-																						mod.examAt
-																							? t("course.syllabus.takenOn", { date: formatIsoDate(mod.examAt, dateFmt) })
-																							: undefined
-																					}
-																				>
-																					{t("course.syllabus.examScoreBadge", {
-																						score: decFmt.format(mod.examScore),
-																						status: mod.examPassed
-																							? t("course.syllabus.statusPassed")
-																							: t("course.syllabus.statusReinforce"),
-																					})}
-																				</span>
-																			)}
-																		</div>
-																		<div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground tabular-nums">
-																			<span>
-																				{t("course.syllabus.chapterLessons", {
-																					completed: mod.completed,
-																					total: mod.total,
-																					pct: modPct,
-																				})}
-																			</span>
-																			<span>
-																				{t("course.syllabus.hoursRemainingOf", {
-																					remaining: decFmt.format(mod.hoursRemaining),
-																					total: decFmt.format(mod.hoursTotal),
-																				})}
-																			</span>
-																			{mod.examUnlocked && mod.examScore === undefined && (
-																				<span className="text-[var(--cel-success-text,var(--lh-success))]">
-																					{t("course.syllabus.examUnlocked")}
-																				</span>
-																			)}
-																		</div>
-																		<progress
-																			className="study-progress block w-full max-w-md"
-																			max={Math.max(1, mod.total)}
-																			value={mod.completed}
-																			aria-label={t("course.syllabus.moduleProgressAria", { title: mod.title })}
-																		/>
-																		<ol
-																			aria-label={t("course.syllabus.arcAria")}
-																			data-testid={`module-arc-${mod.id}`}
-																			className="flex flex-wrap items-center gap-1 pt-1 text-[11px]"
-																		>
-																			{arcSteps.map((step, stepIdx) => {
-																				const pillCls = step.done
-																					? "border-[var(--cel-success,var(--lh-success))]/45 bg-[var(--cel-success,var(--lh-success))]/10 text-foreground"
-																					: step.active
-																						? "border-[var(--cel-accent,var(--primary))]/50 bg-[var(--cel-accent,var(--primary))]/10 text-foreground"
-																						: "border-border/50 bg-background/50 text-muted-foreground";
-																				return (
-																					<li key={step.id} className="inline-flex items-center gap-1">
-																						{stepIdx > 0 && (
-																							<span aria-hidden="true" className="text-muted-foreground/60">
-																								→
-																							</span>
-																						)}
-																						{step.onClick ? (
-																							<button
-																								type="button"
-																								onClick={step.onClick}
-																								className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-1.5 py-0.5 font-medium transition-colors hover:border-foreground/50 ${pillCls}`}
-																							>
-																								<span aria-hidden="true">{step.done ? "✓" : step.active ? "●" : "○"}</span>
-																								{step.label}
-																							</button>
-																						) : (
-																							<span
-																								className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-medium ${pillCls}`}
-																							>
-																								<span aria-hidden="true">{step.done ? "✓" : step.active ? "●" : "○"}</span>
-																								{step.label}
-																							</span>
-																						)}
-																					</li>
-																				);
-																			})}
-																		</ol>
-																	</div>
-
-																	<div className="flex flex-wrap items-center gap-2">
-																		<button
-																			type="button"
-																			data-testid={`open-exam-${mod.id}`}
-																			aria-expanded={activePanelKind === "prova"}
-																			className={`cel-button min-h-9 px-3 py-1.5 text-xs ${mod.examUnlocked && !mod.examPassed ? "cel-button-primary" : ""}`}
-																			title={
-																				mod.examUnlocked
-																					? t("course.syllabus.moduleExamTitleUnlocked")
-																					: t("course.syllabus.moduleExamTitleLocked")
-																			}
-																			onClick={() =>
-																				setInlinePanel((curr) =>
-																					curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "prova"
-																						? null
-																						: { scope: "module", moduleId: mod.id, kind: "prova" },
-																				)
-																			}
-																		>
-																			<Icon name="exercise" size={14} tone={false} />
-																			{t("course.syllabus.moduleExamButton")}
-																		</button>
-																		<button
-																			type="button"
-																			data-testid={`open-pset-${mod.id}`}
-																			aria-expanded={activePanelKind === "lista"}
-																			className="cel-button min-h-9 px-3 py-1.5 text-xs"
-																			onClick={() =>
-																				setInlinePanel((curr) =>
-																					curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "lista"
-																						? null
-																						: { scope: "module", moduleId: mod.id, kind: "lista" },
-																				)
-																			}
-																		>
-																			<Icon name="activity" size={14} tone={false} />
-																			{t("course.syllabus.problemSetButton")}
-																		</button>
-																	</div>
-																</div>
-
-																{(mod.books.length > 0 || mod.videos.length > 0) && (
-																	<div className="flex flex-wrap gap-2 border-t border-border/45 pt-2.5 text-xs">
-																		{mod.books.map((book) => (
-																			<a
-																				key={`book-${book.url}-${book.part}`}
-																				href={book.url}
-																				target="_blank"
-																				rel="noreferrer"
-																				className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/60 px-2.5 py-1 hover:bg-accent"
-																			>
-																				<Icon name="book" size={13} tone={false} />
-																				<span className="font-medium">{book.title}</span>
-																				{book.part && <span className="text-muted-foreground">· {book.part}</span>}
-																			</a>
-																		))}
-																		{mod.videos.map((video) => (
-																			<a
-																				key={`video-${video.url}-${video.part}`}
-																				href={video.url}
-																				target="_blank"
-																				rel="noreferrer"
-																				className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/60 px-2.5 py-1 hover:bg-accent"
-																			>
-																				<Icon name="video" size={13} tone={false} />
-																				<span className="font-medium">{video.title}</span>
-																				{video.part && <span className="text-muted-foreground">· {video.part}</span>}
-																			</a>
-																		))}
-																	</div>
-																)}
-
-																{activePanelKind === "prova" && (
-																	<div className="pt-1">
-																		<ModuleExamPanel
-																			domainId={syllabus.domainId}
-																			scope="module"
-																			targetId={mod.id}
-																			targetTitle={mod.title}
-																			onClose={() => setInlinePanel(null)}
-																			onGraded={() => router.refresh()}
-																		/>
-																	</div>
-																)}
-
-																{activePanelKind === "lista" && (
-																	<div className="pt-1">
-																		<ProblemSetPanel
-																			domainId={syllabus.domainId}
-																			moduleId={mod.id}
-																			moduleTitle={mod.title}
-																			onClose={() => setInlinePanel(null)}
-																			onGraded={() => router.refresh()}
-																		/>
-																	</div>
-																)}
-
-																<ol className="study-missions border-t border-border/45 pt-2.5">
-																	{visibleLessons.map((lesson, idx) => {
-																		const flippedOpen = openFlippedNodeId === lesson.id;
-																		const isStarting = startingNodeId === lesson.id;
-																		const isOpeningPast = startingNodeId === `past:${lesson.id}`;
-																		const lessonStatusText = statusLabel(t, lesson.status);
-																		const studyActionLabel =
-																			lesson.status === "done"
-																				? t("course.syllabus.practiceReview")
-																				: lesson.status === "in-progress"
-																					? t("course.syllabus.continue")
-																					: lesson.status === "locked"
-																						? t("course.syllabus.explore")
-																						: t("course.syllabus.study");
-																		return (
-																			<li
-																				key={lesson.id}
-																				data-reached={lesson.status === "done"}
-																				className="flex-col items-stretch gap-1.5 py-1.5"
-																			>
-																				<div className="flex flex-wrap items-center gap-2">
-																					<span
-																						className="study-mission-marker"
-																						title={lessonStatusText}
-																						aria-label={lessonStatusText}
-																					>
-																						{STATUS_MARKER[lesson.status]}
-																					</span>
-																					<Link
-																						href={mapNodeHref(lesson.id)}
-																						className={`min-w-0 text-sm underline decoration-border underline-offset-2 hover:decoration-foreground ${lesson.status === "in-progress" ? "font-semibold text-foreground" : "font-medium"}`}
-																					>
-																						{idx + 1}. {lesson.title}
-																					</Link>
-																					{lesson.hasLab && (
-																						<span className="study-pill study-pill-info">
-																							{t("course.syllabus.pillLab")}
-																						</span>
-																					)}
-																					{lesson.durable && (
-																						<span className="study-pill study-pill-success">
-																							{t("course.syllabus.pillDurable")}
-																						</span>
-																					)}
-																					{lesson.isFinale && (
-																						<span className="study-pill study-pill-accent">
-																							{t("course.syllabus.pillFinale")}
-																						</span>
-																					)}
-																					<span className="text-xs tabular-nums text-muted-foreground">
-																						~{lesson.minutes} min
-																					</span>
-																					<div className="ml-auto flex flex-wrap items-center gap-1.5">
-																						<button
-																							type="button"
-																							aria-expanded={flippedOpen}
-																							className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
-																							onClick={() =>
-																								setOpenFlippedNodeId((curr) =>
-																									curr === lesson.id ? null : lesson.id,
-																								)
-																							}
-																						>
-																							<Icon name="book" size={13} tone={false} />
-																							{t("course.syllabus.preReading")}
-																						</button>
-																						{lesson.status === "done" && (
-																							<button
-																								type="button"
-																								className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
-																								disabled={Boolean(startingNodeId)}
-																								onClick={() => void openPastLessonForNode(lesson)}
-																							>
-																								{isOpeningPast
-																									? t("course.syllabus.opening")
-																									: t("course.syllabus.viewPastLesson")}
-																							</button>
-																						)}
-																						<button
-																							type="button"
-																							className={`cel-button min-h-7 px-2.5 py-0.5 text-xs ${lesson.status === "in-progress" || lesson.status === "available" ? "cel-button-primary" : ""}`}
-																							disabled={Boolean(startingNodeId)}
-																							onClick={() => void startLessonForNode(lesson)}
-																						>
-																							<Icon name="play" size={12} tone={false} />
-																							{isStarting ? t("course.syllabus.opening") : studyActionLabel}
-																						</button>
-																					</div>
-																				</div>
-
-																				{flippedOpen && (
-																					<FlippedPrepDrawer
-																						domainId={syllabus.domainId}
-																						lesson={lesson}
-																						starting={isStarting}
-																						onClose={() => setOpenFlippedNodeId(null)}
-																						onStartWithPrep={startLessonForNode}
-																					/>
-																				)}
-																			</li>
-																		);
-																	})}
-																</ol>
-															</article>
-														);
-													})}
-												</div>
-											)}
-										</section>
+											domainId={syllabus.domainId}
+											chapter={chapter}
+											isOpen={isOpen}
+											chapterExamOpen={chapterExamOpen}
+											activeModuleId={syllabus.activeModuleId}
+											chapterInlineModulePanel={chapterInlineModulePanel}
+											chapterFlippedNodeId={chapterFlippedNodeId}
+											chapterStartingNodeId={chapterStartingNodeId}
+											anyStarting={Boolean(startingNodeId)}
+											filter={filter}
+											decFmt={decFmt}
+											dateFmt={dateFmt}
+											t={t}
+											onToggleChapter={toggleChapter}
+											onToggleChapterExam={toggleChapterExam}
+											onToggleModulePanel={toggleModulePanel}
+											onCloseInlinePanel={closeInlinePanel}
+											onRefresh={handleRefresh}
+											onToggleFlipped={toggleFlippedNode}
+											onCloseFlipped={closeFlippedNode}
+											onOpenPast={openPastLessonForNode}
+											onStartLesson={startLessonForNode}
+										/>
 									);
 								})}
 							</div>
@@ -1442,270 +1696,285 @@ export function SyllabusView({
 						aria-labelledby="syllabus-tab-caderno"
 						className="space-y-4"
 					>
-						<section aria-label={t("course.syllabus.exportAria")} className="cel-card space-y-3 p-4 sm:p-5">
-							<div className="flex flex-wrap items-start justify-between gap-3">
-								<div className="space-y-0.5">
-									<div className="flex items-center gap-2">
-										<Icon name="export-cards" size={18} />
-										<h2 className="cel-display text-lg leading-tight">
-											{t("course.syllabus.exportFlashcards")}
-										</h2>
-									</div>
-									<p className="text-xs text-muted-foreground">
-										{t("course.syllabus.exportDesc", { domain: domainTitle })}
+						{!notebook ? (
+							<section className="cel-card p-5 text-sm text-muted-foreground" aria-busy={notebookLoading}>
+								{notebookError ? (
+									<p role="alert" className="text-destructive">{notebookError}</p>
+								) : (
+									<p role="status" className="flex items-center gap-2">
+										<Icon name="loader" size={16} live />
+										{t("common.state.loading")}
 									</p>
-								</div>
-								<div className="flex flex-wrap items-center gap-2">
-									<button
-										type="button"
-										data-testid="export-obsidian"
-										className="cel-button min-h-9 px-3 py-1.5 text-xs"
-										disabled={Boolean(exportBusy)}
-										onClick={() => void handleExportFlashcards("obsidian")}
-									>
-										<Icon name="export-notes" size={14} tone={false} />
-										{exportBusy === "obsidian" ? t("course.syllabus.exporting") : "Obsidian"}
-									</button>
-									<button
-										type="button"
-										data-testid="export-anki"
-										className="cel-button min-h-9 px-3 py-1.5 text-xs"
-										disabled={Boolean(exportBusy)}
-										onClick={() => void handleExportFlashcards("anki")}
-									>
-										<Icon name="flashcard" size={14} tone={false} />
-										{exportBusy === "anki" ? t("course.syllabus.exporting") : "Anki"}
-									</button>
-									<button
-										type="button"
-										data-testid="export-apkg"
-										className="cel-button cel-button-primary min-h-9 px-3 py-1.5 text-xs"
-										disabled={Boolean(exportBusy)}
-										onClick={() => void handleExportFlashcards("apkg")}
-									>
-										<Icon name="download" size={14} tone={false} />
-										{exportBusy === "apkg" ? t("course.syllabus.generating") : ".apkg"}
-									</button>
-								</div>
-							</div>
-
-							{exportStatus && (
-								<p
-									role="status"
-									className={`rounded-lg border px-3 py-2 text-xs leading-relaxed ${
-										exportStatus.ok
-											? "border-[var(--cel-success,var(--lh-success))]/45 bg-[var(--cel-success,var(--lh-success))]/10 text-foreground"
-											: "border-destructive/45 bg-destructive/10 text-destructive"
-									}`}
-								>
-									{exportStatus.text}
-								</p>
-							)}
-
-							<dl className="grid grid-cols-2 gap-2.5 border-t border-border/45 pt-3 sm:grid-cols-4">
-								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">
-										{t("course.syllabus.recordedMistakes")}
-									</dt>
-									<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.totalMistakes}</dd>
-								</div>
-								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">
-										{t("course.syllabus.activeMisconceptions")}
-									</dt>
-									<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.activeMisconceptions}</dd>
-								</div>
-								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">
-										{t("course.syllabus.overcomeMisconceptions")}
-									</dt>
-									<dd className="cel-display mt-0.5 text-lg tabular-nums">
-										{notebook.resolvedMisconceptions}
-									</dd>
-								</div>
-								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">
-										{t("course.syllabus.consolidatedConcepts")}
-									</dt>
-									<dd className="cel-display mt-0.5 text-lg tabular-nums">
-										{notebook.totalMasteredConcepts}
-									</dd>
-								</div>
-							</dl>
-						</section>
-
-						{notebook.modules.length === 0 ? (
-							<section className="cel-card p-5 text-sm leading-relaxed text-muted-foreground">
-								{t("course.syllabus.notebookEmpty")}
+								)}
 							</section>
 						) : (
-							<div className="space-y-4">
-								{notebook.modules.map((mod) => (
-									<section key={mod.moduleId} className="cel-card space-y-4 p-4 sm:p-5">
-										<div className="border-b border-border/50 pb-2.5">
-											{mod.areaTitle && (
-												<p className="text-xs font-medium text-muted-foreground">{mod.areaTitle}</p>
-											)}
-											<h3 className="cel-display text-lg leading-snug">{mod.moduleTitle}</h3>
-										</div>
-
-										{mod.mistakes.length > 0 && (
-											<div className="space-y-2">
-												<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-													<Icon name="warning" size={14} />
-													{t("course.syllabus.recurringMistakes", { count: mod.mistakes.length })}
-												</h4>
-												<ul className="space-y-2">
-													{mod.mistakes.map((mistake) => (
-														<li
-															key={mistake.id}
-															className="space-y-1 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
-														>
-															<div className="flex flex-wrap items-center justify-between gap-2">
-																<div className="flex flex-wrap items-center gap-2">
-																	<Link
-																		href={mapNodeHref(mistake.nodeId)}
-																		className="font-semibold text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
-																	>
-																		{mistake.nodeTitle}
-																	</Link>
-																	<span className="study-pill study-pill-warning">
-																		{mistake.kind === "reinforce"
-																			? t("course.syllabus.statusReinforce")
-																			: t("course.syllabus.gradeOutOf3", { grade: mistake.grade ?? 0 })}
-																	</span>
-																</div>
-																<span className="text-[11px] tabular-nums text-muted-foreground">
-																	{formatIsoDate(mistake.at, dateFmt)}
-																</span>
-															</div>
-															{mistake.quizContext && (
-																<div className="space-y-1 text-muted-foreground">
-																	<p>
-																		<strong className="text-foreground/90">{t("course.syllabus.question")}</strong>{" "}
-																		{mistake.quizContext.question}
-																	</p>
-																	<p>
-																		<strong className="text-foreground/90">{t("course.syllabus.yourAnswer")}</strong>{" "}
-																		{mistake.quizContext.answer}
-																	</p>
-																	{mistake.quizContext.expected && (
-																		<p>
-																			<strong className="text-foreground/90">{t("course.syllabus.expected")}</strong>{" "}
-																			{mistake.quizContext.expected}
-																		</p>
-																	)}
-																</div>
-															)}
-															{mistake.feedback && (
-																<p className="leading-relaxed text-muted-foreground">{mistake.feedback}</p>
-															)}
-														</li>
-													))}
-												</ul>
+							<>
+								<section aria-label={t("course.syllabus.exportAria")} className="cel-card space-y-3 p-4 sm:p-5">
+									<div className="flex flex-wrap items-start justify-between gap-3">
+										<div className="space-y-0.5">
+											<div className="flex items-center gap-2">
+												<Icon name="export-cards" size={18} />
+												<h2 className="cel-display text-lg leading-tight">
+													{t("course.syllabus.exportFlashcards")}
+												</h2>
 											</div>
-										)}
+											<p className="text-xs text-muted-foreground">
+												{t("course.syllabus.exportDesc", { domain: domainTitle })}
+											</p>
+										</div>
+										<div className="flex flex-wrap items-center gap-2">
+											<button
+												type="button"
+												data-testid="export-obsidian"
+												className="cel-button min-h-9 px-3 py-1.5 text-xs"
+												disabled={Boolean(exportBusy)}
+												onClick={() => void handleExportFlashcards("obsidian")}
+											>
+												<Icon name="export-notes" size={14} tone={false} />
+												{exportBusy === "obsidian" ? t("course.syllabus.exporting") : "Obsidian"}
+											</button>
+											<button
+												type="button"
+												data-testid="export-anki"
+												className="cel-button min-h-9 px-3 py-1.5 text-xs"
+												disabled={Boolean(exportBusy)}
+												onClick={() => void handleExportFlashcards("anki")}
+											>
+												<Icon name="flashcard" size={14} tone={false} />
+												{exportBusy === "anki" ? t("course.syllabus.exporting") : "Anki"}
+											</button>
+											<button
+												type="button"
+												data-testid="export-apkg"
+												className="cel-button cel-button-primary min-h-9 px-3 py-1.5 text-xs"
+												disabled={Boolean(exportBusy)}
+												onClick={() => void handleExportFlashcards("apkg")}
+											>
+												<Icon name="download" size={14} tone={false} />
+												{exportBusy === "apkg" ? t("course.syllabus.generating") : ".apkg"}
+											</button>
+										</div>
+									</div>
 
-										{mod.misconceptions.length > 0 && (
-											<div className="space-y-2">
-												<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-													<Icon name="weak-spot" size={14} />
-													{t("course.syllabus.misconceptionsHeading", { count: mod.misconceptions.length })}
-												</h4>
-												<ul className="space-y-2">
-													{mod.misconceptions.map((m) => {
-														const pct = Math.round(m.probability * 100);
-														return (
-															<li
-																key={`${m.nodeId}-${m.id}`}
-																className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
-															>
-																<div className="flex flex-wrap items-center justify-between gap-2">
-																	<div className="flex flex-wrap items-center gap-2">
-																		<span
-																			className={
-																				m.status === "active"
-																					? "study-pill study-pill-warning"
-																					: "study-pill study-pill-success"
-																			}
-																		>
-																			{m.status === "active"
-																				? t("course.syllabus.misconceptionActive")
-																				: t("course.syllabus.misconceptionResolved")}
+									{exportStatus && (
+										<p
+											role="status"
+											className={`rounded-lg border px-3 py-2 text-xs leading-relaxed ${
+												exportStatus.ok
+													? "border-[var(--cel-success,var(--lh-success))]/45 bg-[var(--cel-success,var(--lh-success))]/10 text-foreground"
+													: "border-destructive/45 bg-destructive/10 text-destructive"
+											}`}
+										>
+											{exportStatus.text}
+										</p>
+									)}
+
+									<dl className="grid grid-cols-2 gap-2.5 border-t border-border/45 pt-3 sm:grid-cols-4">
+										<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
+											<dt className="text-[11px] text-muted-foreground">
+												{t("course.syllabus.recordedMistakes")}
+											</dt>
+											<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.totalMistakes}</dd>
+										</div>
+										<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
+											<dt className="text-[11px] text-muted-foreground">
+												{t("course.syllabus.activeMisconceptions")}
+											</dt>
+											<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.activeMisconceptions}</dd>
+										</div>
+										<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
+											<dt className="text-[11px] text-muted-foreground">
+												{t("course.syllabus.overcomeMisconceptions")}
+											</dt>
+											<dd className="cel-display mt-0.5 text-lg tabular-nums">
+												{notebook.resolvedMisconceptions}
+											</dd>
+										</div>
+										<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
+											<dt className="text-[11px] text-muted-foreground">
+												{t("course.syllabus.consolidatedConcepts")}
+											</dt>
+											<dd className="cel-display mt-0.5 text-lg tabular-nums">
+												{notebook.totalMasteredConcepts}
+											</dd>
+										</div>
+									</dl>
+								</section>
+
+								{notebook.modules.length === 0 ? (
+									<section className="cel-card p-5 text-sm leading-relaxed text-muted-foreground">
+										{t("course.syllabus.notebookEmpty")}
+									</section>
+								) : (
+									<div className="space-y-4">
+										{notebook.modules.map((mod) => (
+											<section key={mod.moduleId} className="study-cv-block cel-card space-y-4 p-4 sm:p-5">
+												<div className="border-b border-border/50 pb-2.5">
+													{mod.areaTitle && (
+														<p className="text-xs font-medium text-muted-foreground">{mod.areaTitle}</p>
+													)}
+													<h3 className="cel-display text-lg leading-snug">{mod.moduleTitle}</h3>
+												</div>
+
+												{mod.mistakes.length > 0 && (
+													<div className="space-y-2">
+														<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+															<Icon name="warning" size={14} />
+															{t("course.syllabus.recurringMistakes", { count: mod.mistakes.length })}
+														</h4>
+														<ul className="space-y-2">
+															{mod.mistakes.map((mistake) => (
+																<li
+																	key={mistake.id}
+																	className="space-y-1 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+																>
+																	<div className="flex flex-wrap items-center justify-between gap-2">
+																		<div className="flex flex-wrap items-center gap-2">
+																			<Link
+																				href={mapNodeHref(mistake.nodeId)}
+																				className="font-semibold text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
+																			>
+																				{mistake.nodeTitle}
+																			</Link>
+																			<span className="study-pill study-pill-warning">
+																				{mistake.kind === "reinforce"
+																					? t("course.syllabus.statusReinforce")
+																					: t("course.syllabus.gradeOutOf3", { grade: mistake.grade ?? 0 })}
+																			</span>
+																		</div>
+																		<span className="text-[11px] tabular-nums text-muted-foreground">
+																			{formatIsoDate(mistake.at, dateFmt)}
 																		</span>
+																	</div>
+																	{mistake.quizContext && (
+																		<div className="space-y-1 text-muted-foreground">
+																			<p>
+																				<strong className="text-foreground/90">{t("course.syllabus.question")}</strong>{" "}
+																				{mistake.quizContext.question}
+																			</p>
+																			<p>
+																				<strong className="text-foreground/90">{t("course.syllabus.yourAnswer")}</strong>{" "}
+																				{mistake.quizContext.answer}
+																			</p>
+																			{mistake.quizContext.expected && (
+																				<p>
+																					<strong className="text-foreground/90">{t("course.syllabus.expected")}</strong>{" "}
+																					{mistake.quizContext.expected}
+																				</p>
+																			)}
+																		</div>
+																	)}
+																	{mistake.feedback && (
+																		<p className="leading-relaxed text-muted-foreground">{mistake.feedback}</p>
+																	)}
+																</li>
+															))}
+														</ul>
+													</div>
+												)}
+
+												{mod.misconceptions.length > 0 && (
+													<div className="space-y-2">
+														<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+															<Icon name="weak-spot" size={14} />
+															{t("course.syllabus.misconceptionsHeading", { count: mod.misconceptions.length })}
+														</h4>
+														<ul className="space-y-2">
+															{mod.misconceptions.map((m) => {
+																const pct = Math.round(m.probability * 100);
+																return (
+																	<li
+																		key={`${m.nodeId}-${m.id}`}
+																		className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+																	>
+																		<div className="flex flex-wrap items-center justify-between gap-2">
+																			<div className="flex flex-wrap items-center gap-2">
+																				<span
+																					className={
+																						m.status === "active"
+																							? "study-pill study-pill-warning"
+																							: "study-pill study-pill-success"
+																					}
+																				>
+																					{m.status === "active"
+																						? t("course.syllabus.misconceptionActive")
+																						: t("course.syllabus.misconceptionResolved")}
+																				</span>
+																				<Link
+																					href={mapNodeHref(m.nodeId)}
+																					className="font-semibold text-foreground underline decoration-border underline-offset-2"
+																				>
+																					{m.nodeTitle}
+																				</Link>
+																			</div>
+																			<span className="font-semibold tabular-nums text-foreground">
+																				{t("course.syllabus.misconceptionBeta", { pct })}
+																			</span>
+																		</div>
+																		<p className="leading-relaxed text-foreground/90">{m.text}</p>
+																		<progress
+																			className="study-progress block w-full"
+																			max={100}
+																			value={pct}
+																			aria-label={t("course.syllabus.misconceptionBetaAria", { pct })}
+																		/>
+																	</li>
+																);
+															})}
+														</ul>
+													</div>
+												)}
+
+												{mod.masteredConcepts.length > 0 && (
+													<div className="space-y-2">
+														<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+															<Icon name="check" size={14} />
+															{t("course.syllabus.masteredConcepts", { count: mod.masteredConcepts.length })}
+														</h4>
+														<ul className="grid gap-2.5 sm:grid-cols-2">
+															{mod.masteredConcepts.map((concept) => (
+																<li
+																	key={concept.nodeId}
+																	className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+																>
+																	<div className="flex flex-wrap items-center gap-1.5">
 																		<Link
-																			href={mapNodeHref(m.nodeId)}
+																			href={mapNodeHref(concept.nodeId)}
 																			className="font-semibold text-foreground underline decoration-border underline-offset-2"
 																		>
-																			{m.nodeTitle}
+																			{concept.title}
 																		</Link>
+																		{concept.mastered && (
+																			<span className="study-pill study-pill-success">
+																				{t("course.syllabus.mastered")}
+																			</span>
+																		)}
+																		{concept.durable && (
+																			<span className="study-pill study-pill-info">
+																				{t("course.syllabus.pillDurable")}
+																			</span>
+																		)}
 																	</div>
-																	<span className="font-semibold tabular-nums text-foreground">
-																		{t("course.syllabus.misconceptionBeta", { pct })}
-																	</span>
-																</div>
-																<p className="leading-relaxed text-foreground/90">{m.text}</p>
-																<progress
-																	className="study-progress block w-full"
-																	max={100}
-																	value={pct}
-																	aria-label={t("course.syllabus.misconceptionBetaAria", { pct })}
-																/>
-															</li>
-														);
-													})}
-												</ul>
-											</div>
-										)}
-
-										{mod.masteredConcepts.length > 0 && (
-											<div className="space-y-2">
-												<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-													<Icon name="check" size={14} />
-													{t("course.syllabus.masteredConcepts", { count: mod.masteredConcepts.length })}
-												</h4>
-												<ul className="grid gap-2.5 sm:grid-cols-2">
-													{mod.masteredConcepts.map((concept) => (
-														<li
-															key={concept.nodeId}
-															className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
-														>
-															<div className="flex flex-wrap items-center gap-1.5">
-																<Link
-																	href={mapNodeHref(concept.nodeId)}
-																	className="font-semibold text-foreground underline decoration-border underline-offset-2"
-																>
-																	{concept.title}
-																</Link>
-																{concept.mastered && (
-																	<span className="study-pill study-pill-success">
-																		{t("course.syllabus.mastered")}
-																	</span>
-																)}
-																{concept.durable && (
-																	<span className="study-pill study-pill-info">
-																		{t("course.syllabus.pillDurable")}
-																	</span>
-																)}
-															</div>
-															{concept.summary && (
-																<p className="leading-relaxed text-muted-foreground">{concept.summary}</p>
-															)}
-															{concept.objectives.length > 0 && (
-																<ul className="list-disc space-y-0.5 pl-4 text-muted-foreground">
-																	{concept.objectives.slice(0, 3).map((obj, idx) => (
-																		<li key={idx}>{obj}</li>
-																	))}
-																</ul>
-															)}
-														</li>
-													))}
-												</ul>
-											</div>
-										)}
-									</section>
-								))}
-							</div>
+																	{concept.summary && (
+																		<p className="leading-relaxed text-muted-foreground">{concept.summary}</p>
+																	)}
+																	{concept.objectives.length > 0 && (
+																		<ul className="list-disc space-y-0.5 pl-4 text-muted-foreground">
+																			{concept.objectives.slice(0, 3).map((obj, idx) => (
+																				<li key={idx}>{obj}</li>
+																			))}
+																		</ul>
+																	)}
+																</li>
+															))}
+														</ul>
+													</div>
+												)}
+											</section>
+										))}
+									</div>
+								)}
+							</>
 						)}
 					</div>
 				)}
@@ -1716,7 +1985,7 @@ export function SyllabusView({
 						role="tabpanel"
 						aria-labelledby="syllabus-tab-nivelamento"
 					>
-						<PlacementDialog domainId={syllabus.domainId} onCompleted={() => router.refresh()} />
+						<PlacementDialog domainId={syllabus.domainId} onCompleted={handleRefresh} />
 					</div>
 				)}
 			</div>

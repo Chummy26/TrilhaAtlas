@@ -7,12 +7,12 @@
  * Pure and browser-safe: no Node APIs, no I/O, no wall clock.
  */
 
-import type { CurriculumItem, CurriculumSnapshot } from "../curriculum/types.ts";
+import type { CurriculumSnapshot } from "../curriculum/types.ts";
 import { FSRS_STATE, retrievability } from "../learner/fsrs.ts";
 import type { LearnerGraphView } from "../learner/graph-view.ts";
 import { DEFAULT_LEARNER_PARAMS } from "../learner/params.ts";
 import type { LearnerSnapshot } from "../learner/types.ts";
-import type { CampaignChapter, StudyCampaign } from "./campaign.ts";
+import { chapterUnitsOf, type StudyCampaign } from "./campaign.ts";
 
 export type TranscriptGradeLabel = "A" | "B" | "C" | "Reforço" | "Em curso";
 
@@ -88,111 +88,10 @@ export interface BuildDomainTranscriptInput {
 	moduleScores?: ReadonlyMap<string, { score: number; passed: boolean; at: string }>;
 }
 
-const CEFR_BANDS = ["pre-A1", "A1", "A2", "B1", "B2", "C1", "C2"] as const;
 const COOLING_THRESHOLD = 0.85;
 
 function round4(value: number): number {
 	return Math.round(value * 10_000) / 10_000;
-}
-
-function bandOf(item: CurriculumItem): number {
-	return item.level.scheme === "cefr" ? CEFR_BANDS.indexOf(item.level.cefr) : item.level.band;
-}
-
-function inheritedGroup(snapshot: CurriculumSnapshot, item: CurriculumItem, kind: "area" | "unit"): CurriculumItem {
-	let parent = item;
-	let area: CurriculumItem | undefined;
-	const visited = new Set<string>([item.id]);
-	while (parent.parentId && parent.kind !== kind && !visited.has(parent.parentId)) {
-		if (parent.kind === "area") area = parent;
-		const next = snapshot.items[parent.parentId];
-		if (!next) break;
-		visited.add(next.id);
-		parent = next;
-	}
-	return parent.kind === kind ? parent : area ?? parent;
-}
-
-interface ChapterUnits {
-	chapterIndex: number;
-	chapter: CampaignChapter;
-	modules: { id: string; title: string; leafIds: string[] }[];
-}
-
-function chapterUnitsOf(snapshot: CurriculumSnapshot, graph: LearnerGraphView, campaign: StudyCampaign): ChapterUnits[] {
-	const leaves = graph.ids.filter((id) => {
-		const item = snapshot.items[id];
-		return Boolean(graph.nodes.get(id)?.isLeaf && item && !item.reinforcementFor);
-	});
-	const isEnglish = snapshot.domainId === "english" && campaign.journey.every((c) => CEFR_BANDS.includes(c.level as (typeof CEFR_BANDS)[number]));
-	const stageMap = new Map<number, string[]>();
-
-	if (isEnglish) {
-		const indexByLevel = new Map(campaign.journey.map((c, i) => [c.level, i]));
-		for (const id of leaves) {
-			const item = snapshot.items[id]!;
-			if (item.level.scheme !== "cefr") continue;
-			const level = item.level.cefr === "pre-A1" ? "A1" : item.level.cefr;
-			const idx = indexByLevel.get(level);
-			if (idx === undefined) continue;
-			const list = stageMap.get(idx) ?? [];
-			list.push(id);
-			stageMap.set(idx, list);
-		}
-	} else {
-		const leafItems = leaves.map((id) => snapshot.items[id]!);
-		const splitByUnit = new Set(leafItems.map(bandOf)).size === 1;
-		const authorsOrder = new Map<string, number>();
-		if (splitByUnit) {
-			const stack = graph.ids.filter((id) => !graph.nodes.get(id)?.parentId).reverse();
-			while (stack.length > 0) {
-				const id = stack.pop()!;
-				authorsOrder.set(id, authorsOrder.size);
-				const children = graph.nodes.get(id)?.children ?? [];
-				for (let i = children.length - 1; i >= 0; i--) stack.push(children[i]!);
-			}
-		}
-		const groupOf = new Map<string, number>();
-		for (const item of leafItems) {
-			const owner = inheritedGroup(snapshot, item, splitByUnit ? "unit" : "area");
-			const key = splitByUnit ? (authorsOrder.get(owner.id) ?? 0) : bandOf(item);
-			groupOf.set(item.id, key);
-		}
-		const effective = new Map<string, number>();
-		const stages = new Map<number, string[]>();
-		for (const id of graph.ids) {
-			const node = graph.nodes.get(id);
-			if (!node) continue;
-			const incoming = node.clauses.reduce(
-				(earliest, route) => Math.min(earliest, route.reduce((latest, parent) => Math.max(latest, effective.get(parent) ?? -Infinity), -Infinity)),
-				Infinity,
-			);
-			const declared = groupOf.get(id);
-			const key = Math.max(declared ?? -Infinity, node.clauses.length ? incoming : -Infinity);
-			effective.set(id, key);
-			if (declared === undefined) continue;
-			const list = stages.get(key) ?? [];
-			list.push(id);
-			stages.set(key, list);
-		}
-		[...stages]
-			.sort(([a], [b]) => a - b)
-			.forEach(([, ids], idx) => stageMap.set(idx, ids));
-	}
-
-	return campaign.journey.map((chapter, chapterIndex) => {
-		const ids = stageMap.get(chapterIndex) ?? [];
-		const byUnit = new Map<string, { id: string; title: string; leafIds: string[] }>();
-		for (const id of ids) {
-			const item = snapshot.items[id];
-			if (!item) continue;
-			const unit = inheritedGroup(snapshot, item, "unit");
-			const mod = byUnit.get(unit.id) ?? { id: unit.id, title: unit.title.pt, leafIds: [] };
-			mod.leafIds.push(id);
-			byUnit.set(unit.id, mod);
-		}
-		return { chapterIndex, chapter, modules: [...byUnit.values()] };
-	});
 }
 
 function gradeFor(avgRetention: number | null, durableRatio: number): TranscriptGradeLabel {

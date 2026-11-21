@@ -34,14 +34,39 @@ export function mermaidConfig(mode: RenderedMode): MermaidConfig {
 	};
 }
 
+const MERMAID_CACHE_MAX = 32;
+const mermaidSvgCache = new Map<string, string>();
+
+function getCachedMermaid(key: string): string | undefined {
+	const cached = mermaidSvgCache.get(key);
+	if (cached === undefined) return undefined;
+	mermaidSvgCache.delete(key);
+	mermaidSvgCache.set(key, cached);
+	return cached;
+}
+
+function setCachedMermaid(key: string, svg: string): void {
+	if (!svg) return;
+	if (mermaidSvgCache.has(key)) mermaidSvgCache.delete(key);
+	else if (mermaidSvgCache.size >= MERMAID_CACHE_MAX) {
+		const oldest = mermaidSvgCache.keys().next().value;
+		if (oldest !== undefined) mermaidSvgCache.delete(oldest);
+	}
+	mermaidSvgCache.set(key, svg);
+}
+
 /** Render one chart source to an svg string. The id is unique per call —
  *  mermaid caches rendered ids, and a repeated id across charts/renders
  *  returns the stale svg (the bug streamdown's own id minting avoids). */
 export async function renderMermaid(chart: string, mode: RenderedMode): Promise<string> {
+	const key = `${mode}\0${chart}`;
+	const cached = getCachedMermaid(key);
+	if (cached !== undefined) return cached;
 	// The plugin exports a singleton. Load its diagram engine only when a
 	// rendered block or the chart overlay actually requests SVG.
 	const { mermaid: plugin } = await import("@streamdown/mermaid");
 	const id = `lh-mermaid-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 	const { svg } = await plugin.getMermaid(mermaidConfig(mode)).render(id, chart);
+	setCachedMermaid(key, svg);
 	return svg;
 }

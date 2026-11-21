@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useActivity } from "@/components/activity-dock";
 import { usePopoverDismiss } from "@/components/popover-dismiss";
 import { INTERACTION_LAYER_Z_BASE } from "@/components/host-dialog";
 import { useSettingsSaved } from "@/components/settings-signal";
+import { useSettingsSeed } from "@/components/settings-seed";
 import { formatTokens } from "@/components/usage-format";
 import { Hint } from "@/components/ui/hint";
 import { timeAgo } from "@/components/sidebar";
@@ -241,9 +242,27 @@ export function ringFill(uncoveredTokens: number, chunkTokens: number): number {
  * (resets as the fold drains coverage) + the settings signal (the
  * threshold/kill-switch re-read live).
  */
-export function CoverageRing({ chatId, refreshKey = 0 }: { chatId: string; refreshKey?: number }) {
-	const [graph, setGraph] = useState<GraphRead | null>(null);
-	const [coverage, setCoverage] = useState<SessionCoverage | null>(null);
+export const CoverageRing = memo(function CoverageRing({
+	chatId,
+	refreshKey = 0,
+	initialCoverage,
+	initialGraphSettings,
+}: {
+	chatId: string;
+	refreshKey?: number;
+	initialCoverage?: SessionCoverage | null;
+	initialGraphSettings?: GraphRead | null;
+}) {
+	const seed = useSettingsSeed();
+	const [graph, setGraph] = useState<GraphRead | null>(() => {
+		if (initialGraphSettings !== undefined) return initialGraphSettings;
+		if (seed !== null) {
+			const g = resolveSettings(seed.settings ?? null).graph;
+			return { enabled: g.enabled, chunkTokens: g.extractionChunkTokens };
+		}
+		return null;
+	});
+	const [coverage, setCoverage] = useState<SessionCoverage | null>(() => initialCoverage ?? null);
 	const [open, setOpen] = useState(false);
 	const [nonce, setNonce] = useState(0);
 	const rootRef = useRef<HTMLDivElement>(null);
@@ -262,15 +281,34 @@ export function CoverageRing({ chatId, refreshKey = 0 }: { chatId: string; refre
 		if (section === "graph") setNonce((n) => n + 1);
 	});
 
+	// Keep seeded graph settings in sync when SettingsSeedProvider refreshes.
 	useEffect(() => {
+		if (seed === null) return;
+		if (initialGraphSettings !== undefined && nonce === 0) return;
+		const g = resolveSettings(seed.settings ?? null).graph;
+		setGraph({ enabled: g.enabled, chunkTokens: g.extractionChunkTokens });
+	}, [seed, initialGraphSettings, nonce]);
+
+	const skipInitialGraphRef = useRef(initialGraphSettings !== undefined || seed !== null);
+	useEffect(() => {
+		if (skipInitialGraphRef.current) {
+			skipInitialGraphRef.current = false;
+			return;
+		}
+		if (seed !== null && initialGraphSettings === undefined) return;
 		let alive = true;
 		void fetchGraphRead().then((g) => alive && setGraph(g));
 		return () => {
 			alive = false;
 		};
-	}, [nonce]);
+	}, [nonce, seed, initialGraphSettings]);
 
+	const skipInitialCoverageRef = useRef(initialCoverage !== undefined);
 	useEffect(() => {
+		if (skipInitialCoverageRef.current) {
+			skipInitialCoverageRef.current = false;
+			return;
+		}
 		let alive = true;
 		void fetchCoverage(chatId).then((c) => alive && setCoverage(c));
 		return () => {
@@ -330,7 +368,7 @@ export function CoverageRing({ chatId, refreshKey = 0 }: { chatId: string; refre
 			)}
 		</div>
 	);
-}
+});
 
 /** The donut itself (exported for static-render tests): a hairline track
  *  plus the fill arc — uncovered/chunk of the circumference, starting at

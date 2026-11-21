@@ -1,9 +1,11 @@
 "use client";
 
-import { createContext, Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { Fragment, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MutableRefObject, type ReactNode, type RefObject } from "react";
+import dynamic from "next/dynamic";
+import { usePathname, useRouter } from "next/navigation";
 import { pendingLessonExam } from "@/src/core";
 import { useChatSession } from "@/components/session";
+import { ChatActionsContext, LessonExamStateContext, type ChatActionsValue, type LessonExamStateValue } from "@/components/chat-actions-context";
 import { usePlugins } from "./plugins";
 import { PluginSubmissionRunner, SubmissionModelEpoch, type SubmissionAttempt } from "./plugin-submission-runner";
 import { submissionImages, type BuiltinSubmissionCapture, type PrepareBuiltinSubmission, type PrepareThinkingSubmission, type PreparePluginQuestionSubmission, type PreparePluginProblemSubmission } from "./plugin-submission-adapters";
@@ -11,12 +13,10 @@ import { SubmittedImages } from "./submitted-images";
 import { usePageSurfaceBoundary, SurfaceRegion } from "./plugin-surfaces";
 import { findSurfaceBoundary } from "./plugin-surface-targets";
 import { scheduleOpeningSubmission } from "./plugin-submission-opening";
-import { activeProblemOccurrenceOf, buildAnswer, toClientQuestion, type PluginSubmission, type PluginSubmissionTarget, type QuestionData } from "@/src/core";
+import { activeProblemOccurrenceOf, buildAnswer, toClientQuestion, type ModelsSettings, type PluginProblemSnapshot, type PluginSubmission, type PluginSubmissionTarget, type QuestionData, type SideChatThread, SIDE_QUOTE_MAX_CHARS } from "@/src/core";
 import { validatePluginBuiltinSubmissionAnswer } from "@/src/core";
-import { visibleQueuedSteers } from "@/components/session-core";
-import { SetupDialog } from "@/components/setup-dialog";
+import { visibleQueuedSteers, type SteerQueueItem } from "@/components/session-core";
 import { Hint } from "@/components/ui/hint";
-import { cn } from "@/lib/utils";
 import { useModelSetup, selectedModelUnavailable, openModelPicker, ZeroKeysPill } from "@/components/setup-cta";
 import { useStickToBottomContext, type StickToBottomContext } from "use-stick-to-bottom";
 import {
@@ -37,7 +37,7 @@ import { AnsweredCard } from "@/components/answered-card";
 import { MalformedQuestion } from "@/components/malformed-question";
 import { SubagentSteerCard } from "@/components/artifacts/steer-card";
 import { LessonCourseBar } from "@/components/study/lesson-course-bar";
-import { LessonFinish, type LessonFinishState, type LessonReceipt } from "@/components/study/lesson-finish";
+import type { LessonFinishState, LessonReceipt } from "@/components/study/lesson-finish";
 import { ChatSessionComposer } from "@/components/composer";
 import { useEnterSubmits } from "@/components/enter-submits";
 import { blurAfterPointerClick } from "@/components/focus-hygiene";
@@ -67,10 +67,10 @@ import {
 	type LhMessage,
 	type ModelSlotName,
 } from "@/src/core";
-import { PlanBlock, PlanPopup, latestTree } from "@/components/plan-block";
-import { PlanMarginalia, planExists } from "@/components/plan-window";
-import { MermaidOverlay, SessionMermaidContext, type SessionImage } from "@/components/session-overlay";
-import { AbortTurnDialog, type AbortMode } from "@/components/abort-turn-dialog";
+import { PlanBlock, latestTree } from "@/components/plan-block";
+import { PlanMarginalia } from "@/components/plan-window";
+import { SessionMermaidContext, type SessionImage } from "@/components/session-overlay";
+import type { AbortMode } from "@/components/abort-turn-dialog";
 import { ArrowRightIcon, DumbbellIcon, MessageCircleQuestionIcon, WaypointsIcon } from "lucide-react";
 import type { PlanBlockData } from "@/src/core";
 import { QuestionDock } from "@/components/question-dock";
@@ -81,18 +81,13 @@ import { capturePluginQuestionDismissal, confirmPluginQuestionDismissal, type Pl
 import { pendingPluginQuestionOf, pluginQuestionCallsOf } from "@/src/core";
 import { pluginQuestionOccurrenceKey, type PluginQuestionSnapshot } from "@/src/core";
 import type { PluginQuestionDraft } from "./session-core";
-import { SessionFind } from "@/components/session-find";
-import { ActivityPanel } from "@/components/study/lesson-activity";
 import { coversLessonActivity, type LessonActivity } from "@/src/core";
 import { SessionMessageNavigation } from "@/components/session-navigation";
-import { SelectionToolbar } from "@/components/selection-toolbar";
+import { SelectionToolbar, type SelectionAction } from "@/components/selection-toolbar";
 import { createCiteAction, type CitationEditTarget } from "@/components/citation-actions";
 import { CitationActionsContext, type CitationActions } from "@/components/citation-chip";
-import { CitationCommentPopover } from "@/components/citation-comment-popover";
 import { revealCitationSource } from "@/components/citation-source";
-import { createSideQuestionActions, SideThreadBody, SideThreadPanel, SideThreadPopover } from "@/components/side-thread";
 import { useSideThread, type SideThreadOpenArgs } from "@/components/use-side-thread";
-import { useRouter } from "next/navigation";
 import { PracticeDock } from "@/components/practice-dock";
 import { PluginProblemDock, type PluginProblemDockProps } from "./plugin-problem-dock";
 import { practiceProblemForCall } from "@/src/core";
@@ -113,7 +108,7 @@ import {
 	CompactionMomentDivider,
 	type CompactionDividerData,
 } from "@/components/compaction-divider";
-import { CoverageRing } from "@/components/extraction-coverage";
+import { CoverageRing, type GraphRead, type SessionCoverage } from "@/components/extraction-coverage";
 import { Button } from "@/components/ui/button";
 import {
 	activeProblemOf,
@@ -122,7 +117,6 @@ import {
 	dismissedAnswer,
 	endsInFailedTurn,
 	findPendingToolCall,
-	phaseAt3,
 	phaseTimeline,
 	teachStepIndex,
 	toolQuestionKind,
@@ -130,6 +124,25 @@ import {
 } from "@/src/core";
 import { ReadingThinkingField } from "@/components/reading-thinking";
 import { currentUserThinkingOpen, setAllUserThinkingOpen } from "@/components/thinking-block";
+
+export { ChatActionsContext };
+
+// Heavy conditional overlays and panels stay out of the initial session bundle
+// until opened or required by the session.
+const SetupDialog = dynamic(() => import("@/components/setup-dialog").then((m) => m.SetupDialog), { ssr: false });
+const MermaidOverlay = dynamic(() => import("@/components/session-overlay").then((m) => m.MermaidOverlay), { ssr: false });
+const PlanPopup = dynamic(() => import("@/components/plan-block").then((m) => m.PlanPopup), { ssr: false });
+const SideThreadBody = dynamic(() => import("@/components/side-thread").then((m) => m.SideThreadBody), { ssr: false });
+const SideThreadPanel = dynamic(() => import("@/components/side-thread").then((m) => m.SideThreadPanel), { ssr: false });
+const SideThreadPopover = dynamic(() => import("@/components/side-thread").then((m) => m.SideThreadPopover), { ssr: false });
+const SessionFind = dynamic(() => import("@/components/session-find").then((m) => m.SessionFind), { ssr: false });
+const AbortTurnDialog = dynamic(() => import("@/components/abort-turn-dialog").then((m) => m.AbortTurnDialog), { ssr: false });
+const CitationCommentPopover = dynamic(() => import("@/components/citation-comment-popover").then((m) => m.CitationCommentPopover), { ssr: false });
+const LessonFinish = dynamic(() => import("@/components/study/lesson-finish").then((m) => m.LessonFinish));
+const ActivityPanel = dynamic(() => import("@/components/study/lesson-activity").then((m) => m.ActivityPanel));
+
+const EMPTY_STEERS: SteerQueueItem[] = [];
+const EMPTY_SIDE_ENTRIES: ReadonlyMap<number, string> = new Map();
 
 /** One width for everything: transcript, cards, and the bottom blob share this column. */
 /**
@@ -161,26 +174,389 @@ const GRADIENT_H = 96;
 const COLLAPSE_DIST = 96;
 const EXPAND_DIST = 16;
 
-/**
- * Server-sync channel for artifact renderers: the CENTRAL jobs poll in Chat
- * calls syncFromServer() when a background job settles — the wake turn's
- * steer + response are already persisted by then, so fresh messages replace
- * local state in one pull. sendText feeds the demo error-fix loop.
- * (contracts.ts "THE ASYNC PROTOCOL" §4.)
- */
-export const ChatActionsContext = createContext<{
+/** Memoized reasoning part: avoids inline JSX children defeating React.memo on
+ *  historical reasoning blocks during streaming updates. */
+const ReasoningPart = memo(function ReasoningPart({
+	text,
+	isStreaming,
+}: {
+	text: string;
+	isStreaming: boolean;
+}) {
+	return (
+		<Reasoning isStreaming={isStreaming} className="mb-2">
+			<ReasoningTrigger />
+			<ReasoningContent>{text}</ReasoningContent>
+		</Reasoning>
+	);
+});
+
+/** Quiet side-conversation entry button rendered at segment boundaries. */
+function SideEntryButton({
+	sourceMessageId,
+	hasHistory,
+	onOpen,
+}: {
+	sourceMessageId?: string;
+	hasHistory: boolean;
+	onOpen: (args: SideThreadOpenArgs) => void;
+}) {
+	if (!sourceMessageId) return null;
+	return (
+		<div className="mt-1 flex justify-end">
+			<Button type="button" variant="ghost" size="icon-xs" data-testid="side-conversation-button" data-side-segment-id={sourceMessageId}
+				data-has-history={hasHistory} aria-label={hasHistory ? "Open side conversation" : "Ask a side question"}
+				title={hasHistory ? "Open side conversation" : "Ask a side question"}
+				className={hasHistory ? "border border-border/60 text-muted-foreground" : "text-muted-foreground/40 hover:text-muted-foreground"}
+				onClick={(event) => onOpen({ sourceMessageId, anchor: { kind: "element", element: event.currentTarget } })}>
+				<MessageCircleQuestionIcon aria-hidden className="size-3.5" fill="currentColor" fillOpacity={hasHistory ? 0.12 : 0} />
+			</Button>
+		</div>
+	);
+}
+
+/** Isolated top-bar title editor so renaming keystrokes never re-render the
+ *  transcript or dock. */
+const SessionTitleEditor = memo(function SessionTitleEditor({
+	chatId,
+	initialTitle,
+	titleRef,
+	scopeRef,
+	children,
+}: {
 	chatId: string;
-	syncFromServer: () => Promise<void>;
-	/** Send a user message into the session (demo error-fix loop, W6). */
-	sendText: (text: string) => void;
-	askActivity?: (text: string) => Promise<boolean>;
-	activeExamId?: string;
-	examBusy?: boolean;
-	submitExam?: (examCallId: string, text: string, onAccepted: () => void) => Promise<boolean>;
-	/** Opens the model setup dialog (BYOK, 2026-09-22): refused job cards
-	 *  deep-link into the same SetupDialog the send interception uses. */
-	openSetup: () => void;
-} | null>(null);
+	initialTitle: string;
+	titleRef: MutableRefObject<string>;
+	scopeRef: RefObject<HTMLDivElement | null>;
+	children: ReactNode;
+}) {
+	const controller = useOptionalInteractionLayers();
+	const [titleText, setTitleText] = useState(initialTitle);
+	const [renaming, setRenaming] = useState(false);
+	const [titleDraft, setTitleDraft] = useState("");
+	const titleInputRef = useRef<HTMLInputElement | null>(null);
+	titleRef.current = titleText;
+
+	const commitRename = useCallback(
+		async (next: string) => {
+			setRenaming(false);
+			const t = next.trim();
+			if (t === "" || t === titleText) return; // empty commit = discard
+			try {
+				const res = await fetch(`/api/chats/${chatId}`, {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ title: t }),
+				});
+				if (!res.ok) throw new Error(`rename failed: ${res.status}`);
+				titleRef.current = t;
+				setTitleText(t);
+				window.dispatchEvent(
+					new CustomEvent("lh:chat-renamed", { detail: { id: chatId, title: t } }),
+				);
+			} catch (err) {
+				console.error("rename failed:", err); // keep the old title
+			}
+		},
+		[chatId, titleText, titleRef],
+	);
+
+	// Select-all when edit mode opens: the click means "replace", so the
+	// whole title highlights on entry (owner ask, 2026-09-17).
+	useEffect(() => {
+		if (renaming) {
+			const el = titleInputRef.current;
+			if (el) {
+				el.focus();
+				el.select();
+			}
+		}
+	}, [renaming]);
+
+	// F2 opens the title rename (the chat header owns the editing state).
+	useEffect(() => {
+		const onRename = () => {
+			if (!isInteractionScopeEligible(scopeRef.current, controller)) return;
+			setTitleDraft(titleText);
+			setRenaming(true);
+		};
+		window.addEventListener("lh:kbd-rename-session", onRename);
+		return () => window.removeEventListener("lh:kbd-rename-session", onRename);
+	}, [titleText, controller, scopeRef]);
+
+	// The sidebar's inline rename dispatches lh:chat-renamed — patch in place.
+	useEffect(() => {
+		const onRenamed = (e: Event) => {
+			const { id, title } = (e as CustomEvent<{ id: string; title: string }>).detail;
+			if (id === chatId) {
+				titleRef.current = title;
+				setTitleText((prev) => (title !== prev ? title : prev));
+			}
+		};
+		window.addEventListener("lh:chat-renamed", onRenamed);
+		return () => window.removeEventListener("lh:chat-renamed", onRenamed);
+	}, [chatId, titleRef]);
+
+	return (
+		<TopBar
+			drag={!renaming}
+			onMouseDown={(e) => {
+				if (renaming && e.target !== titleInputRef.current) titleInputRef.current?.blur();
+			}}
+		>
+			{renaming ? (
+				<>
+					<input
+						ref={titleInputRef}
+						value={titleDraft}
+						onChange={(e) => setTitleDraft(e.target.value)}
+						onKeyDown={(e) => {
+							if (!isInteractionScopeEligible(e.currentTarget, controller)) return;
+							if (e.key === "Enter") void commitRename(titleDraft);
+							else if (e.key === "Escape") {
+								controller?.claimEscape(e);
+								e.stopPropagation();
+								setRenaming(false);
+							}
+						}}
+						onBlur={() => void commitRename(titleDraft)}
+						spellCheck={false}
+						data-plugin-chrome-title
+						aria-label="Session title"
+						title="Rename this session"
+						className="lh-no-drag min-w-[8ch] max-w-[70%] shrink-0 bg-transparent font-title text-3xl tracking-tight caret-current outline-none [field-sizing:content]"
+					/>
+					<div className="min-w-4 flex-1" aria-hidden="true" />
+				</>
+			) : (
+				<>
+					<Hint label="Rename session" action="rename-session" side="bottom">
+						<button
+							type="button"
+							onClick={() => {
+								setTitleDraft(titleText);
+								setRenaming(true);
+							}}
+							data-plugin-chrome-title
+							className="lh-no-drag -mx-1.5 min-w-4 shrink cursor-text truncate rounded-md px-1.5 text-left font-title text-3xl tracking-tight transition-colors hover:bg-accent"
+						>
+							{titleText}
+						</button>
+					</Hint>
+					<div className="min-w-4 flex-1" aria-hidden="true" />
+				</>
+			)}
+			{children}
+		</TopBar>
+	);
+});
+
+type MalformedQuestionCall = ReturnType<typeof malformedQuestionsOf>[number];
+
+interface TranscriptMessageRowProps {
+	m: LhViewMessage;
+	mi: number;
+	chatId: string;
+	isLastMessage: boolean;
+	isStreaming: boolean;
+	teachFlip: boolean;
+	sideEntriesMap: ReadonlyMap<number, string>;
+	sideHistoryIds: ReadonlySet<string>;
+	onOpenSideThread: (args: SideThreadOpenArgs) => void;
+	onOpenPlan: () => void;
+	malformedQuestions?: readonly MalformedQuestionCall[];
+	malformedDisabled: boolean;
+	malformedReason?: string;
+	onRetryMalformed: (call: MalformedQuestionCall) => void;
+	pluginProblemSnapshot?: PluginProblemSnapshot | null;
+}
+
+const TranscriptMessageRow = memo(function TranscriptMessageRow({
+	m,
+	mi,
+	chatId,
+	isLastMessage,
+	isStreaming,
+	teachFlip,
+	sideEntriesMap,
+	sideHistoryIds,
+	onOpenSideThread,
+	onOpenPlan,
+	malformedQuestions,
+	malformedDisabled,
+	malformedReason,
+	onRetryMalformed,
+	pluginProblemSnapshot,
+}: TranscriptMessageRowProps) {
+	const sourceTextParts = useMemo(
+		() => (m.role === "assistant" ? firstSourceTextParts([m]) : null),
+		[m],
+	);
+	const teachBoundaryIndex = useMemo(
+		() => (teachFlip ? teachStepIndex(m.parts) : -2),
+		[teachFlip, m.parts],
+	);
+
+	const wrapRow = (content: ReactNode) =>
+		isLastMessage ? content : <div className="lh-transcript-item flex flex-col gap-4">{content}</div>;
+
+	if (m.role === "user" && isSubagentSteer(m)) {
+		return wrapRow(<SubagentSteerCard message={m} />);
+	}
+	if (m.role === "user" && m.parts.some((p) => p.type === "data-probe-handoff")) {
+		return wrapRow(<PhaseDivider phase="plan" />);
+	}
+	if (m.role === "user" && m.parts.length > 0 && m.parts.every((p) => p.type.startsWith("data-"))) {
+		return wrapRow(
+			<>
+				{m.parts.map((part, pi) => {
+					switch (part.type) {
+						case "data-graph-context":
+							return <GraphContextCard key={pi} data={part.data as GraphContextData} />;
+						case "data-compaction":
+							return <CompactionMomentDivider key={pi} data={part.data as CompactionDividerData} />;
+						case "data-compaction-cut":
+							return <CompactionCutDivider key={pi} data={part.data as CompactionDividerData} />;
+						case "data-plugin-problem-submission":
+							return <PluginProblemSubmitted key={pi} data={part.data} snapshot={pluginProblemSnapshot ?? null} chatId={chatId} />;
+						case "data-practice-thinking":
+							return <ThinkingCard key={pi} data={part.data as PracticeThinkingData} />;
+						case "data-practice-next":
+							return (
+								<div
+									key={pi}
+									data-testid="practice-next-line"
+									className="my-4 flex items-center justify-center gap-1.5 font-ui text-xs font-medium uppercase tracking-wide text-muted-foreground"
+								>
+									<ArrowRightIcon className="size-3" />
+									Next problem
+								</div>
+							);
+						default:
+							return null;
+					}
+				})}
+			</>,
+		);
+	}
+
+	if (m.role === "user") {
+		return wrapRow(
+			<div
+				data-testid="user-message"
+				data-exam-submission={m.examCallId || undefined}
+				className="my-2 w-full border-l-[calc(3ch-14px)] border-muted-foreground/30 bg-card py-1 pl-[14px] pr-4 font-ui text-xs"
+			>
+				<div className="font-medium uppercase tracking-wide text-muted-foreground">{m.examCallId ? "Resposta entregue" : "You"}</div>
+				<div className="lh-prose whitespace-pre-wrap text-foreground">
+					<PathText text={m.parts.filter((p) => p.type === "text").map((p) => p.text).join("\n")} />
+				</div>
+				<SubmittedImages images={m.parts.filter((part) => part.type === "image").map((part) => ({ type: "image" as const, data: part.data as string, mimeType: part.mimeType as string }))} />
+			</div>,
+		);
+	}
+
+	const trailingSideSource = sideEntriesMap.get(m.parts.length);
+	return wrapRow(
+		<>
+			{teachFlip && teachBoundaryIndex === -1 ? (
+				<PhaseDivider key={`teach-${m.id || `m-${mi}`}`} phase="teach" />
+			) : null}
+			<Message from="assistant" className="max-w-full">
+				<MessageContent className="w-full">
+					{m.parts.map((part, pi) => {
+						if (part.pluginProblem) return <ProblemCard key={pi} part={{ ...part, state: part.state ?? "input-available", toolCallId: part.toolCallId ?? "" }} />;
+						if (part.pluginQuestion) return <PluginQuestionPart key={pi} part={part} chatId={chatId} />;
+						const isLastPart = isLastMessage && pi === m.parts.length - 1;
+						const teachBoundary = teachFlip && teachBoundaryIndex === pi;
+						if (
+							part.state === "output-error" &&
+							part.type.startsWith("tool-") &&
+							part.errorText !== "Operation aborted"
+						) {
+							return (
+								<SystemLine key={`retry-${pi}`} testId="tool-retry">
+									Retrying…
+								</SystemLine>
+							);
+						}
+						switch (part.type) {
+							case "text": {
+								const sourceId = textPartMessageId(part.id);
+								const anchor = sourceId && sourceTextParts?.get(sourceId) === part.id ? messageAnchorId(sourceId) : undefined;
+								return (
+									<div key={part.id || pi} id={anchor} data-source-message-id={sourceId ?? undefined} className="lh-source-passage">
+										<CitedResponse text={part.text ?? ""} streaming={isStreaming && isLastPart} />
+									</div>
+								);
+							}
+							case "reasoning":
+								return <ReasoningPart key={pi} text={part.text ?? ""} isStreaming={isStreaming && isLastPart} />;
+							case "step-start": {
+								const stepSideSource = sideEntriesMap.get(pi);
+								return (
+									<Fragment key={`step-${pi}`}>
+										<SideEntryButton
+											sourceMessageId={stepSideSource}
+											hasHistory={stepSideSource ? sideHistoryIds.has(stepSideSource) : false}
+											onOpen={onOpenSideThread}
+										/>
+										{teachBoundary ? <PhaseDivider phase="teach" /> : pi > 0 ? <Separator className="my-3" /> : null}
+									</Fragment>
+								);
+							}
+							case "data-plan-block":
+								return (
+									<PlanBlock
+										key={pi}
+										data={part.data as PlanBlockData}
+										onOpen={onOpenPlan}
+									/>
+								);
+							case "tool-quiz":
+							case "tool-probe":
+							case "tool-ask_user_question":
+							case "tool-explain":
+							case "tool-recall": {
+								const malformed = malformedQuestions?.find(
+									(call) =>
+										call.messageId === part.sourceMessageId &&
+										call.contentIndex === part.sourceContentIndex &&
+										call.toolCallId === part.toolCallId,
+								);
+								if (malformed) {
+									return (
+										<MalformedQuestion
+											key={pi}
+											disabled={malformedDisabled}
+											reason={malformedReason}
+											onRetry={() => onRetryMalformed(malformed)}
+										/>
+									);
+								}
+								if (part.state === "output-available") {
+									return (
+										<AnsweredCard key={pi} answer={part.output as QuestionAnswerData} input={part.input} />
+									);
+								}
+								return null;
+							}
+							default: {
+								if (part.type.startsWith("tool-")) return <ToolPartRenderer key={pi} part={part} />;
+								return null;
+							}
+						}
+					})}
+				</MessageContent>
+				<SideEntryButton
+					sourceMessageId={trailingSideSource}
+					hasHistory={trailingSideSource ? sideHistoryIds.has(trailingSideSource) : false}
+					onOpen={onOpenSideThread}
+				/>
+			</Message>
+		</>,
+	);
+});
 
 /** The BYOK refusal envelope from the transport's error text: the
  *  DefaultChatTransport throws the 503 body VERBATIM as the error message,
@@ -282,6 +658,13 @@ export function Chat({
 	initiallyInFlight,
 	initiallyCompacting = false,
 	initialConfigured = false,
+	initialTurns,
+	initialPricing,
+	initialChatSettings,
+	initialStrongSlot,
+	initialGraphSettings,
+	initialCoverage,
+	initialSideThreads,
 	kind = "teach",
 }: {
 	chatId: string;
@@ -308,6 +691,14 @@ export function Chat({
 	 *  it (BYOK, owner 2026-09-22). The server gate stays the truth; this
 	 *  only decides whether the pill rides the composer. */
 	initialConfigured?: boolean;
+	/** Optional SSR seeds to skip redundant mount fetches. */
+	initialTurns?: TurnUsage[];
+	initialPricing?: SessionPricing;
+	initialChatSettings?: ChatSettings | null;
+	initialStrongSlot?: ModelsSettings["strong"] | string | null;
+	initialGraphSettings?: GraphRead | null;
+	initialCoverage?: SessionCoverage | null;
+	initialSideThreads?: SideChatThread[];
 }) {
 	// Reattach plumbing (background-turn runner wave): the hook holds the
 	// settled terminal's callback — a stable ref assigned below, once
@@ -360,8 +751,30 @@ export function Chat({
 	};
 	const textTarget = (): Extract<PluginSubmissionTarget, { type: "text" }> | undefined => surfaceTarget ? { type: "text", sessionId: chatId, sessionKind: kind === "practice" ? "practice" : "teaching", surfaceTarget, channels: ["content"] } : undefined;
 	const scrollContextRef = useRef<StickToBottomContext | null>(null);
-	const sourceTextParts = useMemo(() => firstSourceTextParts(messages), [messages]);
-	const sideEntries = useMemo(() => sideEntryPoints(nativeMessages, messages), [nativeMessages, messages]);
+	// Stabilize per-message side-entry maps so settled TranscriptMessageRow
+	// instances keep exact prop identity across streaming chunks.
+	const prevSideEntriesRef = useRef<Map<string, ReadonlyMap<number, string>>>(new Map());
+	const sideEntries = useMemo(() => {
+		const raw = sideEntryPoints(nativeMessages, messages);
+		const prev = prevSideEntriesRef.current;
+		const next = new Map<string, ReadonlyMap<number, string>>();
+		for (const [msgId, map] of raw) {
+			if (map.size === 0) {
+				next.set(msgId, EMPTY_SIDE_ENTRIES);
+				continue;
+			}
+			const existing = prev.get(msgId);
+			let same = existing !== undefined && existing.size === map.size;
+			if (same && existing) {
+				for (const [k, v] of map) {
+					if (existing.get(k) !== v) { same = false; break; }
+				}
+			}
+			next.set(msgId, same && existing ? existing : map);
+		}
+		prevSideEntriesRef.current = next;
+		return next;
+	}, [nativeMessages, messages]);
 
 	// The reattach settled terminal → the sync-and-continue seam (below).
 	setReattachSettled(() => reattachSettledRef.current());
@@ -374,76 +787,25 @@ export function Chat({
 	// record poll that adopts at settle if the stream can't attach.
 	const [turnInFlight, setTurnInFlight] = useState(initiallyInFlight ?? false);
 
-	// Session title: click-to-rename (owner, 2026-09-17). Clicking the header
-	// title opens edit mode with everything selected — typing replaces, arrows
-	// move inside. Enter or a click away commits (PUT /api/chats/:id); Escape
-	// discards. The server never bumps updatedAt on a rename (sidebar order
-	// must not churn), and the sidebar patch is instant via the window event —
-	// its 2.5s poll is only a backstop.
-	const [titleText, setTitleText] = useState(title);
-	const [renaming, setRenaming] = useState(false);
-	const [titleDraft, setTitleDraft] = useState("");
-	const titleInputRef = useRef<HTMLInputElement | null>(null);
+	// Title editing state lives inside SessionTitleEditor so rename keystrokes
+	// never re-render the transcript; this ref exposes the live title to plugin
+	// top-bar actions.
+	const titleRef = useRef(title);
 
-	const commitRename = useCallback(
-		async (next: string) => {
-			setRenaming(false);
-			const t = next.trim();
-			if (t === "" || t === titleText) return; // empty commit = discard
-			try {
-				const res = await fetch(`/api/chats/${chatId}`, {
-					method: "PUT",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ title: t }),
-				});
-				if (!res.ok) throw new Error(`rename failed: ${res.status}`);
-				setTitleText(t);
-				window.dispatchEvent(
-					new CustomEvent("lh:chat-renamed", { detail: { id: chatId, title: t } }),
-				);
-			} catch (err) {
-				console.error("rename failed:", err); // keep the old title
-			}
-		},
-		[chatId, titleText],
-	);
-
-	// Select-all when edit mode opens: the click means "replace", so the
-	// whole title highlights on entry (owner ask, 2026-09-17).
+	// Mount SessionFind lazily on the first Mod+F so its DOM walker and chunk
+	// stay unloaded until actually requested.
+	const [findMounted, setFindMounted] = useState(false);
+	const findInitialFocusRef = useRef<HTMLElement | null>(null);
 	useEffect(() => {
-		if (renaming) {
-			const el = titleInputRef.current;
-			if (el) {
-					el.focus();
-					el.select();
-			}
-		}
-	}, [renaming]);
-
-	// ── Keyboard seams (shortcut wave A, 2026-09-17) ──
-	// F2 opens the title rename (the chat header owns the editing state).
-	useEffect(() => {
-		const onRename = () => {
+		if (findMounted) return;
+		const onFind = () => {
 			if (!isInteractionScopeEligible(sessionFindScopeRef.current, controller)) return;
-			setTitleDraft(titleText);
-			setRenaming(true);
+			findInitialFocusRef.current = document.activeElement as HTMLElement | null;
+			setFindMounted(true);
 		};
-		window.addEventListener("lh:kbd-rename-session", onRename);
-		return () => window.removeEventListener("lh:kbd-rename-session", onRename);
-	}, [titleText, controller]);
-
-	// The OTHER rename surface (wave 6: the sidebar's inline rename): its
-	// commit dispatches the same lh:chat-renamed event this header's rename
-	// does — if it renamed THIS chat, patch the header title in place (the
-	// event is the single source of truth; the header is one more listener).
-	useEffect(() => {
-		const onRenamed = (e: Event) => {
-			const { id, title } = (e as CustomEvent<{ id: string; title: string }>).detail;
-			if (id === chatId) setTitleText((prev) => (title !== prev ? title : prev));
-		};
-		window.addEventListener("lh:chat-renamed", onRenamed);
-		return () => window.removeEventListener("lh:chat-renamed", onRenamed);
-	}, [chatId]);
+		window.addEventListener(kbdEventForChat("find"), onFind);
+		return () => window.removeEventListener(kbdEventForChat("find"), onFind);
+	}, [findMounted, controller]);
 
 	// The Esc chain's last link: abort the turn. The background runner
 	// decoupled turns from views, so the abort is ALWAYS the remote kill
@@ -564,11 +926,17 @@ export function Chat({
 		// mount-only by design (turnInFlight read at initial value)
 	}, []);
 
-	const pendingPlugin = pendingPluginQuestionOf(canonicalMessages);
-	const unreadablePlugin = pluginQuestionCallsOf(canonicalMessages).find(call => call.status === "unreadable");
+	const pendingPlugin = useMemo(() => pendingPluginQuestionOf(canonicalMessages), [canonicalMessages]);
+	const unreadablePlugin = useMemo(
+		() => pluginQuestionCallsOf(canonicalMessages).find((call) => call.status === "unreadable"),
+		[canonicalMessages],
+	);
 	const pluginOwnsDock = !!pendingPlugin || !!unreadablePlugin;
 	const [pluginMicAvailable, setPluginMicAvailable] = useState(false);
-	const pluginProblemIdentity = activeProblemOf(canonicalMessages)?.pluginProblem?.problemId;
+	const pluginProblemIdentity = useMemo(
+		() => activeProblemOf(canonicalMessages)?.pluginProblem?.problemId,
+		[canonicalMessages],
+	);
 	const pluginCanonicalIdentity = pendingPlugin?.questionId ?? (unreadablePlugin ? pluginQuestionOccurrenceKey(unreadablePlugin.occurrence) : pluginProblemIdentity ?? null);
 	useEffect(() => {
 		// Effect reconnection (including StrictMode replay) must renew the
@@ -578,8 +946,11 @@ export function Chat({
 	useServerEvent("plugins-changed", () => {
 		if ((pluginOwnsDock || pluginProblemIdentity) && status !== "submitted" && status !== "streaming") void reconcile();
 	});
-	const pending = findPendingToolCall(messages, pendingQuestionOf(nativeMessages));
-	const malformedQuestions = malformedQuestionsOf(nativeMessages);
+	const pending = useMemo(
+		() => findPendingToolCall(messages, pendingQuestionOf(nativeMessages)),
+		[messages, nativeMessages],
+	);
+	const malformedQuestions = useMemo(() => malformedQuestionsOf(nativeMessages), [nativeMessages]);
 	// The abort handler reads the pending question from a ref (the window
 	// listener is mount-scoped; the value it needs is render-scoped).
 	const pendingRef = useRef(pending);
@@ -589,8 +960,8 @@ export function Chat({
 	// same dock-ownership rule as a pending question — an active problem
 	// replaces the composer. Computed from the NATIVE record (the fold is
 	// the gate the tools themselves read), not the projected view.
-	const activeProblem = activeProblemOf(nativeMessages);
-	const activeProblemOccurrence = activeProblemOccurrenceOf(nativeMessages);
+	const activeProblem = useMemo(() => activeProblemOf(nativeMessages), [nativeMessages]);
+	const activeProblemOccurrence = useMemo(() => activeProblemOccurrenceOf(nativeMessages), [nativeMessages]);
 	const activeProblemRef = useRef(activeProblem);
 	activeProblemRef.current = activeProblem;
 
@@ -635,8 +1006,14 @@ export function Chat({
 		[send],
 	);
 
+	// The phase at every message (one linear fold): the transcript draws a
+	// color-coded dotted divider at each boundary; the header chip and
+	// reveal gate both read the session's current phase from it.
+	const phases = useMemo(() => phaseTimeline(messages), [messages]);
+	const currentPhase = phases.at(-1) ?? "probe";
+
 	// Teach-phase check (W5, vision §2): a pending QUIZ that lands once a
-	// plan node is OCCUPIED (phaseAt3 "teach") starts collapsed behind a
+	// plan node is OCCUPIED (currentPhase === "teach") starts collapsed behind a
 	// "Check your understanding" reveal button; probe- and plan-phase
 	// questions auto-open as today. Both teach quizzing tools obey the
 	// law (owner, 2026-10-09: explain checks join quiz checks behind the
@@ -644,7 +1021,9 @@ export function Chat({
 	// A pending question can never precede its phase's seam in the transcript (the teacher's turn
 	// ends at the question call), so the session's current phase IS the
 	// question's phase.
-	const requiresReveal = pendingPlugin ? pendingPlugin.variant === "teach" && pendingPlugin.input.type === "check" : pending !== null && questionNeedsReveal(pending.tool, pending.input, phaseAt3(messages));
+	const requiresReveal = pendingPlugin
+		? pendingPlugin.variant === "teach" && pendingPlugin.input.type === "check"
+		: pending !== null && questionNeedsReveal(pending.tool, pending.input, currentPhase);
 
 	/* The READING-THINKING channel (owner 2026-10-03): a draft field for
 	 * thinking while reading the teaching prose, mounted while a check waits
@@ -683,11 +1062,6 @@ export function Chat({
 		);
 	}, [pendingQuestionId, questionDraft, pluginQuestionDraft]);
 
-	// The phase at every message (one linear fold): the transcript draws a
-	// color-coded dotted divider at each boundary; the header chip reads the
-	// session's current phase.
-	const phases = useMemo(() => phaseTimeline(messages), [messages]);
-
 	const [composerDraftRevision, setComposerDraftRevision] = useState(0);
 	/* The composer draft ref is synchronous, so sends and dictation flushes
 	 * read the latest text without a parent render per input event. Explicit
@@ -706,7 +1080,16 @@ export function Chat({
 	const { catalog, configured, zeroKeys } = useModelSetup(initialConfigured);
 	const catalogRef = useRef(catalog);
 	catalogRef.current = catalog;
-	const [selectedModel, setSelectedModel] = useState<string | undefined>();
+	const [selectedModel, setSelectedModel] = useState<string | undefined>(() => {
+		if (initialChatSettings?.model) {
+			return `${initialChatSettings.model.provider}:${initialChatSettings.model.id}`;
+		}
+		if (typeof initialStrongSlot === "string") return initialStrongSlot;
+		if (initialStrongSlot?.model) {
+			return `${initialStrongSlot.model.provider}:${initialStrongSlot.model.id}`;
+		}
+		return undefined;
+	});
 	const recordSelectedModel = useCallback((model: string | undefined) => { submissionModel.observe(model); setSelectedModel(model); }, [submissionModel]);
 	const [setupOpen, setSetupOpen] = useState(false);
 	/** The last explicitly-sent draft (composer send): the
@@ -967,12 +1350,16 @@ export function Chat({
 		append: (t) => { if (!pluginOwnsDock) applyText(joinDictation(textRef.current, t)); },
 		disabled: pluginOwnsDock && !pluginMicAvailable,
 	});
-	const dictation: Dictation = { ...recording,
-		phase: recording.destinationId === "main" ? recording.phase : "idle",
-		active: recording.destinationId === "main" && recording.active,
-		error: recording.destinationId === "main" ? recording.error : null,
-		blocked: recording.destinationId !== "main" && recording.active,
-	};
+	const dictation: Dictation = useMemo(
+		() => ({
+			...recording,
+			phase: recording.destinationId === "main" ? recording.phase : "idle",
+			active: recording.destinationId === "main" && recording.active,
+			error: recording.destinationId === "main" ? recording.error : null,
+			blocked: recording.destinationId !== "main" && recording.active,
+		}),
+		[recording],
+	);
 	/* When a dictation run ends, the bare composer takes focus (owner
 	 * 2026-10-01) — the hands are already on the keyboard from the stop.
 	 * Falling edge of `active` only (idle→idle never focuses), and ONLY the
@@ -980,6 +1367,7 @@ export function Chat({
 	 * is null, and the thinking field is left alone by design. */
 	const dictationWasActiveRef = useRef(false);
 	const composerInputRef = useRef<HTMLDivElement>(null);
+	const getSideThreadComposer = useCallback(() => composerInputRef.current, []);
 
 	// CITE (2026-10-31): selected tutor text → a citation chip in the
 	// composer, then its comment popover. The transcript's scroll element
@@ -1012,7 +1400,7 @@ export function Chat({
 		if (pendingPlugin) return pendingPlugin.showThinking ? pluginQuestionDraft(pendingPlugin).thinking : "";
 		if (activeProblem?.pluginProblem) return pluginProblemDraft(activeProblem.pluginProblem).thinking;
 		return workingRef.current;
-	});
+	}, initialSideThreads);
 	const sideNavigation = useRef(0);
 	const closeSideThread = useCallback(() => {
 		const id = sideThread.state?.threadId;
@@ -1033,6 +1421,18 @@ export function Chat({
 			});
 		} else sideThread.open(args);
 	}, [nativeMessages, recording.active, recording.destinationId, recording.finishFor, sideThread.open, sideThread.state]);
+	const openSideThreadRef = useRef(openSideThread);
+	openSideThreadRef.current = openSideThread;
+	const stableOpenSideThread = useCallback((args: SideThreadOpenArgs) => {
+		openSideThreadRef.current(args);
+	}, []);
+	const sideHistoryIds = useMemo<ReadonlySet<string>>(() => {
+		const set = new Set<string>();
+		for (const thread of sideThread.threads) {
+			if (thread.messages.length > 0) set.add(thread.anchor.messageId);
+		}
+		return set;
+	}, [sideThread.threads]);
 	const goToCurrentSideStep = sideThread.state && sideThread.currentSegmentId && sideThread.state.segmentId !== sideThread.currentSegmentId
 		? () => openSideThread({ sourceMessageId: sideThread.currentSegmentId!, anchor: sideThread.state!.anchor }) : undefined;
 	const sideDictationFor = (id: string) => {
@@ -1043,19 +1443,6 @@ export function Chat({
 			toggle: () => recording.toggleFor({ id: destinationId, append: (text) => sideThread.saveDraft(id, joinDictation(sideThread.draftFor(id), text), true) }),
 			finish: () => recording.finishFor(destinationId) };
 	};
-	const renderSideEntry = (sourceMessageId?: string) => {
-		if (!sourceMessageId) return null;
-		const hasHistory = sideThread.threads.some((thread) => thread.anchor.messageId === sourceMessageId && thread.messages.length > 0);
-		return <div className="mt-1 flex justify-end">
-			<Button type="button" variant="ghost" size="icon-xs" data-testid="side-conversation-button" data-side-segment-id={sourceMessageId}
-				data-has-history={hasHistory} aria-label={hasHistory ? "Open side conversation" : "Ask a side question"}
-				title={hasHistory ? "Open side conversation" : "Ask a side question"}
-				className={hasHistory ? "border border-border/60 text-muted-foreground" : "text-muted-foreground/40 hover:text-muted-foreground"}
-				onClick={(event) => openSideThread({ sourceMessageId, anchor: { kind: "element", element: event.currentTarget } })}>
-				<MessageCircleQuestionIcon aria-hidden className="size-3.5" fill="currentColor" fillOpacity={hasHistory ? 0.12 : 0} />
-			</Button>
-		</div>;
-	};
 	const sideThreadOpenRef = useRef(false);
 	sideThreadOpenRef.current = sideThread.state !== null;
 	const closeSideThreadRef = useRef(closeSideThread);
@@ -1063,14 +1450,34 @@ export function Chat({
 	const toggleQuestionThread = useCallback(() => {
 		if (!isInteractionScopeEligible(sessionFindScopeRef.current, controller)) return;
 		if (sideThreadOpenRef.current) closeSideThreadRef.current();
-		else openSideThread({ anchor: { kind: "composer" }, questionCallId: pendingRef.current?.toolCallId });
-	}, [controller, openSideThread]);
+		else openSideThreadRef.current({ anchor: { kind: "composer" }, questionCallId: pendingRef.current?.toolCallId });
+	}, [controller]);
 	useEffect(() => {
 		window.addEventListener(kbdEventForChat("toggle-question-thread"), toggleQuestionThread);
 		return () => window.removeEventListener(kbdEventForChat("toggle-question-thread"), toggleQuestionThread);
 	}, [toggleQuestionThread]);
 	// Advancing the lesson does not close or disable an old conversation.
-	const sideActions = useMemo(() => createSideQuestionActions({ open: openSideThread }), [openSideThread]);
+	const sideActions = useMemo<SelectionAction[]>(
+		() => [
+			{
+				id: "side-ask",
+				label: "Ask",
+				ariaLabel: "Ask a side question about this selection",
+				icon: MessageCircleQuestionIcon,
+				visible: () => true,
+				disabledLabel: (capture) => (capture.selector.text.length > SIDE_QUOTE_MAX_CHARS ? "Shorten selection" : null),
+				onSelect: (capture) => {
+					const { text, start, end, prefix, suffix } = capture.selector;
+					openSideThreadRef.current({
+						anchor: { kind: "range", range: capture.range.cloneRange() },
+						passage: { text, sourceMessageId: capture.messageId, selector: { start, end, prefix, suffix } },
+					});
+					return true;
+				},
+			},
+		],
+		[],
+	);
 	const selectionActions = useMemo(() => [citeAction, ...sideActions], [citeAction, sideActions]);
 	const router = useRouter();
 	const transcriptElementRef = useRef<HTMLElement | null>(null);
@@ -1122,7 +1529,10 @@ export function Chat({
 	// and completed work, without another learner message. Offered from
 	// "error" too: a dropped stream leaves the model there, and send()
 	// recovers from it. Later compaction requires new input instead.
-	const retryable = !pluginOwnsDock && (status === "ready" || status === "error") && !busy && !compacting && endsInFailedTurn(nativeMessages);
+	const retryable = useMemo(
+		() => !pluginOwnsDock && (status === "ready" || status === "error") && !busy && !compacting && endsInFailedTurn(nativeMessages),
+		[pluginOwnsDock, status, busy, compacting, nativeMessages],
+	);
 	const retryFailedTurn = () => retryFailedResponse(send, draftRef);
 	const sendAllowed = !pluginOwnsDock && reconciliation === "ready" && !pending && !activeProblem && !compacting && !submissionRunner.occupied;
 	const pendingTextTarget = textTarget();
@@ -1134,18 +1544,21 @@ export function Chat({
 	 * kind, nothing active, nothing in flight, and at least one problem
 	 * has ever been posed (the fresh session's opening turn is owed, not
 	 * the move-on). Enter-on-empty and the Next chip both key on it. */
-	const nextReady =
-		kind === "practice" &&
-		!pending &&
-		!pluginOwnsDock &&
-		!activeProblem &&
-		!compacting &&
-		!busy &&
-		nativeMessages.some(
-			(m) => m.role === "assistant" && m.content.some(
-					(b, contentIndex) => b.type === "toolCall" && !!practiceProblemForCall(nativeMessages, { messageId: m.id, contentIndex, toolCallId: b.id, toolName: b.name }),
-				),
-		);
+	const nextReady = useMemo(
+		() =>
+			kind === "practice" &&
+			!pending &&
+			!pluginOwnsDock &&
+			!activeProblem &&
+			!compacting &&
+			!busy &&
+			nativeMessages.some(
+				(m) => m.role === "assistant" && m.content.some(
+						(b, contentIndex) => b.type === "toolCall" && !!practiceProblemForCall(nativeMessages, { messageId: m.id, contentIndex, toolCallId: b.id, toolName: b.name }),
+					),
+			),
+		[kind, pending, pluginOwnsDock, activeProblem, compacting, busy, nativeMessages],
+	);
 	const sendNext = useCallback(() => {
 		if (!nextReady || submissionRunner.occupied) return;
 		if (pendingTextInput) { void prepareText(); return; }
@@ -1250,11 +1663,10 @@ export function Chat({
 	// The live plan popup (wave 4): opened by any transcript plan block, the
 	// top-bar plan chip, and the dock band's marginalia.
 	const [planOpen, setPlanOpen] = useState(false);
-	// Real plan presence — gates the marginalia's clickable flank. A JSX
-	// element is always truthy; gating on the node alone mounted a phantom
-	// (invisible, clickable) button in the bottom-right whenever a question
-	// was pending with no plan yet (owner report, UI round 2026-10-01).
-	const hasPlan = useMemo(() => planExists(messages), [messages]);
+	// The session's live plan (drives the top-bar chip; hasPlan derives from
+	// it instead of running a second latestTree scan).
+	const planTree = useMemo(() => latestTree(messages), [messages]);
+	const hasPlan = Boolean(planTree?.nodes.length);
 	// The coverage ring's refresh chain (extraction-UX redesign): bumped at
 	// turn settle — the moment this session's uncovered mass changes.
 	const [coverageTick, setCoverageTick] = useState(0);
@@ -1282,18 +1694,14 @@ export function Chat({
 	planOpenRef.current = planOpen;
 	const setupOpenRef = useRef(setupOpen);
 	setupOpenRef.current = setupOpen;
-	// The session's live plan (drives the top-bar chip; the marginalia
-	// derives its own from the same transcript).
-	const planTree = useMemo(() => latestTree(messages), [messages]);
 
 	// ── Session usage (wave-4 stats bar) ──
 	// The money channel: the record's turns log and read-time server Pi
-	// pricing projection. Seeded once on mount (the page doesn't carry turns),
-	// refreshed when the local stream settles (each turn appends to the log
-	// server-side), and kept fresh by syncFromServer whenever it already
-	// fetches the record. No turns yet → the bar renders "—" everywhere.
-	const [turns, setTurns] = useState<TurnUsage[]>([]);
-	const [pricing, setPricing] = useState<SessionPricing | undefined>();
+	// pricing projection. Seeded from SSR when provided, otherwise fetched once
+	// on mount, refreshed when the local stream settles, and kept fresh by
+	// syncFromServer whenever it already fetches the record.
+	const [turns, setTurns] = useState<TurnUsage[]>(() => initialTurns ?? []);
+	const [pricing, setPricing] = useState<SessionPricing | undefined>(initialPricing);
 	// The per-chat model control state (model-picker writes via PUT; the
 	// record is the source of truth, lifted here so the stats bar re-renders).
 	// The dock's reserved tail height (DockOverlay reports it; the spacer at
@@ -1319,7 +1727,12 @@ export function Chat({
 			// transient blip: stats stay on the last known figures
 		}
 	}, [chatId]);
+	const skipInitialUsageRef = useRef(initialTurns !== undefined);
 	useEffect(() => {
+		if (skipInitialUsageRef.current) {
+			skipInitialUsageRef.current = false;
+			return () => usageRequest.current?.abort();
+		}
 		void syncTurns();
 		return () => usageRequest.current?.abort();
 	}, [syncTurns]);
@@ -1572,11 +1985,21 @@ export function Chat({
 		void syncFromServer();
 	});
 
-	const onSend = () => {
+	const prepareTextRef = useRef(prepareText);
+	prepareTextRef.current = prepareText;
+	const deliverOpeningPromptRef = useRef(deliverOpeningPrompt);
+	deliverOpeningPromptRef.current = deliverOpeningPrompt;
+	const onSend = useCallback(() => {
 		if (!isInteractionScopeEligible(sessionFindScopeRef.current, controller) || submissionRunner.occupied) return;
-		if (openingDraftRef.current !== null) { deliverOpeningPrompt(textRef.current.trim(), true); return; }
-		void prepareText();
-	};
+		if (openingDraftRef.current !== null) { deliverOpeningPromptRef.current(textRef.current.trim(), true); return; }
+		void prepareTextRef.current();
+	}, [controller, submissionRunner]);
+
+	const visibleSteers = useMemo(
+		() => (steerQueue.length === 0 ? EMPTY_STEERS : visibleQueuedSteers(steerQueue, nativeMessages)),
+		[steerQueue, nativeMessages],
+	);
+	const cliContextWindow = useMemo(() => cliContextWindowOf(nativeMessages), [nativeMessages]);
 
 	/* STEER VS SEND (owner arc 2026-10-03): a send while a turn runs steers
 	 * it — the quiet queue + the live agent's steering rail; the turn's own
@@ -1601,10 +2024,10 @@ export function Chat({
 	const actionContext = () => surfaceTarget ? createPluginSessionActionContext({ placement: "top-bar", surface: "session", sessionId: chatId, kind: kind === "practice" ? "practice" : "teaching", surfaceTarget }, () => {
 		if (!submissionMounted.current || submissionLive.current.surfaceTarget !== surfaceTarget) throw new Error("This session view is no longer active.");
 		return {
-			sessionId: chatId, kind: kind === "practice" ? "practice" : "teaching", title: titleText,
+			sessionId: chatId, kind: kind === "practice" ? "practice" : "teaching", title: titleRef.current,
 			messages: nativeMessages, transcript: messages, status, reconciliation, busy, compacting,
-			phase: kind === "practice" ? "practice" : phases.at(-1) ?? "probe", contextTokens,
-			queuedSteers: visibleQueuedSteers(steerQueue, nativeMessages), composer: { text: textRef.current },
+			phase: kind === "practice" ? "practice" : currentPhase, contextTokens,
+			queuedSteers: visibleSteers, composer: { text: textRef.current },
 			input: readViewInput(),
 		};
 	}) : undefined;
@@ -1633,27 +2056,308 @@ export function Chat({
 			: lessonReceipt
 				? undefined
 				: lessonCompletion?.reinforcement;
+	const activeExamId = useMemo(
+		() => (lessonCompletion && !liveCompleted ? pendingLessonExam(messages) : undefined),
+		[lessonCompletion, liveCompleted, messages],
+	);
+	const hasActivityCovered = useMemo(
+		() =>
+			Boolean(
+				lessonActivity &&
+					messages.some((m) =>
+						m.parts.some(
+							(p) =>
+								p.type === "tool-study_activity" &&
+								p.state === "output-available" &&
+								coversLessonActivity(p.output, lessonActivity),
+						),
+					),
+			),
+		[lessonActivity, messages],
+	);
+	const hasAssistantMessage = useMemo(
+		() => Boolean(lessonCompletion && messages.some((m) => m.role === "assistant")),
+		[lessonCompletion, messages],
+	);
+	const malformedForTranscript = useMemo(
+		() => (!busy && malformedQuestions.length > 0 ? malformedQuestions : undefined),
+		[busy, malformedQuestions],
+	);
+	const pluginProblemSnapshots = useMemo(() => {
+		let map: Map<string, PluginProblemSnapshot | null> | null = null;
+		for (let mi = 0; mi < messages.length; mi++) {
+			const m = messages[mi];
+			if (!m || m.role !== "user") continue;
+			for (const part of m.parts) {
+				if (part.type !== "data-plugin-problem-submission") continue;
+				const submitted = readPluginProblemSubmission(part.data);
+				if (!map) map = new Map();
+				map.set(m.id || `m-${mi}`, submitted ? pluginProblemById(nativeMessages, submitted.problemId) : null);
+				break;
+			}
+		}
+		return map;
+	}, [messages, nativeMessages]);
+
+	// Keep ChatActionsContext rock-solid across streaming chunks; volatile exam
+	// state lives in LessonExamStateContext so non-exam cards never re-render.
+	const chatActionsValue = useMemo<ChatActionsValue>(
+		() => ({
+			chatId,
+			syncFromServer,
+			sendText: (t: string) => { void prepareTextRef.current(t); },
+			askActivity: (t: string) => prepareTextRef.current(t),
+			submitExam: (examCallId, text, onAccepted) => send({ type: "text", text, examCallId }, onAccepted),
+			openSetup: () => setSetupOpen(true),
+		}),
+		[chatId, syncFromServer, send],
+	);
+	const lessonExamStateValue = useMemo<LessonExamStateValue>(
+		() => ({
+			activeExamId,
+			examBusy: busy || compacting,
+		}),
+		[activeExamId, busy, compacting],
+	);
+	const sessionMermaidValue = useMemo(
+		() => ({
+			openMermaid: setMermaidFocus,
+			openFigure: (svg: string, inverted: boolean) => setFigureFocus({ svg, inverted }),
+			openImage: (image: SessionImage) => setFigureFocus({ image }),
+		}),
+		[],
+	);
+
+	// Stable handlers & memoized props for TranscriptMessageRow and DockOverlay
+	// so settled transcript rows and the dock shell bail out on streaming chunks.
+	const openPlan = useCallback(() => setPlanOpen(true), []);
+	const closePlan = useCallback(() => setPlanOpen(false), []);
+	const openSetup = useCallback(() => setSetupOpen(true), []);
+	const closeSetup = useCallback(() => setSetupOpen(false), []);
+	const closeMermaid = useCallback(() => setMermaidFocus(null), []);
+	const closeFigure = useCallback(() => setFigureFocus(null), []);
+	const onRetryMalformed = useCallback(
+		(call: MalformedQuestionCall) => {
+			draftRef.current = null;
+			void send({ type: "retry-question", messageId: call.messageId, contentIndex: call.contentIndex, toolCallId: call.toolCallId });
+		},
+		[send],
+	);
+	const onRetrySync = useCallback(() => { void reconcile(); }, [reconcile]);
+	const onSaveQuestionDraft = useCallback(
+		(form: QuestionFormDraft) => {
+			const current = pendingRef.current;
+			if (current) saveQuestionDraft(current.key, { form });
+		},
+		[saveQuestionDraft],
+	);
+	const pendingPluginRef = useRef(pendingPlugin);
+	pendingPluginRef.current = pendingPlugin;
+	const unreadablePluginRef = useRef(unreadablePlugin);
+	unreadablePluginRef.current = unreadablePlugin;
+	const pluginQuestionDraftRef = useRef(pluginQuestionDraft);
+	pluginQuestionDraftRef.current = pluginQuestionDraft;
+	const onReadingThinking = useCallback(
+		(value: string) => {
+			applyReadingThinking(value);
+			const currentPlugin = pendingPluginRef.current;
+			if (currentPlugin) pluginQuestionDraftRef.current(currentPlugin).readingThinking = value;
+		},
+		[applyReadingThinking],
+	);
+	const onPluginDismiss = useCallback(() => {
+		const currentPlugin = pendingPluginRef.current;
+		if (currentPlugin) return dismissPluginQuestion(currentPlugin.occurrence, currentPlugin.questionId);
+		const currentUnreadable = unreadablePluginRef.current;
+		if (currentUnreadable) {
+			return dismissPluginQuestion(
+				currentUnreadable.occurrence,
+				currentUnreadable.annotation.status === "unreadable" ? currentUnreadable.annotation.identity?.questionId : undefined,
+			);
+		}
+		return Promise.resolve();
+	}, [dismissPluginQuestion]);
+	const prepareBuiltinRef = useRef(prepareBuiltin);
+	prepareBuiltinRef.current = prepareBuiltin;
+	const onPrepareBuiltin = useCallback<PrepareBuiltinSubmission>((capture) => prepareBuiltinRef.current(capture), []);
+	const builtinTargetRef = useRef(builtinTarget);
+	builtinTargetRef.current = builtinTarget;
+	const pluginManagerRef = useRef(pluginManager);
+	pluginManagerRef.current = pluginManager;
+	const onBuiltinPendingInput = useCallback((question: QuestionData) => {
+		const target = builtinTargetRef.current(question);
+		return !!target && !!pluginManagerRef.current?.hasPendingSubmissionInput(target);
+	}, []);
+	const prepareThinkingRef = useRef(prepareThinking);
+	prepareThinkingRef.current = prepareThinking;
+	const onPrepareThinking = useCallback<PrepareThinkingSubmission>((capture, clear) => prepareThinkingRef.current(capture, clear), []);
+	const preparePluginQuestionRef = useRef(preparePluginQuestion);
+	preparePluginQuestionRef.current = preparePluginQuestion;
+	const onPreparePluginQuestion = useCallback<PreparePluginQuestionSubmission>((capture, isCurrent) => preparePluginQuestionRef.current(capture, isCurrent), []);
+	const preparePluginProblemRef = useRef(preparePluginProblem);
+	preparePluginProblemRef.current = preparePluginProblem;
+	const onPreparePluginProblem = useCallback<PreparePluginProblemSubmission>((capture, isCurrent, onAccepted) => preparePluginProblemRef.current(capture, isCurrent, onAccepted), []);
+	const onSubmitAnswer = useCallback(
+		(output: QuestionAnswerData) => {
+			const current = pendingRef.current;
+			if (!current) return;
+			// THE ANSWER IS THE QUESTION CALL'S TOOL RESULT (fork 1, owner
+			// 2026-09-26): one input event, one turn — the hook appends
+			// the optimistic graded result (the AnsweredCard shows at
+			// once) and the server's write-ahead persists it before the
+			// turn; the teacher's reaction streams below it. Dismissals
+			// ride the same callback (QuestionAnswerData.dismissed). The
+			// reading-thinking draft rides along (owner 2026-10-03) — the
+			// check answer is its only carrier.
+			saveQuestionDraft(current.key, { readingThinking: readingThinkingRef.current });
+			const reading = readingThinkingRef.current.trim() || undefined;
+			// Never wait for the helper. The server atomically appends new
+			// raw side updates with this main answer.
+			submitAnswer(current.tool, current.toolCallId, reading ? { ...output, readingThinking: reading } : output, current.key);
+		},
+		[saveQuestionDraft, submitAnswer],
+	);
+	const dockViewTargets = useMemo<SessionViewTargets | undefined>(() => {
+		if (!surfaceTarget) return undefined;
+		const sessionKind = kind === "practice" ? "practice" as const : "teaching" as const;
+		return {
+			text: { type: "text", sessionId: chatId, sessionKind, surfaceTarget, channels: ["content"] },
+			answer: (question) => builtinTargetRef.current(question),
+			thinking:
+				activeProblem && !activeProblem.pluginProblem && activeProblemOccurrence
+					? {
+						type: "thinking",
+						sessionId: chatId,
+						sessionKind,
+						surfaceTarget,
+						channels: ["content"],
+						problem: { occurrence: activeProblemOccurrence, statement: (activeProblem.input as { statement: string }).statement },
+					}
+					: undefined,
+			pluginQuestion: pendingPlugin
+				? {
+					type: "plugin-question-answer",
+					sessionId: chatId,
+					sessionKind,
+					surfaceTarget,
+					channels: ["answer", ...(pendingPlugin.showThinking ? ["thinking" as const] : []), ...(requiresReveal ? ["readingThinking" as const] : [])],
+					question: {
+						questionId: pendingPlugin.questionId,
+						occurrence: pendingPlugin.occurrence,
+						pluginId: pendingPlugin.pluginId,
+						typeId: pendingPlugin.typeId,
+						contractVersion: pendingPlugin.contractVersion,
+						label: pendingPlugin.label,
+						variant: pendingPlugin.variant,
+						showThinking: pendingPlugin.showThinking,
+					},
+				}
+				: undefined,
+			pluginProblem:
+				activeProblem?.pluginProblem && activeProblemOccurrence
+					? {
+						type: "plugin-problem-submission",
+						sessionId: chatId,
+						sessionKind: "practice",
+						surfaceTarget,
+						channels: ["submission", "thinking"],
+						problem: {
+							problemId: activeProblem.pluginProblem.problemId,
+							occurrence: activeProblemOccurrence,
+							pluginId: activeProblem.pluginProblem.pluginId,
+							typeId: activeProblem.pluginProblem.typeId,
+							contractVersion: activeProblem.pluginProblem.contractVersion,
+							label: activeProblem.pluginProblem.label,
+							statement: activeProblem.pluginProblem.input.statement,
+						},
+					}
+					: undefined,
+		};
+	}, [surfaceTarget, chatId, kind, requiresReveal, activeProblem, activeProblemOccurrence, pendingPlugin]);
+	const preparationStatus = useMemo(
+		() => (preparationError ? <p role="alert" className="px-4 py-2 text-sm text-destructive">{preparationError}</p> : null),
+		[preparationError],
+	);
+	const pluginPractice = useMemo(
+		() =>
+			activeProblem?.pluginProblem && activeProblemOccurrence
+				? {
+					snapshot: activeProblem.pluginProblem,
+					occurrence: activeProblemOccurrence,
+					chatId,
+					draft: pluginProblemDraft(activeProblem.pluginProblem),
+					available: pluginProblemAvailability?.problemId === activeProblem.pluginProblem.problemId && pluginProblemAvailability.status === "available",
+					ready: !busy && !compacting && reconciliation === "ready",
+					reconciliation: pluginProblemIdentity === activeProblem.pluginProblem.problemId ? reconciliation : "syncing" as const,
+					prepareSubmission: onPreparePluginProblem,
+					send,
+					preparing: submissionRunner.occupied,
+					compactionRunning: compacting,
+					onEscape: dictation.cancel,
+				}
+				: undefined,
+		[activeProblem, activeProblemOccurrence, chatId, pluginProblemDraft, pluginProblemAvailability, busy, compacting, reconciliation, pluginProblemIdentity, onPreparePluginProblem, send, submissionRunner.occupied, dictation.cancel],
+	);
+	const dictationSlot = useMemo(
+		() => <DictationBar dictation={dictation} disabled={pluginOwnsDock && !pluginMicAvailable} />,
+		[dictation, pluginOwnsDock, pluginMicAvailable],
+	);
+	const setupCta = useMemo(
+		() =>
+			zeroKeys ? (
+				<ZeroKeysPill onOpen={openSetup} />
+			) : !configured ? (
+				<div className="pointer-events-auto mb-2 flex justify-center">
+					<button
+						type="button"
+						data-testid="setup-cta"
+						onClick={openSetup}
+						className="rounded-sm border border-border bg-card px-3 py-1.5 font-ui text-xs text-foreground transition-colors hover:border-muted-foreground/50 hover:bg-accent cursor-pointer"
+					>
+						Set up your models
+					</button>
+				</div>
+			) : undefined,
+		[zeroKeys, configured, openSetup],
+	);
+	const dockComposer = useMemo(
+		() => (
+			<ChatSessionComposer
+				// Stop aborts ANY in-flight turn (stream-reattach wave): the
+				// square renders while a reattached/wake turn runs too — the
+				// abort channel kills it server-side; stop() alone would
+				// only detach our view.
+				busy={busy}
+				value={textRef.current}
+				pendingInput={pendingTextInput}
+				revision={composerDraftRevision}
+				onChange={recordComposerText}
+				inputRef={composerInputRef}
+				onSend={onSend}
+				onStop={abortInFlightTurn}
+				sendAllowed={sendAllowed}
+				dictationActive={dictation.active}
+				onEscape={dictation.active ? dictation.cancel : undefined}
+				// The pause affordance (owner round 16): the placeholder
+				// IS the hint — empty state, exactly where Enter-on-empty
+				// applies.
+				nextProblem={nextReady}
+				onNext={sendNext}
+				placeholder={nextReady ? "Ask anything, or press Enter for the next one." : undefined}
+			/>
+		),
+		[busy, pendingTextInput, composerDraftRevision, recordComposerText, onSend, abortInFlightTurn, sendAllowed, dictation.active, dictation.cancel, nextReady, sendNext],
+	);
+	// Only construct PlanMarginalia when a plan exists and a question owns the dock.
+	const dockPlan = useMemo(
+		() => (hasPlan && (pending || pendingPlugin) ? <PlanMarginalia messages={messages} /> : undefined),
+		[hasPlan, pending, pendingPlugin, messages],
+	);
 
 	return (
-		<ChatActionsContext.Provider
-			value={{
-				chatId,
-				syncFromServer,
-				sendText: (t: string) => { void prepareText(t); },
-				askActivity: t => prepareText(t),
-				activeExamId: lessonCompletion && !liveCompleted ? pendingLessonExam(messages) : undefined,
-				examBusy: busy || compacting,
-				submitExam: (examCallId, text, onAccepted) => send({ type: "text", text, examCallId }, onAccepted),
-				openSetup: () => setSetupOpen(true),
-			}}
-		>
-		<SessionMermaidContext.Provider
-			value={{
-				openMermaid: setMermaidFocus,
-				openFigure: (svg, inverted) => setFigureFocus({ svg, inverted }),
-				openImage: image => setFigureFocus({ image }),
-			}}
-		>
+		<ChatActionsContext.Provider value={chatActionsValue}>
+		<LessonExamStateContext.Provider value={lessonExamStateValue}>
+		<SessionMermaidContext.Provider value={sessionMermaidValue}>
 		<JobsContext.Provider value={jobs}>
 		<CitationActionsContext.Provider value={citationActions}>
 		{/* The session surface: the transcript column (header + scroller) and
@@ -1684,92 +2388,30 @@ export function Chat({
 				    60px is an ALIGNMENT, not just a size: it equals the sidebar's
 				    LH wordmark band, so the header's border-b continues that
 				    band's bottom edge as one line across the app (owner, round 6). */}
-				<TopBar
-					// While renaming the bar is NOT a drag surface: app-region:drag
-					// would eat the mousedown, so click-to-escape (below) could
-					// never fire. Rename mode is interactive mode (owner ask) —
-					// TopBar's one escape hatch.
-					drag={!renaming}
-					onMouseDown={(e) => {
-						// Escape hitbox: any mousedown outside the input itself blurs
-						// it, running the existing onBlur commit path. The input is
-						// shrink-to-fit (field-sizing), so the rest of the bar is
-						// this spacer + inert chips — all click-to-exit (owner ask).
-						if (renaming && e.target !== titleInputRef.current) titleInputRef.current?.blur();
-					}}
+				<SessionTitleEditor
+					chatId={chatId}
+					initialTitle={title}
+					titleRef={titleRef}
+					scopeRef={sessionFindScopeRef}
 				>
-					{renaming ? (
-						<>
-							<input
-								ref={titleInputRef}
-								value={titleDraft}
-								onChange={(e) => setTitleDraft(e.target.value)}
-								onKeyDown={(e) => {
-									if (!isInteractionScopeEligible(e.currentTarget, controller)) return;
-									if (e.key === "Enter") void commitRename(titleDraft);
-									// stopPropagation claims the Esc (keyboard wave A):
-									// closing rename must not also abort a turn.
-									else if (e.key === "Escape") {
-										controller?.claimEscape(e);
-										e.stopPropagation();
-										setRenaming(false);
-									}
-								}}
-								onBlur={() => void commitRename(titleDraft)}
-								spellCheck={false}
-								data-plugin-chrome-title
-								aria-label="Session title"
-								title="Rename this session"
-								className="lh-no-drag min-w-[8ch] max-w-[70%] shrink-0 bg-transparent font-title text-3xl tracking-tight caret-current outline-none [field-sizing:content]"
-							/>
-							{/* flex-1 spacer during rename too, so the chips stay at
-							    the right edge; clicks here commit via the header
-							    mousedown handler. */}
-							<div className="min-w-4 flex-1" aria-hidden="true" />
-						</>
-					) : (
-					<>
-						<Hint
-							// F2 renames (registry) — surfaced on the hover.
-							label="Rename session"
-							action="rename-session"
-							side="bottom"
-						>
-<button
-							type="button"
-														onClick={() => {
-								setTitleDraft(titleText);
-								setRenaming(true);
-							}}
-							data-plugin-chrome-title
-							className="lh-no-drag -mx-1.5 min-w-4 shrink cursor-text truncate rounded-md px-1.5 text-left font-title text-3xl tracking-tight transition-colors hover:bg-accent"
-						>
-							{titleText}
-							</button>
-						</Hint>
-							{/* flex-1 spacer: keeps the chips at the right edge AND stays a
-							    drag surface (no carve-out) — the freed bar is grippable. */}
-							<div className="min-w-4 flex-1" aria-hidden="true" />
-					</>
-					)}
 					{/* The plan chip (owner, plan-placement round): session-level
 					    structure beside the phase chip — access to the full-DAG popup
 					    at every width; the marginalia is the wide-screen glance view. */}
 					{planTree && (
 						<Hint label="Open the full plan" side="bottom">
-<button
-							type="button"
-							data-testid="plan-chip"
-							onClick={(e) => {
-								blurAfterPointerClick(e);
-								setPlanOpen(true);
-							}}
-							className="lh-no-drag flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-border/80 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:border-border hover:text-foreground"
-						>
-							<WaypointsIcon className="size-3.5 text-primary" aria-hidden />
-							Plan
-						</button>
-</Hint>
+							<button
+								type="button"
+								data-testid="plan-chip"
+								onClick={(e) => {
+									blurAfterPointerClick(e);
+									setPlanOpen(true);
+								}}
+								className="lh-no-drag flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-border/80 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+							>
+								<WaypointsIcon className="size-3.5 text-primary" aria-hidden />
+								Plan
+							</button>
+						</Hint>
 					)}
 					{/* The extraction ring (owner-locked redesign, 2026-09-24): fills
 					    with uncovered vs the chunk threshold, pulses while a run is in
@@ -1778,7 +2420,14 @@ export function Chat({
 					{/* Practice (owner, 2026-10-04): the coverage ring hides —
 				    practice never extracts, so an ever-filling ring with no
 				    run behind it would lie. */}
-					{kind !== "practice" && <CoverageRing chatId={chatId} refreshKey={coverageTick} />}
+					{kind !== "practice" && (
+						<CoverageRing
+							chatId={chatId}
+							refreshKey={coverageTick}
+							initialCoverage={initialCoverage}
+							initialGraphSettings={initialGraphSettings}
+						/>
+					)}
 					{/* Practice sessions: no phase arc — a quiet Practice tag
 					    instead of the phase chip. */}
 					{kind === "practice" ? (
@@ -1792,19 +2441,26 @@ export function Chat({
 							Practice
 						</span>
 					) : (
-						<PhaseChip phase={phases.at(-1) ?? "probe"} />
+						<PhaseChip phase={currentPhase} />
 					)}
 					<PluginSessionTopBarActions readContext={actionContext} captureContext={captureActionContext} refreshRef={refreshPluginActions} />
-				</TopBar>
+				</SessionTitleEditor>
 
-				<SessionFind scopeRef={sessionFindScopeRef} scrollContextRef={scrollContextRef} />
+				{findMounted && (
+					<SessionFind
+						defaultOpen
+						initialPreviousFocus={findInitialFocusRef.current}
+						scopeRef={sessionFindScopeRef}
+						scrollContextRef={scrollContextRef}
+					/>
+				)}
 				<div ref={sessionFindScopeRef} className="relative flex min-h-0 flex-1">
 				<Conversation className="min-h-0 min-w-0 flex-1" initial="instant" contextRef={scrollContextRef}>
 					<SessionMessageNavigation />
 					<TranscriptElementReporter onElement={setTranscriptElement} />
 					<ConversationContent className="min-h-full gap-0 p-0" scrollClassName="overscroll-contain">
 						<div data-session-find-root="" className={`${COLUMN} flex flex-1 flex-col gap-4 pt-4`}>
-							{lessonActivity && !messages.some(m => m.parts.some(p => p.type === "tool-study_activity" && p.state === "output-available" && coversLessonActivity(p.output, lessonActivity))) && <ActivityPanel activity={lessonActivity} />}
+							{lessonActivity && !hasActivityCovered && <ActivityPanel activity={lessonActivity} />}
 							{!lessonActivity && messages.length === 0 && !busy && (
 								<ConversationEmptyState
 									title="New session"
@@ -1812,224 +2468,35 @@ export function Chat({
 								/>
 							)}
 
-							{messages.map((m, mi) =>
-								m.role === "user" && isSubagentSteer(m) ? (
-									// Sub-agent delivery (wake-pipeline steer): NO message bubble — the
-									// artifact card sits in the transcript column directly, full width
-									// and centered like the teacher's artifacts (contracts.ts "THE ASYNC
-									// PROTOCOL" §4). Key fallback: legacy transcripts (pre id-hygiene)
-									// can still hold empty ids — the index keeps keys unique for them.
-									<SubagentSteerCard key={m.id || `m-${mi}`} message={m} />
-								) : m.role === "user" && m.parts.some((p) => p.type === "data-probe-handoff") ? (
-								// The probe→teach handoff wake (custom-message scheme): the
-								// PLANNING DIVIDER IS the seam (owner ruling 2026-09-26 — it
-								// replaced the "Preparing your plan…" system line; the marker
-								// renders in the right spot by record construction, so the old
-								// fold-based divider — which floated to the transcript top once
-								// Wave D grouping merged the whole probe into one giant
-								// assistant group — is gone). Never a user bubble: the wake is
-								// scaffolding; the model-facing instruction lives in the adapter.
-								<PhaseDivider key={m.id || `m-${mi}`} phase="plan" />
-							) : m.role === "user" && m.parts.length > 0 && m.parts.every((p) => p.type.startsWith("data-")) ? (
-								// Marker cards (custom messages, 2026-10-04): user-side
-								// scaffolding — the graph-context pick, the practice
-								// thinking trace — render as cards in the transcript
-								// column directly, NO chat bubble (the subagent-steer
-								// precedent). The user branch below renders text only;
-								// without this hoist a data-only message read as an
-								// EMPTY bubble (owner report, 2026-10-04).
-								<Fragment key={m.id || `m-${mi}`}>
-									{m.parts.map((part, pi) => {
-										switch (part.type) {
-											case "data-graph-context":
-												return <GraphContextCard key={pi} data={part.data as GraphContextData} />;
-											case "data-compaction":
-												return <CompactionMomentDivider key={pi} data={part.data as CompactionDividerData} />;
-											case "data-compaction-cut":
-												return <CompactionCutDivider key={pi} data={part.data as CompactionDividerData} />;
-											case "data-plugin-problem-submission": {
-												const submitted = readPluginProblemSubmission(part.data);
-												return <PluginProblemSubmitted key={pi} data={part.data} snapshot={submitted ? pluginProblemById(nativeMessages, submitted.problemId) : null} chatId={chatId} />;
-											}
-											case "data-practice-thinking":
-												return <ThinkingCard key={pi} data={part.data as PracticeThinkingData} />;
-											case "data-practice-next":
-												// The learner's move-on signal (owner round 16): a compact
-												// centered mono-caps line — chrome, the dismissal register.
-												return (
-													<div
-														key={pi}
-														data-testid="practice-next-line"
-														className="my-4 flex items-center justify-center gap-1.5 font-ui text-xs font-medium uppercase tracking-wide text-muted-foreground"
-													>
-														<ArrowRightIcon className="size-3" />
-														Next problem
-													</div>
-												);
-											default:
-												return null;
-										}
-									})}
-								</Fragment>
-							) : (
-									<Fragment key={m.id || `m-${mi}`}>
-									{/* THE INFERRED TEACH SEAM (owner ruling 2026-09-26, the verdict
-									death): teaching begins where the FIRST nodeId-tagged quiz is
-									posed — the fold (phaseTimeline, the same derivation the phase chip
-									reads) flips to teach exactly AT this assistant group. STEP-LEVEL
-									since owner round 8 (2026-10-05 — the stacked-dividers bug): the
-									plan presentation often lives in the SAME message, an earlier
-									provider step than the quiz call, and the old message-level seam
-									drew this divider before the plan too (Planning and Teaching
-									stacked back-to-back, nothing between). teachStepIndex finds the
-									step boundary governing the flip call: -1 = the message's first
-									step → prepend before the whole block (this branch); a later
-									index → the divider renders AT that part boundary in the loop
-									below (replacing the plain step hairline — a labeled phase rule
-									supersedes it). The boundary check (this index flips, the
-									previous didn't) still guarantees exactly ONE divider per session.
-									PREPENDED, never a replacement branch: the teach group is a real
-									message with content — a replacement ternary swallowed the entire
-									first lesson block (the Lacan session, 2026-09-27). */}
-									{m.role === "assistant" &&
+							{messages.map((m, mi) => {
+								const rowKey = m.id || `m-${mi}`;
+								const isLastMessage = mi === messages.length - 1;
+								const teachFlip =
+									m.role === "assistant" &&
 									mi > 0 &&
 									phases[mi] === "teach" &&
-									phases[mi - 1] !== "teach" &&
-									teachStepIndex(m.parts) === -1 ? (
-										<PhaseDivider key={`teach-${m.id || `m-${mi}`}`} phase="teach" />
-									) : null}
-									{m.role === "user" ? (
-										/* THE DOCUMENT ROW (owner round, 2026-10-05): no right-aligned
-										    bubble — the transcript reads as a document. User text is a
-										    full-width quote block: muted "You" label, muted rail,
-										    FULL-opacity text (learner words are content, not whisper).
-										    Distinguished from user thinking at a glance: thinking is
-										    collapsed + 50% italic; this is upright and present.
-										    User text renders plain — the model's LaTeX pipeline is not
-										    applied to learner-authored text ($ stays $, no surprises).
-										    Rendered WITHOUT the Message wrapper — that is the bubble. */
-											<div
-										data-testid="user-message"
-											data-exam-submission={m.examCallId || undefined}
-										/* THE DOCUMENT, ALL-IN (owner rounds two+three, 2026-10-07):
-										    no chat side — the user message is a full-width card-color
-										    BAND, the IDENTICAL geometry as the thinking rows: 5px band
-										    padding, the left gap matches it, the rail fills the 3ch
-										    inset (the band is the authorship mark against the agent's
-										    transparent prose). The "You" label stays — one register
-										    with the thinking labels. */
-										className="my-2 w-full border-l-[calc(3ch-14px)] border-muted-foreground/30 bg-card py-1 pl-[14px] pr-4 font-ui text-xs"
-									>
-												{/* The rail GROUPS (owner round 4, 2026-10-05): the YOU heading
-												    sits INSIDE the rail, same mono-xs register and same 1ch
-												    rail as the thinking rows — one quote geometry. */}
-												<div className="font-medium uppercase tracking-wide text-muted-foreground">{m.examCallId ? "Resposta entregue" : "You"}</div>
-												<div className="lh-prose whitespace-pre-wrap text-foreground">
-													<PathText text={m.parts.filter((p) => p.type === "text").map((p) => p.text).join("\n")} />
-												</div>
-												<SubmittedImages images={m.parts.filter((part) => part.type === "image").map(part => ({ type: "image" as const, data: part.data as string, mimeType: part.mimeType as string }))} />
-											</div>
-									) : (
-									<Message from="assistant" className="max-w-full">
-									<MessageContent className="w-full">
-											{m.parts.map((part, pi) => {
-												if (part.pluginProblem) return <ProblemCard key={pi} part={{ ...part, state: part.state ?? "input-available", toolCallId: part.toolCallId ?? "" }} />;
-												if (part.pluginQuestion) return <PluginQuestionPart key={pi} part={part} chatId={chatId} />;
-												const isLastPart = mi === messages.length - 1 && pi === m.parts.length - 1;
-												// The step boundary where teaching begins (round 8): when
-												// the teach flip happens in a LATER step, its PhaseDivider
-												// replaces this boundary's plain hairline.
-												const teachBoundary =
-													m.role === "assistant" &&
-													mi > 0 &&
-													phases[mi] === "teach" &&
-													phases[mi - 1] !== "teach" &&
-													teachStepIndex(m.parts) === pi;
-												// A tool call that errored BACK TO THE AGENT (validation
-												// failure, malformed args) is invisible work — the agent
-												// reads the error and retries. Owner ruling 2026-09-26:
-												// surface the retry loop as one quiet line, any tool,
-												// instead of silence (question tools used to render null,
-												// so a flailing quiz loop read as a stall). Aborts are
-												// terminal — nothing retries — so they stay silent.
-												if (
-													part.state === "output-error" &&
-													part.type.startsWith("tool-") &&
-													part.errorText !== "Operation aborted"
-												) {
-													return (
-														<SystemLine key={`retry-${pi}`} testId="tool-retry">
-															Retrying…
-														</SystemLine>
-													);
-												}
-												switch (part.type) {
-													case "text": {
-														const sourceId = textPartMessageId(part.id);
-														const anchor = sourceId && sourceTextParts.get(sourceId) === part.id ? messageAnchorId(sourceId) : undefined;
-														return (
-															<div key={part.id || pi} id={anchor} data-source-message-id={sourceId ?? undefined} className="lh-source-passage">
-																<CitedResponse text={part.text ?? ""} />
-															</div>
-														);
-													}
-													case "reasoning":
-														return (
-															<Reasoning key={pi} isStreaming={status === "streaming" && isLastPart} className="mb-2">
-																<ReasoningTrigger />
-																<ReasoningContent>{part.text ?? ""}</ReasoningContent>
-															</Reasoning>
-														);
-													case "step-start":
-														return <Fragment key={`step-${pi}`}>
-															{renderSideEntry(sideEntries.get(m.id)?.get(pi))}
-															{teachBoundary ? <PhaseDivider phase="teach" /> : pi > 0 ? <Separator className="my-3" /> : null}
-														</Fragment>;
-													case "data-plan-block":
-														// The plan in the chat (wave 4): a frozen snapshot
-														// block — rendered as carried, never re-derived.
-														return (
-															<PlanBlock
-																key={pi}
-																data={part.data as PlanBlockData}
-																onOpen={() => setPlanOpen(true)}
-															/>
-														);
-													case "tool-quiz":
-													case "tool-probe":
-													case "tool-ask_user_question":
-													case "tool-explain":
-													case "tool-recall": {
-														const malformed = !busy && malformedQuestions.find(call => call.messageId === part.sourceMessageId && call.contentIndex === part.sourceContentIndex && call.toolCallId === part.toolCallId);
-														if (malformed) return <MalformedQuestion key={pi} disabled={!!pending || compacting}
-															reason={pending ? "Answer or discard the remaining question first." : undefined}
-															onRetry={() => {
-																draftRef.current = null;
-																void send({ type: "retry-question", messageId: malformed.messageId, contentIndex: malformed.contentIndex, toolCallId: malformed.toolCallId });
-															}} />;
-														// Pending/streaming questions live in the dock, not the
-														// transcript; answered ones render as graded records.
-														if (part.state === "output-available") {
-															return (
-																<AnsweredCard key={pi} answer={part.output as QuestionAnswerData} input={part.input} />
-															);
-														}
-														return null;
-													}
-													default: {
-														// Built-in presentation stays authoritative; plugin renderers
-														// extend only the generic native-tool fallback slot.
-														if (part.type.startsWith("tool-")) return <ToolPartRenderer key={pi} part={part} />;
-														return null;
-													}
-												}
-											})}
-										</MessageContent>
-										{m.role === "assistant" && renderSideEntry(sideEntries.get(m.id)?.get(m.parts.length))}
-									</Message>
-									)}
-								</Fragment>
-							))}
+									phases[mi - 1] !== "teach";
+								return (
+									<TranscriptMessageRow
+										key={rowKey}
+										m={m}
+										mi={mi}
+										chatId={chatId}
+										isLastMessage={isLastMessage}
+										isStreaming={status === "streaming" && isLastMessage}
+										teachFlip={teachFlip}
+										sideEntriesMap={sideEntries.get(m.id) ?? EMPTY_SIDE_ENTRIES}
+										sideHistoryIds={sideHistoryIds}
+										onOpenSideThread={stableOpenSideThread}
+										onOpenPlan={openPlan}
+										malformedQuestions={malformedForTranscript}
+										malformedDisabled={malformedForTranscript ? (!!pending || compacting) : false}
+										malformedReason={malformedForTranscript && pending ? "Answer or discard the remaining question first." : undefined}
+										onRetryMalformed={onRetryMalformed}
+										pluginProblemSnapshot={pluginProblemSnapshots?.get(rowKey)}
+									/>
+								);
+							})}
 
 							{/* THE placeholder, ACTION-gated (owner, optimistic round
 							    3, 2026-10-02): spinner + shimmered Thinking… from the
@@ -2063,7 +2530,7 @@ export function Chat({
 							{(status === "submitted" || turnInFlight) && (
 								<PendingTurnIndicator evaluating={evaluating} />
 							)}
-							{lessonCompletion && messages.some(m => m.role === "assistant") && <LessonFinish state={lessonCompletion} busy={busy || compacting} receipt={lessonReceipt} />}
+							{lessonCompletion && hasAssistantMessage && <LessonFinish state={lessonCompletion} busy={busy || compacting} receipt={lessonReceipt} />}
 							{openingError && <p role="alert" className="text-sm text-destructive">{OPENING_PROMPT_FAILURE}</p>}
 							{error && (
 								<div className="flex items-center justify-between gap-3 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm">
@@ -2092,119 +2559,55 @@ export function Chat({
 				    fold) and NEVER overlaps the composer. */}
 				<DockOverlay
 					viewReader={inputViewReader}
-					viewTargets={surfaceTarget ? { text: textTarget()!, answer: builtinTarget, thinking: thinkingTarget(), pluginQuestion: pluginQuestionTarget(), pluginProblem: pluginProblemTarget() } : undefined}
+					viewTargets={dockViewTargets}
 					pending={pending}
-					onPrepareBuiltin={prepareBuiltin}
-					onBuiltinPendingInput={question => { const target = builtinTarget(question); return !!target && !!pluginManager?.hasPendingSubmissionInput(target); }}
-					onPrepareThinking={prepareThinking}
+					onPrepareBuiltin={onPrepareBuiltin}
+					onBuiltinPendingInput={onBuiltinPendingInput}
+					onPrepareThinking={onPrepareThinking}
 					pendingThinkingInput={pendingThinkingInput}
-					onPreparePluginQuestion={preparePluginQuestion}
+					onPreparePluginQuestion={onPreparePluginQuestion}
 					preparing={submissionRunner.occupied}
-					preparationStatus={<>
-						{preparationError && <p role="alert" className="px-4 py-2 text-sm text-destructive">{preparationError}</p>}
-					</>}
+					preparationStatus={preparationStatus}
 					pluginQuestion={pendingPlugin}
 					pluginDraft={pendingPlugin ? pluginQuestionDraft(pendingPlugin) : undefined}
 					pluginAvailable={!!pendingPlugin && pluginQuestionAvailability?.questionId === pendingPlugin.questionId && pluginQuestionAvailability.status === "available"}
 					pluginReady={!busy && !compacting && reconciliation === "ready"}
 					onPluginMicAvailable={setPluginMicAvailable}
 					onPluginSend={send}
-					onPluginDismiss={() => pendingPlugin ? dismissPluginQuestion(pendingPlugin.occurrence, pendingPlugin.questionId) : unreadablePlugin ? dismissPluginQuestion(unreadablePlugin.occurrence, unreadablePlugin.annotation.status === "unreadable" ? unreadablePlugin.annotation.identity?.questionId : undefined) : Promise.resolve()}
+					onPluginDismiss={onPluginDismiss}
 					unreadablePlugin={!!unreadablePlugin}
 					unavailableOccurrence={unreadablePlugin?.occurrence}
 					reconciliation={reconciliation}
-					onRetrySync={() => { void reconcile(); }}
+					onRetrySync={onRetrySync}
 					initialQuestionDraft={pending ? questionDraft(pending.key)?.form : undefined}
-					onSaveQuestionDraft={(form) => { if (pending) saveQuestionDraft(pending.key, { form }); }}
+					onSaveQuestionDraft={onSaveQuestionDraft}
 					workingRef={workingRef}
 					practice={activeProblem}
-					pluginPractice={activeProblem?.pluginProblem && activeProblemOccurrence ? {
-						snapshot: activeProblem.pluginProblem, occurrence: activeProblemOccurrence, chatId, draft: pluginProblemDraft(activeProblem.pluginProblem),
-						available: pluginProblemAvailability?.problemId === activeProblem.pluginProblem.problemId && pluginProblemAvailability.status === "available",
-						ready: !busy && !compacting && reconciliation === "ready", reconciliation: activeProblemOf(canonicalMessages)?.pluginProblem?.problemId === activeProblem.pluginProblem.problemId ? reconciliation : "syncing",
-						prepareSubmission: preparePluginProblem, send, preparing: submissionRunner.occupied, compactionRunning: compacting, onEscape: dictation.cancel,
-					} : undefined}
+					pluginPractice={pluginPractice}
 					compactionRunning={compacting}
 					onSubmitThinking={submitThinking}
 					chatId={chatId}
+					initialChatSettings={initialChatSettings ?? undefined}
+					initialStrongSlot={initialStrongSlot && typeof initialStrongSlot === "object" ? initialStrongSlot : undefined}
 					onModelChange={recordSelectedModel}
-					plan={hasPlan ? <PlanMarginalia messages={messages} /> : undefined}
-					onOpenPlan={() => setPlanOpen(true)}
+					plan={dockPlan}
+					onOpenPlan={openPlan}
 					requiresReveal={requiresReveal}
 					readingThinking={readingThinkingSeed.value}
 					readingThinkingRevision={readingThinkingSeed.revision}
-					onReadingThinking={(value) => { applyReadingThinking(value); if (pendingPlugin) pluginQuestionDraft(pendingPlugin).readingThinking = value; }}
-					phase={phases.at(-1) ?? "probe"}
+					onReadingThinking={onReadingThinking}
+					phase={currentPhase}
 					turns={turns}
 					contextTokens={contextTokens}
-					cliContextWindow={cliContextWindowOf(nativeMessages)}
+					cliContextWindow={cliContextWindow}
 					pricing={pricing}
 					onReserve={setDockReserve}
-					dictationSlot={<DictationBar dictation={dictation} disabled={pluginOwnsDock && !pluginMicAvailable} />}
+					dictationSlot={dictationSlot}
 					dictationCancel={dictation.cancel}
-					queuedSteers={visibleQueuedSteers(steerQueue, nativeMessages)}
-					setupCta={
-						zeroKeys ? (
-							<ZeroKeysPill onOpen={() => setSetupOpen(true)} />
-						) : (
-							!configured && (
-								<div className="pointer-events-auto mb-2 flex justify-center">
-									<button
-										type="button"
-										data-testid="setup-cta"
-										onClick={() => setSetupOpen(true)}
-										className="rounded-sm border border-border bg-card px-3 py-1.5 font-ui text-xs text-foreground transition-colors hover:border-muted-foreground/50 hover:bg-accent cursor-pointer"
-									>
-										Set up your models
-									</button>
-								</div>
-							)
-						)
-					}
-					composer={
-						<ChatSessionComposer
-							// Stop aborts ANY in-flight turn (stream-reattach wave): the
-							// square renders while a reattached/wake turn runs too — the
-							// abort channel kills it server-side; stop() alone would
-							// only detach our view.
-							busy={busy}
-							value={textRef.current}
-							pendingInput={pendingTextInput}
-							revision={composerDraftRevision}
-							onChange={recordComposerText}
-							inputRef={composerInputRef}
-							onSend={onSend}
-							onStop={abortInFlightTurn}
-							sendAllowed={sendAllowed}
-							dictationActive={dictation.active}
-							onEscape={dictation.active ? dictation.cancel : undefined}
-							// The pause affordance (owner round 16): the placeholder
-							// IS the hint — empty state, exactly where Enter-on-empty
-							// applies.
-							nextProblem={nextReady}
-							onNext={sendNext}
-							placeholder={nextReady ? "Ask anything, or press Enter for the next one." : undefined}
-						/>
-					}
-					onSubmitAnswer={(output) => {
-						if (!pending) return;
-						// THE ANSWER IS THE QUESTION CALL'S TOOL RESULT (fork 1, owner
-						// 2026-09-26): one input event, one turn — the hook appends
-						// the optimistic graded result (the AnsweredCard shows at
-						// once) and the server's write-ahead persists it before the
-						// turn; the teacher's reaction streams below it. Dismissals
-						// ride the same callback (QuestionAnswerData.dismissed). The
-						// reading-thinking draft rides along (owner 2026-10-03) — the
-						// check answer is its only carrier.
-						saveQuestionDraft(pending.key, { readingThinking: readingThinkingRef.current });
-						const reading = readingThinkingRef.current.trim() || undefined;
-						// The pending-id effect clears this only when the question
-						// actually leaves. An offline preflight keeps the draft visible.
-						const send = () => submitAnswer(pending.tool, pending.toolCallId, reading ? { ...output, readingThinking: reading } : output, pending.key);
-						// Never wait for the helper. The server atomically appends new
-						// raw side updates with this main answer.
-						send();
-					}}
+					queuedSteers={visibleSteers}
+					setupCta={setupCta}
+					composer={dockComposer}
+					onSubmitAnswer={onSubmitAnswer}
 				/>
 				</Conversation>
 				{sideThread.state?.mode === "panel" && (
@@ -2235,7 +2638,7 @@ export function Chat({
 						readDraft={sideThread.draftFor.bind(null, sideThread.state.threadId)}
 						dictation={sideDictationFor(sideThread.state.threadId)}
 						onDraftChange={sideThread.saveDraft.bind(null, sideThread.state.threadId)}
-						composer={() => composerInputRef.current}
+						composer={getSideThreadComposer}
 						onAsk={(text, retry) => sideThread.ask(text, retry, sideThread.state!.threadId)}
 						onStop={sideThread.stop}
 						onExpand={sideThread.expand}
@@ -2251,15 +2654,15 @@ export function Chat({
 				    the top bar stays sharp + draggable while a focus is open. */}
 				<SurfaceRegion target={surfaceTarget}>
 				{mermaidFocus !== null && (
-					<MermaidOverlay chart={mermaidFocus} onClose={() => setMermaidFocus(null)} />
+					<MermaidOverlay chart={mermaidFocus} onClose={closeMermaid} />
 				)}
 				{figureFocus !== null && (
 					<MermaidOverlay
 						{...figureFocus}
-						onClose={() => setFigureFocus(null)}
+						onClose={closeFigure}
 					/>
 				)}
-				{planOpen && <PlanPopup messages={messages} onClose={() => setPlanOpen(false)} />}
+				{planOpen && <PlanPopup messages={messages} onClose={closePlan} />}
 				<SelectionToolbar viewport={transcriptElement} actions={selectionActions} />
 				{citationEdit && (
 					<CitationCommentPopover
@@ -2276,7 +2679,9 @@ export function Chat({
 					/>
 				)}
 				</SurfaceRegion>
-				<AbortTurnDialog mode={abortAsk} onClose={closeAbortAsk} onConfirm={confirmAbort} busy={busy} />
+				{abortAsk !== null && (
+					<AbortTurnDialog mode={abortAsk} onClose={closeAbortAsk} onConfirm={confirmAbort} busy={busy} />
+				)}
 				</div>
 			</div>
 		</div>
@@ -2289,16 +2694,14 @@ export function Chat({
 		    deep-link. Save keeps the draft in the composer — it never sends
 		    (owner ruling 2026-10-09); Esc also keeps it (the dialog is
 		    closable by design — the gate is the server, not this modal). */}
-		<SetupDialog
-			open={setupOpen}
-			onClose={() => setSetupOpen(false)}
-			onDone={() => {
-				setSetupOpen(false);
-				// Save only saves (owner ruling 2026-10-09): the draft went
-				// home into the composer at refusal time and STAYS there —
-				// the learner sends it themselves.
-			}}
-		/>
+		{setupOpen && (
+			<SetupDialog
+				open={setupOpen}
+				onClose={closeSetup}
+				onDone={closeSetup}
+			/>
+		)}
+		</LessonExamStateContext.Provider>
 		</ChatActionsContext.Provider>
 	);
 }
@@ -2433,7 +2836,7 @@ function TranscriptElementReporter({ onElement }: { onElement: (element: HTMLEle
 }
 
 /** Host-only composition/test seam; never part of the plugin SDK. */
-export function DockOverlay({
+export const DockOverlay = memo(function DockOverlay({
 	viewReader, viewTargets, unavailableOccurrence,
 	pending,
 	onPrepareBuiltin, onBuiltinPendingInput, onPrepareThinking, pendingThinkingInput, onPreparePluginQuestion, preparing, preparationStatus,
@@ -2456,6 +2859,8 @@ export function DockOverlay({
 	composer,
 	onSubmitAnswer,
 	chatId,
+	initialChatSettings,
+	initialStrongSlot,
 	onModelChange,
 	onReserve,
 	plan,
@@ -2518,6 +2923,8 @@ export function DockOverlay({
 	onSubmitAnswer: (output: QuestionAnswerData) => void;
 	/** The model control's pass-through (the stats bar hosts it). */
 	chatId: string;
+	initialChatSettings?: ChatSettings;
+	initialStrongSlot?: ModelsSettings["strong"];
 	onModelChange: (model: string | undefined) => void;
 	/** Reports the dock's settled height (block + gradient) — ChatView's
 	 *  dockReserve state feeds the transcript's spacer from it. */
@@ -2739,9 +3146,9 @@ export function DockOverlay({
 		const el = scrollRef.current;
 		const content = el?.firstElementChild as HTMLElement | null | undefined;
 		if (!el || !content) return;
-		let prevH = content.getBoundingClientRect().height;
-		const ro = new ResizeObserver(() => {
-			const h = content.getBoundingClientRect().height;
+		let prevH = content.clientHeight;
+		const ro = new ResizeObserver((entries) => {
+			const h = entries[0]?.contentRect.height ?? content.clientHeight;
 			if (h > prevH + 0.5) growthAtRef.current = Date.now();
 			prevH = Math.max(prevH, h);
 		});
@@ -2861,7 +3268,11 @@ export function DockOverlay({
 	// The settled block height (gradient excluded), offered to the spacer.
 	// Only ever called with NATURAL heights — never the animated mid-morph
 	// value (the iso effect's getAnimations guard wraps every call).
-	const measureBlock = () => {
+	const measureBlockRef = useRef(() => {
+		const b = blockRef.current;
+		if (b) offer(b.getBoundingClientRect().height);
+	});
+	measureBlockRef.current = () => {
 		const b = blockRef.current;
 		if (b) offer(b.getBoundingClientRect().height);
 	};
@@ -2895,8 +3306,8 @@ export function DockOverlay({
 		// The private controller owns only this shell's height animation. Late
 		// child layout can retarget an opening over its remaining original time;
 		// closing and ordinary typing retain their existing behavior.
-		heightMorphRef.current?.layout(el, stateKey, ownsDock && expanded, measureBlock);
-	});
+		heightMorphRef.current?.layout(el, stateKey, ownsDock && expanded, () => measureBlockRef.current());
+	}, [stateKey, ownsDock, expanded]);
 
 	return (
 		<div className="pointer-events-none absolute inset-x-0 bottom-0" style={{ right: sbInset }}>
@@ -3008,6 +3419,8 @@ export function DockOverlay({
 						pricing={pricing}
 						dictationSlot={dictationSlot}
 						chatId={chatId}
+						initialChatSettings={initialChatSettings}
+						initialStrongSlot={initialStrongSlot}
 						onModelChange={onModelChange}
 					/>
 					{/* The scroll-down disc (moved here from the Conversation,
@@ -3053,4 +3466,4 @@ export function DockOverlay({
 			</div>
 		</div>
 	);
-}
+});

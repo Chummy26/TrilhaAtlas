@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { FilePathChip } from "./file-path-chip";
 import { CitationChip } from "./citation-chip";
 import { cn } from "../lib/utils";
+import { parseComposerTokens } from "@/src/core";
 import {
 	adjacentPathRange, atomicPathRange, clampPathSelection, insertCitation, insertFilePaths, locateToken,
 	normalizePathEdit, normalizePathInputValue, pathInputStaticRange, PathInputHistory, readPathInput, readPathSelection, renderPathInput,
@@ -64,6 +65,7 @@ export const PathInput = React.forwardRef<HTMLDivElement, PathInputProps>(functi
 		const root = rootRef.current!;
 		const document = root.ownerDocument;
 		let current = normalizePathInputValue(initial.current.value, initial.current.singleLine);
+		let hasChips = false;
 		let saved: TextSelection = { anchor: current.length, focus: current.length };
 		let beforeEdit: PathEditSnapshot | null = null;
 		let compositionStart: PathEditSnapshot | null = null;
@@ -83,7 +85,9 @@ export const PathInput = React.forwardRef<HTMLDivElement, PathInputProps>(functi
 			return { value: current, selection: { ...saved } };
 		}
 		function paint(selection: TextSelection, restore: boolean) {
-			setChips(renderPathInput(root, current));
+			const nextChips = renderPathInput(root, current);
+			hasChips = nextChips.length > 0;
+			setChips((prev) => (prev.length === 0 && nextChips.length === 0 ? prev : nextChips));
 			saved = clampPathSelection(current, selection);
 			if (restore) restorePathSelection(root, saved);
 		}
@@ -194,6 +198,31 @@ export const PathInput = React.forwardRef<HTMLDivElement, PathInputProps>(functi
 			const selection = readPathSelection(root) ?? saved;
 			const previous = beforeEdit ?? snapshot();
 			beforeEdit = null;
+			// Plain-text fast path: when neither previous nor next value carries
+			// any chip tokens or a trailing newline, and the browser kept a single
+			// canonical Text node matching the normalized value, skip full DOM
+			// teardown (replaceChildren) and selection restoration on every keystroke.
+			if (!hasChips && !nextValue.endsWith("\n")) {
+				const normalized = normalizePathEdit({ value: nextValue, selection }, callbacks.current.singleLine);
+				const singleTextNode =
+					root.childNodes.length === 1 &&
+					root.firstChild?.nodeType === 3 &&
+					(root.firstChild as Text).data === normalized.value;
+				if (
+					normalized.value === nextValue &&
+					singleTextNode &&
+					!parseComposerTokens(normalized.value).some((part) => part.kind !== "text")
+				) {
+					root.dataset.empty = normalized.value.length === 0 ? "true" : "false";
+					saved = clampPathSelection(normalized.value, normalized.selection);
+					if (normalized.value !== current) {
+						history.push(previous);
+						current = normalized.value;
+						callbacks.current.onValueChange(current);
+					}
+					return;
+				}
+			}
 			change({ value: nextValue, selection }, true, previous);
 		}
 		function keyDown(event: KeyboardEvent) {

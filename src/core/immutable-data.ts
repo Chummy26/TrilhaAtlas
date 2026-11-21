@@ -42,13 +42,17 @@ export function copyImmutableData<T>(value: T): T {
 // A compiled/parsed result must not outlive a change to TypeBox's validation
 // policy or format functions. Keep one current environment, not a registry of
 // epochs. Reading entries also notices changes made outside the host's API.
-let formats = Format.Entries();
-let settings = Object.entries(Settings.Get());
+// Lazy-initialized on first validationEpoch() call to keep module import pure.
+let formats: ReturnType<typeof Format.Entries> | null = null;
+let settings: [string, unknown][] | null = null;
 let epoch = {};
 function validationEpoch(): object {
 	const nextFormats = Format.Entries(), nextSettings = Object.entries(Settings.Get());
-	if (formats.length !== nextFormats.length || formats.some(([key, value], i) => key !== nextFormats[i]![0] || value !== nextFormats[i]![1]) ||
-		settings.length !== nextSettings.length || settings.some(([key, value], i) => key !== nextSettings[i]![0] || value !== nextSettings[i]![1])) {
+	if (
+		formats === null || settings === null ||
+		formats.length !== nextFormats.length || formats.some(([key, value], i) => key !== nextFormats[i]![0] || value !== nextFormats[i]![1]) ||
+		settings.length !== nextSettings.length || settings.some(([key, value], i) => key !== nextSettings[i]![0] || value !== nextSettings[i]![1])
+	) {
 		formats = nextFormats; settings = nextSettings; epoch = {};
 	}
 	return epoch;

@@ -28,13 +28,41 @@ function jobFile(id: string): string {
 	return path.join(/* turbopackIgnore: true */ jobsDir(), `${id}.json`);
 }
 
+// Keep only routing metadata across requests. Results may contain entire PDFs,
+// drawings or generated HTML. Matching records are always read fresh.
+type JobIndexEntry = { stamp: string; chatId: string; unsettled: boolean };
+type JobsCacheState = { byDir: Map<string, Map<string, JobIndexEntry>> };
+
+const JOBS_CACHE_KEY = Symbol.for("learnharness.store.jobs");
+const MAX_JOB_DIRS = 16;
+
+function jobsCache(): JobsCacheState {
+	const g = globalThis as typeof globalThis & { [JOBS_CACHE_KEY]?: JobsCacheState };
+	return (g[JOBS_CACHE_KEY] ??= { byDir: new Map() });
+}
+
+function dirJobIndex(directory: string): Map<string, JobIndexEntry> {
+	const resolved = path.resolve(directory);
+	const byDir = jobsCache().byDir;
+	let map = byDir.get(resolved);
+	if (!map) {
+		if (byDir.size >= MAX_JOB_DIRS) {
+			const oldest = byDir.keys().next().value;
+			if (oldest !== undefined) byDir.delete(oldest);
+		}
+		map = new Map();
+		byDir.set(resolved, map);
+	}
+	return map;
+}
+
 /** Use the shared retry/cleanup law, but never truncate a plugin-linked job.
  * Metadata also makes a builtin job strict: accepted plugin linkage must stay
  * readable even when its worker is native. A malformed/missing plugin identity
  * cannot grant plugin-kind jobs permission to fall back in place. */
 function writeJob(record: JobRecord): void {
 	const strict = record.kind === "plugin" || record.plugin !== undefined;
-	jobIndex.delete(record.id + ".json");
+	dirJobIndex(jobsDir()).delete(record.id + ".json");
 	writeFileAtomicSync(jobFile(record.id), JSON.stringify(record, null, "\t"), {
 		allowInPlaceFallback: !strict,
 		...(strict ? { mode: 0o600 } : {}),
@@ -92,18 +120,10 @@ function updateJob(id: string, patch: JobPatch): JobRecord | null {
 	return next;
 }
 
-// Keep only routing metadata across requests. Results may contain entire PDFs,
-// drawings or generated HTML. Matching records are always read fresh.
-type JobIndexEntry = { stamp: string; chatId: string; unsettled: boolean };
-let indexDirectory = "";
-let jobIndex = new Map<string, JobIndexEntry>();
-
 function selectJobs(matches: (entry: JobIndexEntry) => boolean): JobRecord[] {
 	const directory = jobsDir();
-	if (indexDirectory !== directory) {
-		jobIndex.clear();
-		indexDirectory = directory;
-	}
+	const resolved = path.resolve(directory);
+	const previous = dirJobIndex(directory);
 	try {
 		fs.mkdirSync(directory, { recursive: true });
 		const next = new Map<string, JobIndexEntry>();
@@ -114,7 +134,7 @@ function selectJobs(matches: (entry: JobIndexEntry) => boolean): JobRecord[] {
 			try {
 				const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true });
 				const stamp = [stat.dev, stat.ino, stat.ctimeNs, stat.mtimeNs, stat.size].join("/");
-				const cached = jobIndex.get(name);
+				const cached = previous.get(name);
 				if (cached?.stamp === stamp && !matches(cached)) {
 					next.set(name, cached);
 					continue;
@@ -125,7 +145,7 @@ function selectJobs(matches: (entry: JobIndexEntry) => boolean): JobRecord[] {
 				if (matches(entry)) jobs.push(record);
 			} catch { /* Missing or unreadable files are isolated and retried on the next scan. */ }
 		}
-		jobIndex = next;
+		jobsCache().byDir.set(resolved, next);
 		return jobs;
 	} catch {
 		return [];
@@ -165,10 +185,13 @@ function findJobByToolCallId(chatId: string, toolCallId: string): JobRecord | nu
  *  jobs are still running, so every record here is terminal. */
 function deleteJobsForChat(chatId: string): number {
 	let removed = 0;
+	const index = dirJobIndex(jobsDir());
 	for (const job of listJobs(chatId)) {
 		try {
-			fs.unlinkSync(jobFile(job.id));
-			removeLeftoverTemps(jobFile(job.id));
+			const file = jobFile(job.id);
+			fs.unlinkSync(file);
+			index.delete(job.id + ".json");
+			removeLeftoverTemps(file);
 			removed++;
 		} catch {
 			/* already gone — the count is best-effort truth */

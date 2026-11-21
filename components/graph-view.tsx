@@ -76,7 +76,6 @@ import { useAppearance } from "@/components/settings/appearance";
 import { usePopoverDismiss } from "@/components/popover-dismiss";
 import { INTERACTION_LAYER_Z_BASE } from "@/components/host-dialog";
 import { useActivity } from "@/components/activity-dock";
-import { useServerEvent, useServerResync } from "@/components/server-events";
 import { MenuShell } from "@/components/menu-shell.tsx";
 import { useInteractionLayers } from "@/components/interaction-layers";
 import { isInteractionScopeEligible } from "@/components/plugin-input-focus";
@@ -202,19 +201,30 @@ export function seedMissingNodePositions(
 
 // ---- Color helpers (canvas wants hex, not oklch) ---------------------------
 
-/** Resolve a CSS variable (oklch in this app) to #rrggbb via the canvas. */
+/** Resolve a CSS variable (oklch in this app) to #rrggbb via a single reused 1×1 canvas. */
+let colorProbeCtx: CanvasRenderingContext2D | null = null;
+const cssHexCache = new Map<string, string>();
+
 function cssColorToHex(css: string): string {
-	const canvas = document.createElement("canvas");
-	canvas.width = 1;
-	canvas.height = 1;
-	const ctx = canvas.getContext("2d");
-	if (!ctx) return "#888888";
-	ctx.fillStyle = css;
-	ctx.fillRect(0, 0, 1, 1);
-	const { data } = ctx.getImageData(0, 0, 1, 1);
-	return `#${[data[0]!, data[1]!, data[2]!]
+	const cached = cssHexCache.get(css);
+	if (cached) return cached;
+	if (!colorProbeCtx) {
+		const canvas = document.createElement("canvas");
+		canvas.width = 1;
+		canvas.height = 1;
+		colorProbeCtx = canvas.getContext("2d", { willReadFrequently: true });
+	}
+	if (!colorProbeCtx) return "#888888";
+	colorProbeCtx.clearRect(0, 0, 1, 1);
+	colorProbeCtx.fillStyle = css;
+	colorProbeCtx.fillRect(0, 0, 1, 1);
+	const { data } = colorProbeCtx.getImageData(0, 0, 1, 1);
+	const hex = `#${[data[0]!, data[1]!, data[2]!]
 		.map((v) => v.toString(16).padStart(2, "0"))
 		.join("")}`;
+	if (cssHexCache.size > 128) cssHexCache.clear();
+	cssHexCache.set(css, hex);
+	return hex;
 }
 
 function tokenHex(cssVar: string): string {
@@ -357,7 +367,7 @@ function GraphCostPanel({ costs }: { costs: GraphCostSummary }) {
 	// the pill and this panel must agree).
 	const { unpricedRuns } = displayCostTotals(costs);
 	return (
-		<div className="w-80 max-w-[calc(100vw-1.5rem)] rounded-xl border bg-card/95 p-3 text-xs shadow-lg backdrop-blur">
+		<div className="w-80 max-w-[calc(100vw-1.5rem)] rounded-xl border bg-card/95 p-3 text-xs shadow-lg">
 			<div className="mb-2 flex items-baseline justify-between">
 				<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 					Graph pipeline costs
@@ -439,7 +449,7 @@ function GraphSettingsControl({
 				type="button"
 				aria-expanded={open}
 				onClick={() => setOpen((o) => !o)}
-				className={`flex size-9 items-center justify-center rounded-xl border bg-card/85 shadow-lg backdrop-blur transition-colors hover:bg-accent ${
+				className={`flex size-9 items-center justify-center rounded-xl border bg-card/95 shadow-lg transition-colors hover:bg-accent ${
 					open ? "text-foreground" : "text-muted-foreground hover:text-foreground"
 				}`}
 			>
@@ -458,7 +468,7 @@ function GraphSettingsControl({
 				// (pr-2.5) -> scrollbar -> 10px (p-2.5) -> panel edge. The
 				// scrollbar itself does NOT move: it stays pinned at the same
 				// distance from the panel's right border.
-				<div ref={panelRef} style={{ zIndex: INTERACTION_LAYER_Z_BASE + popupLayer.order }} className="absolute right-0 top-full mt-2 flex max-h-[60vh] w-72 flex-col rounded-xl border bg-card/85 p-2.5 shadow-lg backdrop-blur">
+				<div ref={panelRef} style={{ zIndex: INTERACTION_LAYER_Z_BASE + popupLayer.order }} className="absolute right-0 top-full mt-2 flex max-h-[60vh] w-72 flex-col rounded-xl border bg-card/95 p-2.5 shadow-lg">
 					<div className="flex flex-col gap-2 overflow-y-auto pr-2.5">
 							{/* Size/zoom/region sliders: LADDER-mapped 0-100, step 10 (11
 							    stops, every DEFAULT dead-center at 50, every value a nice
@@ -834,7 +844,7 @@ export function GraphChromeRow({
 	return (
 		<>
 			{!isEmpty && (
-				<div className="graph-chrome-fade-in w-56 min-w-0 shrink rounded-xl border bg-card/85 px-1 py-[3px] shadow-lg backdrop-blur">
+				<div className="graph-chrome-fade-in w-56 min-w-0 shrink rounded-xl border bg-card/95 px-1 py-[3px] shadow-lg">
 					<Hint
 						// ⌘F focuses node search (surface-scoped registry action).
 						label="Search nodes"
@@ -861,7 +871,7 @@ export function GraphChromeRow({
 			)}
 			{/* The chain table (chains overlay, owner plan 2026-09-29). Own
 			    container (36px band), between the search and Import. */}
-			<div className="graph-chrome-fade-in shrink-0 rounded-xl border bg-card/85 px-1 py-[3px] shadow-lg backdrop-blur">
+			<div className="graph-chrome-fade-in shrink-0 rounded-xl border bg-card/95 px-1 py-[3px] shadow-lg">
 					<Hint label="Every reasoning chain" side="bottom">
 						<button
 							type="button"
@@ -968,6 +978,8 @@ export function GraphView({
 	const { resolvedMode, colors } = useAppearance();
 	const [snapshot, setSnapshot] = useState<GraphSnapshot | null>(null);
 	const [selected, setSelected] = useState<Selection | null>(null);
+	const selectedRef = useRef<Selection | null>(null);
+	selectedRef.current = selected;
 	// The latest snapshot for the renderer's click callbacks (they are
 	// constructed once, so they read through this ref, never a closure).
 	const snapshotRef = useRef<GraphSnapshot | null>(null);
@@ -1093,7 +1105,8 @@ export function GraphView({
 	// before the response — nudge at click and again at +600ms to catch the
 	// start; from its first setPhase the run announces itself on the events
 	// channel (S5), and the dock rides those announcements thereafter.
-	const refreshActivity = useActivity().refresh;
+	const { feed: activityFeed, refresh: refreshActivity } = useActivity();
+	const pipelineRuns = activityFeed.extractions;
 	const notesImport = useNotesImport({
 		onStart: () => {
 			refreshActivity();
@@ -1102,62 +1115,11 @@ export function GraphView({
 	});
 	const { importing, onImportFiles } = notesImport;
 
-	// Background pipeline status: read /api/graph/status; whenever a run
-	// LEAVES the feed (finished / aborted / failed), refetch the graph.
-	// A run only leaves the registry after its merge + settle + usage
-	// persist complete, so disappearance ⇒ the graph change is already on
-	// disk. The old some→none transition batched PARALLEL runs into one
-	// reveal (owner 2026-09-28): with serialized audits, the first run's
-	// merge is its own graph change and must surface immediately, not wait
-	// for the whole feed to drain. A redundant fetch on aborted runs is
-	// free — the same doctrine as the deletion-refresh path below.
-	// Tracked by ROW id (the registry JOB key — source id, or "src#i" for
-	// chunk jobs), NOT chatId: chatId-scoping re-batched per-chunk jobs
-	// into one end-of-import reveal (the exact bug this rule exists to
-	// prevent — a chunk's row leaving IS its merge landing).
-	const [pipelineRuns, setPipelineRuns] = useState<{ id: string; chatId: string; title: string; phase: string; startedAt: number }[]>([]);
-	const rowIdsRef = useRef<Set<string>>(new Set());
-	const readPipelineStatus = useCallback(() => {
-		fetch("/api/graph/status")
-			.then((res) => res.json() as Promise<{ runs: typeof pipelineRuns }>)
-			.then(({ runs }) => {
-				setPipelineRuns(runs);
-				const ids = new Set(runs.map((r) => r.id));
-				if ([...rowIdsRef.current].some((id) => !ids.has(id))) setRefreshTick((t) => t + 1);
-				rowIdsRef.current = ids;
-			})
-			.catch(() => {}); // status is cosmetic — never surface read errors
-	}, []);
-	// PUSH (S7, 2026-10-02): the standing 2s poll is RETIRED — the
-	// extraction registry announces every phase transition and every
-	// finish (activity-changed), so each read lands exactly when truth
-	// moved. The per-chunk reveal semantics are PRESERVED event-for-event:
-	// setPhase + finishExtraction fire per part, so a chunk's row leaving
-	// is still its own, immediately-visible merge landing. Debounced (the
-	// S4 law); resync heals a reconnect that ate events.
-	const statusDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-	useServerEvent("activity-changed", () => {
-		if (statusDebounceRef.current) clearTimeout(statusDebounceRef.current);
-		statusDebounceRef.current = setTimeout(() => {
-			statusDebounceRef.current = undefined;
-			readPipelineStatus();
-		}, 250);
-	});
-	useServerResync(() => readPipelineStatus());
-	useEffect(() => {
-		readPipelineStatus();
-		return () => {
-			if (statusDebounceRef.current) clearTimeout(statusDebounceRef.current);
-		};
-	}, [readPipelineStatus]);
-
 	// Graph pipeline costs (2026-09 cost metrics wave): the cumulative fold
 	// of the usage channels (chat + notes extraction runs; the dead namer's
 	// channel is not displayed anymore, owner 2026-09-24)
 	// behind the bottom-left cost pill. Fetched once on mount and refetched
-	// when a pipeline run finishes (running -> none) so fresh spend lands
-	// without a manual reload. Best-effort: a fetch failure never blocks
-	// the view — the pill just stays on its last numbers.
+	// when a pipeline run finishes so fresh spend lands without reload.
 	const [costs, setCosts] = useState<GraphCostSummary | null>(null);
 	const refreshCosts = useCallback(() => {
 		fetch("/api/graph/costs")
@@ -1168,14 +1130,19 @@ export function GraphView({
 	useEffect(() => {
 		refreshCosts();
 	}, [refreshCosts]);
-	// The same disappearance rule as the snapshot refresh (owner
-	// 2026-09-28): usage persists per JOB (per-chunk jobs), so costs refresh
-	// per job row — not only when the whole feed drains.
+	// Derive extraction pipeline state from the shared ActivityProvider feed
+	// instead of duplicating GET /api/graph/status. Whenever any extraction job
+	// row leaves the feed, its merge + usage persist are already on disk, so
+	// refresh both the graph snapshot and costs immediately.
 	const prevRunIds = useRef(new Set<string>());
 	useEffect(() => {
-		const gone = [...prevRunIds.current].some((id) => !pipelineRuns.some((r) => r.id === id));
-		if (gone && prevRunIds.current.size > 0) refreshCosts();
-		prevRunIds.current = new Set(pipelineRuns.map((r) => r.id));
+		const ids = new Set(pipelineRuns.map((r) => r.id));
+		const gone = [...prevRunIds.current].some((id) => !ids.has(id));
+		if (gone && prevRunIds.current.size > 0) {
+			setRefreshTick((t) => t + 1);
+			refreshCosts();
+		}
+		prevRunIds.current = ids;
 	}, [pipelineRuns, refreshCosts]);
 
 	/* Deletion refresh (wave 6 chunk A): the DELETE /api/chats/:id response
@@ -1233,6 +1200,8 @@ export function GraphView({
 	// any element. Camera moves close the menu (it would float stale);
 	// the dismissal contract is the sidebar's (wave 6).
 	const [ctxNode, setCtxNode] = useState<{ id: string; name: string; x: number; y: number } | null>(null);
+	const ctxNodeRef = useRef<{ id: string; name: string; x: number; y: number } | null>(null);
+	ctxNodeRef.current = ctxNode;
 	const ctxAnchorRef = useRef<HTMLDivElement | null>(null);
 	const [deletingNode, setDeletingNode] = useState<{ id: string; name: string } | null>(null);
 	useEffect(() => {
@@ -1360,8 +1329,8 @@ export function GraphView({
 				// context menu closes with it: a menu floating over a moved
 				// graph is anchored to nothing.
 				onCameraMove: (t) => {
-					setSelected(null);
-					setCtxNode(null);
+					if (selectedRef.current !== null) setSelected(null);
+					if (ctxNodeRef.current !== null) setCtxNode(null);
 					persistCamera(t);
 				},
 				// Live physics settled: persist the new rest state. Fire-and-
@@ -1607,7 +1576,7 @@ export function GraphView({
 			{pipelineRuns.map((run) => (
 				<div
 					key={run.id}
-					className="flex items-center gap-2 rounded-full border bg-card/85 px-3 py-1.5 text-xs text-muted-foreground shadow-lg backdrop-blur"
+					className="flex items-center gap-2 rounded-full border bg-card/95 px-3 py-1.5 text-xs text-muted-foreground shadow-lg"
 				>
 					<Loader2Icon className="size-3.5 shrink-0 animate-spin" />
 					<span className="capitalize">{run.phase}</span>

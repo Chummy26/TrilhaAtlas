@@ -96,12 +96,16 @@ export function defaultCampaignTargets(snapshot: CurriculumSnapshot) {
 	return exits.filter(item => band(item) === last).map(item => item.id);
 }
 
-function inheritedGroup(snapshot: CurriculumSnapshot, item: CurriculumItem, kind: "area" | "unit") {
+function inheritedGroup(snapshot: CurriculumSnapshot, item: CurriculumItem, kind: "area" | "unit"): CurriculumItem {
 	let parent = item;
 	let area: CurriculumItem | undefined;
-	while (parent.parentId && parent.kind !== kind) {
+	const visited = new Set<string>([item.id]);
+	while (parent.parentId && parent.kind !== kind && !visited.has(parent.parentId)) {
 		if (parent.kind === "area") area = parent;
-		parent = snapshot.items[parent.parentId]!;
+		const next = snapshot.items[parent.parentId];
+		if (!next) break;
+		visited.add(next.id);
+		parent = next;
 	}
 	return parent.kind === kind ? parent : area ?? parent;
 }
@@ -279,37 +283,68 @@ export interface ChapterUnits {
 	modules: { id: string; title: string; leafIds: string[] }[];
 }
 
-export function chapterUnitsOf(snapshot: CurriculumSnapshot, graph: LearnerGraphView, campaign: StudyCampaign): ChapterUnits[] {
-	const leaves = graph.ids.filter(id => graph.nodes.get(id)?.isLeaf && !snapshot.items[id]?.reinforcementFor);
-	const isEnglish = snapshot.domainId === "english" && campaign.journey.every(c => cefr.includes(c.level));
+type ChapterModulePartition = { id: string; title: string; leafIds: string[] }[];
+const chapterPartitionCache = new WeakMap<CurriculumSnapshot, WeakMap<LearnerGraphView, Map<string, ChapterModulePartition[]>>>();
+
+function chapterPartitionOf(
+	snapshot: CurriculumSnapshot,
+	graph: LearnerGraphView,
+	campaign: StudyCampaign,
+): ChapterModulePartition[] {
+	const isEnglish = snapshot.domainId === "english" && campaign.journey.every((c) => cefr.includes(c.level));
+	const modeKey = isEnglish ? `en:${campaign.journey.map((c) => c.level).join("|")}` : `std:${campaign.journey.length}`;
+	let byGraph = chapterPartitionCache.get(snapshot);
+	if (!byGraph) chapterPartitionCache.set(snapshot, (byGraph = new WeakMap()));
+	let byMode = byGraph.get(graph);
+	if (!byMode) byGraph.set(graph, (byMode = new Map()));
+	const cached = byMode.get(modeKey);
+	if (cached) return cached;
+
 	const stageMap = new Map<number, string[]>();
 	if (isEnglish) {
 		const indexByLevel = new Map(campaign.journey.map((c, i) => [c.level, i]));
-		for (const id of leaves) {
-			const item = snapshot.items[id]!;
-			if (item.level.scheme !== "cefr") continue;
+		for (const id of graph.ids) {
+			if (!graph.nodes.get(id)?.isLeaf) continue;
+			const item = snapshot.items[id];
+			if (!item || item.reinforcementFor || item.level.scheme !== "cefr") continue;
 			const level = item.level.cefr === "pre-A1" ? "A1" : item.level.cefr;
 			const idx = indexByLevel.get(level);
 			if (idx === undefined) continue;
-			const list = stageMap.get(idx) ?? [];
+			let list = stageMap.get(idx);
+			if (!list) stageMap.set(idx, (list = []));
 			list.push(id);
-			stageMap.set(idx, list);
 		}
 	} else {
 		const stages = stagesOf(snapshot, graph);
 		stages.forEach((stage, idx) => stageMap.set(idx, stage.ids));
 	}
-	return campaign.journey.map((chapter, chapterIndex) => {
+	const partition: ChapterModulePartition[] = campaign.journey.map((_, chapterIndex) => {
 		const ids = stageMap.get(chapterIndex) ?? [];
 		const byUnit = new Map<string, { id: string; title: string; leafIds: string[] }>();
 		for (const id of ids) {
-			const unit = inheritedGroup(snapshot, snapshot.items[id]!, "unit");
-			const mod = byUnit.get(unit.id) ?? { id: unit.id, title: unit.title.pt, leafIds: [] };
+			const item = snapshot.items[id];
+			if (!item) continue;
+			const unit = inheritedGroup(snapshot, item, "unit");
+			let mod = byUnit.get(unit.id);
+			if (!mod) {
+				mod = { id: unit.id, title: unit.title.pt, leafIds: [] };
+				byUnit.set(unit.id, mod);
+			}
 			mod.leafIds.push(id);
-			byUnit.set(unit.id, mod);
 		}
-		return { chapterIndex, chapter, modules: [...byUnit.values()] };
+		return [...byUnit.values()];
 	});
+	byMode.set(modeKey, partition);
+	return partition;
+}
+
+export function chapterUnitsOf(snapshot: CurriculumSnapshot, graph: LearnerGraphView, campaign: StudyCampaign): ChapterUnits[] {
+	const partition = chapterPartitionOf(snapshot, graph, campaign);
+	return campaign.journey.map((chapter, chapterIndex) => ({
+		chapterIndex,
+		chapter,
+		modules: partition[chapterIndex] ?? [],
+	}));
 }
 
 /** Build the ordered lesson list of the active unit/module (online-course syllabus view). */

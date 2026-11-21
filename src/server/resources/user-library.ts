@@ -574,6 +574,161 @@ export async function physicalPdfPages(root: string, sha: string): Promise<[numb
 	} finally { await task.destroy(); }
 }
 
+type PdfPageExtract = {
+	text: string;
+	total: number;
+	layout: {
+		width: number;
+		height: number;
+		lines: Array<{ text: string; transform: string; width: number }>;
+	};
+};
+
+type CachedEpubSections = {
+	sections: Array<{ heading: string; text: string }>;
+};
+
+type PooledPdfHandle = {
+	key: string;
+	file: string;
+	promise: Promise<{ doc: PDFDocumentProxy; destroy: () => Promise<void> }>;
+	timer: ReturnType<typeof setTimeout>;
+	activeUsers: number;
+	pendingDestroy: boolean;
+	destroyed: boolean;
+};
+
+type UserLibraryGlobalState = {
+	metaCache: Map<string, { stamp: string; meta: LibraryItemMeta }>;
+	tocCache: Map<string, { stamp: string; toc: TocEntry[] }>;
+	pdfTextCache: ReturnType<typeof createBookPageCache<PdfPageExtract>>;
+	epubCache: ReturnType<typeof createBookPageCache<CachedEpubSections>>;
+	pdfPool: Map<string, PooledPdfHandle>;
+};
+
+const USER_LIBRARY_STATE_KEY = Symbol.for("learnharness.resources.userLibrary");
+const MAX_LIBRARY_META_CACHE = 512;
+const MAX_LIBRARY_TOC_CACHE = 256;
+const MAX_OPEN_PDF_HANDLES = 2;
+const PDF_HANDLE_IDLE_TTL_MS = 30_000;
+
+function libraryState(): UserLibraryGlobalState {
+	const g = globalThis as typeof globalThis & { [USER_LIBRARY_STATE_KEY]?: UserLibraryGlobalState };
+	if (!g[USER_LIBRARY_STATE_KEY]) {
+		g[USER_LIBRARY_STATE_KEY] = {
+			metaCache: new Map(),
+			tocCache: new Map(),
+			pdfTextCache: createBookPageCache<PdfPageExtract>(4 * 1024 * 1024, page =>
+				2 * page.text.length + page.layout.lines.reduce((bytes, line) => bytes + 96 + 2 * (line.text.length + line.transform.length), 0)),
+			epubCache: createBookPageCache<CachedEpubSections>(16 * 1024 * 1024, book =>
+				book.sections.reduce((bytes, sec) => bytes + 64 + 2 * (sec.heading.length + sec.text.length), 0)),
+			pdfPool: new Map(),
+		};
+	}
+	return g[USER_LIBRARY_STATE_KEY];
+}
+
+function libStatStamp(file: string): string | null {
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) return null;
+	return `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`;
+}
+
+function destroyPooledPdf(entry: PooledPdfHandle): void {
+	if (entry.destroyed) return;
+	entry.destroyed = true;
+	clearTimeout(entry.timer);
+	void entry.promise.then((opened) => opened.destroy()).catch(() => {});
+}
+
+function evictPooledPdf(pool: Map<string, PooledPdfHandle>, key: string): void {
+	const entry = pool.get(key);
+	if (!entry) return;
+	pool.delete(key);
+	clearTimeout(entry.timer);
+	entry.pendingDestroy = true;
+	if (entry.activeUsers <= 0) destroyPooledPdf(entry);
+}
+
+function evictPooledPdfByFile(file: string): void {
+	const resolved = path.resolve(file);
+	const pool = libraryState().pdfPool;
+	for (const [key, entry] of [...pool.entries()]) {
+		if (entry.file === resolved) evictPooledPdf(pool, key);
+	}
+}
+
+function resetPoolTimer(pool: Map<string, PooledPdfHandle>, entry: PooledPdfHandle): void {
+	clearTimeout(entry.timer);
+	entry.timer = setTimeout(() => {
+		evictPooledPdf(pool, entry.key);
+	}, PDF_HANDLE_IDLE_TTL_MS);
+	entry.timer.unref();
+}
+
+async function withPooledPdfDoc<T>(file: string, fn: (doc: PDFDocumentProxy) => Promise<T>): Promise<T> {
+	const resolved = path.resolve(file);
+	const stat = await fs.promises.stat(resolved, { bigint: true });
+	const key = `${resolved}|${stat.dev}|${stat.ino}|${stat.size}|${stat.mtimeNs}|${stat.ctimeNs}`;
+	const pool = libraryState().pdfPool;
+	let entry = pool.get(key);
+	if (entry) {
+		// Refresh LRU position.
+		pool.delete(key);
+		pool.set(key, entry);
+		resetPoolTimer(pool, entry);
+	} else {
+		// Evict stale revisions of the same file first.
+		for (const [existingKey, existing] of [...pool.entries()]) {
+			if (existing.file === resolved) evictPooledPdf(pool, existingKey);
+		}
+		while (pool.size >= MAX_OPEN_PDF_HANDLES) {
+			const oldestKey = pool.keys().next().value;
+			if (oldestKey === undefined) break;
+			evictPooledPdf(pool, oldestKey);
+		}
+		const promise = (async () => {
+			const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+			const bytes = await fs.promises.readFile(resolved);
+			const task = pdfjs.getDocument({ data: new Uint8Array(bytes), standardFontDataUrl: pdfStandardFontsDir(), verbosity: 0 });
+			try {
+				const doc = await task.promise;
+				return { doc, destroy: () => task.destroy().catch(() => {}) };
+			} catch (err) {
+				await task.destroy().catch(() => {});
+				throw err;
+			}
+		})();
+		entry = {
+			key,
+			file: resolved,
+			promise,
+			timer: setTimeout(() => {}, PDF_HANDLE_IDLE_TTL_MS),
+			activeUsers: 0,
+			pendingDestroy: false,
+			destroyed: false,
+		};
+		resetPoolTimer(pool, entry);
+		pool.set(key, entry);
+		promise.catch(() => {
+			if (pool.get(key) === entry) pool.delete(key);
+			clearTimeout(entry!.timer);
+		});
+	}
+	entry.activeUsers++;
+	try {
+		const { doc } = await entry.promise;
+		return await fn(doc);
+	} finally {
+		entry.activeUsers--;
+		if (entry.pendingDestroy && entry.activeUsers <= 0) {
+			destroyPooledPdf(entry);
+		} else if (!entry.pendingDestroy && pool.get(key) === entry) {
+			resetPoolTimer(pool, entry);
+		}
+	}
+}
+
 /** Read from the original, since retrieval chunks can overlap and span pages. */
 export async function readBookUnit(root: string, sha: string, unit: number, withLayout = false) {
 	const item = readLibraryItem(root, sha);
@@ -581,44 +736,51 @@ export async function readBookUnit(root: string, sha: string, unit: number, with
 	const dir = libraryItemDir(root, sha);
 	const { meta, toc } = item;
 	if (meta.format === "epub") {
-		const book = extractEpub(await fs.promises.readFile(path.join(dir, "original.epub")));
+		const epubFile = path.join(dir, "original.epub");
+		const book = await libraryState().epubCache(epubFile, 0, async () => {
+			const extracted = extractEpub(await fs.promises.readFile(epubFile));
+			return {
+				sections: extracted.sections.map((s) => ({
+					heading: s.entry?.title ?? "Abertura",
+					text: s.text,
+				})),
+			};
+		});
 		const section = book.sections[unit - 1];
 		if (!section) return;
 		return { title: meta.title, format: meta.format, unit, total: book.sections.length,
-			heading: section.entry?.title ?? "Abertura", text: section.text };
+			heading: section.heading, text: section.text };
 	}
 	if (unit > (meta.numPages ?? 0)) return;
 	const file = path.join(dir, "original.pdf");
-	const page = await cachedPdfText(file, unit, () => extractPdfPage(file, unit));
+	const page = await libraryState().pdfTextCache(file, unit, () => extractPdfPage(file, unit));
 	const section = toc.findLast(e => (e.pageFrom ?? Infinity) <= unit && (e.pageTo ?? Infinity) >= unit);
 	return { title: meta.title, format: meta.format, unit, total: page.total, heading: section?.title ?? "",
 		text: page.text, layout: withLayout ? structuredClone(page.layout) : undefined };
 }
 
-const cachedPdfText = createBookPageCache<Awaited<ReturnType<typeof extractPdfPage>>>(4 * 1024 * 1024, page =>
-	2 * page.text.length + page.layout.lines.reduce((bytes, line) => bytes + 96 + 2 * (line.text.length + line.transform.length), 0));
-
-async function extractPdfPage(file: string, unit: number) {
+async function extractPdfPage(file: string, unit: number): Promise<PdfPageExtract> {
 	const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-	const bytes = await fs.promises.readFile(file);
-	const task = pdfjs.getDocument({ data: new Uint8Array(bytes), standardFontDataUrl: pdfStandardFontsDir(), verbosity: 0 });
-	try {
-		const doc = await task.promise;
+	return withPooledPdfDoc(file, async (doc) => {
 		const page = await doc.getPage(unit);
-		const content = await page.getTextContent();
-		const text = textFromItems(content.items as TextItemLike[]);
-		const viewport = page.getViewport({ scale: 1 });
-		const layout = { width: viewport.width, height: viewport.height,
-			lines: content.items.flatMap(item => {
-				if (!("str" in item) || !item.str.trim()) return [];
-				const [a, b, c, d, x, y] = pdfjs.Util.transform(viewport.transform, item.transform) as [number, number, number, number, number, number];
-				const advance = Math.hypot(a, b);
-				if (!advance) return [];
-				return [{ text: item.str, transform: `matrix(${a} ${b} ${-c} ${-d} ${x} ${y})`, width: item.width / advance }];
-			}),
-		};
-		return { text, total: doc.numPages, layout };
-	} finally { await task.destroy(); }
+		try {
+			const content = await page.getTextContent();
+			const text = textFromItems(content.items as TextItemLike[]);
+			const viewport = page.getViewport({ scale: 1 });
+			const layout = { width: viewport.width, height: viewport.height,
+				lines: content.items.flatMap(item => {
+					if (!("str" in item) || !item.str.trim()) return [];
+					const [a, b, c, d, x, y] = pdfjs.Util.transform(viewport.transform, item.transform) as [number, number, number, number, number, number];
+					const advance = Math.hypot(a, b);
+					if (!advance) return [];
+					return [{ text: item.str, transform: `matrix(${a} ${b} ${-c} ${-d} ${x} ${y})`, width: item.width / advance }];
+				}),
+			};
+			return { text, total: doc.numPages, layout };
+		} finally {
+			page.cleanup();
+		}
+	});
 }
 
 // ---------------------------------------------------------------- store
@@ -631,16 +793,56 @@ function readJson<T>(file: string): T | undefined {
 	}
 }
 
+function readLibraryMeta(root: string, sha256: string): LibraryItemMeta | undefined {
+	const dir = libraryItemDir(root, sha256);
+	const file = path.resolve(dir, "meta.json");
+	const cache = libraryState().metaCache;
+	const stamp = libStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return undefined;
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return structuredClone(cached.meta);
+	const meta = readJson<LibraryItemMeta>(file);
+	if (!meta || meta.schemaVersion !== 1) return undefined;
+	if (cache.size >= MAX_LIBRARY_META_CACHE && !cache.has(file)) {
+		const oldest = cache.keys().next().value;
+		if (oldest !== undefined) cache.delete(oldest);
+	}
+	cache.set(file, { stamp, meta });
+	return structuredClone(meta);
+}
+
+function readLibraryToc(dir: string): TocEntry[] {
+	const file = path.resolve(dir, "toc.json");
+	const cache = libraryState().tocCache;
+	const stamp = libStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return [];
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return structuredClone(cached.toc);
+	const toc = readJson<{ entries?: TocEntry[] }>(file)?.entries ?? [];
+	if (cache.size >= MAX_LIBRARY_TOC_CACHE && !cache.has(file)) {
+		const oldest = cache.keys().next().value;
+		if (oldest !== undefined) cache.delete(oldest);
+	}
+	cache.set(file, { stamp, toc });
+	return structuredClone(toc);
+}
+
 /** Meta + TOC of an imported item (undefined when absent or incomplete). */
 export function readLibraryItem(root: string, sha256: string): { meta: LibraryItemMeta; toc: TocEntry[] } | undefined {
+	const meta = readLibraryMeta(root, sha256);
+	if (!meta) return undefined;
 	const dir = libraryItemDir(root, sha256);
-	const meta = readJson<LibraryItemMeta>(path.join(dir, "meta.json"));
-	if (!meta || meta.schemaVersion !== 1) return undefined;
-	const toc = readJson<{ entries?: TocEntry[] }>(path.join(dir, "toc.json"))?.entries ?? [];
+	const toc = readLibraryToc(dir);
 	return { meta, toc };
 }
 
-/** All complete items, most recently imported first. */
+/** All complete items, most recently imported first. Reads ONLY meta.json (stat-cached), never toc.json. */
 export function listLibrary(root: string): LibraryItemMeta[] {
 	let names: string[];
 	try {
@@ -650,7 +852,7 @@ export function listLibrary(root: string): LibraryItemMeta[] {
 	}
 	return names
 		.filter((n) => SHA256_PATTERN.test(n))
-		.map((n) => readLibraryItem(root, n)?.meta)
+		.map((n) => readLibraryMeta(root, n))
 		.filter((m): m is LibraryItemMeta => Boolean(m))
 		.sort((a, b) => b.importedAt.localeCompare(a.importedAt));
 }
@@ -672,6 +874,10 @@ export function readLibraryChunks(root: string, sha256: string): ContentChunk[] 
 /** Delete one item directory (user action: "remover da biblioteca"). */
 export function removeLibraryItem(root: string, sha256: string): boolean {
 	const dir = libraryItemDir(root, sha256);
+	evictPooledPdfByFile(path.join(dir, "original.pdf"));
+	const state = libraryState();
+	state.metaCache.delete(path.resolve(dir, "meta.json"));
+	state.tocCache.delete(path.resolve(dir, "toc.json"));
 	if (!fs.existsSync(dir)) return false;
 	removeTreeSync(dir);
 	return !fs.existsSync(dir);
@@ -739,6 +945,9 @@ export async function importBookFile(input: ImportBookInput): Promise<ImportedBo
 	writeFileAtomicSync(path.join(dir, "toc.json"), JSON.stringify({ source: extracted.tocSource, entries: extracted.toc }, null, "\t"));
 	writeFileAtomicSync(path.join(dir, "chunks.jsonl"), chunks.map((c) => JSON.stringify(c)).join("\n") + (chunks.length ? "\n" : ""));
 	writeFileAtomicSync(path.join(dir, "meta.json"), JSON.stringify(meta, null, "\t"));
+	const state = libraryState();
+	state.metaCache.delete(path.resolve(dir, "meta.json"));
+	state.tocCache.delete(path.resolve(dir, "toc.json"));
 	return { meta, toc: extracted.toc, deduplicated: false };
 }
 

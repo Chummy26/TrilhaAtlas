@@ -87,7 +87,18 @@ function fileStore(file) {
 			try {
 				return validateState(JSON.parse(await fs.readFile(file, "utf8")));
 			} catch (err) {
-				if (err.code === "ENOENT") return null;
+				if (err.code === "ENOENT") {
+					// On Windows, reading beneath a regular file yields ENOENT rather
+					// than ENOTDIR. Fail closed without creating a file or spawning PowerShell.
+					try {
+						const parent = await fs.stat(path.dirname(file));
+						if (!parent.isDirectory()) throw fail("storage");
+					} catch (parentErr) {
+						if (parentErr.code === "storage") throw parentErr;
+						if (parentErr.code !== "ENOENT") throw fail("storage");
+					}
+					return null;
+				}
 				throw fail("storage");
 			}
 		},
@@ -186,12 +197,11 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 		if (closed) throw fail("disconnected");
 		if (!init) init = (async () => {
 			const loaded = await store.read();
-			state = loaded ? validateState(loaded) : null;
-			if (!state) {
-				const first = { version: 1, hostId: `urn:uuid:${crypto.randomUUID()}`, activeId: null, registrations: [] };
-				await store.write(first);
-				state = first;
-			}
+			// Keep an empty in-memory record on fresh installs so read-only
+			// status() never creates a file or spawns PowerShell ACL setup.
+			state = loaded
+				? validateState(loaded)
+				: { version: 1, hostId: `urn:uuid:${crypto.randomUUID()}`, activeId: null, registrations: [] };
 		})();
 		try { await init; } catch (err) { denyStorage(err); throw err; }
 	}
@@ -459,7 +469,16 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 		}
 	}
 	async function models() {
-		await ready();
+		try {
+			await ready();
+		} catch {
+			const sequence = ++catalogSequence;
+			if (sequence === catalogSequence) {
+				if (catalog.length) { catalog = []; authorityRevision++; }
+				catalogError = publicError(fail("catalog")); notify();
+			}
+			return modelValue();
+		}
 		const currentAccount = active();
 		if (!currentAccount) return modelValue();
 		const currentEpoch = epoch;

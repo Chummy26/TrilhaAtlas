@@ -21,7 +21,7 @@ import { structuralState } from "../core/learner/kst.ts";
 import { DEFAULT_LEARNER_PARAMS } from "../core/learner/params.ts";
 import type { LearnerEvent } from "../core/learner/types.ts";
 import { booksForDomain } from "../core/resources/catalog.ts";
-import { studyCampaign } from "../core/study/campaign.ts";
+import { chapterUnitsOf, studyCampaign } from "../core/study/campaign.ts";
 import {
 	buildFlippedGuide,
 	formatFlippedPrepForLesson,
@@ -68,14 +68,14 @@ import { englishMissionMaterials } from "./english-mission-materials.ts";
 import { getPluginHost } from "./plugins.ts";
 import { readManualMaterials } from "./resources/manual-materials.ts";
 import { loadResourceSeeds } from "./resources/seeds.ts";
-import { appendStudyEvent, nextStudySeq, readStudyEvents } from "./study-log.ts";
+import { appendStudyEvent, nextStudySeq } from "./study-log.ts";
 import {
+	computeTodayPlan,
 	curriculumSources,
-	learnerSnapshotOf,
 	loadCurriculum,
+	readLearnerHistory,
 	studyDomains,
 	StudyError,
-	studyToday,
 } from "./study.ts";
 
 export { readModuleScoreMap, readProblemSetScoreMap, readPrepNote, type ModuleExamReceipt, type ProblemSetReceipt };
@@ -288,6 +288,13 @@ function curatedMaterialsForNode(
 		direct.push(mat);
 	};
 
+	const manualEntries = readManualMaterials(domainId);
+	for (const entry of manualEntries) {
+		if (entry.nodes.includes(nodeId)) {
+			addDirect({ kind: entry.kind, title: entry.title, part: entry.part, url: entry.url });
+		}
+	}
+
 	if (domainId === "english") {
 		for (const mat of englishMissionMaterials) {
 			if (mat.nodes.includes(nodeId)) {
@@ -296,17 +303,24 @@ function curatedMaterialsForNode(
 		}
 	}
 
-	try {
-		const seeds = loadResourceSeeds(path.join(/* turbopackIgnore: true */ PATHS.root, "content", "resources"));
-		for (const book of booksForDomain(seeds.books, domainId)) {
-			for (const sec of BOOK_SECTIONS[book.key] ?? []) {
-				if (sec.nodes?.includes(nodeId)) {
-					addDirect({ kind: "book", title: book.title, part: sec.part, url: sec.url });
-				}
+	let domainBooks: ReturnType<typeof booksForDomain> | undefined;
+	const getDomainBooks = () => {
+		if (domainBooks) return domainBooks;
+		try {
+			const seeds = loadResourceSeeds(path.join(/* turbopackIgnore: true */ PATHS.root, "content", "resources"));
+			domainBooks = booksForDomain(seeds.books, domainId);
+		} catch {
+			domainBooks = [];
+		}
+		return domainBooks;
+	};
+
+	for (const book of getDomainBooks()) {
+		for (const sec of BOOK_SECTIONS[book.key] ?? []) {
+			if (sec.nodes?.includes(nodeId)) {
+				addDirect({ kind: "book", title: book.title, part: sec.part, url: sec.url });
 			}
 		}
-	} catch {
-		// Seed errors are non-fatal for pre-reading guides.
 	}
 
 	for (const video of CURATED_VIDEOS) {
@@ -326,13 +340,70 @@ function curatedMaterialsForNode(
 		}
 	}
 
-	// Fall back to unit-level materials when the node has no direct book or video.
-	const unitId = unitIdOf(snapshot, nodeId);
-	if (unitId) {
-		const unitMats = readCuratedMaterialsByUnit(domainId, snapshot, graph).get(unitId);
-		if (unitMats) {
-			for (const b of unitMats.books) addDirect({ kind: "book", ...b });
-			for (const v of unitMats.videos) addDirect({ kind: "video", ...v });
+	// Fall back to unit-level materials ONLY when the node has no direct book or video,
+	// scanning only members of this unit instead of all curriculum items.
+	const hasBook = direct.some((m) => m.kind === "book");
+	const hasVideo = direct.some((m) => m.kind === "video");
+	if (!hasBook || !hasVideo) {
+		const unitId = unitIdOf(snapshot, nodeId);
+		if (unitId) {
+			const unitNodes = new Set<string>();
+			const stack = [unitId];
+			while (stack.length > 0) {
+				const curr = stack.pop()!;
+				if (unitNodes.has(curr)) continue;
+				unitNodes.add(curr);
+				const children = graph.nodes.get(curr)?.children;
+				if (children) {
+					for (const child of children) stack.push(child);
+				}
+			}
+			const wantBook = !hasBook;
+			const wantVideo = !hasVideo;
+			const wantKind = (kind: "book" | "video") => (kind === "book" ? wantBook : wantVideo);
+
+			for (const entry of manualEntries) {
+				if (!wantKind(entry.kind)) continue;
+				if (entry.regionId === unitId || entry.nodes.some((n) => unitNodes.has(n))) {
+					addDirect({ kind: entry.kind, title: entry.title, part: entry.part, url: entry.url });
+				}
+			}
+			if (domainId === "english") {
+				for (const mat of englishMissionMaterials) {
+					if (!wantKind(mat.kind)) continue;
+					if (mat.nodes.some((n) => unitNodes.has(n))) {
+						addDirect({ kind: mat.kind, title: mat.title, part: mat.part, url: mat.url });
+					}
+				}
+			}
+			if (wantBook) {
+				for (const book of getDomainBooks()) {
+					for (const sec of BOOK_SECTIONS[book.key] ?? []) {
+						if (sec.nodes?.some((n) => unitNodes.has(n))) {
+							addDirect({ kind: "book", title: book.title, part: sec.part, url: sec.url });
+						}
+					}
+				}
+			}
+			if (wantVideo) {
+				for (const video of CURATED_VIDEOS) {
+					if (video.nodes.some((n) => unitNodes.has(n))) {
+						addDirect({ kind: "video", title: video.title, part: video.part, url: video.url });
+					}
+				}
+			}
+			const sources = curriculumSources(domainId);
+			for (const memberId of unitNodes) {
+				const member = snapshot.items[memberId];
+				if (!member?.anchors.length) continue;
+				for (const anchor of member.anchors) {
+					const source = sources.get(anchor.source);
+					if (!source?.kind || !source.url || !/^https:\/\//i.test(source.url)) continue;
+					if (source.kind !== "book" && source.kind !== "video") continue;
+					if (!wantKind(source.kind)) continue;
+					addDirect({ kind: source.kind, title: source.title, part: anchor.ref, url: source.url });
+				}
+			}
 		}
 	}
 
@@ -341,36 +412,46 @@ function curatedMaterialsForNode(
 
 // ─── public reads: syllabus, transcript, notebook ────────────────────────────
 
-/** Full domain course syllabus with observed pace, FSRS retention, exam & problem-set scores, and curated materials. */
-export function studySyllabus(domainId?: string): StudySyllabus {
-	const { id, profile, cur } = resolveDomain(domainId);
+function buildSyllabusAndState(domainId?: string) {
+	const { id, manifest, profile, cur } = resolveDomain(domainId);
 	const at = new Date().toISOString();
-	const events = readStudyEvents(id);
-	const snap = learnerSnapshotOf(id, cur.view, events, at);
-	const struct = structuralState(snap, cur.view);
-	const campaign = studyCampaign(cur.snapshot, cur.view, struct.known);
+	let events: LearnerEvent[];
+	let snap: ReturnType<typeof readLearnerHistory>["snap"];
+	let known: ReadonlySet<string>;
+	let available: ReadonlySet<string>;
+	let campaign: ReturnType<typeof studyCampaign>;
+	let focusNodeId: string | undefined;
+
+	if (id === activeDomainId()) {
+		const todayPlan = computeTodayPlan({ id, manifest, profile, cur, at, runReinforcementQueue: false });
+		events = todayPlan.events;
+		snap = todayPlan.snap;
+		known = todayPlan.known;
+		available = todayPlan.available;
+		campaign = todayPlan.campaign;
+		focusNodeId = todayPlan.focusNodeId;
+	} else {
+		const history = readLearnerHistory(id, cur.snapshot, cur.view, at);
+		events = history.events;
+		snap = history.snap;
+		const struct = structuralState(snap, cur.view);
+		known = struct.known;
+		available = new Set(struct.frontier);
+		campaign = studyCampaign(cur.snapshot, cur.view, known);
+	}
+
 	const materialsByUnit = readCuratedMaterialsByUnit(id, cur.snapshot, cur.view);
 	const moduleScores = readModuleScoreMap(id);
 	const problemSetScores = readProblemSetScoreMap(id);
 	const activity = studyActivitySummary(id, at);
 
-	let focusNodeId: string | undefined;
-	if (id === activeDomainId()) {
-		try {
-			const today = studyToday();
-			focusNodeId = today.pendingCheck?.nodeId ?? today.next?.nodeId;
-		} catch {
-			// Focus highlight is optional.
-		}
-	}
-
-	return buildStudySyllabus({
+	const syllabus = buildStudySyllabus({
 		snapshot: cur.snapshot,
 		graph: cur.view,
 		learner: snap,
 		campaign,
-		known: struct.known,
-		available: new Set(struct.frontier),
+		known,
+		available,
 		at,
 		recentMinutes14d: activity.minutes14d,
 		activeDays14d: activity.activeDays14d,
@@ -381,14 +462,44 @@ export function studySyllabus(domainId?: string): StudySyllabus {
 		materialsByUnit,
 		...(focusNodeId ? { focusNodeId } : {}),
 	});
+
+	return { id, manifest, cur, events, snap, at, syllabus };
+}
+
+/** Full domain course syllabus with observed pace, FSRS retention, exam & problem-set scores, and curated materials. */
+export function studySyllabus(domainId?: string): StudySyllabus {
+	return buildSyllabusAndState(domainId).syllabus;
+}
+
+/** Combined SSR loader for /ementa: resolves domain, learner history, syllabus and notebook in one pass. */
+export function studyCoursePageData(domainId?: string): {
+	domainId: string;
+	domainTitle: string;
+	syllabus: StudySyllabus;
+	notebook: DomainNotebook;
+} {
+	const { id, manifest, cur, events, snap, at, syllabus } = buildSyllabusAndState(domainId);
+	const notebook = buildDomainNotebook({
+		domainId: id,
+		snapshot: cur.snapshot,
+		graph: cur.view,
+		learner: snap,
+		events,
+		at,
+	});
+	return {
+		domainId: id,
+		domainTitle: manifest.title.pt,
+		syllabus,
+		notebook,
+	};
 }
 
 /** Honest academic transcript separating attained, durable, and mastered skills + cooling alerts. */
 export function studyTranscript(domainId?: string): DomainTranscript {
 	const { id, manifest, cur } = resolveDomain(domainId);
 	const at = new Date().toISOString();
-	const events = readStudyEvents(id);
-	const snap = learnerSnapshotOf(id, cur.view, events, at);
+	const { snap } = readLearnerHistory(id, cur.snapshot, cur.view, at);
 	const struct = structuralState(snap, cur.view);
 	const campaign = studyCampaign(cur.snapshot, cur.view, struct.known);
 	const moduleScores = readModuleScoreMap(id);
@@ -410,8 +521,7 @@ export function studyTranscript(domainId?: string): DomainTranscript {
 export function studyNotebook(domainId?: string): DomainNotebook {
 	const { id, cur } = resolveDomain(domainId);
 	const at = new Date().toISOString();
-	const events = readStudyEvents(id);
-	const snap = learnerSnapshotOf(id, cur.view, events, at);
+	const { events, snap } = readLearnerHistory(id, cur.snapshot, cur.view, at);
 
 	return buildDomainNotebook({
 		domainId: id,
@@ -427,23 +537,30 @@ export function studyNotebook(domainId?: string): DomainNotebook {
 
 function resolveExamSpec(scope: "module" | "chapter", targetId: string, seed?: string) {
 	const resolved = resolveDomain();
-	const syllabus = studySyllabus(resolved.id);
+	const at = new Date().toISOString();
+	const { events, snap } = readLearnerHistory(resolved.id, resolved.cur.snapshot, resolved.cur.view, at);
+	const known = structuralState(snap, resolved.cur.view).known;
+	const campaign = studyCampaign(resolved.cur.snapshot, resolved.cur.view, known);
+	const structure = chapterUnitsOf(resolved.cur.snapshot, resolved.cur.view, campaign);
+
 	let matchedTargetId = targetId;
 	let targetTitle = "";
 	let leafIds: string[] = [];
 
 	if (scope === "module") {
-		const mod = syllabus.chapters.flatMap((ch) => ch.modules).find((m) => m.id === targetId);
+		const mod = structure.flatMap((cu) => cu.modules).find((m) => m.id === targetId);
 		if (!mod) throw new StudyError(404, "Módulo não encontrado na ementa.");
 		matchedTargetId = mod.id;
 		targetTitle = mod.title;
-		leafIds = mod.lessons.map((l) => l.id);
+		leafIds = mod.leafIds;
 	} else {
-		const chapter = syllabus.chapters.find((ch) => ch.level === targetId || String(ch.index) === targetId);
-		if (!chapter) throw new StudyError(404, "Capítulo não encontrado na ementa.");
-		matchedTargetId = chapter.level;
-		targetTitle = chapter.level && chapter.level !== chapter.title ? `${chapter.level} · ${chapter.title}` : chapter.title;
-		leafIds = chapter.modules.flatMap((m) => m.lessons.map((l) => l.id));
+		const cu = structure.find((entry) => entry.chapter.level === targetId || String(entry.chapterIndex) === targetId);
+		if (!cu) throw new StudyError(404, "Capítulo não encontrado na ementa.");
+		matchedTargetId = cu.chapter.level;
+		targetTitle = cu.chapter.level && cu.chapter.level !== cu.chapter.title
+			? `${cu.chapter.level} · ${cu.chapter.title}`
+			: cu.chapter.title;
+		leafIds = cu.modules.flatMap((m) => m.leafIds);
 	}
 
 	if (leafIds.length === 0) throw new StudyError(400, "Nenhuma habilidade avaliável encontrada neste bloco.");
@@ -459,7 +576,7 @@ function resolveExamSpec(scope: "module" | "chapter", targetId: string, seed?: s
 		leafIds,
 		seed: effectiveSeed,
 	});
-	return { ...resolved, exam };
+	return { ...resolved, exam, events, snap, at };
 }
 
 function toPublicQuestion(q: ModuleExamQuestion): PublicModuleExamQuestion {
@@ -496,9 +613,7 @@ export function submitModuleExam(
 	answers: Record<string, string>,
 	seed?: string,
 ): ModuleExamSubmissionResult {
-	const { id, cur, exam } = resolveExamSpec(scope, targetId, seed);
-	const existingEvents = readStudyEvents(id);
-	const at = new Date().toISOString();
+	const { id, cur, exam, events: existingEvents, snap: initialSnap, at } = resolveExamSpec(scope, targetId, seed);
 	const startSeq = nextStudySeq(existingEvents);
 	const { result, events: rawEvents } = gradeModuleExam(exam, answers, {
 		domainId: id,
@@ -507,7 +622,7 @@ export function submitModuleExam(
 		sessionId: exam.id,
 	});
 
-	let snap = learnerSnapshotOf(id, cur.view, existingEvents, at);
+	let snap = initialSnap;
 	let seq = Math.max(startSeq, snap.seq + 1);
 	let fireCreditsCount = 0;
 
@@ -542,10 +657,14 @@ export function submitModuleExam(
 
 function resolveProblemSetSpec(moduleId: string, seed?: string) {
 	const resolved = resolveDomain();
-	const syllabus = studySyllabus(resolved.id);
-	const mod = syllabus.chapters.flatMap((ch) => ch.modules).find((m) => m.id === moduleId);
+	const at = new Date().toISOString();
+	const { events, snap } = readLearnerHistory(resolved.id, resolved.cur.snapshot, resolved.cur.view, at);
+	const known = structuralState(snap, resolved.cur.view).known;
+	const campaign = studyCampaign(resolved.cur.snapshot, resolved.cur.view, known);
+	const structure = chapterUnitsOf(resolved.cur.snapshot, resolved.cur.view, campaign);
+	const mod = structure.flatMap((cu) => cu.modules).find((m) => m.id === moduleId);
 	if (!mod) throw new StudyError(404, "Módulo não encontrado na ementa.");
-	const leafIds = mod.lessons.map((l) => l.id);
+	const leafIds = mod.leafIds;
 	if (leafIds.length === 0) throw new StudyError(400, "Nenhuma habilidade avaliável encontrada neste módulo.");
 	const effectiveSeed = seed && seed.trim() ? seed.trim() : `${resolved.id}:${mod.id}:pset:v1`;
 	const set = buildProblemSet({
@@ -557,7 +676,7 @@ function resolveProblemSetSpec(moduleId: string, seed?: string) {
 		leafIds,
 		seed: effectiveSeed,
 	});
-	return { ...resolved, set };
+	return { ...resolved, set, events, snap, at };
 }
 
 /** Build a deterministic gradual problem set (plus optional 4-step lab script) for a module. */
@@ -572,9 +691,7 @@ export function submitModuleProblemSet(
 	labNotes?: Record<string, string>,
 	seed?: string,
 ): ProblemSetSubmissionResult {
-	const { id, cur, set } = resolveProblemSetSpec(moduleId, seed);
-	const existingEvents = readStudyEvents(id);
-	const at = new Date().toISOString();
+	const { id, cur, set, events: existingEvents, snap: initialSnap, at } = resolveProblemSetSpec(moduleId, seed);
 	const startSeq = nextStudySeq(existingEvents);
 	const { result, events: gradedEvents } = gradeProblemSet(set, answers, labNotes, {
 		domainId: id,
@@ -582,7 +699,7 @@ export function submitModuleProblemSet(
 		startSeq,
 	});
 
-	let snap = learnerSnapshotOf(id, cur.view, existingEvents, at);
+	let snap = initialSnap;
 	let seq = Math.max(startSeq, snap.seq + 1);
 	let fireCreditsCount = 0;
 

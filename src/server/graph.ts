@@ -1,17 +1,31 @@
 import * as fs from "node:fs";
-import { LEDGER_FILES, GRAPH_FILES } from "../../config.ts";
+import * as path from "node:path";
+import { LEDGER_FILES, GRAPH_FILES, PATHS } from "../../config.ts";
 import type { GraphSnapshot } from "../core/contracts.ts";
 import type { GraphCostSummary } from "../core/cost-summary.ts";
 import { graphCostSummary } from "../core/cost-summary.ts";
 import { graphSnapshot } from "../core/graph.ts";
-import { birthSessionPartition } from "../core/session-clusters.ts";
 import {
 	deleteNodeTraces,
 	type NodeDeletionStats,
 } from "../core/graph-deletion.ts";
 import { extractionStatuses } from "../agent/subagents/extraction.ts";
+import { listChatsWithExtractions } from "../store/chats.ts";
 import { stores } from "./stores.ts";
-import { callCost } from "./pricing.ts";
+import { createCallPricer } from "./pricing.ts";
+
+const GRAPH_VIEW_CACHE_KEY = Symbol.for("learnharness.server.graphView");
+const MAX_GRAPH_VIEW_ENTRIES = 16;
+
+function graphViewCache(): Map<string, { stamp: string; snapshot: GraphSnapshot }> {
+	const g = globalThis as typeof globalThis & { [GRAPH_VIEW_CACHE_KEY]?: Map<string, { stamp: string; snapshot: GraphSnapshot }> };
+	return (g[GRAPH_VIEW_CACHE_KEY] ??= new Map());
+}
+
+function graphFileStamp(file: string): string {
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	return stat ? `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}` : "-";
+}
 
 /**
  * Server-side graph entry for the home view (GET /api/graph). A PURE READ:
@@ -20,9 +34,36 @@ import { callCost } from "./pricing.ts";
  * reflects whatever the pipeline has merged so far.
  */
 export function graphView(): GraphSnapshot {
+	const graphDir = path.resolve(PATHS.graph);
+	const filesStamp = [
+		LEDGER_FILES.nodes,
+		LEDGER_FILES.chains,
+		LEDGER_FILES.sessions,
+		LEDGER_FILES.coverage,
+		GRAPH_FILES.positions,
+		GRAPH_FILES.sources,
+		GRAPH_FILES.format,
+		GRAPH_FILES.sourceOrganization,
+	].map(graphFileStamp).join(";");
+	const chatsStamp = stores.chatStore
+		.listChats()
+		.map((c) => `${c.id}\x00${c.title}`)
+		.join("\x01");
+	const stamp = `${filesStamp}#${chatsStamp}`;
+	const cache = graphViewCache();
+	const cached = cache.get(graphDir);
+	if (cached && cached.stamp === stamp) {
+		return structuredClone(cached.snapshot);
+	}
 	const organization = stores.sourceOrganizationStore.read();
 	const names = Object.fromEntries(Object.entries(organization.placements).flatMap(([id, p]) => p.name === undefined ? [] : [[id, p.name]]));
-	return graphSnapshot(stores, names);
+	const snapshot = graphSnapshot(stores, names);
+	if (cache.size >= MAX_GRAPH_VIEW_ENTRIES && !cache.has(graphDir)) {
+		const oldest = cache.keys().next().value;
+		if (oldest !== undefined) cache.delete(oldest);
+	}
+	cache.set(graphDir, { stamp, snapshot });
+	return structuredClone(snapshot);
 }
 
 /** The graph view's cost surface (GET /api/graph/costs — the 2026-09 cost
@@ -32,8 +73,7 @@ export function graphView(): GraphSnapshot {
  *  dollars are inferred by the pure core fold (core/cost-summary.ts +
  *  prices.ts) — nothing here stores or caches money. */
 export function graphCosts(): GraphCostSummary {
-	const chats = stores.chatStore
-		.listChats()
+	const chats = listChatsWithExtractions()
 		.flatMap((summary) => {
 			const record = stores.chatStore.getChat(summary.id);
 			return record?.extractions?.length
@@ -44,7 +84,7 @@ export function graphCosts(): GraphCostSummary {
 		.readSources()
 		.filter((s) => s.extractions?.length)
 		.map((s) => ({ filePath: s.filePath, extractions: s.extractions! }));
-	return graphCostSummary({ chats, sources }, callCost);
+	return graphCostSummary({ chats, sources }, createCallPricer());
 }
 
 /** The graph's version stamp (session-deletion wave 6): the max mtime

@@ -25,40 +25,61 @@
  */
 
 const { app, BrowserWindow, Menu, ipcMain, nativeTheme, session, shell, dialog } = require("electron");
-const { pickAttachmentPath } = require("./attachment-picker.cjs");
-const { createChatGPT, fileStore } = require("./chatgpt.cjs");
-const { attachChatGPTChild, trustedSender, chatGPTControl } = require("./chatgpt-ipc.cjs");
-const { createSubscriptions, loadSubscriptionSDK } = require("./subscriptions.cjs");
-const { attachSubscriptionChild, subscriptionControl } = require("./subscription-ipc.cjs");
-const { desktopAPIHeaders } = require("./desktop-api.cjs");
-const { cleanChromeUserAgent, embeddedSubframeResponseHeaders } = require("./embedded-browser-headers.cjs");
-const { startBrowserGateway } = require("./browser-gateway.cjs");
-const { openWebSubscriptionBrowser } = require("./web-subscription-browser.cjs");
-const { randomBytes } = require("node:crypto");
-const { spawn } = require("node:child_process");
-const fs = require("node:fs");
-const http = require("node:http");
 const net = require("node:net");
-const path = require("node:path");
 
 // Mirrors SIDEBAR_AUTOCLOSE in components/sidebar.tsx — keep in sync (the
 // renderer owns the number; this is the IPC widen target).
 const SIDEBAR_AUTOCLOSE = 928;
 
-const isInstalledWindows = process.platform === "win32" && app.isPackaged;
-const PRODUCT_NAME = isInstalledWindows ? "TrilhaAtlas" : "LearnHarness";
+// Top-level bindings initialized only on the GUI shell path (below) so
+// --browser-service helper processes skip loading GUI/provider modules while
+// keeping every binding visible to VM-based unit tests.
+let pickAttachmentPath;
+let createChatGPT, fileStore;
+let attachChatGPTChild, trustedSender, chatGPTControl;
+let createSubscriptions, loadSubscriptionSDK;
+let attachSubscriptionChild, subscriptionControl;
+let desktopAPIHeaders;
+let cleanChromeUserAgent, embeddedSubframeResponseHeaders;
+let startBrowserGateway;
+let openWebSubscriptionBrowser;
+let randomBytes, spawn, fs, http, path, NodeURL;
+let normalizeAppearance, themeSourceFor, serverDataDir, readAppearance, chromeColors;
+let isInstalledWindows = false;
+let PRODUCT_NAME = "LearnHarness";
+let appearance = null;
+let serverProcess = null;
+let chatgpt = null;
+let chatgptChild = null;
+let subscriptions = null;
+let subscriptionChild = null;
+// Per-launch request capability, never OAuth tokens and never renderer state.
+let desktopAPISecret = null;
+let reopenWindow = null;
+const trustedAppWindows = new Set();
+let trustedWindowsList = [];
+const syncTrustedWindows = () => { trustedWindowsList = [...trustedAppWindows]; };
+let logDirReady = false;
+let logFilePath = null;
+let logStream = null;
+let sessionConfigured = false;
 
-// Set the name before resolving userData or applying the dev profile suffix.
-app.setName(PRODUCT_NAME);
-// Match the AUMID written by NSIS to the Start menu shortcut.
-if (isInstalledWindows) app.setAppUserModelId("com.learnharness.LearnHarness");
 const AUTH_FILE = () => path.join(app.getPath("userData"), "auth.json");
 const DATA_DIR = () => path.join(app.getPath("userData"), "data");
 
-// Resolve the saved palette before window creation; renderer reports keep
-// it current after live saves. This helper needs no compiled server bundle.
-const { normalizeAppearance, themeSourceFor, serverDataDir, readAppearance, chromeColors } = require("./appearance-chrome.cjs");
-let appearance = normalizeAppearance(null);
+/** A free TCP port (listen(0) → the kernel assigns one). The close→spawn
+ *  race is theoretical; localhost ports are rarely contended, and a failed
+ *  spawn surfaces in the health check with the child's stderr in the log. */
+function freePort() {
+	return new Promise((resolve, reject) => {
+		const srv = net.createServer();
+		srv.listen(0, "127.0.0.1", () => {
+			const { port } = srv.address();
+			srv.close(() => resolve(port));
+		});
+		srv.on("error", reject);
+	});
+}
 
 function applyChrome(win) {
 	if (win.isDestroyed()) return;
@@ -85,9 +106,9 @@ function serverEntry() {
 // and connects over CDP (system Chrome stays the fallback). Handshake:
 // the helper prints "BROWSER_SERVICE_CDP <port>" on stdout once the CDP
 // endpoint listens. Lifetime: parent IPC disconnect/death = quit.
-// MUST run before the single-instance lock — a helper is a second
-// instance of this very binary, and before the LH_DEV_URL redirect — the
-// helper owns no user data at all.
+// MUST run before loading GUI/provider modules, before the single-instance
+// lock (a helper is a second instance of this binary), and before LH_DEV_URL
+// (the helper owns no user data at all).
 if (process.argv.includes("--browser-service")) {
 	const { waitForBrowserService } = require("./browser-service-readiness.cjs");
 	// Own the helper's entire startup lifetime, including the readiness wait.
@@ -122,6 +143,45 @@ if (process.argv.includes("--browser-service")) {
 		}
 	})();
 } else {
+	({ pickAttachmentPath } = require("./attachment-picker.cjs"));
+	({ createChatGPT, fileStore } = require("./chatgpt.cjs"));
+	({ attachChatGPTChild, trustedSender, chatGPTControl } = require("./chatgpt-ipc.cjs"));
+	({ createSubscriptions, loadSubscriptionSDK } = require("./subscriptions.cjs"));
+	({ attachSubscriptionChild, subscriptionControl } = require("./subscription-ipc.cjs"));
+	({ desktopAPIHeaders } = require("./desktop-api.cjs"));
+	({ cleanChromeUserAgent, embeddedSubframeResponseHeaders } = require("./embedded-browser-headers.cjs"));
+	({ startBrowserGateway } = require("./browser-gateway.cjs"));
+	({ openWebSubscriptionBrowser } = require("./web-subscription-browser.cjs"));
+	({ randomBytes } = require("node:crypto"));
+	({ spawn } = require("node:child_process"));
+	fs = require("node:fs");
+	http = require("node:http");
+	path = require("node:path");
+	({ URL: NodeURL } = require("node:url"));
+	// Resolve the saved palette before window creation; renderer reports keep
+	// it current after live saves. This helper needs no compiled server bundle.
+	({ normalizeAppearance, themeSourceFor, serverDataDir, readAppearance, chromeColors } = require("./appearance-chrome.cjs"));
+
+	isInstalledWindows = process.platform === "win32" && app.isPackaged;
+	PRODUCT_NAME = isInstalledWindows ? "TrilhaAtlas" : "LearnHarness";
+
+	// Set the name before resolving userData or applying the dev profile suffix.
+	app.setName(PRODUCT_NAME);
+	// Match the AUMID written by NSIS to the Start menu shortcut.
+	if (isInstalledWindows) app.setAppUserModelId("com.learnharness.LearnHarness");
+	appearance = normalizeAppearance(null);
+
+	// A GUI shell must never die to a stray exception (EPIPE dialogs, a race
+	// in an event handler): the window + child server are the product, and
+	// anything main-side is recoverable by logging it. Log-and-continue.
+	process.on("uncaughtException", (err) => {
+		try {
+			log(`uncaught: ${err?.stack ?? err}`, { sync: true });
+		} catch {
+			/* nothing left to write to */
+		}
+	});
+
 	// Dev shell (LH_DEV_URL) runs BESIDE the packaged app, not instead of it:
 	// its own userData so (a) the single-instance lock — checked below — doesn't
 	// silently kill it, and (b) it never reads/writes the real app's
@@ -147,41 +207,6 @@ if (process.argv.includes("--browser-service")) {
 	}
 }
 
-let serverProcess = null;
-let chatgpt = null;
-let chatgptChild = null;
-let subscriptions = null;
-let subscriptionChild = null;
-// Per-launch request capability, never OAuth tokens and never renderer state.
-let desktopAPISecret = null;
-let reopenWindow = null;
-const trustedAppWindows = new Set();
-
-// A GUI shell must never die to a stray exception (EPIPE dialogs, a race
-// in an event handler): the window + child server are the product, and
-// anything main-side is recoverable by logging it. Log-and-continue.
-process.on("uncaughtException", (err) => {
-	try {
-		log(`uncaught: ${err?.stack ?? err}`);
-	} catch {
-		/* nothing left to write to */
-	}
-});
-
-/** A free TCP port (listen(0) → the kernel assigns one). The close→spawn
- *  race is theoretical; localhost ports are rarely contended, and a failed
- *  spawn surfaces in the health check with the child's stderr in the log. */
-function freePort() {
-	return new Promise((resolve, reject) => {
-		const srv = net.createServer();
-		srv.listen(0, "127.0.0.1", () => {
-			const { port } = srv.address();
-			srv.close(() => resolve(port));
-		});
-		srv.on("error", reject);
-	});
-}
-
 /** BYOK keys: auth.json in userData, flat {VAR: value} map, 0600 —
  *  SERVER-MANAGED since the auth-keys wave (2026-09-19). This shell no
  *  longer reads or injects it: the child gets LH_AUTH_FILE below and does
@@ -189,7 +214,19 @@ function freePort() {
  *  effect on the next model call — no restart. Real environment variables
  *  still win over the file inside the child (its documented rule). */
 
-function log(line) {
+function ensureLogPath() {
+	if (!logFilePath) {
+		const dir = path.join(app.getPath("userData"), "logs");
+		if (!logDirReady) {
+			fs.mkdirSync(dir, { recursive: true });
+			logDirReady = true;
+		}
+		logFilePath = path.join(dir, "main.log");
+	}
+	return logFilePath;
+}
+
+function log(line, { sync = false } = {}) {
 	const stamp = new Date().toISOString();
 	// The stdout write is guarded (EPIPE hardening, 2026-10-10): a packaged
 	// app launched with a consumer-owned pipe (a launcher that exits, a
@@ -203,9 +240,19 @@ function log(line) {
 	// Belt and braces: also append to userData/logs so a misbehaving child
 	// can be diagnosed after the window is gone. Best effort only.
 	try {
-		const dir = path.join(app.getPath("userData"), "logs");
-		fs.mkdirSync(dir, { recursive: true });
-		fs.appendFileSync(path.join(dir, "main.log"), `[${stamp}] ${line}\n`);
+		const target = ensureLogPath();
+		const entry = `[${stamp}] ${line}\n`;
+		if (!sync && typeof fs.createWriteStream === "function") {
+			if (!logStream) {
+				logStream = fs.createWriteStream(target, { flags: "a" });
+				logStream.on("error", () => {
+					logStream = null;
+				});
+			}
+			logStream.write(entry);
+		} else {
+			fs.appendFileSync(target, entry);
+		}
 	} catch {
 		/* best effort */
 	}
@@ -259,20 +306,58 @@ function startServer(port) {
 	});
 }
 
-/** No "ready" event exists — poll until the server answers (docs-confirmed). */
-function waitUntilUp(url, tries = 150) {
+/** No "ready" event exists — poll /api/health (falling back cleanly to / on 404)
+ *  with fast exponential backoff (25ms → 50ms → 100ms cap) and per-request timeout. */
+function waitUntilUp(url, { timeoutMs = 30000, requestTimeoutMs = 1500 } = {}) {
+	const healthUrl = new NodeURL("/api/health", url).toString();
+	const headers = desktopAPISecret ? { "x-learnharness-desktop": desktopAPISecret } : undefined;
 	return new Promise((resolve, reject) => {
-		const attempt = (n) => {
-			const req = http.get(url, (res) => {
-				res.resume();
-				resolve(res.statusCode !== undefined);
-			});
-			req.on("error", () => {
-				if (n <= 0) reject(new Error(`server never answered on ${url}`));
-				else setTimeout(() => attempt(n - 1), 200);
-			});
+		const deadline = Date.now() + timeoutMs;
+		let target = healthUrl;
+		let delayMs = 25;
+		let settled = false;
+		const attempt = () => {
+			if (settled) return;
+			const remaining = deadline - Date.now();
+			if (remaining <= 0) {
+				settled = true;
+				reject(new Error(`server never answered on ${url}`));
+				return;
+			}
+			let retryScheduled = false;
+			const scheduleRetry = () => {
+				if (settled || retryScheduled) return;
+				retryScheduled = true;
+				if (Date.now() >= deadline) {
+					settled = true;
+					reject(new Error(`server never answered on ${url}`));
+					return;
+				}
+				const wait = Math.min(delayMs, Math.max(0, deadline - Date.now()));
+				delayMs = Math.min(delayMs * 2, 100);
+				setTimeout(attempt, wait);
+			};
+			const req = http.get(
+				target,
+				{ agent: false, ...(headers ? { headers } : {}), timeout: Math.min(requestTimeoutMs, remaining) },
+				(res) => {
+					res.on("error", () => {});
+					res.resume();
+					if (target === healthUrl && res.statusCode === 404) {
+						target = url;
+						attempt();
+						return;
+					}
+					if (!settled) {
+						settled = true;
+						resolve(res.statusCode !== undefined);
+					}
+				},
+			);
+			req.on("timeout", () => req.destroy(new Error("health probe timeout")));
+			req.on("error", scheduleRetry);
 		};
-		attempt(tries);
+		attempt();
 	});
 }
 
@@ -300,7 +385,7 @@ const EXTERNAL_LINK_SCHEMES = new Set(["http:", "https:", "mailto:"]);
 function openExternalLink(target) {
 	let scheme = "unparseable";
 	try {
-		scheme = new URL(target).protocol;
+		scheme = new NodeURL(target).protocol;
 	} catch { /* logged below */ }
 	if (EXTERNAL_LINK_SCHEMES.has(scheme)) {
 		void shell.openExternal(target);
@@ -329,7 +414,34 @@ function windowIconPath() {
 	return candidates.find((candidate) => candidate && fs.existsSync(candidate));
 }
 
-function createWindow(url) {
+function configureSession(ownedOrigin) {
+	if (sessionConfigured) return;
+	sessionConfigured = true;
+	// Deny-by-default; the ONLY grants are media (mic/STT groundwork),
+	// clipboard-sanitized-write, and local-fonts — loopback-origin only.
+	const allowedPermissions = new Set(["media", "clipboard-sanitized-write", "local-fonts"]);
+	const fromOwnOrigin = (origin, permission) =>
+		origin === ownedOrigin && allowedPermissions.has(permission);
+	session.defaultSession.setPermissionRequestHandler((_wc, permission, callback, details) => {
+		let requestOrigin = null;
+		try {
+			requestOrigin = details.requestingUrl ? new NodeURL(details.requestingUrl).origin : null;
+		} catch { /* malformed requestingUrl denied */ }
+		callback(fromOwnOrigin(requestOrigin, permission));
+	});
+	session.defaultSession.setPermissionCheckHandler((_wc, permission, origin) => {
+		return fromOwnOrigin(origin, permission);
+	});
+	if (typeof session.defaultSession.getUserAgent === "function" && typeof session.defaultSession.setUserAgent === "function") {
+		const cleanUa = cleanChromeUserAgent(session.defaultSession.getUserAgent());
+		if (cleanUa) session.defaultSession.setUserAgent(cleanUa);
+	}
+	session.defaultSession.webRequest?.onHeadersReceived?.({ urls: ["<all_urls>"] }, (details, callback) => {
+		callback({ responseHeaders: embeddedSubframeResponseHeaders(details, ownedOrigin) });
+	});
+}
+
+function createWindow(url, { deferLoad = false } = {}) {
 	const icon = windowIconPath();
 	const win = new BrowserWindow({
 		width: 1440,
@@ -385,36 +497,15 @@ function createWindow(url) {
 	});
 
 	trustedAppWindows.add(win);
-	win.once("closed", () => trustedAppWindows.delete(win));
-	const allowedOrigin = () => new URL(url).origin;
-	// Deny-by-default; the ONLY grants are media (mic/STT groundwork) and
-	// clipboard-sanitized-write — the copy affordances in the transcript
-	// (md-blocks copy corners) call navigator.clipboard.writeText(), which
-	// Chromium only honors with that permission (chrome-melt tweaks wave,
-	// 2026-09-19; before this grant every copy silently rejected). Still
-	// loopback-origin only — Electron's default is auto-approve-everything,
-	// and we do not ship that.
-	// "local-fonts": the appearance section's reading-font picker (2026-09-26).
-	const allowedPermissions = new Set(["media", "clipboard-sanitized-write", "local-fonts"]);
-	const fromOwnOrigin = (origin, permission) =>
-		origin === allowedOrigin() && allowedPermissions.has(permission);
-	session.defaultSession.setPermissionRequestHandler((_wc, permission, callback, details) => {
-		const requestOrigin = details.requestingUrl ? new URL(details.requestingUrl).origin : null;
-		callback(fromOwnOrigin(requestOrigin, permission));
+	syncTrustedWindows();
+	win.once("closed", () => {
+		trustedAppWindows.delete(win);
+		syncTrustedWindows();
 	});
-	session.defaultSession.setPermissionCheckHandler((_wc, permission, origin) => {
-		return fromOwnOrigin(origin, permission);
-	});
-	if (typeof session.defaultSession.getUserAgent === "function" && typeof session.defaultSession.setUserAgent === "function") {
-		const cleanUa = cleanChromeUserAgent(session.defaultSession.getUserAgent());
-		if (cleanUa) session.defaultSession.setUserAgent(cleanUa);
-	}
-	session.defaultSession.webRequest?.onHeadersReceived?.({ urls: ["<all_urls>"] }, (details, callback) => {
-		callback({ responseHeaders: embeddedSubframeResponseHeaders(details, allowedOrigin()) });
-	});
+	const winOrigin = new NodeURL(url).origin;
 
 	win.webContents.on("will-navigate", (event, target) => {
-		if (new URL(target).origin !== allowedOrigin()) {
+		if (new NodeURL(target).origin !== winOrigin) {
 			event.preventDefault();
 			openExternalLink(target);
 		}
@@ -424,7 +515,7 @@ function createWindow(url) {
 		return { action: "deny" };
 	});
 
-	void win.loadURL(url);
+	if (!deferLoad) void win.loadURL(url);
 	// Zoom truth reaches the renderer for EVERY load (reload, nav): the
 	// renderer's --lh-zoom must never go stale. The fallback catcher below
 	// covers ⌘= / layout variants the menu's ⌘Plus may not claim — menu-
@@ -492,6 +583,8 @@ const ZOOM_LADDER = [0.75, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2];
  * and before-quit alone would race the swap. */
 const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 let autoUpdater = null; // electron-updater's, packaged builds only
+let autoUpdaterInitialized = false;
+let autoUpdaterStarted = false;
 // Observational only: this snapshot NEVER gates a check, download or install.
 // The revision lets late subscribers reject an older in-flight IPC snapshot.
 let updateState = { status: "idle", version: null, revision: 0 };
@@ -525,7 +618,12 @@ function automaticUpdatesEnabled() {
 	}
 }
 
+function ensureAutoUpdater() {
+	if (!autoUpdaterInitialized) setupAutoUpdater();
+}
+
 function checkForUpdates({ manual = false } = {}) {
+	ensureAutoUpdater();
 	if (!autoUpdater) return;
 	if (!manual && !automaticUpdatesEnabled()) {
 		log("auto-update: automatic check skipped (turned off in Settings)");
@@ -557,6 +655,7 @@ function installUpdateNow() {
 }
 
 function setupAutoUpdater() {
+	autoUpdaterInitialized = true;
 	if (!app.isPackaged) {
 		log("auto-update: dev build — updater disabled");
 		reportUpdateStatus("disabled");
@@ -595,6 +694,16 @@ function setupAutoUpdater() {
 		log(`updater error: ${err?.message ?? err}`);
 		reportUpdateStatus("error");
 	});
+}
+
+function startAutoUpdater() {
+	if (autoUpdaterStarted) return;
+	autoUpdaterStarted = true;
+	ensureAutoUpdater();
+	if (autoUpdater) {
+		checkForUpdates();
+		setInterval(() => checkForUpdates(), UPDATE_CHECK_INTERVAL_MS);
+	}
 }
 
 /** One result surface for manual checks. Preload buffers the navigation
@@ -698,6 +807,8 @@ async function main() {
 	app.on("before-quit", () => {
 		void browserGateway?.then((gateway) => gateway.close(), () => {});
 		killServer();
+		logStream?.end();
+		logStream = null;
 	});
 	process.on("exit", killServer);
 	process.on("SIGHUP", killServer);
@@ -717,12 +828,39 @@ async function main() {
 	// (guards, menu, single instance).
 	const devUrl = process.env.LH_DEV_URL;
 	const url = devUrl ?? `http://127.0.0.1:${await freePort()}`;
+	const ownedOrigin = new NodeURL(url).origin;
+	configureSession(ownedOrigin);
+
+	let serverReady = null;
 	if (!devUrl) {
 		desktopAPISecret = randomBytes(32).toString("hex");
-		const ownedOrigin = new URL(url).origin;
-		// All URLs, not only /api: remove the header again on external redirects.
+		const apiPrefix = `${ownedOrigin}/api`;
+		const DESKTOP_HEADER = "x-learnharness-desktop";
+		// All URLs, not only /api: strip the secret on external redirects, while
+		// fast-pathing static/non-API requests with zero URL/array allocations.
 		session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["<all_urls>"] }, (details, callback) => {
-			callback({ requestHeaders: desktopAPIHeaders(details, ownedOrigin, desktopAPISecret, [...trustedAppWindows]) });
+			const targetUrl = details.url;
+			const nextChar = targetUrl.charCodeAt(apiPrefix.length);
+			const isApi = targetUrl.startsWith(apiPrefix) && (
+				targetUrl.length === apiPrefix.length || nextChar === 47 || nextChar === 63 || nextChar === 35
+			);
+			if (!isApi) {
+				const reqHeaders = details.requestHeaders;
+				let hasDesktopHeader = false;
+				if (reqHeaders) {
+					for (const name in reqHeaders) {
+						if (name.toLowerCase() === DESKTOP_HEADER) {
+							hasDesktopHeader = true;
+							break;
+						}
+					}
+				}
+				if (!hasDesktopHeader) {
+					callback({});
+					return;
+				}
+			}
+			callback({ requestHeaders: desktopAPIHeaders(details, ownedOrigin, desktopAPISecret, trustedWindowsList) });
 		});
 		chatgpt = createChatGPT({
 			store: fileStore(path.join(app.getPath("userData"), "chatgpt-credentials.json")),
@@ -732,6 +870,8 @@ async function main() {
 				for (const win of BrowserWindow.getAllWindows()) win.webContents.send("lh:chatgpt:changed");
 			},
 		});
+		// Subscriptions warm up in parallel without blocking server spawn;
+		// subscriptions.cjs awaits `ready` internally on demand and pushes `changed`.
 		subscriptions = createSubscriptions({
 			directory: app.getPath("userData"),
 			loadSDK: () => loadSubscriptionSDK(path.dirname(serverEntry())),
@@ -741,12 +881,10 @@ async function main() {
 				for (const win of BrowserWindow.getAllWindows()) win.webContents.send("lh:subscriptions:changed");
 			},
 		});
-		await subscriptions.ready;
 		log(`starting server: ${serverEntry()}`);
+		await startServer(new NodeURL(url).port);
+		serverReady = waitUntilUp(url);
 		log(`data dir: ${DATA_DIR()}${fs.existsSync(AUTH_FILE()) ? " · auth.json: present" : " · auth.json: ABSENT (no BYOK keys yet)"}`);
-		await startServer(new URL(url).port);
-		await waitUntilUp(url);
-		log(`server up: ${url}`);
 	} else {
 		log(`dev mode: ${devUrl} — waiting for server`);
 		const { waitForDevServer } = require("./dev-server-readiness.cjs");
@@ -771,13 +909,13 @@ async function main() {
 	// Renderer controls contain no token/URL/code operation. The separate server
 	// child is the only recipient of credential leases over inherited IPC.
 	ipcMain.handle("lh:chatgpt:control", async (event, command) => {
-		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, new URL(url).origin, BrowserWindow)) return { error: "Untrusted desktop request." };
+		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, ownedOrigin, BrowserWindow)) return { error: "Untrusted desktop request." };
 		if (!chatgpt || !serverProcess?.connected) return { available: false, pending: false, activeId: null, accounts: [], error: "ChatGPT sign-in requires the desktop app's private server connection. Browser-only and externally launched development servers keep API-key connections." };
 		return chatGPTControl(command, chatgpt);
 	});
 
 	ipcMain.handle("lh:subscriptions:control", async (event, command) => {
-		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, new URL(url).origin, BrowserWindow)) throw new Error("Untrusted desktop request.");
+		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, ownedOrigin, BrowserWindow)) throw new Error("Untrusted desktop request.");
 		if (!subscriptions || !serverProcess?.connected) {
 			if (command?.op === "status") return [];
 			throw new Error("Subscription sign-in requires the desktop app's private server connection.");
@@ -788,8 +926,8 @@ async function main() {
 	// The dev shell has no browser tabs. Only a one-use action on its own
 	// Next server may be resolved here; never accept an arbitrary external URL.
 	ipcMain.handle("lh:subscriptions:web-browser", async (event, action) => {
-		if (!devUrl || !trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, new URL(url).origin, BrowserWindow)) throw new Error("Untrusted development request.");
-		await openWebSubscriptionBrowser(action, new URL(url).origin, { openExternal: (target) => shell.openExternal(target) });
+		if (!devUrl || !trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, ownedOrigin, BrowserWindow)) throw new Error("Untrusted development request.");
+		await openWebSubscriptionBrowser(action, ownedOrigin, { openExternal: (target) => shell.openExternal(target) });
 	});
 
 	ipcMain.handle("lh:attachment:pick", (event, mode) => pickAttachmentPath(event, mode, {
@@ -797,7 +935,7 @@ async function main() {
 	}));
 
 	installMenu(!devUrl && (() => {
-		browserGateway ??= startBrowserGateway({ upstreamPort: Number(new URL(url).port), secret: desktopAPISecret });
+		browserGateway ??= startBrowserGateway({ upstreamPort: Number(new NodeURL(url).port), secret: desktopAPISecret });
 		void browserGateway.then(
 			(gateway) => shell.openExternal(gateway.pairingUrl()),
 			(error) => {
@@ -810,18 +948,16 @@ async function main() {
 		});
 	}));
 
-	// Auto-update (Wave C): wire the updater before the window so the
-	// banner channel is live from first paint; the first check and the 24h
-	// interval fire after it below. setupAutoUpdater's contract: failures
-	// are log lines — this can never block boot.
-	setupAutoUpdater();
+	// Auto-update IPC handlers are wired upfront so the banner channel and
+	// manual checks are live from first paint; in packaged boot electron-updater
+	// is lazily initialized after ready-to-show (or on early manual check).
 	ipcMain.on("lh:update-install", () => installUpdateNow());
 	ipcMain.handle("lh:update:get", (event) => {
-		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, new URL(url).origin, BrowserWindow)) throw new Error("Untrusted desktop request.");
+		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, ownedOrigin, BrowserWindow)) throw new Error("Untrusted desktop request.");
 		return updateState;
 	});
 	ipcMain.handle("lh:update:check", (event) => {
-		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, new URL(url).origin, BrowserWindow)) throw new Error("Untrusted desktop request.");
+		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, ownedOrigin, BrowserWindow)) throw new Error("Untrusted desktop request.");
 		checkForUpdates({ manual: true });
 	});
 
@@ -840,10 +976,9 @@ async function main() {
 		const target = SIDEBAR_AUTOCLOSE;
 		if (width < target) win.setBounds({ x, y, width: target, height });
 	});
-	// The renderer reports every appearance write (and the record on load):
-	// the chrome follows without a restart.
+	// The renderer reports every appearance write: the chrome follows without a restart.
 	ipcMain.on("lh:appearance", (event, next) => {
-		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, new URL(url).origin, BrowserWindow)) return;
+		if (!trustedAppWindows.has(BrowserWindow.fromWebContents(event.sender)) || !trustedSender(event, ownedOrigin, BrowserWindow)) return;
 		appearance = normalizeAppearance(next);
 		nativeTheme.themeSource = themeSourceFor(appearance.mode);
 		for (const win of BrowserWindow.getAllWindows()) applyChrome(win);
@@ -852,12 +987,32 @@ async function main() {
 	app.on("activate", () => {
 		if (BrowserWindow.getAllWindows().length === 0) reopenWindow();
 	});
-	createWindow(url);
-	log(`window open: ${url}`);
-	// Startup + 24h checks stay main-owned and read the current preference.
-	// No renderer subscription is required; late loads retrieve the snapshot.
-	if (autoUpdater) {
-		checkForUpdates();
-		setInterval(() => checkForUpdates(), UPDATE_CHECK_INTERVAL_MS);
+
+	if (!devUrl) {
+		// Construct the hidden BrowserWindow in parallel while the standalone
+		// server finishes booting, then navigate the instant it responds.
+		const win = createWindow(url, { deferLoad: true });
+		win.once("ready-to-show", () => {
+			setTimeout(startAutoUpdater, 2500);
+		});
+		try {
+			await serverReady;
+		} catch (error) {
+			if (!win.isDestroyed()) win.destroy();
+			throw error;
+		}
+		log(`server up: ${url}`);
+		if (!win.isDestroyed()) {
+			void win.loadURL(url);
+			log(`window open: ${url}`);
+		}
+	} else {
+		createWindow(url);
+		log(`window open: ${url}`);
+		if (app.isPackaged) {
+			startAutoUpdater();
+		} else {
+			setupAutoUpdater();
+		}
 	}
 }

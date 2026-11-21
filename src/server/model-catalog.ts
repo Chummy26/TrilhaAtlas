@@ -29,15 +29,18 @@ import { nativeSubscriptionId, nativeSubscriptionConnected, nativeSubscriptionMo
 // like /api/models and /api/domains/create) often mount together. Share the
 // in-flight discovery on globalThis so concurrent callers never race or return empty.
 const chatCatalogKey = Symbol.for("lh.chatgpt.catalogRequest");
+const CATALOG_FRESH_TTL_MS = 15_000;
 function refreshTutorCatalog() {
 	const shared = globalThis as typeof globalThis & { [chatCatalogKey]?: Promise<void> };
-	return shared[chatCatalogKey] ??= refreshChatGPTModels(piModels().getModels("openai").filter((m): m is Model<"openai-responses"> => m.api === "openai-responses"))
-		.finally(() => { shared[chatCatalogKey] = undefined; });
+	return shared[chatCatalogKey] ??= refreshChatGPTModels(
+		piModels().getModels("openai").filter((m): m is Model<"openai-responses"> => m.api === "openai-responses"),
+		{ maxAgeMs: CATALOG_FRESH_TTL_MS },
+	).finally(() => { shared[chatCatalogKey] = undefined; });
 }
 export async function refreshConnectionCatalog(provider?: string): Promise<void> {
 	await Promise.all([
 		!provider || provider === "chatgpt" ? refreshTutorCatalog() : Promise.resolve(),
-		!provider || nativeSubscriptionId(provider) ? refreshSubscriptionModels() : Promise.resolve(),
+		!provider || nativeSubscriptionId(provider) ? refreshSubscriptionModels({ maxAgeMs: CATALOG_FRESH_TTL_MS }) : Promise.resolve(),
 		!provider || provider === GOOGLE_VERTEX_PROVIDER || provider === "google" ? refreshModelsDevCatalog() : Promise.resolve(),
 	]);
 }

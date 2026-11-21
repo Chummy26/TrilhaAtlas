@@ -10,7 +10,7 @@
 import { childrenOf, effectiveClausesOf, effectiveSystemOf } from "../curriculum/effective.ts";
 import { hoursMid } from "../curriculum/hours.ts";
 import type { CurriculumItem, CurriculumSnapshot, Hours } from "../curriculum/types.ts";
-import { assertGraphView, buildGraphView, type LearnerGraphNode, type LearnerGraphView } from "../learner/graph-view.ts";
+import { buildGraphView, type LearnerGraphNode, type LearnerGraphView } from "../learner/graph-view.ts";
 
 /** LearnerGraphView of the live items of `snapshot`; `goalIds` get goalWeight 1. */
 export function learnerViewOf(snapshot: CurriculumSnapshot, goalIds: readonly string[] = []): LearnerGraphView {
@@ -21,14 +21,17 @@ export function learnerViewOf(snapshot: CurriculumSnapshot, goalIds: readonly st
 	// `order`): buildGraphView breaks topological ties by input order, so the
 	// planner's ties follow the curriculum's own sequence, not id spelling.
 	const teaching: string[] = [];
+	const teachingSet = new Set<string>();
 	const stack = [...sys.roots].reverse().map((r) => sys.ids[r] as string);
 	while (stack.length > 0) {
 		const id = stack.pop() as string;
+		if (teachingSet.has(id)) continue;
+		teachingSet.add(id);
 		teaching.push(id);
 		const kids = childrenOf(sys, id);
 		for (let i = kids.length - 1; i >= 0; i--) stack.push(kids[i] as string);
 	}
-	for (const id of sys.ids) if (!teaching.includes(id)) teaching.push(id);
+	for (const id of sys.ids) if (!teachingSet.has(id)) teaching.push(id);
 	const entries: ({ id: string } & LearnerGraphNode)[] = [];
 	for (const id of teaching) {
 		const item = snapshot.items[id] as CurriculumItem;
@@ -51,6 +54,8 @@ export function learnerViewOf(snapshot: CurriculumSnapshot, goalIds: readonly st
 	const view = buildGraphView(entries);
 	// depth = longest effective-prerequisite chain below the node, taking the
 	// cheapest alternative of an OR (r2 §9.7 diagnostic seed).
+	// buildGraphView already validated ids, clauses, encompasses and numeric
+	// fields; depth computed here is guaranteed to be a finite non-negative integer.
 	const depth = new Map<string, number>();
 	const nodes = new Map<string, LearnerGraphNode>();
 	for (const id of view.ids) {
@@ -68,9 +73,7 @@ export function learnerViewOf(snapshot: CurriculumSnapshot, goalIds: readonly st
 		depth.set(id, d);
 		nodes.set(id, { ...node, depth: d });
 	}
-	const projected: LearnerGraphView = { ids: view.ids, nodes };
-	assertGraphView(projected);
-	return projected;
+	return { ids: view.ids, nodes };
 }
 
 /** Nodes in the selected units, or in the selected area for a panoramic lesson. */

@@ -30,6 +30,77 @@ import { parseFileAccessSettings, type FileAccessSettingsResult } from "../core/
 
 const FILE_ACCESS_ERROR = "File-access configuration cannot be read reliably. Learner-file access is blocked. Repair File access in Settings → Agent → Tools.";
 
+type SettingsCacheEntry = {
+	stamp: string;
+	settings: UserSettings | null;
+	fileAccess: FileAccessSettingsResult;
+};
+
+const SETTINGS_CACHE_KEY = Symbol.for("learnharness.store.settings");
+const MAX_SETTINGS_CACHE_ENTRIES = 16;
+
+function settingsCache(): Map<string, SettingsCacheEntry> {
+	const g = globalThis as typeof globalThis & { [SETTINGS_CACHE_KEY]?: Map<string, SettingsCacheEntry> };
+	return (g[SETTINGS_CACHE_KEY] ??= new Map());
+}
+
+function statStamp(stat: fs.BigIntStats): string {
+	return `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`;
+}
+
+function readCachedEntry(): { ok: true; entry: SettingsCacheEntry } | { ok: false; missing: boolean } {
+	const file = path.resolve(SETTINGS_FILE);
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	const cache = settingsCache();
+	if (!stat) {
+		cache.delete(file);
+		return { ok: false, missing: true };
+	}
+	if (!stat.isFile()) {
+		cache.delete(file);
+		return { ok: false, missing: false };
+	}
+	const stamp = statStamp(stat);
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) {
+		return { ok: true, entry: cached };
+	}
+	let raw: string;
+	try {
+		raw = fs.readFileSync(/* turbopackIgnore: true */ SETTINGS_FILE, "utf-8");
+	} catch (error) {
+		// Never cache transient/unreadable I/O errors so callers fail closed honestly.
+		cache.delete(file);
+		return { ok: false, missing: (error as NodeJS.ErrnoException).code === "ENOENT" };
+	}
+	let parsed: unknown;
+	let fileAccess: FileAccessSettingsResult;
+	let settings: UserSettings | null = null;
+	try {
+		parsed = JSON.parse(raw);
+		fileAccess = fileAccessFromRecord(parsed);
+		const record = sanitizeUserSettings(parsed);
+		if (record) {
+			if (!fileAccess.ok) {
+				// Unrelated section writes carry this safe placeholder, not a dropped
+				// malformed policy that would silently restore unrestricted reads.
+				record.agent = { ...record.agent, fileAccess: { restricted: true, folders: [] } };
+			}
+			settings = record;
+		}
+	} catch {
+		fileAccess = { ok: false, error: FILE_ACCESS_ERROR };
+		settings = null;
+	}
+	const entry: SettingsCacheEntry = { stamp, settings, fileAccess };
+	if (cache.size >= MAX_SETTINGS_CACHE_ENTRIES && !cache.has(file)) {
+		const oldest = cache.keys().next().value;
+		if (oldest !== undefined) cache.delete(oldest);
+	}
+	cache.set(file, entry);
+	return { ok: true, entry };
+}
+
 /** Separate strict view: the ordinary settings API keeps its historical
  * null/default behavior, but source access must distinguish absent prefs
  * from existing corrupt/unreadable settings. Never expose raw JSON/errors. */
@@ -70,43 +141,24 @@ function settingsAreAbsent(): boolean {
 }
 
 export function readFileAccessSettings(): FileAccessSettingsResult {
-	let raw: string;
-	try { raw = fs.readFileSync(SETTINGS_FILE, "utf-8"); }
-	catch (error) {
-		return (error as NodeJS.ErrnoException).code === "ENOENT" && settingsAreAbsent()
+	const result = readCachedEntry();
+	if (!result.ok) {
+		return result.missing && settingsAreAbsent()
 			? { ok: true, settings: { restricted: false, folders: [] } }
 			: { ok: false, error: FILE_ACCESS_ERROR };
 	}
-	try { return fileAccessFromRecord(JSON.parse(raw)); }
-	catch { return { ok: false, error: FILE_ACCESS_ERROR }; }
+	return structuredClone(result.entry.fileAccess);
 }
 
 /** The persisted record, or null when none exists (first boot). Runs the
  *  migration chain on every read — cheap: a no-op file check when current. */
 export function readSettings(): UserSettings | null {
-	let raw: string;
-	try {
-		raw = fs.readFileSync(SETTINGS_FILE, "utf-8");
-	} catch {
-		return null; // no settings.json yet — first boot, all factory defaults
-	}
-	let parsed: unknown;
-	try {
-		parsed = JSON.parse(raw);
-	} catch {
-		return null; // corrupt → first-boot semantics (all factory defaults)
-	}
-	const record = sanitizeUserSettings(parsed);
-	if (!record) return null;
-	if (!fileAccessFromRecord(parsed).ok) {
-		// Unrelated section writes carry this safe placeholder, not a dropped
-		// malformed policy that would silently restore unrestricted reads.
-		record.agent = { ...record.agent, fileAccess: { restricted: true, folders: [] } };
-	}
+	const result = readCachedEntry();
+	if (!result.ok || !result.entry.settings) return null;
 	// Version chain (empty today): a future v2 migration slots in here —
 	// `if (record.version > CURRENT_SETTINGS_VERSION) …`. Unknown NEWER
 	// versions pass through untouched (the sanitizer preserved unknowns).
-	return record;
+	return structuredClone(result.entry.settings);
 }
 
 /** Persist the record (sanitized). Returns what was written. */
@@ -121,6 +173,7 @@ export function writeSettings(raw: unknown): UserSettings {
 	}
 	fs.mkdirSync(path.dirname(SETTINGS_FILE), { recursive: true });
 	writeFileAtomicSync(SETTINGS_FILE, JSON.stringify(settings, null, "\t"), { allowInPlaceFallback: true });
+	settingsCache().delete(path.resolve(SETTINGS_FILE));
 	return settings;
 }
 

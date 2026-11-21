@@ -1,12 +1,12 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { memo, useState, type ReactNode } from "react";
 import { CheckIcon, ChevronRight } from "lucide-react";
 import { Hint } from "@/components/ui/hint";
 
 /** Shared research/PDF completion grammar. The host owns the summary; only
  * the expanded body is replaceable by a plugin renderer. */
-export function WorkerResultDetails({ heading, children, icon = <CheckIcon className="size-3.5" />, testId, headerTestId, headerTooltip, disclosure = "labels", viewLabel = "view brief", hideLabel = "hide brief" }: {
+export const WorkerResultDetails = memo(function WorkerResultDetails({ heading, children, icon = <CheckIcon className="size-3.5" />, testId, headerTestId, headerTooltip, disclosure = "labels", viewLabel = "view brief", hideLabel = "hide brief" }: {
 	heading: ReactNode;
 	children: ReactNode;
 	icon?: ReactNode;
@@ -18,6 +18,7 @@ export function WorkerResultDetails({ heading, children, icon = <CheckIcon class
 	viewLabel?: string;
 	hideLabel?: string;
 }) {
+	const [opened, setOpened] = useState(process.env.NODE_ENV === "test");
 	const summary = (
 		<summary data-testid={headerTestId} className="relative flex cursor-pointer select-none list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
 			{icon}
@@ -31,9 +32,15 @@ export function WorkerResultDetails({ heading, children, icon = <CheckIcon class
 		</summary>
 	);
 	return (
-		<details data-testid={testId} className="group w-full text-xs text-muted-foreground">
+		<details
+			data-testid={testId}
+			className="group w-full text-xs text-muted-foreground"
+			onToggle={(event) => {
+				if (event.currentTarget.open && !opened) setOpened(true);
+			}}
+		>
 			{headerTooltip ? <Hint label={headerTooltip}>{summary}</Hint> : summary}
-			<div className="mt-2">{children}</div>
+			{opened && <div className="mt-2">{children}</div>}
 		</details>
 	);
-}
+});

@@ -420,7 +420,10 @@ function QuestionDockForm({
 		viewReader.current = read;
 		return () => { if (viewReader.current === read) viewReader.current = null; };
 	}, [viewReader, qd, kind]);
-	const viewPresentationKey = JSON.stringify({ ...toClientQuestion(qd), questionType: qd.questionType });
+	const viewPresentationKey = useMemo(
+		() => JSON.stringify({ ...toClientQuestion(qd), questionType: qd.questionType }),
+		[qd],
+	);
 	useLayoutEffect(() => { viewReader?.changed?.(); }, [viewReader, sel, other, text, thinking, confIdx, viewPresentationKey]);
 	const submit = () => {
 		if (!canSubmit || compactionRunning || preparing) return;

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import type { ArtifactPartProps } from "@/src/core";
 
@@ -61,17 +62,25 @@ function outputText(output: unknown): string | null {
 	}
 }
 
-export function ToolCallCard({ part }: ArtifactPartProps) {
+export const ToolCallCard = memo(function ToolCallCard({ part }: ArtifactPartProps) {
 	const p = part as ToolCallPart;
 	const tool = p.type.replace(/^tool-/, "");
 	const arg = headlineArg(tool, p.input);
-	const out = outputText(p.output);
+	const [opened, setOpened] = useState(process.env.NODE_ENV === "test");
+	const formattedInput = useMemo(
+		() => (opened && p.input != null ? JSON.stringify(p.input, null, 2) : null),
+		[opened, p.input],
+	);
+	const out = useMemo(() => (opened ? outputText(p.output) : null), [opened, p.output]);
 	const failed = p.state === "output-error" || typeof p.errorText === "string";
 	return (
 		<details
 			data-testid="tool-call-card"
 			data-tool={tool}
 			className="group my-1 w-full max-w-2xl select-none"
+			onToggle={(event) => {
+				if (event.currentTarget.open && !opened) setOpened(true);
+			}}
 		>
 			<summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground [&::-webkit-details-marker]:hidden">
 				<span className={`font-medium uppercase tracking-wide ${failed ? "text-error" : ""}`}>
@@ -80,41 +89,43 @@ export function ToolCallCard({ part }: ArtifactPartProps) {
 				{arg && <span className="truncate">{arg}</span>}
 				<ChevronRight className="size-3 shrink-0 opacity-50 transition-transform group-open:rotate-90" />
 			</summary>
-			<div className="mt-2 space-y-2 rounded-xl border bg-card p-3 text-xs">
-				{p.input != null && (
-					<div>
-						<div className="mb-1 font-medium uppercase tracking-wide text-muted-foreground">
-							Input
+			{opened && (
+				<div className="mt-2 space-y-2 rounded-xl border bg-card p-3 text-xs">
+					{formattedInput != null && (
+						<div>
+							<div className="mb-1 font-medium uppercase tracking-wide text-muted-foreground">
+								Input
+							</div>
+							<pre className="max-h-32 overflow-auto whitespace-pre-wrap break-all font-mono text-xs leading-relaxed">
+								{formattedInput}
+							</pre>
 						</div>
-						<pre className="max-h-32 overflow-auto whitespace-pre-wrap break-all font-mono text-xs leading-relaxed">
-							{JSON.stringify(p.input, null, 2)}
-						</pre>
-					</div>
-				)}
-				{typeof p.errorText === "string" ? (
-					<div>
-						<div className="mb-1 font-medium uppercase tracking-wide text-muted-foreground">
-							Error
+					)}
+					{typeof p.errorText === "string" ? (
+						<div>
+							<div className="mb-1 font-medium uppercase tracking-wide text-muted-foreground">
+								Error
+							</div>
+							<pre className="whitespace-pre-wrap break-all font-mono text-xs text-error">
+								{p.errorText}
+							</pre>
 						</div>
-						<pre className="whitespace-pre-wrap break-all font-mono text-xs text-error">
-							{p.errorText}
-						</pre>
-					</div>
-				) : out != null ? (
-					<div>
-						<div className="mb-1 font-medium uppercase tracking-wide text-muted-foreground">
-							Output
+					) : out != null ? (
+						<div>
+							<div className="mb-1 font-medium uppercase tracking-wide text-muted-foreground">
+								Output
+							</div>
+							<pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all font-mono text-xs leading-relaxed">
+								{out}
+							</pre>
 						</div>
-						<pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all font-mono text-xs leading-relaxed">
-							{out}
-						</pre>
-					</div>
-				) : (
-					p.state !== "output-available" && (
-						<div className="text-muted-foreground italic">running…</div>
-					)
-				)}
-			</div>
+					) : (
+						p.state !== "output-available" && (
+							<div className="text-muted-foreground italic">running…</div>
+						)
+					)}
+				</div>
+			)}
 		</details>
 	);
-}
+});

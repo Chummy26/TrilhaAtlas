@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ChatGPTStatus } from "@/src/core";
 import { ConnectionDialog, ConnectionFooter, ConnectionRow } from "./connection-controls";
 import { Button } from "@/components/ui/button";
@@ -246,8 +246,13 @@ export function ChatGPTUIProvider({ children }: { children: React.ReactNode }) {
 		// No finally: pending OAuth outlives this IPC promise. Only its status
 		// completion, failure, or explicit cancellation releases the attempt.
 	}
-	const context = {
-		status, busy, error: warning ? null : visibleError, inlineError: dialog || warning ? null : visibleError, warning: dialog?.kind === "warning" ? null : warning,
+	const actionsRef = useRef({
+		connect: openConnect,
+		manage: (_id: string) => {},
+		select: (_id: string) => {},
+		dismissWarning: () => {},
+	});
+	actionsRef.current = {
 		connect: openConnect,
 		manage: (id: string) => {
 			const account = statusRef.current.accounts.find((a) => a.id === id);
@@ -256,6 +261,24 @@ export function ChatGPTUIProvider({ children }: { children: React.ReactNode }) {
 		select: (id: string) => { if (bridge) void control("change", () => bridge.select(id)); },
 		dismissWarning: () => { setDismissedError(REVOCATION_WARNING); setError(null); },
 	};
+	const stableConnect = useCallback((accountId?: string) => actionsRef.current.connect(accountId), []);
+	const stableManage = useCallback((id: string) => actionsRef.current.manage(id), []);
+	const stableSelect = useCallback((id: string) => actionsRef.current.select(id), []);
+	const stableDismissWarning = useCallback(() => actionsRef.current.dismissWarning(), []);
+	const ctxError = warning ? null : visibleError;
+	const ctxInlineError = dialog || warning ? null : visibleError;
+	const ctxWarning = dialog?.kind === "warning" ? null : warning;
+	const context = useMemo(() => ({
+		status,
+		busy,
+		error: ctxError,
+		inlineError: ctxInlineError,
+		warning: ctxWarning,
+		connect: stableConnect,
+		manage: stableManage,
+		select: stableSelect,
+		dismissWarning: stableDismissWarning,
+	}), [status, busy, ctxError, ctxInlineError, ctxWarning, stableConnect, stableManage, stableSelect, stableDismissWarning]);
 	return <Context.Provider value={context}>
 		{children}
 		{dialog && <AccountDialog key={`${dialog.kind}:${dialog.kind === "manage" && !!dialog.confirm}`} onClose={close} busy={busy && operation.current !== "login"}>

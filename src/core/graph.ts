@@ -122,9 +122,6 @@ function pointOf(chatId: string, messageId?: string): ProvenancePoint[] {
 	return [{ chatId, messageId: messageId ?? "" }];
 }
 
-const samePoint = (a: ProvenancePoint, b: ProvenancePoint): boolean =>
-	a.chatId === b.chatId && a.messageId === b.messageId;
-
 // ─── the merger (extraction pipeline stage 3 — deterministic) ────────────────
 
 /**
@@ -406,18 +403,42 @@ export interface DerivedGraph {
 export function getGraph(graphStore: Pick<GraphStore, "readNodes" | "readChains">): DerivedGraph {
 	// Merge node lines by id (first line defines; later lines add phrasings).
 	const byId = new Map<string, GraphNode>();
+	const aliasSets = new Map<string, Set<string>>();
+	const nodeProvSets = new Map<string, Set<string>>();
+	const provKey = (pt: ProvenancePoint): string => `${pt.chatId}\u0000${pt.messageId}`;
 	for (const line of graphStore.readNodes()) {
 		const existing = byId.get(line.id);
 		if (!existing) {
 			byId.set(line.id, { ...line, aliases: [...line.aliases], provenance: [...line.provenance] });
 			continue;
 		}
+		let aliases = aliasSets.get(line.id);
+		if (!aliases) {
+			aliases = new Set(existing.aliases);
+			aliasSets.set(line.id, aliases);
+		}
 		// A later line's statement is a phrasing, not a replacement.
-		for (const phrasing of [line.statement, ...line.aliases]) {
-			if (phrasing.length > 0 && !existing.aliases.includes(phrasing)) existing.aliases.push(phrasing);
+		if (line.statement.length > 0 && !aliases.has(line.statement)) {
+			aliases.add(line.statement);
+			existing.aliases.push(line.statement);
+		}
+		for (const phrasing of line.aliases) {
+			if (phrasing.length > 0 && !aliases.has(phrasing)) {
+				aliases.add(phrasing);
+				existing.aliases.push(phrasing);
+			}
+		}
+		let provs = nodeProvSets.get(line.id);
+		if (!provs) {
+			provs = new Set(existing.provenance.map(provKey));
+			nodeProvSets.set(line.id, provs);
 		}
 		for (const pt of line.provenance) {
-			if (!existing.provenance.some((q) => samePoint(q, pt))) existing.provenance.push(pt);
+			const pk = provKey(pt);
+			if (!provs.has(pk)) {
+				provs.add(pk);
+				existing.provenance.push(pt);
+			}
 		}
 	}
 
@@ -425,12 +446,22 @@ export function getGraph(graphStore: Pick<GraphStore, "readNodes" | "readChains"
 	// line's id/premises/createdAt stand, provenance unions.
 	const chains: GraphChain[] = [];
 	const byKey = new Map<string, GraphChain>();
+	const chainProvSets = new Map<string, Set<string>>();
 	for (const line of graphStore.readChains()) {
 		const key = chainKey(line.premises, line.conclusion);
 		const existing = byKey.get(key);
 		if (existing) {
+			let provs = chainProvSets.get(key);
+			if (!provs) {
+				provs = new Set(existing.provenance.map(provKey));
+				chainProvSets.set(key, provs);
+			}
 			for (const pt of line.provenance) {
-				if (!existing.provenance.some((q) => samePoint(q, pt))) existing.provenance.push(pt);
+				const pk = provKey(pt);
+				if (!provs.has(pk)) {
+					provs.add(pk);
+					existing.provenance.push(pt);
+				}
 			}
 		} else {
 			const chain: GraphChain = { ...line, premises: [...line.premises], provenance: [...line.provenance] };
@@ -540,10 +571,24 @@ export function graphSnapshot(deps: GraphDeps, sourceNames: Readonly<Record<stri
 	// One read of the sources map per snapshot: readSources() re-reads and
 	// re-parses sources.json on every call.
 	const sourcePaths = new Map(deps.graphStore.readSources().map((s) => [s.id, s.filePath]));
+	let needsChats = false;
 	for (const id of sourceIds) {
-		const chat = deps.chatStore.getChat(id);
-		if (chat) {
-			sessions[id] = chat.title;
+		if (!id.startsWith("src_") || !sourcePaths.has(id)) {
+			needsChats = true;
+			break;
+		}
+	}
+	const chatTitles = needsChats
+		? new Map(deps.chatStore.listChats().map((c) => [c.id, c.title]))
+		: null;
+	for (const id of sourceIds) {
+		if (id.startsWith("src_") && sourcePaths.has(id)) {
+			fileSources[id] = sourcePaths.get(id)!;
+			continue;
+		}
+		const chatTitle = chatTitles?.get(id);
+		if (chatTitle !== undefined) {
+			sessions[id] = chatTitle;
 			continue;
 		}
 		const filePath = sourcePaths.get(id);

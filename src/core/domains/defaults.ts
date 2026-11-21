@@ -18,6 +18,7 @@
  * Pure: timestamps are parameters, never read from the clock.
  */
 
+import type { SkillMapStyle } from "../study/map-style.ts";
 import type { DomainId, DomainManifest, DomainProfile, LocalizedText } from "./types.ts";
 
 export const DEFAULT_TARGET_HOURS = Object.freeze({ lo: 1000, hi: 1500 });
@@ -99,6 +100,7 @@ export interface CustomDomainInput {
 	createdAt: string;
 	accent?: string;
 	icon?: string;
+	mapStyle?: SkillMapStyle;
 	lessonLang?: string;
 }
 
@@ -112,6 +114,7 @@ export function customManifest(input: CustomDomainInput): DomainManifest {
 		title: { ...input.title },
 		accent: input.accent ?? "ink",
 		icon: input.icon ?? "domain-generic",
+		...(input.mapStyle ? { mapStyle: input.mapStyle } : {}),
 		levelScheme: "generic",
 		targetHours: { ...DEFAULT_TARGET_HOURS },
 		edgeMode: "strict",

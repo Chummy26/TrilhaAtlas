@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { Home } from "@/components/home";
+import { MapScreen } from "@/components/study/map-screen";
 import { StudyHeartbeat } from "@/components/study/study-heartbeat";
 import { activeDomainId, readSettingsRecord, StudyError, studyMap } from "@/src/server";
 import { slotsConfigured } from "@/src/core";
@@ -19,6 +19,6 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
 	}
 	return <>
 		<StudyHeartbeat domain={domain} kind="reading" />
-		<Home key={domain} initialConfigured={slotsConfigured(readSettingsRecord()?.models)} map={map} initialNode={query.no} />
+		<MapScreen key={domain} initialConfigured={slotsConfigured(readSettingsRecord()?.models)} map={map} initialNode={query.no} />
 	</>;
 }

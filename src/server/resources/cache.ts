@@ -116,12 +116,21 @@ export class FileTtlCache implements TtlCache {
 		let files: string[];
 		try { files = await fs.promises.readdir(this.dir); }
 		catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return []; throw error; }
+		const jsonFiles = files.filter((f) => f.endsWith(".json"));
+		if (jsonFiles.length === 0) return [];
+		const nowMs = this.now();
+		const loaded = await Promise.all(jsonFiles.map(async (file): Promise<{ hit: true; value: T } | { hit: false }> => {
+			try {
+				const entry = JSON.parse(await fs.promises.readFile(path.join(this.dir, file), "utf8")) as { key: string; storedAt: number; value: T };
+				if (nowMs - entry.storedAt <= maxAgeMs && entry.key.startsWith(prefix) && (!accept || accept(entry.key))) {
+					return { hit: true, value: entry.value };
+				}
+			} catch { /* unreadable/corrupt cache entry skipped */ }
+			return { hit: false };
+		}));
 		const result: T[] = [];
-		for (const file of files.filter(f => f.endsWith(".json"))) {
-			let entry: { key: string; storedAt: number; value: T };
-			try { entry = JSON.parse(await fs.promises.readFile(path.join(this.dir,file), "utf8")); }
-			catch { continue; }
-			if (this.now() - entry.storedAt <= maxAgeMs && entry.key.startsWith(prefix) && (!accept || accept(entry.key))) result.push(entry.value);
+		for (const item of loaded) {
+			if (item.hit) result.push(item.value);
 		}
 		return result;
 	}

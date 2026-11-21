@@ -36,11 +36,11 @@
  * remediation, else review/vehicle, else probe.
  */
 
-import { FSRS_STATE, retrievability, reviewMemory } from "./fsrs.ts";
+import { FSRS_STATE, fsrsScheduler, retrievability, toSchedulerCard, type FsrsScheduler } from "./fsrs.ts";
 import { expandedClauses, graphIndex, type LearnerGraphView } from "./graph-view.ts";
-import { binaryEntropy, clamp, compareIds, DAY_MS, Rng, toIso, toMs } from "./math.ts";
+import { binaryEntropy, clamp, clamp01, compareIds, DAY_MS, Rng, toMs } from "./math.ts";
 import { LEARNER_CONSTANTS } from "./params.ts";
-import { allocateCredit, applyCredit, encompassingWeights, encompassWeights, isCreditEligible } from "./propagate.ts";
+import { allocateCredit, applyCredit, encompassingWeightsCached, encompassWeightsCached, isCreditEligible } from "./propagate.ts";
 import { blockedDescendants, computeSignals, descendantCounts, unlockValues, type NodeSignal, type SignalsResult } from "./signals.ts";
 import type { LearnerParams, LearnerSnapshot, NodeId, NodeState, PlanItem, StudyPlan } from "./types.ts";
 
@@ -104,6 +104,9 @@ export function goalPlanOf(graph: LearnerGraphView, known: ReadonlySet<NodeId>):
 
 // ─── load projection (r2 §9.9 step 3) ────────────────────────────────────────
 
+const loadCache = new WeakMap<LearnerSnapshot, WeakMap<LearnerGraphView, Map<string, number>>>();
+const MAX_LOAD_KEYS_PER_PAIR = 32;
+
 /**
  * Average daily review minutes over the next `days`, simulating every
  * reviewed card with FSRS-7: at each due instant success ~ Bernoulli(R)
@@ -117,24 +120,62 @@ export function projectedDailyLoad(
 	days: number = PC.loadHorizonDays,
 	seed = `${snapshot.domainId}|${at.slice(0, 10)}`,
 ): number {
-	const rng = new Rng(seed);
 	const start = toMs(at);
+	const weightsKey = params.fsrsWeights ? params.fsrsWeights.join(",") : "";
+	const cacheKey = `${Math.floor(start / 60_000)}|${days}|${seed}|${weightsKey}`;
+	let byGraph = loadCache.get(snapshot);
+	if (!byGraph) loadCache.set(snapshot, (byGraph = new WeakMap()));
+	let byKey = byGraph.get(graph);
+	if (!byKey) byGraph.set(graph, (byKey = new Map()));
+	const cached = byKey.get(cacheKey);
+	if (cached !== undefined) return cached;
+
+	const rng = new Rng(seed);
 	const end = start + days * DAY_MS;
+	const curveModel = fsrsScheduler(params, 0.9).model;
+	const schedulers = new Map<number, FsrsScheduler>();
 	let minutes = 0;
 	for (const id of graph.ids) {
 		const state = snapshot.nodes[id];
-		let mem = state?.fsrs;
+		const mem = state?.fsrs;
 		if (!state || !mem || mem.state === FSRS_STATE.new) continue;
+		const firstDue = toMs(mem.dueAt, "dueAt");
+		if (Math.max(firstDue, start) >= end) continue;
+		let scheduler = schedulers.get(state.desiredRetention);
+		if (!scheduler) {
+			scheduler = fsrsScheduler(params, state.desiredRetention);
+			schedulers.set(state.desiredRetention, scheduler);
+		}
+		let card = toSchedulerCard(mem);
 		for (let i = 0; i < 64; i++) {
-			const t = Math.max(toMs(mem.dueAt), start);
+			const c = card as unknown as {
+				state: number;
+				stability: number;
+				stabilityFast: number;
+				difficulty: number;
+				dueAt: Date;
+				lastReviewAt: Date | null;
+			};
+			const t = Math.max(c.dueAt.getTime(), start);
 			if (t >= end) break;
-			const tIso = toIso(t);
+			const tMs = Math.round(t);
 			minutes += PC.reviewMinutes;
-			const ok = rng.next() < retrievability(mem, tIso, params);
-			mem = reviewMemory(mem, mem.cardId, ok ? 3 : 1, tIso, state.desiredRetention, params);
+			const lastMs = c.lastReviewAt ? c.lastReviewAt.getTime() : undefined;
+			const R = c.state === FSRS_STATE.new || lastMs === undefined
+				? 1
+				: clamp01(curveModel.forgettingCurve(
+					{ stability: c.stability, stabilityFast: c.stabilityFast, difficulty: c.difficulty },
+					Math.max(0, (tMs - lastMs) / DAY_MS),
+				));
+			const ok = rng.next() < R;
+			const now = new Date(lastMs === undefined ? tMs : Math.max(tMs, lastMs));
+			card = scheduler.review({ card, grade: ok ? 3 : 1, now }).card;
 		}
 	}
-	return minutes / Math.max(1, days);
+	const result = minutes / Math.max(1, days);
+	if (byKey.size >= MAX_LOAD_KEYS_PER_PAIR) byKey.clear();
+	byKey.set(cacheKey, result);
+	return result;
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -195,7 +236,7 @@ function vehicleOption(
 	at: string,
 ): VehicleOption | null {
 	const f = LEARNER_CONSTANTS.fire;
-	const weights = encompassWeights(graph, n, params.propagationHops, params.fireMinWeight);
+	const weights = encompassWeightsCached(graph, n, params.propagationHops, params.fireMinWeight);
 	const candidates: { nodeId: NodeId; rawUnits: number }[] = [];
 	for (const [k, w] of weights) {
 		if (!due.has(k) || !isCreditEligible(states.get(k), at)) continue;
@@ -316,7 +357,7 @@ export function planDay(snapshot: LearnerSnapshot, graph: LearnerGraphView, para
 	const remaining = new Set([...due].filter((id) => !planned.has(id)));
 	const vehicleIds = new Set<NodeId>();
 	for (const k of remaining) {
-		for (const n of encompassingWeights(graph, k, params.propagationHops, params.fireMinWeight).keys()) {
+		for (const n of encompassingWeightsCached(graph, k, params.propagationHops, params.fireMinWeight).keys()) {
 			const s = snapshot.nodes[n];
 			if (s?.masteredAt && s.fsrs && s.pL >= LEARNER_CONSTANTS.fire.minSourceP) vehicleIds.add(n);
 		}
@@ -375,12 +416,10 @@ export function planDay(snapshot: LearnerSnapshot, graph: LearnerGraphView, para
 		})
 		.sort((a, b) => (opts.newPriority?.(b.id) ?? 0) - (opts.newPriority?.(a.id) ?? 0)
 			|| b.value - a.value || (pos.get(a.id) as number) - (pos.get(b.id) as number));
-	const load = projectedDailyLoad(snapshot, graph, params, at, PC.loadHorizonDays, opts.seed);
-	const suspended = load > reviewCap;
 	const left = Math.max(0, budget.total - budget.used);
-	const nNew = suspended
-		? 0
-		: Math.min(params.planner.maxNewPerDay, Math.max(left >= PC.minNewMinutes ? 1 : 0, Math.floor(left / params.planner.avgNewMinutes)));
+	const maxNew = Math.min(params.planner.maxNewPerDay, Math.max(left >= PC.minNewMinutes ? 1 : 0, Math.floor(left / params.planner.avgNewMinutes)));
+	const canScheduleNew = newCandidates.length > 0 && maxNew > 0 && (left >= PC.minNewMinutes || newCandidates.some((c) => c.cost <= left + 1e-9));
+	const nNew = !canScheduleNew || projectedDailyLoad(snapshot, graph, params, at, PC.loadHorizonDays, opts.seed) > reviewCap ? 0 : maxNew;
 	const warmups: PlanItem[] = [];
 	const freshItems: PlanItem[] = [];
 	for (const cand of newCandidates) {

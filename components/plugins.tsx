@@ -1,12 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { SERVER_EVENT_TYPES, type PluginFrontendModule, type ServerEvent } from "@/src/core";
 import { useNotifyHub } from "@/components/server-events";
 import { PluginFrontendManager, type PluginHost, type PluginMount, type PluginSnapshot } from "@/components/plugin-manager";
 import { createPluginUiStore, PluginUiHost } from "@/components/plugin-ui-host";
-import { BUILTIN_MERMAID_LANGUAGE, reservedToolRendererNames } from "@/components/plugin-renderers";
+import { BUILTIN_MERMAID_LANGUAGE, reservedToolRendererNames } from "@/components/reserved-tool-names";
 
 const EMPTY: PluginSnapshot = { plugins: [], codeBlocks: [], toolRenderers: [], directory: "", conflicts: [], loading: true, refreshing: false };
 const emptySubscribe = () => () => {};
@@ -107,7 +107,8 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 		return () => { for (const off of offs) off(); };
 	}, [hub, manager]);
 	const snapshot = useSyncExternalStore(manager?.subscribe ?? emptySubscribe, manager?.getSnapshot ?? emptySnapshot, emptySnapshot);
-	return <PluginsContext.Provider value={{ manager, snapshot, uiStore }}>{children}</PluginsContext.Provider>;
+	const contextValue = useMemo(() => ({ manager, snapshot, uiStore }), [manager, snapshot, uiStore]);
+	return <PluginsContext.Provider value={contextValue}>{children}</PluginsContext.Provider>;
 }
 
 /** Missing-provider fallback is intentional: existing sidebar render tests and

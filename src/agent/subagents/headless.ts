@@ -577,7 +577,7 @@ async function renderPdfPages(
 	// needed a browser; now renders don't either.
 	const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
 	const { createCanvas } = await import("@napi-rs/canvas");
-	const data = new Uint8Array(fs.readFileSync(path.resolve(pdfPath)));
+	const data = new Uint8Array(await fs.promises.readFile(path.resolve(pdfPath)));
 	// Standard-font data as a directory path (live-smoke finding 2026-09-19:
 	// without it pdfjs renders non-embedded standard fonts via fallback);
 	// verbosity 0 = errors only (JBIG2 noise on scanned PDFs).
@@ -588,24 +588,28 @@ async function renderPdfPages(
 		for (const pageNo of pages) {
 			if (pageNo < 1 || pageNo > doc.numPages) continue;
 			const pg = await doc.getPage(pageNo);
-			const base = pg.getViewport({ scale: 1 });
-			const geometry = pdfCanvasGeometry(base.width, base.height, dpi);
-			const vp = pg.getViewport({ scale: geometry.scale });
-			const canvas = createCanvas(geometry.width, geometry.height);
-			const ctx = canvas.getContext("2d");
-			// pdfjs's render types speak the DOM context; @napi-rs/canvas's
-			// context is the same 2D API implemented over Skia.
-			await pg.render({
-				canvasContext: ctx as unknown as CanvasRenderingContext2D,
-				canvas: canvas as unknown as HTMLCanvasElement,
-				viewport: vp,
-			}).promise;
-			out.push({
-				page: pageNo,
-				// Skia-encoded PNG → providerSafePng for the same single-IDAT
-				// canonical form every other vision-model image gets.
-				png: providerSafePng(canvas.toBuffer("image/png")),
-			});
+			try {
+				const base = pg.getViewport({ scale: 1 });
+				const geometry = pdfCanvasGeometry(base.width, base.height, dpi);
+				const vp = pg.getViewport({ scale: geometry.scale });
+				const canvas = createCanvas(geometry.width, geometry.height);
+				const ctx = canvas.getContext("2d");
+				// pdfjs's render types speak the DOM context; @napi-rs/canvas's
+				// context is the same 2D API implemented over Skia.
+				await pg.render({
+					canvasContext: ctx as unknown as CanvasRenderingContext2D,
+					canvas: canvas as unknown as HTMLCanvasElement,
+					viewport: vp,
+				}).promise;
+				out.push({
+					page: pageNo,
+					// Skia-encoded PNG → providerSafePng for the same single-IDAT
+					// canonical form every other vision-model image gets.
+					png: providerSafePng(canvas.toBuffer("image/png")),
+				});
+			} finally {
+				pg.cleanup();
+			}
 		}
 		return out;
 	} finally {

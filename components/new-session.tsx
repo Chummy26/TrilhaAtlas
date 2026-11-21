@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { SurfaceRegion, usePageSurfaceBoundary, useSurfaceChromeStyle } from "./plugin-surfaces";
 import { Conversation, ConversationContent, ConversationEmptyState } from "@/components/ai-elements/conversation";
@@ -10,18 +11,21 @@ import { useFieldCycle } from "@/components/field-cycle";
 import { useOptionalInteractionLayers } from "./interaction-layers";
 import { isInteractionScopeEligible } from "./plugin-input-focus";
 import { SidebarToggle } from "@/components/sidebar";
-import { SetupDialog } from "@/components/setup-dialog";
 import { useModelSetup, selectedModelUnavailable, openModelPicker, ZeroKeysPill } from "@/components/setup-cta";
 import { SessionModeSwitch, StudyNavigation, type StudyNavigationProps } from "./study/session-navigation.tsx";
 import { TodayCard, type LessonStart } from "./study/today-card.tsx";
-import { MinimalHome } from "./minimal-home.tsx";
-import { GraphView } from "./graph-view.tsx";
 import { StatsBar } from "@/components/stats-bar";
-import { ChainTableOverlay } from "@/components/chain-table.tsx";
 import { ComposerActions, NodePickerControl } from "@/components/composer-actions";
 import { OPENING_PROMPT_FAILURE } from "@/components/opening-prompt";
 import { SessionStarter, studyLessonRequest } from "./start-session.ts";
-import type { ChatSettings, GraphSnapshot } from "@/src/core";
+import type { GraphSnapshot, StudyToday, TurnUsage } from "@/src/core";
+
+const EMPTY_TURNS: TurnUsage[] = [];
+
+const GraphView = dynamic(() => import("./graph-view.tsx").then((m) => m.GraphView));
+const MinimalHome = dynamic(() => import("./minimal-home.tsx").then((m) => m.MinimalHome));
+const ChainTableOverlay = dynamic(() => import("./chain-table.tsx").then((m) => m.ChainTableOverlay));
+const SetupDialog = dynamic(() => import("./setup-dialog.tsx").then((m) => m.SetupDialog));
 
 /** The draft's pick set (owner round 10): the SAME shape the home pick
  *  bar lifts — resolved nodes as the learner SAW them at pick time. */
@@ -229,7 +233,7 @@ export function DraftShell({
 								<StatsBar
 									leadingSlot={onModeChange && <SessionModeSwitch mode={mode} onChange={onModeChange} />}
 									dictationSlot={<DictationBar dictation={dictation} />}
-									turns={[]}
+									turns={EMPTY_TURNS}
 								/>
 							</div>
 						</div>
@@ -252,7 +256,19 @@ export function DraftShell({
 	);
 }
 
-export function NewSession({ initialConfigured, mode = "teach", domains, account, rendering = true }: StudyNavigationProps & { initialConfigured: boolean; mode?: "teach" | "practice"; rendering?: boolean }) {
+export function NewSession({
+	initialConfigured,
+	mode = "teach",
+	domains,
+	account,
+	initialToday,
+	rendering = true,
+}: StudyNavigationProps & {
+	initialConfigured: boolean;
+	mode?: "teach" | "practice";
+	initialToday?: StudyToday | null;
+	rendering?: boolean;
+}) {
 	const router = useRouter();
 	const [text, setText] = useState("");
 	/* The draft MIRROR ("nothing gets lost" round, 2026-10-01): the shell's
@@ -266,13 +282,14 @@ export function NewSession({ initialConfigured, mode = "teach", domains, account
 	};
 	const [busy, setBusy] = useState(false);
 	const startingRef = useRef(false);
-	const starterRef = useRef(new SessionStarter());
+	const starterRef = useRef<SessionStarter | null>(null);
 	const [startError, setStartError] = useState(false);
 	// THE PICK BAR (owner round 10): the draft's lifted pick set + the
 	// snapshot the standalone chain-table picker reads. Lazy — the graph
 	// is fetched on FIRST open only, then reused.
 	const [picks, setPicks] = useState<DraftPick[]>([]);
 	const picksRef = useRef<DraftPick[]>([]);
+	const pickedIds = useMemo(() => new Set(picks.map((p) => p.id)), [picks]);
 	const applyPicks = (next: DraftPick[]) => {
 		picksRef.current = next;
 		setPicks(next);
@@ -329,6 +346,7 @@ export function NewSession({ initialConfigured, mode = "teach", domains, account
 		setBusy(true);
 		setStartError(false);
 		const settings = JSON.stringify(catalog?.slots.strong);
+		starterRef.current ??= new SessionStarter();
 		const creation = lesson
 			? starterRef.current.start(studyLessonRequest(lesson), fetch, settings)
 			: startDraftSession(draft, fetch, mode === "practice" ? mode : undefined, picksRef.current, starterRef.current, settings);
@@ -354,7 +372,7 @@ export function NewSession({ initialConfigured, mode = "teach", domains, account
 				onModeChange={next => router.replace(next === "practice" ? "/chat/new?mode=practice" : "/chat/new", { scroll: false })}
 				navigation={<StudyNavigation domains={domains} account={account} />}
 				overview={rendering ? <GraphView /> : <MinimalHome />}
-				today={domains?.active && <TodayCard setupHint={setupHint} disabled={busy} onStart={send} />}
+				today={domains?.active && <TodayCard initialToday={initialToday} setupHint={setupHint} disabled={busy} onStart={send} />}
 				mode={mode}
 				picks={picks}
 				onOpenPicker={openPicker}
@@ -364,25 +382,27 @@ export function NewSession({ initialConfigured, mode = "teach", domains, account
 					// column — absolute inset-0 resolves to the column's relative
 					// container, the same confinement the graph view gives it;
 					// never over the sidebar or the traffic lights.
-					<ChainTableOverlay
-						open={pickerOpen}
-						nodes={snapshot?.propositions ?? []}
-						chains={snapshot?.chains ?? []}
-						sessions={snapshot?.sessions ?? {}}
-						fileSources={snapshot?.fileSources ?? {}}
-						onClose={() => setPickerOpen(false)}
-						selectMode
-						controlledSelection={new Set(picks.map((p) => p.id))}
-						onSelectionChange={(ids) => {
-							const byId = new Map((snapshot?.propositions ?? []).map((n) => [n.id, n]));
-							const next: DraftPick[] = [];
-							for (const id of ids) {
-								const n = byId.get(id);
-								if (n) next.push({ id: n.id, name: n.name, statement: n.statement });
-							}
-							applyPicks(next);
-						}}
-					/>
+					pickerOpen ? (
+						<ChainTableOverlay
+							open={pickerOpen}
+							nodes={snapshot?.propositions ?? []}
+							chains={snapshot?.chains ?? []}
+							sessions={snapshot?.sessions ?? {}}
+							fileSources={snapshot?.fileSources ?? {}}
+							onClose={() => setPickerOpen(false)}
+							selectMode
+							controlledSelection={pickedIds}
+							onSelectionChange={(ids) => {
+								const byId = new Map((snapshot?.propositions ?? []).map((n) => [n.id, n]));
+								const next: DraftPick[] = [];
+								for (const id of ids) {
+									const n = byId.get(id);
+									if (n) next.push({ id: n.id, name: n.name, statement: n.statement });
+								}
+								applyPicks(next);
+							}}
+						/>
+					) : null
 				}
 				setupCta={
 					zeroKeys ? (
@@ -403,15 +423,17 @@ export function NewSession({ initialConfigured, mode = "teach", domains, account
 			/>
 			{/* First-run setup: the send interception's landing surface — stage
 			    1 is the self-contained first-key screen (zero-keys wave). */}
-			<SetupDialog
-				open={setupOpen}
-				onClose={() => setSetupOpen(false)}
-				onDone={() => {
-					setSetupOpen(false);
-					// Save only saves (owner ruling 2026-10-09): the draft
-					// waits in the composer; the learner sends it.
-				}}
+			{setupOpen && (
+				<SetupDialog
+					open={setupOpen}
+					onClose={() => setSetupOpen(false)}
+					onDone={() => {
+						setSetupOpen(false);
+						// Save only saves (owner ruling 2026-10-09): the draft
+						// waits in the composer; the learner sends it.
+					}}
 				/>
+			)}
 		</>
 	);
 }

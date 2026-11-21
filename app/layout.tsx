@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Source_Sans_3 } from "next/font/google";
 import { connection } from "next/server";
-import "katex/dist/katex.min.css";
 import "./globals.css";
 import { AppShell, SidebarProvider } from "@/components/sidebar";
 import { ActivityProvider } from "@/components/activity-dock";
@@ -9,13 +8,13 @@ import { ServerEventsProvider } from "@/components/server-events";
 import { AppearanceProvider } from "@/components/settings/appearance";
 import UpdateBanner from "@/components/update-banner";
 import { PluginsProvider } from "@/components/plugins";
-import { activeDomainId, currentLocale, readThemeBoot } from "@/src/server";
-import { themeRootAttributes } from "@/src/core";
+import { activeDomainId, hasDictationKey, localeDictionary, readThemeBoot } from "@/src/server";
+import { resolveLocale, themeRootAttributes } from "@/src/core";
 import { I18nProvider } from "@/components/i18n";
 
-// Source Sans 3 serves UI and prose, JetBrains Mono serves code, and the
-// bundled CMU Serif face is available for session titles.
-const ui = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
+// Source Sans 3 serves UI and prose, JetBrains Mono serves code (deferred preload),
+// and the bundled CMU Serif face is available for session titles.
+const ui = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", preload: false });
 const prose = Source_Sans_3({ subsets: ["latin"], variable: "--font-sans3" });
 
 export const metadata: Metadata = {
@@ -31,7 +30,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	await connection();
 	const { settings, appearance, theme, vars } = readThemeBoot();
 	const domain = activeDomainId();
-	const locale = currentLocale();
+	const locale = resolveLocale(settings?.general?.language);
+	const messages = localeDictionary(locale);
+	const dictationConfigured = hasDictationKey();
 	return (
 		<html
 			lang={locale}
@@ -45,12 +46,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 			{/* The notification channel rides OUTSIDE everything: sidebar, dock,
 				 and pages all subscribe as the polls retire (push S3, 2026-10-02). */}
 			<ServerEventsProvider>
-				<I18nProvider initialLocale={locale}>
+				<I18nProvider initialLocale={locale} initialMessages={messages}>
 				<PluginsProvider>
 					<AppearanceProvider initialAppearance={appearance} initialTheme={theme}>
 						<SidebarProvider>
 							<ActivityProvider>
-								<AppShell initialSettings={settings} domain={domain}>{children}</AppShell>
+								<AppShell initialSettings={settings} domain={domain} hasDictationKey={dictationConfigured}>{children}</AppShell>
 							</ActivityProvider>
 						</SidebarProvider>
 					</AppearanceProvider>

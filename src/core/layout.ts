@@ -403,7 +403,8 @@ export function createGraphSimulation(
 		cp.clusters.forEach((c, i) => {
 			for (const id of c.members) clusterIdx.set(id, i);
 		});
-		const nodeCluster = nodes.map((n) => clusterIdx.get(n.id) ?? -1);
+		const nodeCluster = new Int32Array(nodes.length);
+		for (let i = 0; i < nodes.length; i++) nodeCluster[i] = clusterIdx.get(nodes[i]!.id) ?? -1;
 		const k = cp.clusters.length;
 		const sumX = new Float64Array(k);
 		const sumY = new Float64Array(k);
@@ -470,37 +471,41 @@ export function createGraphSimulation(
 		// The rank map (propositions + imp midpoint anchors) was computed
 		// with the orphan mask above — one pass, shared.
 		const depths = depthsComputed!;
+		const nodeDepth = new Float64Array(nodes.length);
+		for (let i = 0; i < nodes.length; i++) nodeDepth[i] = depths.get(nodes[i]!.id) ?? 0;
 		const strength = da.strength;
 		const spacing = da.spacing;
 		const c = da.center ?? { x: 0, y: 0 };
 		const orphanMask = orphan; // ORPHAN RULE: depth skips unstructured nodes
 		if (da.mode === "vertical") {
 			const baseY = c.y;
+			const targetYs = new Float64Array(nodes.length);
+			for (let i = 0; i < nodes.length; i++) targetYs[i] = baseY - nodeDepth[i]! * spacing;
 			sim.force("depth", (alpha: number) => {
 				for (let i = 0; i < nodes.length; i++) {
 					if (orphanMask?.[i]) continue;
 					const n = nodes[i]!;
-					const targetY = baseY - (depths.get(n.id) ?? 0) * spacing;
-					n.vy = (n.vy ?? 0) + (targetY - (n.y ?? 0)) * strength * alpha;
+					n.vy = (n.vy ?? 0) + (targetYs[i]! - (n.y ?? 0)) * strength * alpha;
 				}
 			});
 		} else {
 			const baseR = da.baseRadius ?? 0;
 			const cx0 = c.x;
 			const cy0 = c.y;
+			const targetRs = new Float64Array(nodes.length);
+			for (let i = 0; i < nodes.length; i++) targetRs[i] = baseR + nodeDepth[i]! * spacing;
 			sim.force("depth", (alpha: number) => {
 				for (let i = 0; i < nodes.length; i++) {
 					if (orphanMask?.[i]) continue;
 					const n = nodes[i]!;
-				const dx = (n.x ?? 0) - cx0;
+					const dx = (n.x ?? 0) - cx0;
 					const dy = (n.y ?? 0) - cy0;
 					// Degenerate direction at the exact ring center: nudge
 					// outward on a deterministic axis.
 					const r = Math.hypot(dx, dy);
 					const ux = r > 1e-9 ? dx / r : 1;
 					const uy = r > 1e-9 ? dy / r : 0;
-					const target = baseR + (depths.get(n.id) ?? 0) * spacing;
-					const mag = (target - r) * strength * alpha;
+					const mag = (targetRs[i]! - r) * strength * alpha;
 					n.vx = (n.vx ?? 0) + ux * mag;
 					n.vy = (n.vy ?? 0) + uy * mag;
 				}
@@ -674,7 +679,19 @@ export function incrementalLayout(
 	});
 	const dMode = options.depthAnchor?.mode ?? "off";
 	const dCenter = options.depthAnchor?.center ?? { x: cx, y: cy };
-	const byId = new Map(simNodes.map((n) => [n.id, n]));
+	const anchorList: Array<{ node: LayoutNode; ax: number; ay: number; ar: number; thetaA: number }> = [];
+	if (hasCore && retention < 1) {
+		const byId = new Map(simNodes.map((n) => [n.id, n]));
+		for (const [id, a] of anchors) {
+			const node = byId.get(id);
+			if (!node) continue;
+			const dx = a.x - dCenter.x;
+			const dy = a.y - dCenter.y;
+			const ar = dMode === "radial" ? Math.hypot(dx, dy) : 0;
+			const thetaA = dMode === "radial" && ar > 1e-9 ? Math.atan2(dy, dx) : 0;
+			anchorList.push({ node, ax: a.x, ay: a.y, ar, thetaA });
+		}
+	}
 	for (let i = 0; i < ticks; i++) {
 		sim.tick();
 		// Anchor re-blend (position space, alpha-independent — see the
@@ -684,31 +701,28 @@ export function incrementalLayout(
 		// angle in radial mode — because the depth force owns the
 		// constrained dimension (a node's level/ring is meaning, not
 		// memory). Off-mode: full 2D blend as before.
-		if (hasCore && retention < 1) {
-			for (const [id, a] of anchors) {
-				const n = byId.get(id);
-				if (!n || n.fx != null || n.fy != null) continue;
+		if (anchorList.length > 0) {
+			for (let j = 0; j < anchorList.length; j++) {
+				const entry = anchorList[j]!;
+				const n = entry.node;
+				if (n.fx != null || n.fy != null) continue;
 				const x = n.x ?? 0;
 				const y = n.y ?? 0;
 				if (dMode === "vertical") {
-					n.x = a.x + (x - a.x) * retention;
+					n.x = entry.ax + (x - entry.ax) * retention;
 				} else if (dMode === "radial") {
 					const rx = x - dCenter.x;
 					const ry = y - dCenter.y;
 					const r = Math.hypot(rx, ry);
-					const ax = a.x - dCenter.x;
-					const ay = a.y - dCenter.y;
-					const ar = Math.hypot(ax, ay);
-					if (r > 1e-9 && ar > 1e-9) {
+					if (r > 1e-9 && entry.ar > 1e-9) {
 						const theta = Math.atan2(ry, rx);
-						const thetaA = Math.atan2(ay, ax);
-						const blended = thetaA + Math.atan2(Math.sin(theta - thetaA), Math.cos(theta - thetaA)) * retention;
+						const blended = entry.thetaA + Math.atan2(Math.sin(theta - entry.thetaA), Math.cos(theta - entry.thetaA)) * retention;
 						n.x = dCenter.x + r * Math.cos(blended);
 						n.y = dCenter.y + r * Math.sin(blended);
 					}
 				} else {
-					n.x = a.x + (x - a.x) * retention;
-					n.y = a.y + (y - a.y) * retention;
+					n.x = entry.ax + (x - entry.ax) * retention;
+					n.y = entry.ay + (y - entry.ay) * retention;
 				}
 			}
 		}

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { CitationShelf } from "@/components/study/cited-response";
 import { MissionShelf } from "@/components/study/mission-shelf";
 import { Chat } from "@/components/chat";
-import { activityForSkill, lessonResources, slotsConfigured, type LessonResource } from "@/src/core";
+import { activityForSkill, lessonResources, resolveSettings, slotsConfigured, type LessonResource } from "@/src/core";
 import { StudyHeartbeat } from "@/components/study/study-heartbeat";
 import {
 	activeDomainId,
@@ -16,6 +16,9 @@ import {
 	materialsForEnglishMission,
 	readSettingsRecord,
 	serverT,
+	sessionCost,
+	sessionCoverage,
+	sideChats,
 	turnFailure,
 } from "@/src/server";
 
@@ -52,6 +55,10 @@ export default async function ChatPage({
 			: "/mapa?" + new URLSearchParams({ dominio: domain, no: node }));
 	const completion = domain && node && !reading ? lessonCompletionState(domain, chat.id) : null;
 	const shelfTopClass = completion?.course ? "top-24" : "top-14";
+	const resolvedGraph = resolveSettings(record ?? null).graph;
+	const initialGraphSettings = { enabled: resolvedGraph.enabled, chunkTokens: resolvedGraph.extractionChunkTokens };
+	const listedSide = sideChats.list(chat.id);
+	const initialSideThreads = listedSide && Object.keys(listedSide.answering).length === 0 ? listedSide.threads : undefined;
 	return (
 		<div className="flex h-full min-h-0 flex-col overflow-hidden">
 			<StudyHeartbeat key={chat.id + "-activity"} domain={domain} kind={chat.kind === "practice" ? "practice" : "lesson"} />
@@ -81,6 +88,13 @@ export default async function ChatPage({
 						initialMessages={chat.messages}
 						initialError={turnFailure(chat.id)}
 						initialConfigured={slotsConfigured(record?.models)}
+						initialTurns={chat.turns ?? []}
+						initialPricing={sessionCost(chat)}
+						initialChatSettings={chat.settings ?? null}
+						initialStrongSlot={record?.models?.strong ?? null}
+						initialGraphSettings={initialGraphSettings}
+						initialCoverage={sessionCoverage(chat.id, chat)}
+						initialSideThreads={initialSideThreads}
 						initialPrompt={prompt}
 						// A teacher turn that outlived its client: the remounted view must
 						// attach (busy shimmer + poll), never resurrect the stale record.

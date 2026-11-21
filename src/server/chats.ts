@@ -5,6 +5,7 @@ import { deleteChatTraces, type ChatDeleteMode, type ChatDeletionStats } from ".
 import { titleFromPrompt } from "../core/contracts.ts";
 import { graphRevision } from "./graph.ts";
 import { stores } from "./stores.ts";
+import { readCoverageForChat } from "../store/graph.ts";
 import { isTurnRunning } from "./turn-liveness.ts";
 import { clearTurnFailure } from "./turn-runs.ts";
 import { discardChatDeliveries } from "./jobs.ts";
@@ -200,13 +201,12 @@ export interface SessionCoverage {
  *  chat doesn't exist — callers own the 404. */
 export function sessionCoverage(chatId: string, record = stores.chatStore.getChat(chatId)): SessionCoverage | null {
 	if (!record) return null;
-	const entries = stores.graphStore.readCoverage();
+	const entries = readCoverageForChat(chatId);
 	// Wave B: the record is native history — coverage reads through the
 	// projection (same view the extraction pipeline folds).
 	const cov = coverageOf(record.messages, entries, chatId);
 	let lastFoldedAt: string | null = null;
 	for (const entry of entries) {
-		if (entry.chatId !== chatId) continue;
 		if (lastFoldedAt === null || entry.foldedAt > lastFoldedAt) lastFoldedAt = entry.foldedAt;
 	}
 	return {

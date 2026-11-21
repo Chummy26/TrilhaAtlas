@@ -12,9 +12,13 @@ import { isInputShortcutScopeEligible } from "@/components/plugin-input-focus";
 import { ModelPickerPill } from "@/components/model-picker-pill";
 import { Hint } from "@/components/ui/hint";
 import { notifySettingsSaved, useSettingsSaved } from "@/components/settings-signal";
+import { useSettingsSeed } from "@/components/settings-seed";
 import { useModelCatalog } from "@/components/model-catalog";
 export { useModelCatalog } from "@/components/model-catalog";
 import { defaultOrderLevel, populateLevel, THINKING_LABEL } from "@/components/thinking-default";
+
+const CATALOG_REFRESH_THROTTLE_MS = 30_000;
+let lastCatalogKnownAt = 0;
 
 /** provider:id → known contextWindow over the cached catalog, mirroring
  * the server's catalogContextLimits join. CLI aliases have no global
@@ -40,19 +44,49 @@ export function catalogLimits(catalog: Pick<ModelCatalogResponse, "models">): Ma
  * changing the new-session default. Unpicked reads "—" (the
  * no-factory-fallback language: the UI never presents a default model).
  */
-export function ModelControl({ chatId, onModelChange }: { chatId?: string; onModelChange?: (model: string | undefined) => void }) {
+export function ModelControl({
+	chatId,
+	onModelChange,
+	initialChatSettings,
+	initialStrongSlot,
+}: {
+	chatId?: string;
+	onModelChange?: (model: string | undefined) => void;
+	initialChatSettings?: ChatSettings;
+	initialStrongSlot?: ModelsSettings["strong"];
+}) {
 	const { catalog, refresh } = useModelCatalog();
-	const [models, setModels] = useState<ModelsSettings | undefined>();
+	const catalogRef = useRef(catalog);
+	catalogRef.current = catalog;
+	const seed = useSettingsSeed();
+	const [models, setModels] = useState<ModelsSettings | undefined>(() => seed?.settings?.models);
 	// A successful read with no settings is a legacy session; undefined
 	// means no session record is known yet, not permission to inherit Strong.
-	const [session, setSession] = useState<{ id: string; settings?: ChatSettings; strong?: ModelsSettings["strong"] }>();
+	const [session, setSession] = useState<{ id: string; settings?: ChatSettings; strong?: ModelsSettings["strong"] } | undefined>(
+		() =>
+			chatId && (initialChatSettings !== undefined || initialStrongSlot !== undefined)
+				? { id: chatId, settings: initialChatSettings, strong: initialStrongSlot ?? seed?.settings?.models?.strong }
+				: undefined,
+	);
 	const readVersion = useRef(0);
 	const [open, setOpen] = useState<"model" | "thinking" | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const interactions = useInteractionLayers();
 
-	// The record read — BOTH mount and the cross-surface signal land
+	useEffect(() => {
+		if (catalog) lastCatalogKnownAt = Date.now();
+	}, [catalog]);
+
+	const refreshCatalogIfStale = useCallback(() => {
+		const now = Date.now();
+		if (!catalogRef.current || now - lastCatalogKnownAt >= CATALOG_REFRESH_THROTTLE_MS) {
+			lastCatalogKnownAt = now;
+			refresh();
+		}
+	}, [refresh]);
+
+	// The record read — BOTH mount (when unseeded) and the cross-surface signal land
 	// here (fix wave: another surface's models write re-reads into the
 	// pill live; own writes also notify, and the refetch is idempotent).
 	// A session's projection includes the fallback for older partial pins.
@@ -75,12 +109,33 @@ export function ModelControl({ chatId, onModelChange }: { chatId?: string; onMod
 	}, [chatId]);
 
 	useEffect(() => {
+		if (chatId) {
+			if (initialChatSettings !== undefined || initialStrongSlot !== undefined) {
+				readVersion.current++;
+				setSession({
+					id: chatId,
+					settings: initialChatSettings,
+					strong: initialStrongSlot ?? seed?.settings?.models?.strong,
+				});
+				return;
+			}
+			void readRecord();
+			return () => { readVersion.current++; };
+		}
+		if (seed !== null) {
+			readVersion.current++;
+			setModels(seed.settings?.models);
+			return;
+		}
 		void readRecord();
 		return () => { readVersion.current++; };
-	}, [readRecord]);
+	}, [chatId, initialChatSettings, initialStrongSlot, seed, readRecord]);
 
 	useSettingsSaved((section) => {
-		if (section === "models") readRecord();
+		if (section === "keys" || section === "claudeCode" || section === "googleVertex") {
+			lastCatalogKnownAt = 0;
+		}
+		if (section === "models") void readRecord();
 	});
 
 	// Dual-bound truth: chat mode displays the session's own record,
@@ -228,11 +283,11 @@ export function ModelControl({ chatId, onModelChange }: { chatId?: string; onMod
 			if (!isInputShortcutScopeEligible(containerRef.current, interactions)) return;
 			setOpen("model");
 			setError(null);
-			refresh(); // mid-session key changes widen the menu (cache fix)
+			refreshCatalogIfStale(); // mid-session key changes reset throttle immediately
 		};
 		window.addEventListener("lh:kbd-open-model-picker", onOpenPicker);
 		return () => window.removeEventListener("lh:kbd-open-model-picker", onOpenPicker);
-	}, [refresh, interactions]);
+	}, [refreshCatalogIfStale, interactions]);
 
 	useEffect(() => {
 		const onCycleThinking = () => {
@@ -264,12 +319,13 @@ export function ModelControl({ chatId, onModelChange }: { chatId?: string; onMod
 	};
 
 	// Stale-while-revalidate on manual open too (⌘K covers the keyboard
-	// path above): the cached list shows instantly, the fresh federation
-	// swaps in when it lands.
+	// path above): the cached list shows instantly, and refreshes only when
+	// stale (>30s) or after key changes.
 	const openMenu = (kind: "model" | "thinking") => {
+		const opening = open !== kind;
 		setOpen((o) => (o === kind ? null : kind));
 		setError(null);
-		if (kind === "model") refresh();
+		if (kind === "model" && opening) refreshCatalogIfStale();
 	};
 
 	return (

@@ -9,15 +9,7 @@ import { LiveToolCard } from "@/components/artifacts/live-tool-card";
 import { ToolCallCard } from "@/components/artifacts/tool-call-card";
 import { DispatchCard } from "@/components/artifacts/dispatch-card";
 import { JobsContext } from "@/components/jobs-context";
-
-/** The Markdown dispatch uses this same exclusive built-in language. */
-export const BUILTIN_MERMAID_LANGUAGE = "mermaid";
-
-/** Only actual exclusive presentation claims: not every backend/internal tool.
- * A function avoids eager access across the existing artifact/chat module cycle. */
-export function reservedToolRendererNames(): string[] {
-	return [...new Set([...Object.keys(artifactRenderers), ...QUESTION_TOOLS, "plan_init"])];
-}
+export { BUILTIN_MERMAID_LANGUAGE, RESERVED_ARTIFACT_TOOL_NAMES, reservedToolRendererNames } from "./reserved-tool-names";
 
 function RendererMount({ registration, mount, label, fallback }: {
 	registration: CodeBlockRegistration | ToolRendererRegistration;

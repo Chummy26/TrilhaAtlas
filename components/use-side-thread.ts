@@ -63,9 +63,14 @@ export function sideThreadReducer(state: SideThreadState | null, action: SideThr
 	return { ...state, answering: false, error: action.error, failedQuestion: action.question };
 }
 
-export function useSideThread(chatId: string, messages: readonly LhMessage[], getWorking?: () => string) {
+export function useSideThread(
+	chatId: string,
+	messages: readonly LhMessage[],
+	getWorking?: () => string,
+	initialThreads?: SideChatThread[],
+) {
 	const [state, dispatch] = useReducer(sideThreadReducer, null);
-	const [threads, setThreads] = useState<SideChatThread[]>([]);
+	const [threads, setThreads] = useState<SideChatThread[]>(() => initialThreads ?? []);
 	const stateRef = useRef(state); stateRef.current = state;
 	const messagesRef = useRef(messages); messagesRef.current = messages;
 	const threadsRef = useRef(threads); threadsRef.current = threads;
@@ -102,7 +107,15 @@ export function useSideThread(chatId: string, messages: readonly LhMessage[], ge
 				answering: Object.hasOwn(payload.answering, thread.id), text: payload.answering[thread.id] ?? "" });
 		} catch { /* a later change/resync retries a detached view's read */ }
 	}, [chatId]);
-	useEffect(() => { void refresh(); return () => { refreshSerial.current++; connection.current?.controller.abort(); }; }, [refresh]);
+	const skipInitialRefreshRef = useRef(initialThreads !== undefined);
+	useEffect(() => {
+		if (skipInitialRefreshRef.current) {
+			skipInitialRefreshRef.current = false;
+		} else {
+			void refresh();
+		}
+		return () => { refreshSerial.current++; connection.current?.controller.abort(); };
+	}, [refresh]);
 	useServerEvent("side-chats-changed", (event) => { if (event.chatId === chatId) void refresh(); });
 	useServerEvent("record-changed", (event) => { if (event.chatId === chatId) void refresh(); });
 	useServerResync(() => { void refresh(); });
@@ -116,19 +129,45 @@ export function useSideThread(chatId: string, messages: readonly LhMessage[], ge
 		const reader = response.body?.getReader();
 		if (!reader) throw new Error("The side answer had no response stream.");
 		const decoder = new TextDecoder(); let buffer = ""; let terminal = false;
+		let pendingText: string | null = null;
+		let textFrame: number | null = null;
+		const clearPendingText = () => {
+			if (textFrame !== null) {
+				if (typeof cancelAnimationFrame === "function") cancelAnimationFrame(textFrame);
+				textFrame = null;
+			}
+			pendingText = null;
+		};
 		const apply = (line: string) => {
 			if (!line.trim() || token !== connection.current?.token) return;
 			const event = JSON.parse(line) as { type: string; thread?: SideChatThread; text?: string; error?: string };
 			if (event.type === "done" || event.type === "error") terminal = true;
 			if (event.thread) {
+				clearPendingText();
 				adopt(event.thread);
 				dispatch({ type: event.type === "done" ? "done" : "snapshot", thread: event.thread });
 				uncertain.current = null;
 			} else if (event.type === "text") {
 				revision.current++; // an older GET must not rewind a newer stream tail
-				dispatch({ type: "text", threadId, text: event.text ?? "" });
+				const nextText = event.text ?? "";
+				if (typeof requestAnimationFrame === "function") {
+					pendingText = nextText;
+					if (textFrame === null) {
+						textFrame = requestAnimationFrame(() => {
+							textFrame = null;
+							if (pendingText === null || token !== connection.current?.token) return;
+							const flushed = pendingText;
+							pendingText = null;
+							dispatch({ type: "text", threadId, text: flushed });
+						});
+					}
+				} else {
+					dispatch({ type: "text", threadId, text: nextText });
+				}
+			} else if (event.type === "error") {
+				clearPendingText();
+				throw new Error(event.error ?? "The side answer failed.");
 			}
-			else if (event.type === "error") throw new Error(event.error ?? "The side answer failed.");
 		};
 		try {
 			for (;;) {
@@ -139,7 +178,7 @@ export function useSideThread(chatId: string, messages: readonly LhMessage[], ge
 				while ((newline = buffer.indexOf("\n")) >= 0) { apply(buffer.slice(0, newline)); buffer = buffer.slice(newline + 1); }
 			}
 			if (!terminal && token === connection.current?.token) throw new Error("The side answer disconnected. Reopen the conversation to reconnect.");
-		} finally { reader.releaseLock(); }
+		} finally { clearPendingText(); reader.releaseLock(); }
 	}, [adopt]);
 
 	const attach = useCallback((thread: SideChatThread) => {

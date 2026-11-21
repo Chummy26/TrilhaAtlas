@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { MaximizeIcon, MinusIcon, PlusIcon, XIcon } from "lucide-react";
 import { pickStoryMotif, StoryBadgeGlyph } from "./study/comic-art.tsx";
 import { cn } from "@/lib/utils";
@@ -473,7 +473,7 @@ const MONO_TEXT = "fill-foreground text-xs";
  *  font, not the mono UI font (owner, 2026-09-26) — and the runtime var
  *  rides the Appearance reading-font override (the utility can't: @theme
  *  inline bakes literals — the --font-title trap). */
-export function PlanDiagram({
+export const PlanDiagram = memo(function PlanDiagram({
 	nodes,
 	edges,
 	statusOf,
@@ -513,6 +513,33 @@ export function PlanDiagram({
 	fill?: boolean;
 }) {
 	const layout = useMemo(() => blockLayout(nodes, edges), [nodes, edges]);
+	const geometry = useMemo(() => {
+		const edgePaths = new Map<string, string>();
+		const inDegree = new Map<string, number>();
+		const hasOutgoing = new Set<string>();
+		for (const e of edges) {
+			inDegree.set(e.to, (inDegree.get(e.to) ?? 0) + 1);
+			hasOutgoing.add(e.from);
+			const key = `${e.from}->${e.to}`;
+			const pts = layout.edgePts.get(key);
+			if (!pts) continue;
+			const tx = layout.x.get(e.to);
+			const ty = layout.y.get(e.to);
+			const target =
+				tx !== undefined && ty !== undefined
+					? { x: tx, y: ty, w: layout.nodeW.get(e.to) ?? NODE_W_MIN, h: layout.nodeH.get(e.to) ?? NODE_H }
+					: undefined;
+			edgePaths.set(key, edgePathD(pts, target));
+		}
+		const nodeMeta = new Map<string, { lines: string[]; motif: ReturnType<typeof pickStoryMotif> }>();
+		for (const n of nodes) {
+			nodeMeta.set(n.id, {
+				lines: wrapTitle(n.title),
+				motif: pickStoryMotif(n.title, inDegree.get(n.id) ?? 0, hasOutgoing.has(n.id)),
+			});
+		}
+		return { edgePaths, nodeMeta };
+	}, [nodes, edges, layout]);
 	// Pad only the full-extent render — the plan window's override viewBox is
 	// a deliberate viewport crop, and the popup keeps its own fit margins.
 	const pad = viewBoxOverride ? 0 : (padUnits ?? 0);
@@ -579,19 +606,9 @@ export function PlanDiagram({
 				</filter>
 			</defs>
 			{edges.map((e) => {
-				// Dagre's route for this edge: border-intersected waypoints —
-				// the line leaves/enters nodes on whatever side dagre chose
-				// (mermaid's drawing, owner round 11). Unroutable edges
-				// (dangling endpoints) draw nothing.
-				const pts = layout.edgePts.get(`${e.from}->${e.to}`);
-				if (!pts) return null;
-				// The target's box — drives the docking gap + entry-angle clamp.
-				const tx = layout.x.get(e.to);
-				const ty = layout.y.get(e.to);
-				const target =
-					tx !== undefined && ty !== undefined
-						? { x: tx, y: ty, w: layout.nodeW.get(e.to) ?? NODE_W_MIN, h: layout.nodeH.get(e.to) ?? NODE_H }
-						: undefined;
+				const key = `${e.from}->${e.to}`;
+				const d = geometry.edgePaths.get(key);
+				if (!d) return null;
 				// An arrow is white only when BOTH its ends are white (owner,
 				// 2026-09-26): origin AND terminal covered — a gray box's outgoing
 				// arrows stay gray even when they point into covered territory
@@ -602,8 +619,8 @@ export function PlanDiagram({
 					(statusOf(e.from) === "upcoming" || statusOf(e.to) === "upcoming");
 				return (
 					<path
-						key={`${e.from}->${e.to}`}
-						d={edgePathD(pts, target)}
+						key={key}
+						d={d}
 						className={dim ? "fill-none stroke-border" : "fill-none stroke-line-strong"}
 						strokeWidth={STROKE_W}
 						markerEnd={`url(#${markerId}${dim ? "-dim" : ""})`}
@@ -613,13 +630,14 @@ export function PlanDiagram({
 			{nodes.map((n) => {
 				const status = statusOf(n.id);
 				const glow = n.id === glowId && !monochrome;
-				const lines = wrapTitle(n.title);
+				const meta = geometry.nodeMeta.get(n.id);
+				const lines = meta?.lines ?? [""];
 				// The box hugs its wrapped content; text centers in it —
 				// horizontally too now (text-first sizing round, 2026-10-07).
 				const h = layout.nodeH.get(n.id) ?? NODE_H;
 				const w = layout.nodeW.get(n.id) ?? NODE_W_MIN;
 				const y0 = (h + 24 - lines.length * LINE_H) / 2 + 10;
-				const motif = pickStoryMotif(n.title, edges.filter(e => e.to === n.id).length, edges.some(e => e.from === n.id));
+				const motif = meta?.motif ?? pickStoryMotif(n.title, 0, false);
 				return (
 					<g
 						key={n.id}
@@ -671,7 +689,7 @@ export function PlanDiagram({
 			})}
 		</svg>
 	);
-}
+});
 
 // ─── The transcript block ─────────────────────────────────────────────────────
 
@@ -682,10 +700,10 @@ export function PlanDiagram({
  * fragments are retired — position derives live in the popup and the
  * future DAG window).
  */
-export function PlanBlock({ data, onOpen }: { data: PlanBlockData; onOpen: () => void }) {
+export const PlanBlock = memo(function PlanBlock({ data, onOpen }: { data: PlanBlockData; onOpen: () => void }) {
 	const markerId = useId().replace(/[^a-zA-Z0-9-]/g, "");
 	const statusMap = useMemo(() => new Map(data.nodes.map((n) => [n.id, n.status] as const)), [data]);
-	const statusOf = (id: string): PlanNodeStatus => statusMap.get(id) ?? "upcoming";
+	const statusOf = useCallback((id: string): PlanNodeStatus => statusMap.get(id) ?? "upcoming", [statusMap]);
 	return (
 		<Hint label="Open the full plan" side="bottom">
 <button
@@ -710,7 +728,7 @@ export function PlanBlock({ data, onOpen }: { data: PlanBlockData; onOpen: () =>
 		</button>
 </Hint>
 	);
-}
+});
 
 // ─── The live plan popup ──────────────────────────────────────────────────────
 
@@ -761,7 +779,10 @@ export function PlanPopup({ messages, onClose }: { messages: readonly PopupMessa
 		() => (tree ? derivePlanStatuses(tree, messages as Parameters<typeof derivePlanStatuses>[1]) : null),
 		[tree, messages],
 	);
-	const statusOf = (id: string): PlanNodeStatus => (statuses ? derivedNodeStatus(statuses, id) : "upcoming");
+	const statusOf = useCallback(
+		(id: string): PlanNodeStatus => (statuses ? derivedNodeStatus(statuses, id) : "upcoming"),
+		[statuses],
+	);
 
 	const rootRef = useRef<HTMLDivElement>(null);
 	const layer = useInteractionLayer({

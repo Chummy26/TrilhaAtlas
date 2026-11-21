@@ -1,11 +1,12 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 import {
 	FACTORY_SETTINGS, isDictationLanguage, sanitizeUserSettings,
 	type DictationLanguage, type UserSettings,
 } from "@/src/core";
 import { notifySettingsSaved, onSettingsSaved } from "@/components/settings-signal";
+import { useSettingsSeed } from "@/components/settings-seed";
 
 const INITIAL = { language: undefined as DictationLanguage | undefined, saving: false, error: null as string | null };
 
@@ -86,6 +87,16 @@ export function createDictationLanguageStore(request: typeof fetch, saved: () =>
 		return writing;
 	}
 
+	function seed(settings: UserSettings | null): void {
+		// Never overwrite a confirmed language, an in-flight read/write, or an explicit refresh.
+		if (writing || reading || !needsRead || snapshot.language !== undefined) return;
+		const record = sanitizeUserSettings(settings);
+		if (settings !== null && record === null) return;
+		const language = record?.dictation?.language ?? FACTORY_SETTINGS.dictation.language;
+		needsRead = false;
+		publish({ language, error: null });
+	}
+
 	async function getLanguage(): Promise<DictationLanguage> {
 		for (;;) {
 			if (writing) await writing;
@@ -96,7 +107,7 @@ export function createDictationLanguageStore(request: typeof fetch, saved: () =>
 	}
 
 	return {
-		load, save, getLanguage,
+		load, save, seed, getLanguage,
 		getSnapshot: () => snapshot,
 		getServerSnapshot: () => INITIAL,
 		subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
@@ -127,6 +138,15 @@ function subscribe(listener: () => void) {
 }
 
 export function useDictationLanguage() {
-	const snapshot = useSyncExternalStore(subscribe, store.getSnapshot, store.getServerSnapshot);
+	const seedCtx = useSettingsSeed();
+	const seedRef = useRef(seedCtx);
+	seedRef.current = seedCtx;
+	const sub = useCallback((listener: () => void) => {
+		if (seedRef.current !== null) {
+			store.seed(seedRef.current.settings);
+		}
+		return subscribe(listener);
+	}, []);
+	const snapshot = useSyncExternalStore(sub, store.getSnapshot, store.getServerSnapshot);
 	return { ...snapshot, load: store.load, save: store.save, getLanguage: store.getLanguage };
 }

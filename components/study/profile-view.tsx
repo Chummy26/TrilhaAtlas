@@ -66,18 +66,45 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 	);
 
 	const { account, domains, usage, days } = profile;
-	const maxDay = Math.max(60, ...days.map((d) => d.minutes));
-	const weekMin = days.slice(-7).reduce((a, d) => a + d.minutes, 0);
-	const periodMin = days.reduce((a, d) => a + d.minutes, 0);
-	const streakDays = computeStudyStreak(days);
-	const levelPct = Math.round(account.fraction * 100);
 	const ringRadius = 33;
 	const ringCircumference = 2 * Math.PI * ringRadius;
-	const ringOffset = ringCircumference * (1 - Math.max(0, Math.min(1, account.fraction)));
-	const maxModelTokens = Math.max(1, ...usage.byModel.map((m) => m.tokens));
-	const transcriptDomains = domains.filter(
-		(d): d is typeof d & { transcript: NonNullable<typeof d.transcript> } => Boolean(d.transcript),
-	);
+	const {
+		maxDay,
+		weekMin,
+		periodMin,
+		streakDays,
+		levelPct,
+		ringOffset,
+		maxModelTokens,
+		transcriptDomains,
+	} = useMemo(() => {
+		let maxD = 60;
+		let totalPeriod = 0;
+		let totalWeek = 0;
+		const weekStart = Math.max(0, days.length - 7);
+		for (let i = 0; i < days.length; i++) {
+			const m = days[i]!.minutes;
+			if (m > maxD) maxD = m;
+			totalPeriod += m;
+			if (i >= weekStart) totalWeek += m;
+		}
+		let maxTok = 1;
+		for (const m of usage.byModel) {
+			if (m.tokens > maxTok) maxTok = m.tokens;
+		}
+		return {
+			maxDay: maxD,
+			weekMin: totalWeek,
+			periodMin: totalPeriod,
+			streakDays: computeStudyStreak(days),
+			levelPct: Math.round(account.fraction * 100),
+			ringOffset: ringCircumference * (1 - Math.max(0, Math.min(1, account.fraction))),
+			maxModelTokens: maxTok,
+			transcriptDomains: domains.filter(
+				(d): d is typeof d & { transcript: NonNullable<typeof d.transcript> } => Boolean(d.transcript),
+			),
+		};
+	}, [days, usage.byModel, account.fraction, domains, ringCircumference]);
 
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-12">
@@ -232,7 +259,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 								<div
 									key={d.id}
 									data-domain={d.id}
-									className="space-y-3 border-t border-border/50 pt-4 first:border-t-0 first:pt-0"
+									className="study-cv-block space-y-3 border-t border-border/50 pt-4 first:border-t-0 first:pt-0"
 								>
 									<div className="flex flex-wrap items-center gap-2">
 										<Icon name={d.icon as IconName} size={20} />

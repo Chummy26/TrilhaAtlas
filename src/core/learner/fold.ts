@@ -64,7 +64,7 @@ import { resolveEmission } from "./emission.ts";
 import { defaultLevelElo, guessFor, predictCorrect, updateElo } from "./elo.ts";
 import { cardIdFor, retrievability, reviewMemory } from "./fsrs.ts";
 import { expandedClauses, type LearnerGraphView } from "./graph-view.ts";
-import { desiredRetentionFor, mandatoryMembers, structuralState, studyableDependents } from "./kst.ts";
+import { desiredRetentionFor, knownSetOf, mandatoryMembers, studyableDependents } from "./kst.ts";
 import { clamp, clamp01, compareIds, MINUTE_MS, toMs } from "./math.ts";
 import { observeMisconception, proposeMisconception, refuteMisconception } from "./misconceptions.ts";
 import { LEARNER_CONSTANTS } from "./params.ts";
@@ -149,6 +149,17 @@ interface Work {
 	updatedAt: string;
 	/** Nodes whose state changed in the current event (flags recomputed). */
 	touched: Set<NodeId>;
+	/** Cached structural unlocking set A; recomputed only when attainedAt/placedAt/lessonCompletedAt changes. */
+	known: Set<NodeId> | null;
+	knownDirty: boolean;
+}
+
+function cachedKnown(work: Work, graph: LearnerGraphView): Set<NodeId> {
+	if (!work.known || work.knownDirty) {
+		work.known = knownSetOf(work, graph);
+		work.knownDirty = false;
+	}
+	return work.known;
 }
 
 /**
@@ -381,7 +392,7 @@ function applyPrimaryReview(
 	if (ev.format !== "flashcard") {
 		// Same structural set A as computeSignals (implied credit + milestones), so the card is
 		// scheduled with the role retention the planner later checks it against.
-		const known = structuralState(work, graph).known;
+		const known = cachedKnown(work, graph);
 		const retention = desiredRetentionFor(graph, id, (x) => known.has(x), params);
 		const rating = gradeToRating(grade, {
 			level: ev.level,
@@ -395,7 +406,10 @@ function applyPrimaryReview(
 		if (latency) s.latency = latency;
 	}
 
-	if (success && ev.itemFamily === id + "#teacher" && !s.lessonCompletedAt) s = { ...s, lessonCompletedAt: at };
+	if (success && ev.itemFamily === id + "#teacher" && !s.lessonCompletedAt) {
+		s = { ...s, lessonCompletedAt: at };
+		work.knownDirty = true;
+	}
 	if (success && ev.itemFamily !== id + "#self") {
 		if (!s.correctFamilies.includes(ev.itemFamily)) s = { ...s, correctFamilies: [...s.correctFamilies, ev.itemFamily] };
 		const sinceLastEvidence = prior.state.lastEvidenceAt ? (toMs(at) - toMs(prior.state.lastEvidenceAt)) / MINUTE_MS : Infinity;
@@ -424,6 +438,7 @@ function projectAround(work: Work, graph: LearnerGraphView, params: LearnerParam
 		maxPasses: C.localPasses,
 		tolerance: C.globalTolerance,
 		fallback,
+		skipViolationCheck: true,
 	});
 	for (const id of result.changed) {
 		const v = values.get(id);
@@ -456,7 +471,10 @@ function applyDiagnostic(work: Work, ev: Extract<LearnerEvent, { kind: "diagnost
 		if (s.verified) continue;
 		const p = clamp01(est.p);
 		const next: NodeState = { ...s, pL: p, nEff: Math.max(s.nEff, C.diagnosticNEff), inferred: true };
-		if (p >= params.attainThreshold && !s.placedAt) next.placedAt = ev.at;
+		if (p >= params.attainThreshold && !s.placedAt) {
+			next.placedAt = ev.at;
+			work.knownDirty = true;
+		}
 		put(work, next);
 	}
 }
@@ -465,6 +483,7 @@ function applyNodeVersion(work: Work, ev: Extract<LearnerEvent, { kind: "node-ve
 	if (!(Number.isInteger(ev.version) && ev.version >= 1)) throw new LearnerFoldError(`Versão de nó inválida em ${ev.id}: ${ev.version}`, ev.id);
 	const s = work.nodes[ev.nodeId];
 	if (s && ev.version <= s.nodeVersion) return;
+	if (s && (s.attainedAt || s.placedAt || s.lessonCompletedAt)) work.knownDirty = true;
 	work.nodes[ev.nodeId] = freshNodeState(ev.nodeId, ev.version, params);
 	work.touched.delete(ev.nodeId);
 }
@@ -476,7 +495,10 @@ function applyEvent(work: Work, ev: LearnerEvent, graph: LearnerGraphView, param
 			break;
 		case "lesson-finished": {
 			const node = work.nodes[ev.nodeId];
-			if (ev.assessedBy === "teacher" && ev.outcome !== "reinforce" && node && !node.lessonCompletedAt) put(work, { ...node, lessonCompletedAt: ev.at });
+			if (ev.assessedBy === "teacher" && ev.outcome !== "reinforce" && node && !node.lessonCompletedAt) {
+				put(work, { ...node, lessonCompletedAt: ev.at });
+				work.knownDirty = true;
+			}
 			break;
 		}
 		case "exposure":
@@ -530,7 +552,10 @@ export function foldEvents(
 		speed: base.speed,
 		updatedAt: base.updatedAt,
 		touched: new Set(),
+		known: null,
+		knownDirty: true,
 	};
+	let updatedAtMs = toMs(work.updatedAt);
 	const ordered = [...events].sort(compareEvents);
 	for (const ev of ordered) {
 		if (eventDomain(ev) !== work.domainId) {
@@ -539,14 +564,23 @@ export function foldEvents(
 		const seq = eventSeq(ev);
 		const at = eventAt(ev);
 		if (snapshot && seq <= snapshot.seq) continue;
-		work.touched = new Set();
+		work.touched.clear();
 		applyEvent(work, ev, graph, params);
 		for (const id of work.touched) {
 			const s = work.nodes[id];
-			if (s) work.nodes[id] = withMonotoneFlags(s, at, params);
+			if (!s) continue;
+			const next = withMonotoneFlags(s, at, params);
+			if (next !== s) {
+				work.nodes[id] = next;
+				if (next.attainedAt !== s.attainedAt) work.knownDirty = true;
+			}
 		}
 		work.seq = Math.max(work.seq, seq);
-		if (toMs(at) > toMs(work.updatedAt)) work.updatedAt = at;
+		const atMs = toMs(at);
+		if (atMs > updatedAtMs) {
+			updatedAtMs = atMs;
+			work.updatedAt = at;
+		}
 	}
 	return {
 		schemaVersion: 1,

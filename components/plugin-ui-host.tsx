@@ -2,16 +2,12 @@
 
 import { Component, useEffect, useLayoutEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
 import type { PluginBadgeProps, PluginButtonProps, PluginDialogProps, PluginMenuProps, PluginSurfaceProps, PluginSurfaceTarget, PluginUi, PluginWidgetHandle, PluginWidgetOptions } from "@/src/core";
 import type { Dictation } from "@/components/dictation";
-import { PluginComposer, PluginDictation, PluginStandardComposer } from "@/components/plugin-composer";
-import { PluginModelPicker, PluginThinkingPicker } from "@/components/plugin-model-picker";
-import { PluginKnowledgePicker } from "@/components/plugin-knowledge-picker";
 import { PluginSettingsRows } from "@/components/plugin-settings-rows";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { PluginWorkerResultSurface } from "@/components/plugin-worker-result";
-import { HostMarkdown } from "@/components/host-markdown";
 import { PluginTree, validatePluginTree } from "@/components/plugin-tree";
 import { MenuShell } from "@/components/menu-shell";
 import { HostDialog } from "@/components/host-dialog";
@@ -19,6 +15,17 @@ import { findCurrentSurfaceBoundary, requireSurfaceBoundary } from "./plugin-sur
 import { PluginSurface } from "./plugin-surface-shell";
 import { isInteractionElementVisible, useInteractionLayers, type CloseOutcome, type CloseReason } from "@/components/interaction-layers";
 export { PluginSettingsRows } from "@/components/plugin-settings-rows";
+
+// Heavy plugin widget renderers (Streamdown/Shiki/KaTeX/dictation/pickers) load
+// on demand so RootLayout never bundles them into non-plugin routes.
+const PluginComposer = dynamic(() => import("@/components/plugin-composer").then((m) => m.PluginComposer));
+const PluginDictation = dynamic(() => import("@/components/plugin-composer").then((m) => m.PluginDictation));
+const PluginStandardComposer = dynamic(() => import("@/components/plugin-composer").then((m) => m.PluginStandardComposer));
+const PluginModelPicker = dynamic(() => import("@/components/plugin-model-picker").then((m) => m.PluginModelPicker));
+const PluginThinkingPicker = dynamic(() => import("@/components/plugin-model-picker").then((m) => m.PluginThinkingPicker));
+const PluginKnowledgePicker = dynamic(() => import("@/components/plugin-knowledge-picker").then((m) => m.PluginKnowledgePicker));
+const PluginWorkerResultSurface = dynamic(() => import("@/components/plugin-worker-result").then((m) => m.PluginWorkerResultSurface));
+const HostMarkdown = dynamic(() => import("@/components/host-markdown").then((m) => m.HostMarkdown));
 
 export interface PluginUiFactoryOptions { signal: AbortSignal; pluginId?: string; onError?: (error: unknown) => void }
 interface Runtime {

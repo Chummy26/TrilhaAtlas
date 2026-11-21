@@ -35,12 +35,21 @@ export interface NotifySource {
 	onEvent(name: string, cb: (data: string) => void): void;
 }
 
-export function openEventsChannel(): NotifySource {
-	const es = new EventSource("/api/events");
+export function openEventsChannel(
+	createSource: (url: string) => Pick<EventSource, "close" | "addEventListener" | "onopen"> = (url) => new EventSource(url),
+): NotifySource {
+	const es = createSource("/api/events");
 	return {
 		close: () => es.close(),
 		onOpen: (cb) => {
-			es.onopen = () => cb();
+			// Real EventSource fires `onopen` on initial connect AND on every
+			// auto-reconnect. Skip the initial open so cold boot does not
+			// duplicate every consumer's mount fetch; fire resync on reconnects.
+			let openedOnce = false;
+			es.onopen = () => {
+				if (openedOnce) cb();
+				else openedOnce = true;
+			};
 		},
 		onEvent: (name, cb) => {
 			es.addEventListener(name, (ev) => cb((ev as MessageEvent).data));
@@ -63,10 +72,10 @@ export function createNotifyHub() {
 			set.add(slot);
 			return () => set.delete(slot);
 		},
-		/** Resync callbacks: fired on the source's every (re)open — "you may
-		 *  have missed events while disconnected; refetch". A consumer that
-		 *  mounts while ALREADY open gets no fire (it missed nothing by
-		 *  birth); its own mount fetch is its initial truth. */
+		/** Resync callbacks: fired on the source's RECONNECTS — "you may
+		 *  have missed events while disconnected; refetch". The initial open
+		 *  does NOT fire resync because every mounted consumer performs its
+		 *  own mount fetch (or receives SSR-seeded truth). */
 		onResync(cb: () => void) {
 			resyncs.add(cb);
 			return () => resyncs.delete(cb);

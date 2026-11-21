@@ -9,7 +9,7 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createNotifyHub, wireSource, type NotifySource } from "../components/server-events.tsx";
+import { createNotifyHub, openEventsChannel, wireSource, type NotifySource } from "../components/server-events.tsx";
 
 /** A source the test drives by hand — recordable, closable, honest. */
 function fakeSource() {
@@ -56,15 +56,32 @@ describe("notify hub + wireSource (the client channel wiring)", () => {
 		assert.deepEqual(got, ["chat_wire", "settled:chat_wire"]);
 	});
 
-	it("open fires resync (initial AND reconnect — EventSource's own retry exploited)", () => {
+	it("openEventsChannel skips initial open and fires resync only on reconnects (no cold-boot fetch duplication)", () => {
 		const hub = createNotifyHub();
-		const src = fakeSource();
-		wireSource(src, hub);
+		const fake: {
+			closed: boolean;
+			close(): void;
+			addEventListener(): void;
+			onopen: ((ev: Event) => unknown) | null;
+		} = {
+			closed: false,
+			close() { this.closed = true; },
+			addEventListener() {},
+			onopen: null,
+		};
+		const src = openEventsChannel(() => fake);
+		const disconnect = wireSource(src, hub);
 		let resyncs = 0;
 		hub.onResync(() => resyncs++);
-		src.open();
-		src.open(); // the reconnect case: same callback, fired again
+		assert.ok(fake.onopen, "registers EventSource.onopen handler");
+		fake.onopen(new Event("open")); // initial connect: mount fetches already own initial truth
+		assert.equal(resyncs, 0);
+		fake.onopen(new Event("open")); // reconnect: must fire resync
+		assert.equal(resyncs, 1);
+		fake.onopen(new Event("open")); // subsequent reconnect: fires resync again
 		assert.equal(resyncs, 2);
+		disconnect();
+		assert.equal(fake.closed, true);
 	});
 
 	it("a throwing handler never breaks its neighbors (the bus's isolation law)", () => {

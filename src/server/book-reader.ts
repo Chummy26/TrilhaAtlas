@@ -33,7 +33,12 @@ export async function regionalBookUnit(domain: string, region: string, sha: stri
 	return result;
 }
 
-const cachedPdfImage = createBookPageCache<Buffer>(24 * 1024 * 1024, png => png.byteLength);
+const BOOK_PDF_IMAGE_CACHE_KEY = Symbol.for("learnharness.server.bookReaderPdfImage");
+
+function pdfImageCache(): ReturnType<typeof createBookPageCache<Buffer>> {
+	const g = globalThis as typeof globalThis & { [BOOK_PDF_IMAGE_CACHE_KEY]?: ReturnType<typeof createBookPageCache<Buffer>> };
+	return (g[BOOK_PDF_IMAGE_CACHE_KEY] ??= createBookPageCache<Buffer>(24 * 1024 * 1024, png => png.byteLength));
+}
 
 export async function regionalBookImage(domain: string, region: string, sha: string, unit: number) {
 	checkLink(domain, region, sha);
@@ -42,11 +47,19 @@ export async function regionalBookImage(domain: string, region: string, sha: str
 	if (book?.meta.format !== "pdf" || !Number.isSafeInteger(unit) || unit < 1 || unit > (book.meta.numPages ?? 0))
 		throw new StudyError(404, "Página indisponível.");
 	const file = path.join(libraryItemDir(root, sha), "original.pdf");
-	const png = await cachedPdfImage(file, unit, async () => {
+	const png = await pdfImageCache()(file, unit, async () => {
 		const [image] = await getHeadless().renderPdfPages(file, [unit], { dpi: 115 });
 		if (!image) throw new StudyError(422, "Não foi possível exibir a página original.");
 		return image.png;
 	});
 	checkLink(domain, region, sha);
 	return Buffer.from(png);
+}
+
+/** Fire-and-forget pre-render of a PDF page PNG into the shared globalThis cache (used during SSR of /ler/[book]). */
+export function warmRegionalBookImage(domain: string, region: string, sha: string, unit: number): void {
+	if (!/^[a-f0-9]{64}$/.test(sha) || !Number.isSafeInteger(unit) || unit < 1) return;
+	const book = readLibraryItem(libraryDir(PATHS.data), sha);
+	if (book?.meta.format !== "pdf" || unit > (book.meta.numPages ?? 0)) return;
+	void regionalBookImage(domain, region, sha, unit).catch(() => {});
 }

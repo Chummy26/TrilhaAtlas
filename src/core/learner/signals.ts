@@ -221,7 +221,10 @@ function statusOf(
 /** All per-node signals at `at` (one O(N + E) pass plus the structural closure). */
 export function computeSignals(snapshot: LearnerSnapshot, graph: LearnerGraphView, params: LearnerParams, at: string): SignalsResult {
 	const structure = structuralState(snapshot, graph);
+	const frontierSet = new Set<NodeId>(structure.frontier);
 	const crisp = crispState(snapshot, graph);
+	const desc = descendantCounts(graph);
+	const { alphaGoal, betaDesc } = params.planner;
 	const isKnown = (id: NodeId) => structure.known.has(id);
 	const started = (id: NodeId) => structure.known.has(id) || !!snapshot.nodes[id]?.lastEvidenceAt;
 	const prCache = new Map<NodeId, number>();
@@ -237,11 +240,13 @@ export function computeSignals(snapshot: LearnerSnapshot, graph: LearnerGraphVie
 		const state = snapshot.nodes[id];
 		const R = retrievability(state?.fsrs, at, params);
 		const pL = state?.pL ?? LEARNER_CONSTANTS.priorP;
-		const retention = desiredRetentionFor(graph, id, isKnown, params);
+		const pKnowsNow = pL * R;
+		prCache.set(id, pKnowsNow);
+		const retention = desiredRetentionFor(graph, id, isKnown, params, frontierSet);
 		const blame = state ? decayedBlame(state, at, params.blameHalfLifeDays) : 0;
 		const misconceptionMass = state ? activeMisconceptionMass(state) : 0;
 		const attained = structure.known.has(id);
-		const importance = importanceOf(graph, id, params);
+		const importance = 1 + alphaGoal * node.goalWeight + betaDesc * Math.log(1 + (desc.get(id) ?? 0));
 		const isWeak = !!state && (blame >= LEARNER_CONSTANTS.probeBlame || misconceptionMass > 0);
 		const top = state ? topActiveMisconception(state) : undefined;
 		const base: Omit<NodeSignal, "status"> = {
@@ -252,10 +257,10 @@ export function computeSignals(snapshot: LearnerSnapshot, graph: LearnerGraphVie
 			retained: !!state?.fsrs && state.fsrs.state !== FSRS_STATE.new && R >= params.retainedR,
 			retentionVerified: (state?.delayedSuccesses ?? 0) >= LEARNER_CONSTANTS.masteryDelayed,
 			demonstrated: !!state?.demonstratedAt,
-			unlocked: clauseSatisfied(node.clauses, isKnown),
+			unlocked: node.isLeaf && !attained ? frontierSet.has(id) : clauseSatisfied(node.clauses, isKnown),
 			pL,
 			R,
-			pKnowsNow: pL * R,
+			pKnowsNow,
 			// Through containers: a unit prerequisite is ready when its leaves are (no phantom p = 0.15).
 			readiness: readinessOf(expandedClauses(graph, id), pr),
 			retention,
@@ -263,7 +268,7 @@ export function computeSignals(snapshot: LearnerSnapshot, graph: LearnerGraphVie
 			blame,
 			misconceptionMass,
 			importance,
-			weakScore: state ? weakScore(pL * R, importance, isWeak ? blockedDescendants(graph, id, structure.known) : 0, state) : 0,
+			weakScore: state ? weakScore(pKnowsNow, importance, isWeak ? blockedDescendants(graph, id, structure.known) : 0, state) : 0,
 			...(state?.fsrs ? { dueAt: state.fsrs.dueAt } : {}),
 			...(top ? { misconception: top.text } : {}),
 		};

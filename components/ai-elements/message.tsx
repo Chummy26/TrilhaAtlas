@@ -38,6 +38,12 @@ import {
 import { mdComponents } from "@/components/md-blocks";
 import { repairMathForDisplay, transformMathDelimiters } from "@/src/core";
 
+// Load KaTeX styles on Markdown/math surfaces rather than in root app/layout.tsx;
+// skipped under Node's tsx test runner (which has no CSS module loader).
+if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+	void import("katex/dist/katex.min.css").catch(() => {});
+}
+
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: LhViewMessage["role"];
 };
@@ -327,7 +333,10 @@ export const MessageBranchPage = ({
   );
 };
 
-export type MessageResponseProps = ComponentProps<typeof Streamdown>;
+export type MessageResponseProps = ComponentProps<typeof Streamdown> & {
+  /** When explicitly set, switches Streamdown between streaming and static modes. */
+  streaming?: boolean;
+};
 
 // Type-only version skew: @streamdown/code bundles shiki@3 types while
 // streamdown@2.5 expects shiki@4 types. Both work at runtime (each ships its
@@ -381,7 +390,7 @@ export const streamdownRehypePlugins = Object.values({
 export const streamdownLinkSafety = { enabled: false };
 
 export const MessageResponse = memo(
-  ({ className, children, ...props }: MessageResponseProps) => {
+  ({ className, children, streaming, mode, isAnimating, ...props }: MessageResponseProps) => {
     // Legacy backslash delimiters are converted in a single linear scan;
     // native dollar math passes through to Streamdown unchanged. Incomplete
     // legacy spans are left for a later render when their closer arrives.
@@ -389,6 +398,8 @@ export const MessageResponse = memo(
       typeof children === "string"
         ? transformMathDelimiters(children)
         : children;
+    const resolvedMode = mode ?? (streaming !== undefined ? (streaming ? "streaming" : "static") : undefined);
+    const resolvedIsAnimating = isAnimating ?? (streaming !== undefined ? streaming : undefined);
 
     return (
       <Streamdown
@@ -399,7 +410,9 @@ export const MessageResponse = memo(
           className
         )}
         components={mdComponents}
+        isAnimating={resolvedIsAnimating}
         linkSafety={streamdownLinkSafety}
+        mode={resolvedMode}
         plugins={streamdownPlugins}
         rehypePlugins={streamdownRehypePlugins}
         remend={streamdownRemend}
@@ -411,7 +424,13 @@ export const MessageResponse = memo(
   },
   (prevProps, nextProps) =>
     prevProps.children === nextProps.children &&
-    nextProps.isAnimating === prevProps.isAnimating
+    prevProps.streaming === nextProps.streaming &&
+    prevProps.isAnimating === nextProps.isAnimating &&
+    prevProps.mode === nextProps.mode &&
+    prevProps.className === nextProps.className &&
+    prevProps.rehypePlugins === nextProps.rehypePlugins &&
+    prevProps.components === nextProps.components &&
+    prevProps.controls === nextProps.controls
 );
 
 MessageResponse.displayName = "MessageResponse";

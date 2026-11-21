@@ -49,12 +49,72 @@ import type {
 } from "../core/contracts.ts";
 import type { GraphStore } from "../core/ports.ts";
 
+// ─── stat-backed global cache ────────────────────────────────────────────────
+
+type LedgerCacheEntry = {
+	stamp: string;
+	data: unknown[];
+	byChat?: Map<string, CoverageEntry[]>;
+};
+
+type GraphStoreCacheState = {
+	format: Map<string, string>;
+	ledgers: Map<string, LedgerCacheEntry>;
+	sources: Map<string, { stamp: string; map: Record<string, NotesSource> }>;
+	positions: Map<string, { stamp: string; map: Record<string, Position> }>;
+};
+
+const GRAPH_CACHE_KEY = Symbol.for("learnharness.store.graph");
+const MAX_GRAPH_CACHE_ENTRIES = 64;
+
+function graphCache(): GraphStoreCacheState {
+	const g = globalThis as typeof globalThis & { [GRAPH_CACHE_KEY]?: GraphStoreCacheState };
+	return (g[GRAPH_CACHE_KEY] ??= {
+		format: new Map(),
+		ledgers: new Map(),
+		sources: new Map(),
+		positions: new Map(),
+	});
+}
+
+function statStamp(stat: fs.BigIntStats): string {
+	return `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`;
+}
+
+function setBounded<K, V>(map: Map<K, V>, key: K, value: V): void {
+	if (map.size >= MAX_GRAPH_CACHE_ENTRIES && !map.has(key)) {
+		const oldest = map.keys().next().value;
+		if (oldest !== undefined) map.delete(oldest);
+	}
+	map.set(key, value);
+}
+
+function assertGraphFormatCached(): void {
+	const file = path.resolve(GRAPH_FILES.format);
+	const cache = graphCache().format;
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!stat) {
+		// Absent sidecar = lazy v1 (no need to attempt readFileSync).
+		cache.delete(file);
+		return;
+	}
+	if (stat.isFile()) {
+		const stamp = statStamp(stat);
+		if (cache.get(file) === stamp) return;
+		assertGraphFormat();
+		setBounded(cache, file, stamp);
+		return;
+	}
+	assertGraphFormat();
+}
+
 // ─── JSONL primitives ────────────────────────────────────────────────────────
 
 function appendLine<T>(file: string, record: T): void {
 	fs.mkdirSync(path.dirname(file), { recursive: true });
 	ensureGraphFormat(); // the lazy format stamp (graph-format.ts)
 	fs.appendFileSync(file, `${JSON.stringify(record)}\n`, "utf-8");
+	graphCache().ledgers.delete(path.resolve(file));
 }
 
 function readRawLines(file: string): unknown[] {
@@ -84,10 +144,46 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 const isString = (v: unknown): v is string => typeof v === "string";
 
+function readLedgerEntry<T>(file: string, isValid: (v: unknown) => v is T, indexByChat = false): { data: T[]; byChat?: Map<string, CoverageEntry[]> } {
+	assertGraphFormatCached(); // honest refusal on a newer-stamped data dir
+	const resolved = path.resolve(file);
+	const cache = graphCache().ledgers;
+	const stat = fs.statSync(/* turbopackIgnore: true */ resolved, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) {
+		cache.delete(resolved);
+		return { data: [], ...(indexByChat ? { byChat: new Map() } : {}) };
+	}
+	const stamp = statStamp(stat);
+	const cached = cache.get(resolved);
+	if (cached && cached.stamp === stamp && (!indexByChat || cached.byChat)) {
+		return { data: cached.data as T[], byChat: cached.byChat };
+	}
+	const data = readRawLines(resolved).filter(isValid);
+	let byChat: Map<string, CoverageEntry[]> | undefined;
+	if (indexByChat) {
+		byChat = new Map();
+		for (const entry of data as unknown as CoverageEntry[]) {
+			let list = byChat.get(entry.chatId);
+			if (!list) {
+				list = [];
+				byChat.set(entry.chatId, list);
+			}
+			list.push(entry);
+		}
+	}
+	setBounded(cache, resolved, { stamp, data, ...(byChat ? { byChat } : {}) });
+	return { data, byChat };
+}
+
 /** Strict shape guards — anything not matching a W4 ledger shape is skipped. */
 function readValid<T>(file: string, isValid: (v: unknown) => v is T): T[] {
-	assertGraphFormat(); // honest refusal on a newer-stamped data dir
-	return readRawLines(file).filter(isValid);
+	return [...readLedgerEntry(file, isValid).data];
+}
+
+/** Stat-cached coverage entries for a single chat (indexed by chatId). */
+export function readCoverageForChat(chatId: string): CoverageEntry[] {
+	const { byChat } = readLedgerEntry(LEDGER_FILES.coverage, isCoverageEntry, true);
+	return [...(byChat?.get(chatId) ?? [])];
 }
 
 /** Provenance points are (chatId, messageId) pairs — message-granular. */
@@ -160,7 +256,7 @@ export const graphStore: GraphStore = {
 		appendLine(LEDGER_FILES.coverage, entry);
 	},
 	readCoverage(): CoverageEntry[] {
-		return readValid(LEDGER_FILES.coverage, isCoverageEntry);
+		return [...readLedgerEntry(LEDGER_FILES.coverage, isCoverageEntry, true).data];
 	},
 
 	// ── imported-notes bookkeeping (config.SOURCES_FILE — a JSON map) ──
@@ -183,6 +279,7 @@ export const graphStore: GraphStore = {
 		if (removed === 0) return 0;
 		writeFileAtomicSync(GRAPH_FILES.sources, JSON.stringify(all, null, "\t"));
 		removeLeftoverTemps(GRAPH_FILES.sources); // crash leftovers would still hold the deleted sources
+		graphCache().sources.delete(path.resolve(GRAPH_FILES.sources));
 		return removed;
 	},
 	/** Idempotent per startedAt — same discipline as chats.appendExtractionUsage. */
@@ -229,6 +326,7 @@ export const graphStore: GraphStore = {
 			const body = records.map((record) => JSON.stringify(record)).join("\n") + (records.length > 0 ? "\n" : "");
 			writeFileAtomicSync(file, body);
 			removeLeftoverTemps(file); // crash leftovers would still hold the purged records
+			graphCache().ledgers.delete(path.resolve(file));
 		}
 	},
 };
@@ -239,11 +337,21 @@ export const graphStore: GraphStore = {
  *  handling (a browser commit must be able to detect "the graph changed
  *  underneath me"); reads just return the map. */
 function readPositionMap(): Record<string, Position> {
+	const file = path.resolve(GRAPH_FILES.positions);
+	const cache = graphCache().positions;
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) {
+		cache.delete(file);
+		return {}; // no ledger yet — nothing has ever settled
+	}
+	const stamp = statStamp(stat);
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return structuredClone(cached.map);
 	let raw: string;
 	try {
-		raw = fs.readFileSync(GRAPH_FILES.positions, "utf-8");
+		raw = fs.readFileSync(file, "utf-8");
 	} catch {
-		return {}; // no ledger yet — nothing has ever settled
+		return {};
 	}
 	try {
 		const parsed: unknown = JSON.parse(raw);
@@ -252,7 +360,8 @@ function readPositionMap(): Record<string, Position> {
 		for (const [id, value] of Object.entries(parsed.positions)) {
 			if (isPosition(value)) out[id] = { x: value.x, y: value.y };
 		}
-		return out;
+		setBounded(cache, file, { stamp, map: out });
+		return structuredClone(out);
 	} catch {
 		return {};
 	}
@@ -261,6 +370,7 @@ function readPositionMap(): Record<string, Position> {
 function writePositionMap(positions: Record<string, Position>): void {
 	fs.mkdirSync(path.dirname(GRAPH_FILES.positions), { recursive: true });
 	writeFileAtomicSync(GRAPH_FILES.positions, JSON.stringify({ positions, updatedAt: new Date().toISOString() }, null, "\t"));
+	graphCache().positions.delete(path.resolve(GRAPH_FILES.positions));
 }
 
 const isPosition = (v: unknown): v is Position =>
@@ -269,10 +379,20 @@ const isPosition = (v: unknown): v is Position =>
 /** sources.json — { id: NotesSource }. Read-modify-write, NOT append-only:
  *  the usage log lives inside the record (like a chat's JSON file). */
 function readSourceMap(): Record<string, NotesSource> {
-	assertGraphFormat(); // honest refusal on a newer-stamped data dir
+	assertGraphFormatCached(); // honest refusal on a newer-stamped data dir
+	const file = path.resolve(GRAPH_FILES.sources);
+	const cache = graphCache().sources;
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) {
+		cache.delete(file);
+		return {};
+	}
+	const stamp = statStamp(stat);
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return structuredClone(cached.map);
 	let raw: string;
 	try {
-		raw = fs.readFileSync(GRAPH_FILES.sources, "utf-8");
+		raw = fs.readFileSync(file, "utf-8");
 	} catch {
 		return {};
 	}
@@ -283,7 +403,8 @@ function readSourceMap(): Record<string, NotesSource> {
 		for (const [id, value] of Object.entries(parsed)) {
 			if (isNotesSource(value)) out[id] = value;
 		}
-		return out;
+		setBounded(cache, file, { stamp, map: out });
+		return structuredClone(out);
 	} catch {
 		return {};
 	}
@@ -293,6 +414,7 @@ function writeSourceMap(map: Record<string, NotesSource>): void {
 	fs.mkdirSync(path.dirname(GRAPH_FILES.sources), { recursive: true });
 	ensureGraphFormat(); // the lazy format stamp (graph-format.ts)
 	writeFileAtomicSync(GRAPH_FILES.sources, JSON.stringify(map, null, "\t"), { allowInPlaceFallback: true });
+	graphCache().sources.delete(path.resolve(GRAPH_FILES.sources));
 }
 
 // ─── one-way purges at adapter load: dead ledgers are exactly the confusion

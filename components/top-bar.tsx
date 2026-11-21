@@ -60,22 +60,43 @@ export function TopBar({
 		if (sidebarToggle || !header.current) return;
 		const element = header.current;
 		let previous: number | undefined;
+		let scrollRaf = 0;
+		let scrollPending = false;
 		const measure = () => {
 			const left = element.getBoundingClientRect().left;
 			if (left === previous) return;
 			previous = left;
 			element.style.setProperty("--lh-header-left", `${left}px`);
 		};
+		// Leading + trailing rAF throttle avoids synchronous layout thrashing during
+		// continuous scrolling while keeping single-event updates immediate.
+		const onScroll = () => {
+			if (scrollRaf) {
+				scrollPending = true;
+				return;
+			}
+			measure();
+			if (typeof requestAnimationFrame === "function") {
+				scrollRaf = requestAnimationFrame(() => {
+					scrollRaf = 0;
+					if (scrollPending) {
+						scrollPending = false;
+						measure();
+					}
+				});
+			}
+		};
 		measure();
 		const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
 		observer?.observe(element);
 		window.addEventListener("resize", measure);
-		window.addEventListener("scroll", measure, true);
+		window.addEventListener("scroll", onScroll, { capture: true, passive: true });
 		const offZoom = window.lh?.onZoom?.(measure);
 		return () => {
+			if (scrollRaf && typeof cancelAnimationFrame === "function") cancelAnimationFrame(scrollRaf);
 			observer?.disconnect(); offZoom?.();
 			window.removeEventListener("resize", measure);
-			window.removeEventListener("scroll", measure, true);
+			window.removeEventListener("scroll", onScroll, true);
 		};
 	}, [sidebarToggle]);
 	return (

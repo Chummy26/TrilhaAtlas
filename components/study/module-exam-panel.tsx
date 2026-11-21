@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import { useI18n } from "@/components/i18n";
-import type { ModuleExamResult } from "@/src/core";
+import type { ModuleExamResult, Translator } from "@/src/core";
 
 export interface ModuleExamPanelProps {
 	domainId: string;
@@ -55,6 +55,54 @@ function countWords(text: string): number {
 	if (!trimmed) return 0;
 	return trimmed.split(/\s+/u).filter(Boolean).length;
 }
+
+const ExamQuestionRow = memo(function ExamQuestionRow({
+	question,
+	idx,
+	total,
+	fieldId,
+	value,
+	disabled,
+	onAnswerChange,
+	t,
+}: {
+	question: PublicExamQuestion;
+	idx: number;
+	total: number;
+	fieldId: string;
+	value: string;
+	disabled: boolean;
+	onAnswerChange: (questionId: string, next: string) => void;
+	t: Translator;
+}) {
+	const words = countWords(value);
+	const metMin = words >= question.minWords;
+	return (
+		<li className="space-y-2 rounded-xl border border-border/55 bg-background/60 p-3.5">
+			<div className="flex flex-wrap items-center justify-between gap-2">
+				<label htmlFor={fieldId} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+					{t("course.exam.itemOf", { index: idx + 1, total })}
+				</label>
+				<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
+					{t("course.exam.minWords", { words, min: question.minWords })}
+				</span>
+			</div>
+			<p className="max-w-[65ch] text-[16px] leading-relaxed text-foreground">
+				{question.prompt}
+			</p>
+			<textarea
+				id={fieldId}
+				name={question.id}
+				className="cel-input min-h-28 w-full resize-y p-3 text-sm leading-relaxed"
+				placeholder={t("course.exam.answerPlaceholder")}
+				maxLength={12000}
+				disabled={disabled}
+				value={value}
+				onChange={(e) => onAnswerChange(question.id, e.target.value)}
+			/>
+		</li>
+	);
+});
 
 function extractCreditCount(data: ModuleExamPostPayload | null): number {
 	if (!data || typeof data !== "object") return 0;
@@ -168,6 +216,11 @@ export function ModuleExamPanel({
 		}
 	};
 
+	const handleAnswerChange = useCallback((questionId: string, next: string) => {
+		setAnswers((prev) => ({ ...prev, [questionId]: next }));
+		setError((prev) => (prev ? "" : prev));
+	}, []);
+
 	const mapHref = (nodeId: string) =>
 		`/mapa?dominio=${encodeURIComponent(domainId)}&no=${encodeURIComponent(nodeId)}`;
 
@@ -233,44 +286,19 @@ export function ModuleExamPanel({
 				) : (
 					<form className="space-y-4" onSubmit={handleSubmit}>
 						<ol className="space-y-4">
-							{exam.questions.map((question, idx) => {
-								const fieldId = `${formId}-q-${idx + 1}`;
-								const value = answers[question.id] ?? "";
-								const words = countWords(value);
-								const metMin = words >= question.minWords;
-								return (
-									<li
-										key={question.id}
-										className="space-y-2 rounded-xl border border-border/55 bg-background/60 p-3.5"
-									>
-										<div className="flex flex-wrap items-center justify-between gap-2">
-											<label htmlFor={fieldId} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-												{t("course.exam.itemOf", { index: idx + 1, total: exam.questions.length })}
-											</label>
-											<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
-												{t("course.exam.minWords", { words, min: question.minWords })}
-											</span>
-										</div>
-										<p className="max-w-[65ch] text-[16px] leading-relaxed text-foreground">
-											{question.prompt}
-										</p>
-										<textarea
-											id={fieldId}
-											name={question.id}
-											className="cel-input min-h-28 w-full resize-y p-3 text-sm leading-relaxed"
-											placeholder={t("course.exam.answerPlaceholder")}
-											maxLength={12000}
-											disabled={submitting}
-											value={value}
-											onChange={(e) => {
-												const next = e.target.value;
-												setAnswers((prev) => ({ ...prev, [question.id]: next }));
-												if (error) setError("");
-											}}
-										/>
-									</li>
-								);
-							})}
+							{exam.questions.map((question, idx) => (
+								<ExamQuestionRow
+									key={question.id}
+									question={question}
+									idx={idx}
+									total={exam.questions.length}
+									fieldId={`${formId}-q-${idx + 1}`}
+									value={answers[question.id] ?? ""}
+									disabled={submitting}
+									onAnswerChange={handleAnswerChange}
+									t={t}
+								/>
+							))}
 						</ol>
 
 						{error && <p role="alert" className="text-sm text-destructive">{error}</p>}

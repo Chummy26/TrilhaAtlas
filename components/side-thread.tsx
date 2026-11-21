@@ -130,13 +130,13 @@ export function SideThreadBody({ state, chatId, draft, readDraft, dictation, onD
 				{state.messages.map((message) => (
 					<div key={message.id} data-testid={message.role === "user" ? "side-learner-message" : "side-helper-message"} className={message.role === "user" ? "ml-auto flex w-fit max-w-[70%] flex-col gap-1.5 rounded-xl bg-muted px-3 py-2 text-sm [overflow-wrap:anywhere]" : "flex flex-col gap-1.5 text-sm"}>
 						{message.quotes?.map((quote, index) => <Passage key={index} text={quote} citation={collectCitations(message.quoteCitations?.[index] ?? "")[0]?.citation} />)}
-						{message.role === "user" ? <p className="whitespace-pre-wrap font-medium">{message.text}</p> : <MessageResponse className="tutor-prose">{message.text}</MessageResponse>}
+						{message.role === "user" ? <p className="whitespace-pre-wrap font-medium">{message.text}</p> : <MessageResponse className="tutor-prose" streaming={false}>{message.text}</MessageResponse>}
 						{message.stopped && <span className="font-ui text-xs text-muted-foreground">Stopped</span>}
 						{message.error && <span role="alert" className="text-xs text-destructive">{message.error}</span>}
 					</div>
 				))}
 				{state.answering && <div data-testid="side-streaming-answer" className="text-sm">
-					{state.streamText ? <MessageResponse className="tutor-prose">{state.streamText}</MessageResponse> : <BrailleSpinner label="Answering" />}
+					{state.streamText ? <MessageResponse className="tutor-prose" streaming>{state.streamText}</MessageResponse> : <BrailleSpinner label="Answering" />}
 				</div>}
 				{state.error && <p role="alert" className="text-xs text-destructive">{state.error}</p>}
 				{!state.answering && (last?.role === "user" || (last?.role === "assistant" && last.error !== undefined)) && (
@@ -212,6 +212,17 @@ const RESIZE_HANDLES: { edge: SideThreadResizeEdge; className: string }[] = [
 	{ edge: "se", className: "bottom-0 right-0 size-3 cursor-nwse-resize" },
 ];
 
+function samePlacement(a: SideThreadPlacement | null, b: SideThreadPlacement): boolean {
+	return (
+		a !== null &&
+		a.maxHeight === b.maxHeight &&
+		a.style.left === b.style.left &&
+		a.style.width === b.style.width &&
+		a.style.top === b.style.top &&
+		a.style.bottom === b.style.bottom
+	);
+}
+
 /** Retains #451's anchored placement and draggable header; all eight
  * borders/corners resize the floating window without changing the dock.
  * Render as native session content, not a body portal: whole-session surfaces
@@ -223,16 +234,17 @@ export function SideThreadPopover({ state, chatId, composer, ...handlers }: { st
 	const [frame, setFrame] = useState<SideThreadFrame | null>(null);
 	const frameRef = useRef(frame); frameRef.current = frame;
 	const stateRef = useRef(state); stateRef.current = state;
+	const userPositioned = frame !== null;
 	useLayoutEffect(() => {
 		let raf = 0;
 		const place = () => {
 			const box = boxRef.current;
 			if (!box) return;
 			const viewport = sideThreadViewport();
-			const frame = frameRef.current;
-			if (frame) {
-				const next = fitResizableSideThreadFrame(frame, viewport);
-				if (next.x !== frame.x || next.y !== frame.y || next.width !== frame.width || next.height !== frame.height) setFrame(next);
+			const activeFrame = frameRef.current;
+			if (activeFrame) {
+				const next = fitResizableSideThreadFrame(activeFrame, viewport);
+				if (next.x !== activeFrame.x || next.y !== activeFrame.y || next.width !== activeFrame.width || next.height !== activeFrame.height) setFrame(next);
 				return;
 			}
 			const current = stateRef.current;
@@ -240,18 +252,27 @@ export function SideThreadPopover({ state, chatId, composer, ...handlers }: { st
 			const content = box.firstElementChild as HTMLElement | null;
 			const scroller = box.querySelector<HTMLElement>("[data-side-scroll]");
 			const natural = (content?.scrollHeight ?? 0) + (scroller ? scroller.scrollHeight - scroller.clientHeight : 0);
-			setPlacement(placeSideThread({ kind: current.anchor.kind === "composer" ? "composer" : "rect", rect,
-				viewport, contentHeight: natural + 26 }));
+			const next = placeSideThread({ kind: current.anchor.kind === "composer" ? "composer" : "rect", rect,
+				viewport, contentHeight: natural + 26 });
+			setPlacement((prev) => (samePlacement(prev, next) ? prev : next));
 		};
 		const rePlace = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(place); };
+		const onScroll = (event: Event) => {
+			if (frameRef.current !== null) return;
+			if (event.target instanceof Node && boxRef.current?.contains(event.target)) return;
+			rePlace();
+		};
 		place();
-		const observer = new MutationObserver(rePlace);
-		if (boxRef.current) observer.observe(boxRef.current, { childList: true, subtree: true, characterData: true });
+		const observer = userPositioned ? null : new MutationObserver(() => {
+			if (frameRef.current !== null) return;
+			rePlace();
+		});
+		if (observer && boxRef.current) observer.observe(boxRef.current, { childList: true, subtree: true, characterData: true });
 		const chromeObserver = new MutationObserver(rePlace);
 		chromeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["style", "class", "data-lh-platform"] });
-		window.addEventListener("scroll", rePlace, true); window.addEventListener("resize", rePlace);
-		return () => { cancelAnimationFrame(raf); observer.disconnect(); chromeObserver.disconnect(); window.removeEventListener("scroll", rePlace, true); window.removeEventListener("resize", rePlace); };
-	}, [composer]);
+		window.addEventListener("scroll", onScroll, true); window.addEventListener("resize", rePlace);
+		return () => { cancelAnimationFrame(raf); observer?.disconnect(); chromeObserver.disconnect(); window.removeEventListener("scroll", onScroll, true); window.removeEventListener("resize", rePlace); };
+	}, [composer, userPositioned]);
 	const placed = placement !== null;
 	useEffect(() => {
 		if (placed && isInteractionScopeEligible(boxRef.current, controller)) boxRef.current?.querySelector<HTMLElement>('[data-testid="side-thread-input"]')?.focus({ preventScroll: true });
@@ -276,7 +297,7 @@ export function SideThreadPopover({ state, chatId, composer, ...handlers }: { st
 	const style: React.CSSProperties = frame ? { left: frame.x, top: frame.y, width: frame.width, height: frame.height }
 		: placement ? { ...placement.style, maxHeight: placement.maxHeight } : { left: 0, top: 0, visibility: "hidden" };
 	return <div ref={boxRef} role="dialog" aria-label="Side question" data-testid="side-thread-popover"
-		style={{ position: "fixed", zIndex: 60, ...style }} className="lh-no-drag flex flex-col overflow-hidden rounded-xl border bg-background/50 p-3 text-sm shadow-xl backdrop-blur-[18px]">
+		style={{ position: "fixed", zIndex: 60, ...style }} className="lh-no-drag flex flex-col overflow-hidden rounded-xl border bg-card/95 p-3 text-sm shadow-xl">
 		<SideThreadBody key={state.threadId} state={state} chatId={chatId} {...handlers} onDragStart={startDrag} />
 		{RESIZE_HANDLES.map(({ edge, className }) => <div key={edge} aria-hidden="true" data-side-resize={edge}
 			data-testid={edge === "s" ? "side-thread-resize" : `side-thread-resize-${edge}`} className={`absolute touch-none ${className}`}

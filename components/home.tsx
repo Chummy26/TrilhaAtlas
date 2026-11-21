@@ -1,12 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { SurfaceRegion, usePageSurfaceBoundary, useSurfaceChromeStyle } from "./plugin-surfaces";
 import { CornerDownLeftIcon } from "lucide-react";
-import { GraphView } from "@/components/graph-view";
-import { MinimalHome } from "@/components/minimal-home";
-import { SetupDialog } from "@/components/setup-dialog";
 import { ComposerActions, NodePickerControl } from "@/components/composer-actions";
 import { useModelSetup, selectedModelUnavailable, openModelPicker, ZeroKeysPill } from "@/components/setup-cta";
 import { DictationBar, joinDictation, useDictation } from "@/components/dictation";
@@ -19,10 +17,135 @@ import { OPENING_PROMPT_FAILURE } from "@/components/opening-prompt";
 import { PathInput } from "@/components/path-input";
 import { AttachFilesButton } from "@/components/attach-files-button";
 import { SessionStarter, studyLessonRequest } from "./start-session.ts";
-import type { SkillMap, StudyDomainList, TurnUsage } from "@/src/core";
-import { SkillTree } from "./study/skill-tree.tsx";
+import type { SkillMap, StudyDomainList, StudyToday, TurnUsage } from "@/src/core";
 import { SessionModeSwitch, StudyNavigation } from "./study/session-navigation.tsx";
 import { TodayCard, type LessonStart } from "@/components/study/today-card";
+
+const EMPTY_TURNS: TurnUsage[] = [];
+
+const GraphView = dynamic(() => import("./graph-view.tsx").then((m) => m.GraphView));
+const MinimalHome = dynamic(() => import("./minimal-home.tsx").then((m) => m.MinimalHome));
+const SetupDialog = dynamic(() => import("./setup-dialog.tsx").then((m) => m.SetupDialog));
+const MapScreen = dynamic(() => import("./study/map-screen.tsx").then((m) => m.MapScreen));
+
+/** Isolated topic composer so keystrokes never re-render GraphView, TodayCard, or StatsBar. */
+const HomeComposer = memo(function HomeComposer({
+	mode,
+	busy,
+	dictationActive,
+	onCancelDictation,
+	onSubmit,
+	topicRef,
+	syncTopicRef,
+}: {
+	mode: "teach" | "practice";
+	busy: boolean;
+	dictationActive: boolean;
+	onCancelDictation: () => void;
+	onSubmit: () => void;
+	topicRef: RefObject<string>;
+	syncTopicRef: RefObject<((value: string) => void) | null>;
+}) {
+	const controller = useOptionalInteractionLayers();
+	const [topic, setTopic] = useState("");
+	const topicInputRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		syncTopicRef.current = setTopic;
+		return () => {
+			if (syncTopicRef.current === setTopic) syncTopicRef.current = null;
+		};
+	}, [syncTopicRef]);
+
+	// Tab navigates INTO the topic composer (owner, keyboard round
+	// 2026-10-06): the only text field on this surface — and home's
+	// composer is its OWN textarea, not the shared Composer component,
+	// so the chain is the ref itself (the smoke caught a selector that
+	// matched nothing here).
+	const cycleTopicField = useCallback(
+		(): readonly HTMLElement[] => (topicInputRef.current ? [topicInputRef.current] : []),
+		[],
+	);
+	useFieldCycle(cycleTopicField);
+
+	/* Run end focuses the topic input (owner, 2026-10-01): the hands are on
+	 * the keyboard from the stop. Falling edge only; this surface's only
+	 * dictation target IS this textarea, so no case-split is needed. */
+	const dictationWasActiveRef = useRef(false);
+	useEffect(() => {
+		if (dictationActive) {
+			dictationWasActiveRef.current = true;
+		} else if (dictationWasActiveRef.current) {
+			dictationWasActiveRef.current = false;
+			if (isInteractionScopeEligible(topicInputRef.current, controller)) topicInputRef.current!.focus();
+		}
+	}, [dictationActive, controller]);
+
+	return (
+		<form
+			data-attachment-composer=""
+			className="flex items-end gap-1.5 rounded-2xl border bg-card p-1.5 shadow-lg"
+			onSubmit={(e) => {
+				e.preventDefault();
+				onSubmit();
+			}}
+		>
+			<PathInput
+				ref={topicInputRef}
+				value={topic}
+				onValueChange={(value) => {
+					topicRef.current = value;
+					setTopic(value);
+				}}
+				defaultDropTarget
+				onKeyDown={(e) => {
+					if (!isInteractionScopeEligible(e.currentTarget, controller)) return;
+					// Esc ends dictation (the dictate decisions: click-again or
+					// Esc) — stopPropagation claims it (keyboard wave A) so
+					// the window chain doesn't also abort a turn.
+					if (e.key === "Escape" && dictationActive) {
+						controller?.claimEscape(e);
+						e.preventDefault();
+						e.stopPropagation();
+						onCancelDictation();
+						return;
+					}
+					if (e.key === "Enter" && !e.shiftKey) {
+						e.preventDefault();
+						onSubmit();
+					}
+				}}
+				placeholder={mode === "practice" ? "What do you want to practice?" : "What do you want to learn?"}
+				autoFocus
+				className="field-sizing-content lh-input max-h-48 min-h-10 flex-1 resize-none bg-transparent px-2.5 py-2 outline-none placeholder:text-muted-foreground"
+			/>
+			<AttachFilesButton editorRef={topicInputRef} />
+			{/* No tooltip on the start square — the ↵ glyph is the
+			    affordance (owner, subtlety round 2026-09-25). */}
+			<button
+				type="submit"
+				aria-label="Start session"
+				disabled={(!topic.trim() && !dictationActive) || busy}
+				className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-primary text-primary-foreground transition-colors hover:opacity-90 disabled:opacity-40"
+			>
+				<CornerDownLeftIcon className="size-5" />
+			</button>
+		</form>
+	);
+});
+
+export interface HomeProps {
+	initialConfigured: boolean;
+	domains?: StudyDomainList;
+	account?: { level: number; xp: number };
+	initialToday?: StudyToday | null;
+	map?: SkillMap;
+	initialNode?: string;
+	/** GRAPH RENDERING off (owner, 2026-10-06): the home's main view is
+	 * the chains view, not the canvas. Read server-side per navigation —
+	 * changing the setting applies on the next visit home. */
+	rendering?: boolean;
+}
 
 /**
  * Home — the knowledge graph is the main view, full-bleed edge to edge
@@ -30,34 +153,33 @@ import { TodayCard, type LessonStart } from "@/components/study/today-card";
  * under the header and the new-session dock, both of which float over it
  * with no gradient scrims. Sessions live in the toggleable sidebar.
  */
-export function Home({
-	initialConfigured, domains, account,
-	map,
-	initialNode,
+export function Home(props: HomeProps) {
+	// Route /mapa callers through MapScreen BEFORE mounting dictation, GraphView,
+	// MinimalHome, or TodayCard.
+	if (props.map) {
+		return <MapScreen initialConfigured={props.initialConfigured} map={props.map} initialNode={props.initialNode} />;
+	}
+	return <HomeInner {...props} />;
+}
+
+function HomeInner({
+	initialConfigured,
+	domains,
+	account,
+	initialToday,
 	rendering = true,
-}: {
-	initialConfigured: boolean;
-	domains?: StudyDomainList;
-	account?: { level: number; xp: number };
-	map?: SkillMap;
-	initialNode?: string;
-	/** GRAPH RENDERING off (owner, 2026-10-06): the home's main view is
-	 * the chains view, not the canvas. Read server-side per navigation —
-	 * changing the setting applies on the next visit home. */
-	rendering?: boolean;
-}) {
-	const controller = useOptionalInteractionLayers();
+}: HomeProps) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const bodyRef = useRef<HTMLDivElement>(null);
 	const surfaceTarget = usePageSurfaceBoundary({ active: pathname === "/", viewKey: "/", bodyRef });
 	const chromeStyle = useSurfaceChromeStyle(surfaceTarget);
-	const [topic, setTopic] = useState("");
 	/* The topic MIRROR ("nothing gets lost" round, 2026-10-01 — same
 	 * mechanics as the chat composer, owner's consistency ruling): a
-	 * dictation flush lands via setState, invisible to a closure that
-	 * waited through `await finish()`. Kept current at every write. */
+	 * dictation flush lands via setState inside HomeComposer, invisible to
+	 * a closure that waited through `await finish()`. Kept current at every write. */
 	const topicRef = useRef("");
+	const syncTopicRef = useRef<((value: string) => void) | null>(null);
 	// First-run gate (model-slots wave, owner 2026-09-20): chats cannot
 	// start until the user has picked all three slots — no defaults for
 	// 33 providers. The dock shows the CTA while unconfigured; submitting
@@ -73,36 +195,13 @@ export function Home({
 		append: (t) => {
 			const v = joinDictation(topicRef.current, t);
 			topicRef.current = v;
-			setTopic(v);
+			syncTopicRef.current?.(v);
 		},
 	});
 	const [busy, setBusy] = useState(false);
 	const startingRef = useRef(false);
-	const starterRef = useRef(new SessionStarter());
+	const starterRef = useRef<SessionStarter | null>(null);
 	const [startError, setStartError] = useState(false);
-	/* Run end focuses the topic input (owner, 2026-10-01): the hands are on
-	 * the keyboard from the stop. Falling edge only; this surface's only
-	 * dictation target IS this textarea, so no case-split is needed. */
-	const topicInputRef = useRef<HTMLDivElement>(null);
-	// Tab navigates INTO the topic composer (owner, keyboard round
-	// 2026-10-06): the only text field on this surface — and home's
-	// composer is its OWN textarea, not the shared Composer component,
-	// so the chain is the ref itself (the smoke caught a selector that
-	// matched nothing here).
-	const cycleTopicField = useCallback(
-		(): readonly HTMLElement[] => (topicInputRef.current ? [topicInputRef.current] : []),
-		[],
-	);
-	useFieldCycle(cycleTopicField);
-	const dictationWasActiveRef = useRef(false);
-	useEffect(() => {
-		if (dictation.active) {
-			dictationWasActiveRef.current = true;
-		} else if (dictationWasActiveRef.current) {
-			dictationWasActiveRef.current = false;
-			if (isInteractionScopeEligible(topicInputRef.current, controller)) topicInputRef.current!.focus();
-		}
-	}, [dictation.active, controller]);
 
 	/* PRACTICE MODE (owner, 2026-10-04): the graph composer's teach |
 	 *  practice switch — practice creates a kind:"practice" session and
@@ -115,70 +214,76 @@ export function Home({
 	// The chain table is CONTROLLED off this id set (the lifted pick).
 	const pickedIds = useMemo(() => new Set(practiceProps.map((p) => p.id)), [practiceProps]);
 
+	const begin = useCallback(
+		async (lesson?: LessonStart) => {
+			const t = lesson?.title ?? topicRef.current.trim();
+			if (!t || startingRef.current) return;
+			// Unconfigured: the send INTERCEPTS into the setup flow (the draft
+			// stays in the textarea; the learner sends it after Save).
+			if (!configured) {
+				setSetupOpen(true);
+				return;
+			}
+			// The pre-send KEY guards (owner interlude, no-orphan-chats): the
+			// models case guards BEFORE creation; the key cases must too — a
+			// refused first send would otherwise leave an orphan error-shell
+			// chat in the sidebar (the 503 lands only after POST /api/chats
+			// already created the record). Zero providers opens connection setup;
+			// an unavailable selection with another provider opens its ordinary
+			// picker. The server's admission gate remains the belt.
+			if (zeroKeys) {
+				setSetupOpen(true);
+				return;
+			}
+			const strong = catalog?.slots.strong?.model;
+			if (selectedModelUnavailable(catalog, strong ? `${strong.provider}:${strong.id}` : undefined)) {
+				openModelPicker();
+				return; // Preserve the draft and never create an orphan session.
+			}
+			startingRef.current = true;
+			setBusy(true);
+			setStartError(false);
+			try {
+				// The map context (owner, 2026-10-04): picks in EITHER mode ride
+				// the CREATION as graphContext — the server writes a
+				// graph-context marker as message[0] (a separate custom message
+				// before the learner's first user message, propositions + the
+				// chains among them); the prompt stays the learner's own words.
+				starterRef.current ??= new SessionStarter();
+				const target = await starterRef.current.start(lesson ? studyLessonRequest(lesson) : {
+					title: t,
+					...(mode === "practice" ? { kind: "practice" } : {}),
+					...(practiceProps.length > 0 && { graphContext: { propositions: practiceProps } }),
+				}, fetch, JSON.stringify(catalog?.slots.strong));
+				router.push(target);
+			} catch {
+				startingRef.current = false;
+				setBusy(false);
+				setStartError(true);
+			}
+		},
+		[configured, zeroKeys, catalog, mode, practiceProps, router],
+	);
+
 	/* FINISH DICTATION FIRST (owner, 2026-10-01): Enter may arrive while a
 	 * run is live with the topic still deferred in the run's buffer — stop
 	 * the run, let the last finals land, THEN read the REF mirror (not the
 	 * state closure) and run. Applies before the setup/key guards too, so
 	 * an intercepted draft is the complete one. */
-	const start = () => {
+	const start = useCallback(() => {
 		if (!dictation.active) {
 			void begin();
 			return;
 		}
 		void dictation.finish().then(() => begin());
-	};
-	const begin = async (lesson?: LessonStart) => {
-		const t = lesson?.title ?? topicRef.current.trim();
-		if (!t || startingRef.current) return;
-		// Unconfigured: the send INTERCEPTS into the setup flow (the draft
-		// stays in the textarea; the learner sends it after Save).
-		if (!configured) {
-			setSetupOpen(true);
-			return;
-		}
-		// The pre-send KEY guards (owner interlude, no-orphan-chats): the
-		// models case guards BEFORE creation; the key cases must too — a
-		// refused first send would otherwise leave an orphan error-shell
-		// chat in the sidebar (the 503 lands only after POST /api/chats
-		// already created the record). Zero providers opens connection setup;
-		// an unavailable selection with another provider opens its ordinary
-		// picker. The server's admission gate remains the belt.
-		if (zeroKeys) {
-			setSetupOpen(true);
-			return;
-		}
-		const strong = catalog?.slots.strong?.model;
-		if (selectedModelUnavailable(catalog, strong ? `${strong.provider}:${strong.id}` : undefined)) {
-			openModelPicker();
-			return; // Preserve the draft and never create an orphan session.
-		}
-		startingRef.current = true;
-		setBusy(true);
-		setStartError(false);
-		try {
-			// The map context (owner, 2026-10-04): picks in EITHER mode ride
-			// the CREATION as graphContext — the server writes a
-			// graph-context marker as message[0] (a separate custom message
-			// before the learner's first user message, propositions + the
-			// chains among them); the prompt stays the learner's own words.
-			const target = await starterRef.current.start(lesson ? studyLessonRequest(lesson) : {
-				title: t,
-				...(mode === "practice" ? { kind: "practice" } : {}),
-				...(practiceProps.length > 0 && { graphContext: { propositions: practiceProps } }),
-			}, fetch, JSON.stringify(catalog?.slots.strong));
-			router.push(target);
-		} catch {
-			startingRef.current = false;
-			setBusy(false);
-			setStartError(true);
-		}
-	};
+	}, [dictation, begin]);
 
-	if (map) return <>
-		<SkillTree map={map} initialNode={initialNode} busy={busy} onStart={begin} />
-		{startError && <p role="alert" className="fixed bottom-4 right-4 cel-card p-3">{OPENING_PROMPT_FAILURE}</p>}
-		<SetupDialog open={setupOpen} onClose={() => setSetupOpen(false)} onDone={() => setSetupOpen(false)} />
-	</>;
+	const handleStartLesson = useCallback((lesson: LessonStart) => {
+		void begin(lesson);
+	}, [begin]);
+	const closeChainSelect = useCallback(() => setChainSelectOpen(false), []);
+	const closeSetup = useCallback(() => setSetupOpen(false), []);
+
 	return (
 		<div className="study-session-start relative h-dvh">
 			{/* Window-drag strip (merged chrome, owner 2026-09-17): a dedicated
@@ -206,14 +311,14 @@ export function Home({
 						chainSelectOpen={chainSelectOpen}
 						practiceSelection={pickedIds}
 						onPracticeSelectionChange={setPracticeProps}
-						onChainSelectClose={() => setChainSelectOpen(false)}
+						onChainSelectClose={closeChainSelect}
 					/>
 				) : (
 					<MinimalHome
 						chainSelectOpen={chainSelectOpen}
 						practiceSelection={pickedIds}
 						onPracticeSelectionChange={setPracticeProps}
-						onChainSelectClose={() => setChainSelectOpen(false)}
+						onChainSelectClose={closeChainSelect}
 					/>
 				)}
 			</main>
@@ -232,7 +337,14 @@ export function Home({
 					    send consumes it). Practice mode with nothing picked
 					    shows the pick HINT so the affordance is discoverable;
 					    teaching mode with nothing picked renders nothing. */}
-					<TodayCard setupHint={setupHint} disabled={busy} onStart={(lesson) => void begin(lesson)} />
+					{domains?.active && (
+						<TodayCard
+							initialToday={initialToday}
+							setupHint={setupHint}
+							disabled={busy}
+							onStart={handleStartLesson}
+						/>
+					)}
 					<ComposerActions
 						picker={(practiceProps.length > 0 || mode === "practice") && (
 							<NodePickerControl
@@ -257,62 +369,22 @@ export function Home({
 						)}
 					/>
 					{startError && <p role="alert" className="mb-2 text-sm text-destructive">{OPENING_PROMPT_FAILURE}</p>}
-					<form
-						data-attachment-composer=""
-						className="flex items-end gap-1.5 rounded-2xl border bg-card p-1.5 shadow-lg"
-					onSubmit={(e) => {
-						e.preventDefault();
-						void start();
-					}}
-				>
-					<PathInput
-						ref={topicInputRef}
-						value={topic}
-						onValueChange={(value) => {
-							topicRef.current = value;
-							setTopic(value);
-						}}
-						defaultDropTarget
-						onKeyDown={(e) => {
-							if (!isInteractionScopeEligible(e.currentTarget, controller)) return;
-							// Esc ends dictation (the dictate decisions: click-again or
-							// Esc) — stopPropagation claims it (keyboard wave A) so
-							// the window chain doesn't also abort a turn.
-							if (e.key === "Escape" && dictation.active) {
-								controller?.claimEscape(e);
-								e.preventDefault();
-								e.stopPropagation();
-								dictation.cancel();
-								return;
-							}
-							if (e.key === "Enter" && !e.shiftKey) {
-								e.preventDefault();
-								void start();
-							}
-						}}
-						placeholder={mode === "practice" ? "What do you want to practice?" : "What do you want to learn?"}
-						autoFocus
-						className="field-sizing-content lh-input max-h-48 min-h-10 flex-1 resize-none bg-transparent px-2.5 py-2 outline-none placeholder:text-muted-foreground"
+					<HomeComposer
+						mode={mode}
+						busy={busy}
+						dictationActive={dictation.active}
+						onCancelDictation={dictation.cancel}
+						onSubmit={start}
+						topicRef={topicRef}
+						syncTopicRef={syncTopicRef}
 					/>
-					<AttachFilesButton editorRef={topicInputRef} />
-					{/* No tooltip on the start square — the ↵ glyph is the
-					    affordance (owner, subtlety round 2026-09-25). */}
-					<button
-						type="submit"
-						aria-label="Start session"
-						disabled={(!topic.trim() && !dictation.active) || busy}
-						className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-primary text-primary-foreground transition-colors hover:opacity-90 disabled:opacity-40"
-					>
-						<CornerDownLeftIcon className="size-5" />
-					</button>
-					</form>
 					{/* Same as the chat view's under-composer stats bar (owner) — no
 					    session yet, so the LEFT side renders nothing (wave 7 sweep)
 					    while the RIGHT keeps the strong-slot control (fix wave: the
 					    pills write /api/settings/models). */}
 					<StatsBar
 						dictationSlot={<DictationBar dictation={dictation} />}
-						turns={[] as TurnUsage[]}
+						turns={EMPTY_TURNS}
 						leadingSlot={
 							<SessionModeSwitch mode={mode} onChange={setMode} />
 						}
@@ -336,14 +408,13 @@ export function Home({
 			    interception's landing surface — stage 1 is the self-contained
 			    first-key screen (zero-keys wave); Save never sends — the
 			    draft stays for the learner to send (owner 2026-10-09). */}
-			<SetupDialog
-				open={setupOpen}
-				onClose={() => setSetupOpen(false)}
-				onDone={() => {
-					setSetupOpen(false);
-					// Save only saves: the draft waits in the composer.
-				}}
+			{setupOpen && (
+				<SetupDialog
+					open={setupOpen}
+					onClose={closeSetup}
+					onDone={closeSetup}
 				/>
+			)}
 		</div>
 	);
 }

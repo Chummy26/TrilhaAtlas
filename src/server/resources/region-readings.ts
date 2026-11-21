@@ -6,6 +6,30 @@ import { tokenize } from "../../core/resources/match.ts";
 import { openSqlDriver, type SqlDriver } from "../../store/memory/sql-driver.ts";
 import { physicalPdfPages, readLibraryItem, readLibraryChunks, type LibraryItemMeta } from "./user-library.ts";
 
+type RegionReadingEntry = { id: string; title: string; readable: boolean };
+type RegionReadingsCacheState = {
+	byDb: Map<string, { stamp: string; regions: Map<string, RegionReadingEntry[]> }>;
+};
+
+const REGION_READINGS_CACHE_KEY = Symbol.for("learnharness.resources.regionReadings");
+
+function readingsCache(): RegionReadingsCacheState {
+	const g = globalThis as typeof globalThis & { [REGION_READINGS_CACHE_KEY]?: RegionReadingsCacheState };
+	return (g[REGION_READINGS_CACHE_KEY] ??= { byDb: new Map() });
+}
+
+function sqliteStamp(file: string): string | null {
+	const main = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!main || !main.isFile()) return null;
+	const wal = fs.statSync(/* turbopackIgnore: true */ `${file}-wal`, { bigint: true, throwIfNoEntry: false });
+	const walPart = wal ? `${wal.ino}|${wal.mtimeNs}|${wal.size}` : "-";
+	return `${main.dev}|${main.ino}|${main.ctimeNs}|${main.mtimeNs}|${main.size}#${walPart}`;
+}
+
+function invalidateRegionCache(domain: string): void {
+	readingsCache().byDb.delete(path.resolve(indexPath(domain)));
+}
+
 function indexPath(domain: string) {
 	return path.join(resourcesDir(PATHS.data, domain), "regional-readings.sqlite");
 }
@@ -28,7 +52,10 @@ export function linkRegionalReading(domain: string, region: string, meta: Librar
 			}
 			db.prepare("INSERT OR IGNORE INTO links VALUES(?,?)").run(region, meta.sha256);
 		});
-	} finally { db.close(); }
+	} finally {
+		db.close();
+		invalidateRegionCache(domain);
+	}
 }
 
 function readIndex<T>(domain: string, empty: T, fn: (db: SqlDriver) => T): T {
@@ -38,9 +65,29 @@ function readIndex<T>(domain: string, empty: T, fn: (db: SqlDriver) => T): T {
 	try { return fn(db); } finally { db.close(); }
 }
 
-export function regionalReadingList(domain: string, region: string) {
-	return readIndex(domain, [], db => db.prepare("SELECT books.sha, title, chunks FROM books JOIN links USING(sha) WHERE region=? ORDER BY title, sha")
+export function regionalReadingList(domain: string, region: string): RegionReadingEntry[] {
+	const file = path.resolve(indexPath(domain));
+	const stamp = sqliteStamp(file);
+	const byDb = readingsCache().byDb;
+	if (!stamp) {
+		byDb.delete(file);
+		return [];
+	}
+	let dbCache = byDb.get(file);
+	if (!dbCache || dbCache.stamp !== stamp) {
+		if (byDb.size >= 32 && !byDb.has(file)) {
+			const oldest = byDb.keys().next().value;
+			if (oldest !== undefined) byDb.delete(oldest);
+		}
+		dbCache = { stamp, regions: new Map() };
+		byDb.set(file, dbCache);
+	}
+	const hit = dbCache.regions.get(region);
+	if (hit) return hit.map((entry) => ({ ...entry }));
+	const list = readIndex(domain, [] as RegionReadingEntry[], db => db.prepare("SELECT books.sha, title, chunks FROM books JOIN links USING(sha) WHERE region=? ORDER BY title, sha")
 		.all(region).map(row => ({ id: String(row.sha), title: String(row.title), readable: Number(row.chunks) > 0 })));
+	dbCache.regions.set(region, list);
+	return list.map((entry) => ({ ...entry }));
 }
 
 export function unlinkRegionalReading(domain: string, region: string, sha: string) {
@@ -52,6 +99,7 @@ export function unlinkRegionalReading(domain: string, region: string, sha: strin
 			if (db.prepare("SELECT 1 FROM sqlite_master WHERE name='page_indexes'").get()) db.prepare("DELETE FROM page_indexes WHERE sha=?").run(sha);
 		}
 	}));
+	invalidateRegionCache(domain);
 }
 
 export function hasRegionalReadings(domain: string) {

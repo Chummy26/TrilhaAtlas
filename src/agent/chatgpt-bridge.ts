@@ -22,6 +22,7 @@ interface BridgeState {
  status: ChatGPTStatus; stamp: Stamp; models: Model<"openai-responses">[]; catalogAccount: string | null;
  pending: Map<string, Pending>; controllers: Map<AbortController, boolean>; listeners: Set<() => void>; counter: number; catalogRequest: number;
  inFlightCatalog?: { epoch: number; activeId: string | null; promise: Promise<void> };
+ lastRefreshedAt: number;
 }
 const key = Symbol.for("lh.chatgpt.bridge");
 const unavailable = (): ChatGPTStatus => ({ available: false, pending: false, allowBackgroundUse: true, activeId: null, accounts: [], error: null });
@@ -36,7 +37,7 @@ function runtimeConnected(): boolean { return desktopIPCConnected() || webSubscr
 function bridge(): BridgeState {
  const global = globalThis as typeof globalThis & { [key]?: BridgeState };
  if (!global[key]) {
-  const state: BridgeState = { status: unavailable(), stamp: { epoch: 0, authorityRevision: 0, revision: 0 }, models: [], catalogAccount: null, pending: new Map(), controllers: new Map(), listeners: new Set(), counter: 0, catalogRequest: 0 };
+  const state: BridgeState = { status: unavailable(), stamp: { epoch: 0, authorityRevision: 0, revision: 0 }, models: [], catalogAccount: null, pending: new Map(), controllers: new Map(), listeners: new Set(), counter: 0, catalogRequest: 0, lastRefreshedAt: 0 };
   global[key] = state;
   const receive = (raw: unknown) => {
    const m = raw as { channel?: string; kind?: string; id?: string; op?: string; ok?: boolean; value?: unknown; stamp: Stamp; status: ChatGPTStatus; invalidate?: string; error?: string };
@@ -68,9 +69,10 @@ function bridge(): BridgeState {
    for (const listener of state.listeners) listener();
   });
  }
+ global[key].lastRefreshedAt ??= 0;
  return global[key];
 }
-function clearCatalog(state: BridgeState) { state.models = []; state.catalogAccount = null; }
+function clearCatalog(state: BridgeState) { state.models = []; state.catalogAccount = null; state.lastRefreshedAt = 0; }
 function acceptStatus(state: BridgeState, value: StatusValue) {
  if (!validStamp(value) || value.revision < state.stamp.revision) return;
  if (value.epoch !== state.stamp.epoch || value.authorityRevision !== state.stamp.authorityRevision || value.status.activeId !== state.status.activeId) clearCatalog(state);
@@ -158,9 +160,17 @@ export function chatGPTReportedLimits(model: { contextWindow: number; maxTokens:
 }
 
 /** Entitlement and ordering come exclusively from the active account. */
-export async function refreshChatGPTModels(supported: Model<"openai-responses">[]): Promise<void> {
+export async function refreshChatGPTModels(supported: Model<"openai-responses">[], options?: { maxAgeMs?: number }): Promise<void> {
  const state = bridge();
  if (!runtimeConnected()) { clearCatalog(state); return; }
+ if (
+  options?.maxAgeMs
+  && state.lastRefreshedAt > 0
+  && Date.now() - state.lastRefreshedAt < options.maxAgeMs
+  && (!chatGPTConnected() || (state.models.length > 0 && state.catalogAccount === state.status.activeId))
+ ) {
+  return;
+ }
  const startEpoch = state.stamp.epoch;
  const startAccount = state.status.activeId;
  if (state.inFlightCatalog && state.inFlightCatalog.epoch === startEpoch && state.inFlightCatalog.activeId === startAccount) {
@@ -172,6 +182,7 @@ export async function refreshChatGPTModels(supported: Model<"openai-responses">[
    const value = await chatGPTRequest<ModelsValue>("models");
    if (sequence !== state.catalogRequest || !validStamp(value)) return;
    acceptStatus(state, value);
+   state.lastRefreshedAt = Date.now();
    if (value.epoch !== state.stamp.epoch || value.authorityRevision !== state.stamp.authorityRevision || value.accountId !== state.status.activeId || !chatGPTConnected()) return;
    state.catalogAccount = value.accountId;
    state.models = value.models.map(entry => accountModel(entry, supported.find(m => m.id === entry.id)));

@@ -20,6 +20,7 @@
  */
 
 import { SEARCH_ENGINES, type SearchEngineId, type SearchHit, type SearchProvider, type SearchStatus } from "../core/search.ts";
+import { authStore } from "../store/auth.ts";
 import { keyValue } from "./keys.ts";
 import { effectiveSettings } from "./stores.ts";
 
@@ -225,20 +226,14 @@ function searchHit(title: unknown, url: unknown, snippet: unknown): SearchHit[] 
 	}];
 }
 
-/** The engine's key (env-or-file; env wins) — null when the engine is
- *  not keyed, which by owner decision means NOT LIVE. */
-function engineKey(id: SearchEngineId): string | null {
-	const envVar = SEARCH_ENGINES.find((e) => e.id === id)?.envVar;
-	const value = envVar ? keyValue(envVar) : undefined;
-	return value ? value : null;
-}
-
-/** Every engine's live key, read fresh (the resolver's input). */
+/** Every engine's live key, read once from authStore (the resolver's input). */
 function engineKeys(): Partial<Record<SearchEngineId, string>> {
+	const fileVars = authStore.authVars();
+	const readVars = () => fileVars;
 	const keys: Partial<Record<SearchEngineId, string>> = {};
-	for (const { id } of SEARCH_ENGINES) {
-		const key = engineKey(id);
-		if (key) keys[id] = key;
+	for (const { id, envVar } of SEARCH_ENGINES) {
+		const value = keyValue(envVar, readVars);
+		if (value) keys[id] = value;
 	}
 	return keys;
 }

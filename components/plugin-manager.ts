@@ -128,6 +128,9 @@ export class PluginFrontendManager {
 	private submissionPredicateErrors = new WeakMap<object, string>();
 	private requestGeneration = 0;
 	private mutations = 0;
+	private batchDepth = 0;
+	private batchDirty = false;
+	private batchPatch: Partial<PluginSnapshot> = {};
 	private disposed = false;
 	private started = false;
 	private shortcutPages = new Map<string, { read: () => PluginPageActionContext | undefined }>();
@@ -138,8 +141,28 @@ export class PluginFrontendManager {
 		this.listeners.add(listener);
 		return () => { this.listeners.delete(listener); };
 	};
+	private flushBatch() {
+		if (this.batchDepth > 0 || !this.batchDirty || this.disposed) return;
+		const patch = this.batchPatch;
+		this.batchDirty = false;
+		this.batchPatch = {};
+		this.publish(patch);
+	}
+	private batch<T>(fn: () => T): T {
+		this.batchDepth++;
+		try { return fn(); }
+		finally {
+			this.batchDepth--;
+			if (this.batchDepth === 0) this.flushBatch();
+		}
+	}
 	private publish(patch: Partial<PluginSnapshot> = {}) {
 		if (this.disposed) return;
+		if (this.batchDepth > 0) {
+			this.batchDirty = true;
+			Object.assign(this.batchPatch, patch);
+			return;
+		}
 		this.snapshot = { ...this.snapshot, ...patch,
 			codeBlocks: Object.freeze([...this.lives.values()].flatMap(life => [...life.codeBlocks.values()])),
 			toolRenderers: Object.freeze([...this.lives.values()].flatMap(life => [...life.toolRenderers.values()])),
@@ -233,8 +256,10 @@ export class PluginFrontendManager {
 		try {
 			const body = await this.json("/api/plugins") as { plugins: PluginInfo[]; directory: string; conflicts?: { id: string; error: string }[] };
 			if (this.disposed || generation !== this.requestGeneration) return;
-			this.reconcile(body.plugins);
-			this.publish({ directory: body.directory, conflicts: body.conflicts ?? [], loading: false, ...(clearError ? { error: undefined } : {}) });
+			this.batch(() => {
+				this.reconcile(body.plugins);
+				this.publish({ directory: body.directory, conflicts: body.conflicts ?? [], loading: false, ...(clearError ? { error: undefined } : {}) });
+			});
 		} catch (error) {
 			if (generation === this.requestGeneration) this.publish({ loading: false, error: message(error) });
 		}
@@ -477,14 +502,42 @@ export class PluginFrontendManager {
 			const frontend = await this.host.importModule(pluginAssetUrl(info, manifest.main!));
 			if (!this.current(life)) return;
 			if (typeof frontend.activate !== "function") throw new Error("Plugin frontend must export activate(context)");
-			const cleanup = await frontend.activate(context);
-			if (typeof cleanup === "function") this.addCleanup(life, cleanup);
-			if (!this.current(life)) return;
-			life.phase = "active"; this.publish();
+			let activationResult: ReturnType<PluginFrontendModule["activate"]>;
+			this.batchDepth++;
+			try {
+				activationResult = frontend.activate(context);
+			} finally {
+				this.batchDepth--;
+			}
+			// Coalesce synchronous startup registrations into a single snapshot emission.
+			// For async activations, flush prologue registrations before suspending on await.
+			if (activationResult && typeof (activationResult as PromiseLike<unknown>).then === "function") {
+				this.flushBatch();
+				const cleanup = await activationResult;
+				if (typeof cleanup === "function") this.addCleanup(life, cleanup);
+				if (!this.current(life)) return;
+				life.phase = "active"; this.publish();
+			} else {
+				if (typeof activationResult === "function") this.addCleanup(life, activationResult);
+				if (!this.current(life)) {
+					this.flushBatch();
+					return;
+				}
+				life.phase = "active";
+				const pendingPatch = this.batchPatch;
+				this.batchDirty = false;
+				this.batchPatch = {};
+				this.publish(pendingPatch);
+			}
 		} catch (error) {
-			if (!this.current(life)) return;
+			if (!this.current(life)) {
+				this.flushBatch();
+				return;
+			}
 			// A failed activation is not retried on every SSE/refetch. Keep an
 			// inert error generation until explicitly disabled or revised.
+			this.batchDirty = false;
+			this.batchPatch = {};
 			this.stop(life);
 			life.phase = "error"; life.error = message(error);
 			this.lives.set(life.id, life); this.publish();
@@ -493,8 +546,10 @@ export class PluginFrontendManager {
 	async setEnabled(id: string, enabled: boolean) {
 		if (this.disposed || this.pending.has(id)) return;
 		this.pending.add(id); this.mutations++; this.requestGeneration++;
-		if (!enabled) this.reconcile(this.infos.map(info => info.id === id ? { ...info, enabled: false, status: "disabled" } : info));
-		this.publish({ error: undefined });
+		this.batch(() => {
+			if (!enabled) this.reconcile(this.infos.map(info => info.id === id ? { ...info, enabled: false, status: "disabled" } : info));
+			this.publish({ error: undefined });
+		});
 		try {
 			await this.json(`/api/plugins/${encodeURIComponent(id)}`, {
 				method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ enabled }),

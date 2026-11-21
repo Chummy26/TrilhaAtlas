@@ -77,18 +77,43 @@ interface RawModelsDevCatalog {
 	[providerId: string]: { models?: Record<string, RawModelsDevModel> } | undefined;
 }
 
-let memoryCache: { dataDir: string; payload: ModelsDevCacheFile } | undefined;
-let inflightRefresh: Promise<void> | undefined;
+interface ModelsDevCatalogGlobalState {
+	memoryCache?: { file: string; stamp: string; payload: ModelsDevCacheFile };
+	inflightRefresh?: Promise<void>;
+	lastAttemptAt: number;
+}
+
+const MODELS_DEV_CATALOG_KEY = Symbol.for("learnharness.server.modelsDevCatalog");
+const REFRESH_COOLDOWN_MS = 60_000;
+
+function catalogState(): ModelsDevCatalogGlobalState {
+	const g = globalThis as typeof globalThis & { [MODELS_DEV_CATALOG_KEY]?: ModelsDevCatalogGlobalState };
+	return (g[MODELS_DEV_CATALOG_KEY] ??= { lastAttemptAt: 0 });
+}
 
 function cacheFilePath(): string {
-	return path.join(PATHS.data, "profile", "model-cache", "models-dev-catalog.json");
+	return path.resolve(PATHS.data, "profile", "model-cache", "models-dev-catalog.json");
+}
+
+function fileStatStamp(file: string): string | null {
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) return null;
+	return `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`;
 }
 
 function readCacheFromDisk(): ModelsDevCacheFile | null {
-	const dataDir = PATHS.data;
-	if (memoryCache?.dataDir === dataDir) return memoryCache.payload;
+	const state = catalogState();
+	const file = cacheFilePath();
+	const stamp = fileStatStamp(file);
+	if (!stamp) {
+		if (state.memoryCache?.file === file) state.memoryCache = undefined;
+		return null;
+	}
+	if (state.memoryCache?.file === file && state.memoryCache.stamp === stamp) {
+		return state.memoryCache.payload;
+	}
 	try {
-		const raw = fs.readFileSync(cacheFilePath(), "utf8");
+		const raw = fs.readFileSync(file, "utf8");
 		const parsed = JSON.parse(raw) as Partial<ModelsDevCacheFile>;
 		if (
 			parsed.schemaVersion === 1
@@ -99,7 +124,7 @@ function readCacheFromDisk(): ModelsDevCacheFile | null {
 			&& typeof parsed.releaseDates === "object"
 		) {
 			const payload = parsed as ModelsDevCacheFile;
-			memoryCache = { dataDir, payload };
+			state.memoryCache = { file, stamp, payload };
 			return payload;
 		}
 	} catch {
@@ -112,7 +137,8 @@ function writeCacheToDisk(payload: ModelsDevCacheFile): void {
 	const file = cacheFilePath();
 	fs.mkdirSync(path.dirname(file), { recursive: true });
 	writeFileAtomicSync(file, JSON.stringify(payload), { allowInPlaceFallback: true });
-	memoryCache = { dataDir: PATHS.data, payload };
+	const stamp = fileStatStamp(file);
+	catalogState().memoryCache = stamp ? { file, stamp, payload } : undefined;
 }
 
 function extractGoogleEfforts(rawOptions: unknown): string[] | undefined {
@@ -234,16 +260,25 @@ function toPiModel(providerId: "google-vertex" | "google", entry: DiscoveredGoog
 }
 
 const BUNDLED_CATALOG = bundledSnapshot as ModelsDevCacheFile;
+const mappedModelsByCatalog = new WeakMap<ModelsDevCacheFile, { vertex: readonly Model<Api>[]; google: readonly Model<Api>[] }>();
 
 function readEffectiveCatalog(): ModelsDevCacheFile {
 	return readCacheFromDisk() ?? BUNDLED_CATALOG;
 }
 
-/** Cached newly discovered Google / Google Vertex models (with bundled offline fallback). */
-export function discoveredGoogleModels(providerId: "google-vertex" | "google"): Model<Api>[] {
+/** Cached newly discovered Google / Google Vertex models (with bundled offline fallback).
+ * Returns a stable array reference per catalog snapshot so piModels() short-circuits in O(1). */
+export function discoveredGoogleModels(providerId: "google-vertex" | "google"): readonly Model<Api>[] {
 	const cache = readEffectiveCatalog();
-	const list = providerId === GOOGLE_VERTEX_PROVIDER ? cache.vertexModels : cache.googleModels;
-	return list.map((entry) => toPiModel(providerId, entry));
+	let mapped = mappedModelsByCatalog.get(cache);
+	if (!mapped) {
+		mapped = {
+			vertex: cache.vertexModels.map((entry) => toPiModel(GOOGLE_VERTEX_PROVIDER, entry)),
+			google: cache.googleModels.map((entry) => toPiModel("google", entry)),
+		};
+		mappedModelsByCatalog.set(cache, mapped);
+	}
+	return providerId === GOOGLE_VERTEX_PROVIDER ? mapped.vertex : mapped.google;
 }
 
 /** Look up ISO release date (YYYY-MM-DD) for any catalog model from the cached/bundled models.dev index. */
@@ -262,20 +297,19 @@ export function modelReleaseDate(provider: string, id: string): string | undefin
 	return undefined;
 }
 
-/** Refresh slimmed models.dev catalog with ETag + TTL. Silent no-op on network errors or offline tests. */
+/** Refresh slimmed models.dev catalog with ETag + TTL. Silent no-op on network errors or offline tests.
+ * When non-forced and a bundled/disk catalog is already available, runs in the background so GET /api/models never stalls. */
 export async function refreshModelsDevCatalog(options?: {
 	force?: boolean;
 	fetchImpl?: typeof fetch;
 }): Promise<void> {
 	if (!options?.fetchImpl && process.env.NODE_ENV === "test") return;
+	const state = catalogState();
 	const existing = readCacheFromDisk();
 	if (!options?.force && existing && Date.now() - existing.fetchedAt < CACHE_TTL_MS) return;
 
-	if (inflightRefresh && !options?.fetchImpl) return inflightRefresh;
-
-	const run = async () => {
+	const run = async (fetcher: typeof fetch) => {
 		try {
-			const fetcher = options?.fetchImpl ?? globalThis.fetch;
 			const headers: Record<string, string> = { Accept: "application/json" };
 			if (existing?.etag) headers["If-None-Match"] = existing.etag;
 			const response = await fetcher(MODELS_DEV_URL, {
@@ -298,11 +332,18 @@ export async function refreshModelsDevCatalog(options?: {
 	};
 
 	if (options?.fetchImpl) {
-		await run();
+		await run(options.fetchImpl);
 		return;
 	}
-	inflightRefresh = run().finally(() => { inflightRefresh = undefined; });
-	await inflightRefresh;
+	if (!options?.force && Date.now() - state.lastAttemptAt < REFRESH_COOLDOWN_MS) return;
+
+	if (!state.inflightRefresh) {
+		state.lastAttemptAt = Date.now();
+		state.inflightRefresh = run(globalThis.fetch).finally(() => { state.inflightRefresh = undefined; });
+	}
+	if (options?.force) {
+		await state.inflightRefresh;
+	}
 }
 
 /** Wire the dynamic models overlay into piModels() at server boot. */
@@ -312,6 +353,8 @@ export function installGoogleModelsCatalogOverlay(): void {
 
 /** Reset in-memory cache (for tests switching LH_DATA_DIR). */
 export function resetModelsDevCatalogCacheForTest(): void {
-	memoryCache = undefined;
-	inflightRefresh = undefined;
+	const state = catalogState();
+	state.memoryCache = undefined;
+	state.inflightRefresh = undefined;
+	state.lastAttemptAt = 0;
 }

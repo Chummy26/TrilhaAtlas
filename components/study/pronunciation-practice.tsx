@@ -3,11 +3,41 @@
 import { useEffect, useRef, useState } from "react";
 import { Ear, EyeOff, Mic, PencilLine, Volume2 } from "lucide-react";
 import { useSettingsSaved } from "@/components/settings-signal";
+import { useSettingsSeed } from "@/components/settings-seed";
 import { shouldHideVoiceText, type LessonActivity } from "@/src/core";
 import { useT } from "@/components/i18n";
 
 const conversation = "https://voa-audio.voanews.eu/vle/2016/02/08/49485bf8-4277-47f6-9abe-617ee2473f8c.mp3";
 const video = "https://learningenglish.voanews.com/a/lets-learn-english-lesson-one/3111026.html";
+
+// Shared across all PronunciationPractice instances so multiple voice cards on
+// the same lesson never issue duplicate /api/settings requests.
+let cachedLessonVoicePractice: boolean | null = null;
+let inflightLessonVoicePractice: Promise<boolean> | null = null;
+
+function invalidateLessonVoicePracticeCache(): void {
+	cachedLessonVoicePractice = null;
+	inflightLessonVoicePractice = null;
+}
+
+function readLessonVoicePractice(): Promise<boolean> {
+	if (cachedLessonVoicePractice !== null) return Promise.resolve(cachedLessonVoicePractice);
+	if (!inflightLessonVoicePractice) {
+		inflightLessonVoicePractice = fetch("/api/settings")
+			.then((res) => (res.ok ? res.json() : null))
+			.then((data: { agent?: { lessonVoicePractice?: boolean }; settings?: { agent?: { lessonVoicePractice?: boolean } } | null } | null) => {
+				const agent = data?.agent ?? data?.settings?.agent;
+				const enabled = agent?.lessonVoicePractice === true;
+				cachedLessonVoicePractice = enabled;
+				return enabled;
+			})
+			.catch(() => false)
+			.finally(() => {
+				inflightLessonVoicePractice = null;
+			});
+	}
+	return inflightLessonVoicePractice;
+}
 
 export function PronunciationPractice({
 	voice,
@@ -27,22 +57,31 @@ export function PronunciationPractice({
 	const [clip, setClip] = useState("");
 	const [letter, setLetter] = useState(-1);
 	const [plays, setPlays] = useState(0);
-	const [settingsVoiceEnabled, setSettingsVoiceEnabled] = useState(false);
+	const seed = useSettingsSeed();
+	const [settingsVoiceEnabled, setSettingsVoiceEnabled] = useState<boolean>(
+		() => seed?.settings?.agent?.lessonVoicePractice ?? cachedLessonVoicePractice ?? false,
+	);
 	const [settingsRev, setSettingsRev] = useState(0);
-	useSettingsSaved(section => { if (section === "agent") setSettingsRev(r => r + 1); });
+	useSettingsSaved((section) => {
+		if (section === "agent") {
+			invalidateLessonVoicePracticeCache();
+			setSettingsRev((r) => r + 1);
+		}
+	});
 	useEffect(() => {
 		if (voicePracticeEnabled !== undefined) return;
-		const ctrl = new AbortController();
-		void fetch("/api/settings", { signal: ctrl.signal })
-			.then(res => (res.ok ? res.json() : null))
-			.then((data: { agent?: { lessonVoicePractice?: boolean } } | null) => {
-				if (!ctrl.signal.aborted && data) {
-					setSettingsVoiceEnabled(data.agent?.lessonVoicePractice === true);
-				}
-			})
-			.catch(() => { /* keep default OFF */ });
-		return () => ctrl.abort();
-	}, [voicePracticeEnabled, settingsRev]);
+		if (seed !== null) {
+			const enabled = seed.settings?.agent?.lessonVoicePractice === true;
+			cachedLessonVoicePractice = enabled;
+			setSettingsVoiceEnabled(enabled);
+			return;
+		}
+		let alive = true;
+		void readLessonVoicePractice().then((enabled) => {
+			if (alive) setSettingsVoiceEnabled(enabled);
+		});
+		return () => { alive = false; };
+	}, [voicePracticeEnabled, seed, settingsRev]);
 	const allowVoiceRecording = voicePracticeEnabled ?? settingsVoiceEnabled;
 	const recorder = useRef<MediaRecorder | null>(null);
 	const mounted = useRef(false);

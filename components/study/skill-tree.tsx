@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
 import { useSettingsSaved } from "@/components/settings-signal";
@@ -75,6 +75,30 @@ function Materials({
 	const [pdfSection, setPdfSection] = useState("");
 	const [linkedNodes, setLinkedNodes] = useState<string[]>([node.id]);
 	const endpoint = "/api/study/materials?" + new URLSearchParams({ domain, node: node.id });
+	const nodeCacheRef = useRef(new Map<string, { detail: NodeDetail; regionMaterials?: RegionMaterials }>());
+	const regionCacheRef = useRef(new Map<string, RegionMaterials>());
+	const cacheVersionRef = useRef(`${domain}:${revision}:${refreshNonce}`);
+
+	const updateRegionCache = useCallback(
+		(next: RegionMaterials) => {
+			setData(next);
+			if (node.region) {
+				const regionKey = `${domain}\0${node.region}`;
+				regionCacheRef.current.set(regionKey, next);
+			}
+			const nodeKey = `${domain}\0${node.id}`;
+			const cached = nodeCacheRef.current.get(nodeKey);
+			if (cached) {
+				nodeCacheRef.current.set(nodeKey, { ...cached, regionMaterials: next });
+			}
+			for (const [key, entry] of nodeCacheRef.current.entries()) {
+				if (entry.regionMaterials?.region && entry.regionMaterials.region === next.region) {
+					nodeCacheRef.current.set(key, { ...entry, regionMaterials: next });
+				}
+			}
+		},
+		[domain, node.id, node.region],
+	);
 
 	useEffect(() => {
 		setLinkedNodes([node.id]);
@@ -82,15 +106,38 @@ function Materials({
 		setManualPart("");
 		setManualUrl("");
 		setPdfSection("");
+		setError("");
 	}, [node.id]);
 
 	useEffect(() => {
+		const version = `${domain}:${revision}:${refreshNonce}`;
+		if (cacheVersionRef.current !== version) {
+			cacheVersionRef.current = version;
+			nodeCacheRef.current.clear();
+			regionCacheRef.current.clear();
+		}
+		const nodeKey = `${domain}\0${node.id}`;
+		const cachedNode = nodeCacheRef.current.get(nodeKey);
+		if (cachedNode) {
+			setDetail(cachedNode.detail);
+			setData(cachedNode.regionMaterials);
+			setError("");
+			return;
+		}
+		setDetail(undefined);
+		const cachedRegion = node.region ? regionCacheRef.current.get(`${domain}\0${node.region}`) : undefined;
+		setData(cachedRegion);
+
 		const ctrl = new AbortController();
 		async function read() {
 			const res = await fetch(endpoint + "&lesson=1", { signal: ctrl.signal });
 			if (!res.ok) throw new Error(t("map.tree.errLoadRegion"));
-			const json = await res.json();
+			const json = (await res.json()) as NodeDetail & { regionMaterials?: RegionMaterials };
 			if (ctrl.signal.aborted) return;
+			nodeCacheRef.current.set(nodeKey, { detail: json, regionMaterials: json.regionMaterials });
+			if (node.region && json.regionMaterials) {
+				regionCacheRef.current.set(`${domain}\0${node.region}`, json.regionMaterials);
+			}
 			setDetail(json);
 			setData(json.regionMaterials);
 		}
@@ -98,7 +145,7 @@ function Materials({
 			if (!ctrl.signal.aborted) setError(e.message);
 		});
 		return () => ctrl.abort();
-	}, [endpoint, revision, refreshNonce, t]);
+	}, [domain, node.id, node.region, endpoint, revision, refreshNonce, t]);
 
 	async function enrichNode() {
 		setSearching(true);
@@ -107,7 +154,7 @@ function Materials({
 			const res = await fetch(endpoint + "&enrich=1", { method: "POST" });
 			const result = await res.json();
 			if (!res.ok) throw new Error(result.error ?? t("map.tree.errEnrich"));
-			setData(result);
+			updateRegionCache(result);
 		} catch (e) {
 			setError(e instanceof Error ? e.message : t("map.tree.errEnrich"));
 		} finally {
@@ -123,7 +170,7 @@ function Materials({
 			const res = await fetch(endpoint + action, { method: "POST" });
 			const result = await res.json();
 			if (!res.ok) throw new Error(result.error ?? t("map.tree.errLoadMaterials"));
-			setData(result);
+			updateRegionCache(result);
 		} catch (e) {
 			setError(e instanceof Error ? e.message : t("map.tree.errSearchMaterials"));
 		} finally {
@@ -147,7 +194,7 @@ function Materials({
 			});
 			const result = await res.json();
 			if (!res.ok) throw new Error(result.error ?? t("map.tree.errUpdateBook"));
-			setData(result);
+			updateRegionCache(result);
 			if (file) setPdfSection("");
 		} catch (e) {
 			setError(e instanceof Error ? e.message : t("map.tree.errUpdateBook"));
@@ -186,7 +233,7 @@ function Materials({
 			});
 			const result = await res.json();
 			if (!res.ok) throw new Error(result.error ?? t("map.tree.errAddMaterial"));
-			setData(result);
+			updateRegionCache(result);
 			setManualTitle("");
 			setManualPart("");
 			setManualUrl("");
@@ -206,7 +253,7 @@ function Materials({
 			});
 			const result = await res.json();
 			if (!res.ok) throw new Error(result.error ?? t("map.tree.errRemoveMaterial"));
-			setData(result);
+			updateRegionCache(result);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : t("map.tree.errRemoveMaterial"));
 		} finally {
@@ -240,21 +287,26 @@ function Materials({
 		}
 	}
 
-	const materials =
-		data?.materials.filter(
-			(m) => node.kind === "unit" || m.nodes.includes(node.id) || m.nodes.includes(data.region),
-		) ?? [];
-	const groups = new Map<string, typeof materials>();
-	for (const m of materials) {
-		const key = m.kind + ":" + m.title;
-		const group = groups.get(key);
-		if (group) group.push(m);
-		else groups.set(key, [m]);
-	}
-	const otherParts =
-		node.kind === "unit"
-			? []
-			: data?.materials.filter((m) => !materials.some((own) => own.url === m.url)) ?? [];
+	const { materials, groups, otherParts } = useMemo(() => {
+		const own =
+			data?.materials.filter(
+				(m) => node.kind === "unit" || m.nodes.includes(node.id) || m.nodes.includes(data.region),
+			) ?? [];
+		const grouped = new Map<string, typeof own>();
+		const ownUrls = new Set<string>();
+		for (const m of own) {
+			ownUrls.add(m.url);
+			const key = m.kind + ":" + m.title;
+			const group = grouped.get(key);
+			if (group) group.push(m);
+			else grouped.set(key, [m]);
+		}
+		const others =
+			node.kind === "unit"
+				? []
+				: data?.materials.filter((m) => !ownUrls.has(m.url)) ?? [];
+		return { materials: own, groups: grouped, otherParts: others };
+	}, [data, node.id, node.kind]);
 
 	const activeSessionId = detail?.activeSessionId ?? detail?.sessionId;
 
@@ -830,7 +882,21 @@ export function SkillTree({
 	);
 
 	const byId = useMemo(() => new Map(map.nodes.map((n) => [n.id, n])), [map.nodes]);
-	const root = map.nodes.find((n) => !n.parent)!;
+	const root = useMemo(() => map.nodes.find((n) => !n.parent)!, [map.nodes]);
+	const normalizedTitles = useMemo(
+		() => new Map(map.nodes.map((n) => [n.id, n.title.toLocaleLowerCase(intl)])),
+		[map.nodes, intl],
+	);
+	const reinforcementsByTarget = useMemo(() => {
+		const grouped = new Map<string, SkillNode[]>();
+		for (const n of map.nodes) {
+			if (!n.reinforcementFor) continue;
+			const list = grouped.get(n.reinforcementFor);
+			if (list) list.push(n);
+			else grouped.set(n.reinforcementFor, [n]);
+		}
+		return grouped;
+	}, [map.nodes]);
 	const [id, setId] = useState(
 		initialNode && byId.has(initialNode) ? initialNode : map.position ?? map.next ?? root.id,
 	);
@@ -838,23 +904,36 @@ export function SkillTree({
 	const scope = selected.leaf ? byId.get(selected.region ?? selected.parent ?? root.id)! : selected;
 	const [query, setQuery] = useState("");
 	const q = query.trim().toLocaleLowerCase(intl);
-	const rows = q
-		? map.nodes.filter((n) => n.title.toLocaleLowerCase(intl).includes(q)).slice(0, 60)
-		: map.nodes
+	const rows = useMemo(() => {
+		if (q) {
+			const matches: SkillNode[] = [];
+			for (const n of map.nodes) {
+				if (normalizedTitles.get(n.id)?.includes(q)) {
+					matches.push(n);
+					if (matches.length >= 60) break;
+				}
+			}
+			return matches;
+		}
+		return map.nodes
 			.filter((n) => n.parent === scope.id || (selected.leaf && n.region === scope.id && n.leaf))
 			.sort((a, b) => a.order - b.order);
+	}, [q, map.nodes, normalizedTitles, scope.id, selected.leaf]);
 	const anchor = byId.get(map.position ?? map.next ?? "");
 	const leaves = useMemo(() => map.nodes.filter((n) => n.leaf && !n.reinforcementFor), [map.nodes]);
 	const regionUnits = useMemo(() => map.nodes.filter((n) => n.kind === "unit"), [map.nodes]);
-	const completed = leaves.filter((n) => n.completed).length;
+	const completed = useMemo(() => leaves.reduce((sum, n) => sum + (n.completed ? 1 : 0), 0), [leaves]);
 	const pct = leaves.length > 0 ? Math.round((100 * completed) / leaves.length) : 0;
 	const [locate, setLocate] = useState(0);
 	const [enrichingTree, setEnrichingTree] = useState(false);
 	const [treeEnrichNote, setTreeEnrichNote] = useState("");
 	const [materialsNonce, setMaterialsNonce] = useState(0);
 
-	const trail: SkillNode[] = [selected];
-	while (trail[0]?.parent && byId.has(trail[0].parent)) trail.unshift(byId.get(trail[0].parent)!);
+	const trail = useMemo(() => {
+		const path: SkillNode[] = [selected];
+		while (path[0]?.parent && byId.has(path[0].parent)) path.unshift(byId.get(path[0].parent)!);
+		return path;
+	}, [selected, byId]);
 
 	const progress = selected.completed
 		? t("map.tree.statusCompleted")
@@ -869,10 +948,10 @@ export function SkillTree({
 				? t("map.tree.categoryUnit")
 				: t("map.tree.categoryArea");
 
-	function pick(key: string) {
+	const pick = useCallback((key: string) => {
 		setId(key);
 		setQuery("");
-	}
+	}, []);
 
 	async function enrichWholeTree() {
 		if (enrichingTree || !regionUnits.length) return;
@@ -886,14 +965,22 @@ export function SkillTree({
 			: regionUnits;
 		const batch = targets.slice(0, 12);
 		try {
-			for (let i = 0; i < batch.length; i++) {
-				const unit = batch[i]!;
-				setTreeEnrichNote(t("map.tree.enrichingBatch", { current: i + 1, total: batch.length }));
-				const url =
-					"/api/study/materials?" + new URLSearchParams({ domain: map.domain, node: unit.id, enrich: "1" });
-				const res = await fetch(url, { method: "POST" }).catch(() => null);
-				if (res?.ok) updated++;
-			}
+			const concurrency = Math.min(3, batch.length);
+			let nextIdx = 0;
+			let finished = 0;
+			setTreeEnrichNote(t("map.tree.enrichingBatch", { current: 1, total: batch.length }));
+			const runWorker = async () => {
+				while (nextIdx < batch.length) {
+					const unit = batch[nextIdx++]!;
+					const url =
+						"/api/study/materials?" + new URLSearchParams({ domain: map.domain, node: unit.id, enrich: "1" });
+					const res = await fetch(url, { method: "POST" }).catch(() => null);
+					if (res?.ok) updated++;
+					finished++;
+					setTreeEnrichNote(t("map.tree.enrichingBatch", { current: finished, total: batch.length }));
+				}
+			};
+			await Promise.all(Array.from({ length: concurrency }, () => runWorker()));
 			setMaterialsNonce((n) => n + 1);
 			setTreeEnrichNote(t("map.tree.enrichedResult", { count: updated }));
 		} finally {
@@ -1059,28 +1146,26 @@ export function SkillTree({
 							})}
 						</button>
 					)}
-					{map.nodes
-						.filter((n) => n.reinforcementFor === id)
-						.map((n) => (
-							<button
-								key={n.id}
-								type="button"
-								className="cel-button w-full justify-start px-3 py-2 text-sm"
-								onClick={() => {
-									pick(n.id);
-									setLocate((v) => v + 1);
-								}}
-							>
-								<Icon name="review" size={16} />
-								{t("map.tree.studyReinforcementItem", { title: n.title })}
-							</button>
-						))}
+					{(reinforcementsByTarget.get(id) ?? []).map((n) => (
+						<button
+							key={n.id}
+							type="button"
+							className="cel-button w-full justify-start px-3 py-2 text-sm"
+							onClick={() => {
+								pick(n.id);
+								setLocate((v) => v + 1);
+							}}
+						>
+							<Icon name="review" size={16} />
+							{t("map.tree.studyReinforcementItem", { title: n.title })}
+						</button>
+					))}
 					{selected.kind === "domain" && (
 						<div className="space-y-3">
 							<p className="text-sm text-muted-foreground tabular-nums">
 								{t("map.tree.domainCounts", {
-									regions: map.nodes.filter((n) => n.kind === "unit").length,
-									skills: map.nodes.filter((n) => n.leaf).length,
+									regions: regionUnits.length,
+									skills: leaves.length,
 								})}
 							</p>
 							{map.next && (
@@ -1121,7 +1206,7 @@ export function SkillTree({
 						</details>
 					)}
 					<Materials
-						key={map.domain + id}
+						key={map.domain}
 						domain={map.domain}
 						node={selected}
 						busy={busy}
@@ -1159,7 +1244,7 @@ export function SkillTree({
 									onClick={() => pick(n.id)}
 									aria-pressed={isCurrent}
 									className={
-										"flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm transition-all " +
+										"study-cv-block flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm transition-all " +
 										(isCurrent
 											? "border-[var(--cel-accent,var(--foreground))] bg-[color-mix(in_srgb,var(--cel-accent,var(--primary))_10%,var(--card))] font-semibold shadow-xs"
 											: "border-border/55 bg-card hover:border-foreground/40 hover:bg-accent/70")

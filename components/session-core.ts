@@ -247,6 +247,7 @@ export function visibleQueuedSteers(
 	queue: readonly SteerQueueItem[],
 	messages: readonly LhMessage[],
 ): SteerQueueItem[] {
+	if (queue.length === 0) return [];
 	const ids = new Set(messages.map((m) => (m as { id?: string }).id));
 	return queue.filter((s) => !ids.has(s.id));
 }
@@ -330,11 +331,13 @@ export class SessionModel {
 	readyRef = true;
 
 	private history?: { base: LhMessage[]; tail: LhMessage[]; messages: LhMessage[] };
+	private pendingChangeFrame: number | null = null;
+	private pendingChangeDirty = false;
 
 	constructor(opts: SessionModelOptions) {
 		this.chatId = opts.chatId;
 		this.base = copyImmutableData(opts.initialMessages);
-		this.tail = copyImmutableData(this.tail);
+		this.tail = Object.freeze([]) as unknown as LhMessage[];
 		if (pluginQuestionCallsOf(this.base).some(call => call.status === "answerable" || call.status === "unreadable")) { this.reconciliationValue = "syncing"; this.readyRef = false; }
 		this.errorValue = opts.initialError === undefined ? null : { message: opts.initialError };
 		this.automaticContinuationBlocked = opts.initialError !== undefined;
@@ -358,9 +361,46 @@ export class SessionModel {
 	 * identities let all historical question readers share the same analysis. */
 	private nativeHistory(): LhMessage[] {
 		if (this.history?.base === this.base && this.history.tail === this.tail) return this.history.messages;
-		const messages = copyImmutableData([...this.base, ...this.tail]);
+		// base is frozen once via copyImmutableData at adoption and each tail
+		// item is detached individually on ingress; avoid O(N) descriptor cloning.
+		const messages =
+			this.tail.length === 0
+				? this.base
+				: (Object.freeze([...this.base, ...this.tail]) as LhMessage[]);
 		this.history = { base: this.base, tail: this.tail, messages };
 		return messages;
+	}
+
+	private cancelPendingChange(): void {
+		if (this.pendingChangeFrame !== null) {
+			if (typeof cancelAnimationFrame === "function") cancelAnimationFrame(this.pendingChangeFrame);
+			this.pendingChangeFrame = null;
+		}
+		this.pendingChangeDirty = false;
+	}
+
+	private flushChange(force = false): void {
+		const hadPending = this.pendingChangeDirty;
+		this.cancelPendingChange();
+		if (force || hadPending) {
+			this.onChange?.();
+		}
+	}
+
+	private notifyChange(immediate = true): void {
+		if (!immediate && typeof requestAnimationFrame === "function") {
+			this.pendingChangeDirty = true;
+			if (this.pendingChangeFrame === null) {
+				this.pendingChangeFrame = requestAnimationFrame(() => {
+					this.pendingChangeFrame = null;
+					if (!this.pendingChangeDirty) return;
+					this.pendingChangeDirty = false;
+					this.onChange?.();
+				});
+			}
+			return;
+		}
+		this.flushChange(true);
 	}
 
 	getState(): SessionState {
@@ -399,26 +439,22 @@ export class SessionModel {
 	}
 
 	/** Mutate model state + notify (the hook re-renders). */
-	private mutate(fn: () => void): void {
+	private mutate(fn: () => void, coalesce = false): void {
 		fn();
-		// Streaming SDK partials and POST inputs remain caller-owned. Detach only
-		// new data, retaining already immutable settled messages and contracts.
-		this.base = copyImmutableData(this.base);
-		this.tail = copyImmutableData(this.tail);
-		this.onChange?.();
+		this.notifyChange(!coalesce);
 	}
 
 	private setStatus(status: SessionStatus): void {
 		if (status === "submitted") { this.liveFailureId = null; this.invalidateCanonicalReads(); }
 		this.statusValue = status;
 		this.readyRef = status === "ready" && this.reconciliationValue === "ready";
-		this.onChange?.();
+		this.flushChange(true);
 	}
 
 	private setError(message: string | null): void {
 		this.errorValue = message === null ? null : { message };
 		if (message !== null) this.automaticContinuationBlocked = true;
-		this.onChange?.();
+		this.flushChange(true);
 	}
 
 	private invalidateCanonicalReads(): void { this.canonicalEpoch++; }
@@ -483,7 +519,7 @@ export class SessionModel {
 		if (this.reconciliationTask && this.reconciliationOwner === this.consumeAbort && this.reconciliationConnectionGeneration === this.connectionGeneration) return this.reconciliationTask;
 		this.reconciliationValue = "syncing";
 		this.readyRef = false;
-		this.onChange?.();
+		this.flushChange(true);
 		const owner = this.consumeAbort;
 		const connection = this.connectionGeneration;
 		const isCurrent = () => this.consumeAbort === owner && this.connectionGeneration === connection;
@@ -515,7 +551,7 @@ export class SessionModel {
 				return false;
 			} finally {
 				if (this.reconciliationTask === task) this.reconciliationTask = null;
-				if (isCurrent()) this.onChange?.();
+				if (isCurrent()) this.flushChange(true);
 			}
 		})();
 		this.reconciliationTask = task;
@@ -592,7 +628,7 @@ export class SessionModel {
 	 * the Thinking… placeholder (gated on submitted) covers the whole
 	 * provider-connect gap (owner, optimistic round 3, 2026-10-02).
 	 */
-	applyWireEvent(event: Record<string, unknown>): boolean {
+	applyWireEvent(event: Record<string, unknown>, coalesce = false): boolean {
 		if (event.type === "error") {
 			// Loop-level failure (agent.continue threw outside the stream) —
 			// raw text (owner ruling, Wave D): the banner shows exactly this.
@@ -627,11 +663,12 @@ export class SessionModel {
 					// its start/end is replayed. The record owns that identity;
 					// adding it to the tail would duplicate it until the next sync.
 					if (this.base.some((m) => m.id === mid)) return false;
+					const detached = copyImmutableData(message as LhMessage);
 					this.mutate(() => {
 						const idx = this.tail.findIndex((m) => m.id === mid);
 						this.tail =
-							idx === -1 ? [...this.tail, message as LhMessage] : this.tail.with(idx, message as LhMessage);
-					});
+							idx === -1 ? [...this.tail, detached] : this.tail.with(idx, detached);
+					}, false);
 					return true;
 				}
 				// pi streams AssistantMessages with NO id — the id exists only
@@ -647,7 +684,7 @@ export class SessionModel {
 				// unambiguous. An explicit message.id (if one ever appears on
 				// the wire) still wins.
 				const id = message.id ?? this.streamingMessageId ?? localId();
-				const withId = { ...message, id } as LhMessage;
+				const withId = copyImmutableData({ ...message, id } as LhMessage);
 				if (agent.type === "message_end") {
 					this.incompleteUsageIds.delete(id);
 					if (message.role === "assistant" && message.stopReason === "error") {
@@ -657,17 +694,18 @@ export class SessionModel {
 						this.errorValue = null;
 					}
 				} else this.incompleteUsageIds.add(id);
+				const shouldCoalesce = coalesce && agent.type !== "message_end";
 				if (agent.type === "message_start") {
 					this.streamingMessageId = id;
 					this.streamingIds.add(id);
 					this.mutate(() => {
 						this.tail = [...this.tail, withId];
-					});
+					}, shouldCoalesce);
 				} else {
 					this.mutate(() => {
 						const idx = this.tail.findIndex((m) => m.id === id);
 						this.tail = idx === -1 ? [...this.tail, withId] : this.tail.with(idx, withId);
-					});
+					}, shouldCoalesce);
 				}
 				if (agent.type === "message_end") {
 					this.streamingMessageId = null; // slot done — next start mints fresh
@@ -688,20 +726,21 @@ export class SessionModel {
 						errorText: text,
 						...(result ? { result: { content: result.content, details: result.details, isError: agent.isError } } : {}),
 					});
-				});
+				}, false);
 				return true; // the execution layer updated the tool part's card
 			}
 			case "turn_end": {
 				// The results batch: append as native messages (client-stamped
 				// ids — the settle sync lands the server canon).
+				const detachedResults = (agent.toolResults as ToolResultMessage[]).map(
+					(r) => copyImmutableData({ ...r, id: localId() } as unknown as LhMessage),
+				);
 				this.mutate(() => {
 					this.tail = [
 						...this.tail,
-						...(agent.toolResults as ToolResultMessage[]).map(
-							(r) => ({ ...r, id: localId() }) as unknown as LhMessage,
-						),
+						...detachedResults,
 					];
-				});
+				}, false);
 				return true;
 			}
 			default:
@@ -734,7 +773,7 @@ export class SessionModel {
 					sawDone = true;
 					return;
 				}
-				const acted = this.applyWireEvent(event);
+				const acted = this.applyWireEvent(event, true);
 				if (!sawEvent && acted) {
 					sawEvent = true;
 					if (this.statusValue !== "error") this.setStatus("streaming");
@@ -746,6 +785,7 @@ export class SessionModel {
 			// A cancelled consume may finish after its replacement has entered
 			// Thinking. Only the current owner can settle shared state.
 			if (this.consumeAbort === controller) {
+				this.flushChange(false);
 				this.streamingIds = new Set();
 				this.executions = new Map();
 				if (sawDone) {
@@ -942,9 +982,12 @@ export class SessionModel {
 			optimistic.push(result);
 			this.unconfirmedAnswers.set(result.id, expectedKey ?? input.toolCallId);
 		}
-		if (optimistic.length > 0) this.mutate(() => {
-			this.tail = [...this.tail, ...optimistic];
-		});
+		if (optimistic.length > 0) {
+			const detachedOptimistic = optimistic.map((entry) => copyImmutableData(entry));
+			this.mutate(() => {
+				this.tail = [...this.tail, ...detachedOptimistic];
+			});
+		}
 		if (imageBearing) this.imagePreview = { owner: controller, ids: new Set(optimistic.map(message => message.id)) };
 		let accepted = false;
 		try {
@@ -1066,10 +1109,10 @@ export class SessionModel {
 		this.invalidateCanonicalReads();
 		const id = `steer_${localId()}`;
 		this.steerQueueValue = [...this.steerQueueValue, { id, text: t }];
-		this.onChange?.();
+		this.flushChange(true);
 		const dropSteer = () => {
 			this.steerQueueValue = this.steerQueueValue.filter((s) => s.id !== id);
-			this.onChange?.();
+			this.flushChange(true);
 		};
 		try {
 			const res = await this.fetch(`/api/chats/${this.chatId}/steer`, {
@@ -1111,8 +1154,9 @@ export class SessionModel {
 		if (questionKey !== undefined && (subject?.key !== questionKey || subject.toolCallId !== toolCallId)) return;
 		const tool = pendingCallTool(this.nativeHistory(), toolCallId) ?? "quiz";
 		this.invalidateCanonicalReads();
+		const dismissedResult = copyImmutableData({ ...newAnswerResult(toolCallId, tool, answer), id: localId() });
 		this.mutate(() => {
-			this.tail = [...this.tail, { ...newAnswerResult(toolCallId, tool, answer), id: localId() }];
+			this.tail = [...this.tail, dismissedResult];
 		});
 		try {
 			const res = await this.fetch(`/api/chats/${this.chatId}/dismiss`, {
@@ -1134,8 +1178,9 @@ export class SessionModel {
 	async dismissProblem(problemCallId: string): Promise<void> {
 		if (!this.readyRef) return;
 		this.invalidateCanonicalReads();
+		const dismissedMarker = copyImmutableData({ ...newProblemDismissedMarker(problemCallId), id: localId() });
 		this.mutate(() => {
-			this.tail = [...this.tail, { ...newProblemDismissedMarker(problemCallId), id: localId() }];
+			this.tail = [...this.tail, dismissedMarker];
 		});
 		try {
 			const res = await this.fetch(`/api/chats/${this.chatId}/dismiss`, {

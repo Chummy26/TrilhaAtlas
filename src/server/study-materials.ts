@@ -1,13 +1,14 @@
 import { enrichRegionalCatalog, findRegionalSource } from "./domain-reading-list.ts";
 import { englishMissionMaterials } from "./english-mission-materials.ts";
 import { studyCampaign, campaignFinale } from "../core/study/campaign.ts";
+import fs from "node:fs";
 import path from "node:path";
 import { parseHTML } from "linkedom";
 import { FormBodyLimitError, readBoundedFormData } from "../../lib/bounded-form-data.ts";
 import { activeDomainId, PATHS } from "../../config.ts";
 import sections from "../../content/resources/sections.json" with { type: "json" };
 import type { CurriculumItem } from "../core/curriculum/types.ts";
-import { libraryDir, resourcesDir } from "../core/domains/paths.ts";
+import { chatsDir, libraryDir, resourcesDir } from "../core/domains/paths.ts";
 import { LEARNER_CONSTANTS } from "../core/learner/params.ts";
 import { booksForDomain, seedLicense } from "../core/resources/catalog.ts";
 import { bestMatch, rankByMatch } from "../core/resources/match.ts";
@@ -24,10 +25,9 @@ import { cachedText } from "./resources/provider-kit.ts";
 import { createResourceFetch } from "./resources/safe-fetch.ts";
 import { loadResourceSeeds } from "./resources/seeds.ts";
 import { createDefaultRegistry } from "./resources/registry.ts";
-import { curriculumSources, finishedExposures, lessonRoute, loadCurriculum, studyDomains, StudyError } from "./study.ts";
+import { curriculumSources, finishedExposures, lessonRoute, loadCurriculum, readLearnerHistory, studyDomains, StudyError } from "./study.ts";
 import { readStudyEvents, studyLogRevision } from "./study-log.ts";
-import { getChat } from "./chats.ts";
-import { detectFormat, importBookFile, importFromUrl, listLibrary, readLibraryItem, readLibraryChunks, type ImportedBook } from "./resources/user-library.ts";
+import { detectFormat, importBookFile, importFromUrl, listLibrary, readLibraryItem, readLibraryChunks, type ImportedBook, type LibraryItemMeta } from "./resources/user-library.ts";
 import { MAX_BOOK_BODY_BYTES, MAX_BOOK_BYTES } from "../../lib/book-import-limits.ts";
 import { linkRegionalReading, regionalReadingList, unlinkRegionalReading } from "./resources/region-readings.ts";
 import { addManualMaterial, readManualMaterials, removeManualMaterial } from "./resources/manual-materials.ts";
@@ -57,8 +57,8 @@ function catalog(domain: string) {
 	return booksForDomain(seeds.books, domain);
 }
 
-function regionalReading(domain: string, nodes: CurriculumItem[], linked: Set<string>) {
-	const saved = listLibrary(libraryDir(PATHS.data));
+function regionalReading(domain: string, nodes: CurriculumItem[], linked: Set<string>, savedLibrary?: readonly LibraryItemMeta[]) {
+	const saved = savedLibrary ?? listLibrary(libraryDir(PATHS.data));
 	const origins = new Set(saved.flatMap(b => b.origin.kind === "url" && linked.has(b.sha256) ? [b.origin.href] : []));
 	const materials: StudyMaterial[] = [];
 	const books: BookCandidate[] = [];
@@ -174,7 +174,23 @@ async function discoverBooks(domain: string, item: CurriculumItem, allNodes: Cur
 	return { materials, complete };
 }
 
-const searches = new Map<string, Promise<SearchResult>>();
+type StudyMaterialsGlobalState = {
+	searches: Map<string, Promise<SearchResult>>;
+	downloads: Map<string, Promise<ImportedBook>>;
+	lessonIndex: Map<string, { revision: string; nodes: Map<string, string> }>;
+};
+
+const STUDY_MATERIALS_STATE_KEY = Symbol.for("learnharness.server.studyMaterials");
+
+function materialsState(): StudyMaterialsGlobalState {
+	const g = globalThis as typeof globalThis & { [STUDY_MATERIALS_STATE_KEY]?: StudyMaterialsGlobalState };
+	return (g[STUDY_MATERIALS_STATE_KEY] ??= {
+		searches: new Map(),
+		downloads: new Map(),
+		lessonIndex: new Map(),
+	});
+}
+
 export async function readRegionMaterials(domain: string, id: string, search?: Discovery): Promise<RegionMaterials> {
 	const { item, region, snapshot, view, manifest } = current(domain, id);
 	const ids = new Set<string>();
@@ -189,7 +205,7 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 	const savedLibrary = listLibrary(libraryDir(PATHS.data));
 	const libraryBooks = savedLibrary.map(b => ({ id: b.sha256, title: b.title, format: b.format, ...(b.numPages ? { pages: b.numPages } : {}) }));
 	const regionNodes = members.map(n => ({ id: n.id, title: n.title.pt, kind: n.kind }));
-	const materials = regionalReading(domain, members, new Set(localReadings.map(r => r.id)));
+	const materials = regionalReading(domain, members, new Set(localReadings.map(r => r.id)), savedLibrary);
 	// Manual user-curated node/section materials take highest priority.
 	for (const entry of readManualMaterials(domain)) {
 		const matched = entry.nodes.filter(key => ids.has(key));
@@ -239,6 +255,7 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 	const missing = (["book", "video"] as const).filter(kind => !materials.some(m => m.kind === kind &&
 		(m.nodes.includes(region.id) || m.nodes.includes(item.id))));
 	const requests = search ? [search] : missing;
+	const searches = materialsState().searches;
 	await Promise.all(requests.map(async kind => {
 		const precise = search && (kind === "book" || keyValue("YOUTUBE_API_KEY"));
 		const target = precise ? item : region;
@@ -280,12 +297,23 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 		enrichedStore.get<StudyMaterial[]>(prefix + "enriched:" + region.id, CATALOG_TTL_MS),
 	]);
 	const discoveries = [...discovered, books ?? [], lessons ?? [], enriched ?? []];
+	const dedupeBySuggestedUrl = new Map<string, StudyMaterial>();
+	const dedupeKey = (url: string, suggested: boolean | undefined) => `${suggested === undefined ? "u" : suggested ? "1" : "0"}:${url}`;
+	for (const mat of materials) {
+		const key = dedupeKey(mat.url, mat.suggested);
+		if (!dedupeBySuggestedUrl.has(key)) dedupeBySuggestedUrl.set(key, mat);
+	}
 	for (const match of discoveries.flat()) {
 		const within = match.nodes.filter(key => ids.has(key));
 		if (!within.length) continue;
-		const same = materials.find(m => m.url === match.url && m.suggested === match.suggested);
+		const key = dedupeKey(match.url, match.suggested);
+		const same = dedupeBySuggestedUrl.get(key);
 		if (same) same.nodes = [...new Set([...same.nodes, ...within])];
-		else materials.push({ ...match, nodes: within });
+		else {
+			const entry = { ...match, nodes: within };
+			materials.push(entry);
+			dedupeBySuggestedUrl.set(key, entry);
+		}
 	}
 	for (const mat of materials) {
 		const rep = scoreEducationalReputation({ title: mat.title, url: mat.url, part: mat.part, fullBookUrl: mat.fullBookUrl });
@@ -293,11 +321,19 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 		if (rep.badge) mat.reputationBadge = rep.badge;
 	}
 	if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
-	const positions = new Map(members.map((m,i) => [m.id,i]));
-	const firstNode = (m: StudyMaterial) => Math.min(...m.nodes.map(k => positions.get(k) ?? Infinity));
-	materials.sort((a,b) =>
+	const positions = new Map(members.map((m, i) => [m.id, i]));
+	const firstPos = new Map<StudyMaterial, number>();
+	for (const m of materials) {
+		let min = Infinity;
+		for (const k of m.nodes) {
+			const pos = positions.get(k);
+			if (pos !== undefined && pos < min) min = pos;
+		}
+		firstPos.set(m, min);
+	}
+	materials.sort((a, b) =>
 		Number(!!b.manual) - Number(!!a.manual)
-		|| firstNode(a) - firstNode(b)
+		|| (firstPos.get(a) ?? Infinity) - (firstPos.get(b) ?? Infinity)
 		|| Number(!!a.suggested) - Number(!!b.suggested)
 		|| (b.reputationScore ?? 0) - (a.reputationScore ?? 0),
 	);
@@ -538,7 +574,6 @@ export async function updateManualNodeMaterial(domain: string, id: string, reque
 	return readRegionMaterials(domain, id);
 }
 
-const downloads = new Map<string, Promise<ImportedBook>>();
 export async function downloadRegionalBook(domain: string, id: string, key: string) {
 	const region = await readRegionMaterials(domain,id);
 	const book = catalog(domain).find(b => b.key === key);
@@ -550,6 +585,7 @@ export async function downloadRegionalBook(domain: string, id: string, key: stri
 		linkRegionalReading(domain, region.region, existing);
 		return readRegionMaterials(domain, id);
 	}
+	const downloads = materialsState().downloads;
 	const flight = libraryRoot + "/" + key;
 	let download = downloads.get(flight);
 	if (!download) {
@@ -566,19 +602,21 @@ export async function downloadRegionalBook(domain: string, id: string, key: stri
 	return readRegionMaterials(domain,id);
 }
 
-let lessonIndex: { revision: string; nodes: Map<string, string> } | undefined;
-
 export function lessonNodeOfChat(domain: string | null, chat: string) {
 	if (!domain) return null;
 	const revision = studyLogRevision(domain);
-	if (revision !== undefined && lessonIndex?.revision === revision) return lessonIndex.nodes.get(chat) ?? null;
+	const indexMap = materialsState().lessonIndex;
+	const key = `${PATHS.data}|${domain}`;
+	const cached = indexMap.get(key);
+	if (revision !== undefined && cached?.revision === revision) return cached.nodes.get(chat) ?? null;
 	const nodes = new Map<string, string>();
 	for (const ev of readStudyEvents(domain)) {
 		if (ev.kind === "exposure" && ev.source === "ai_lesson" && ev.sessionId && !nodes.has(ev.sessionId))
 			nodes.set(ev.sessionId, ev.nodeId);
 	}
 	// A pending chat event may have been recovered while reading the log.
-	lessonIndex = revision === undefined ? undefined : { revision, nodes };
+	if (revision === undefined) indexMap.delete(key);
+	else indexMap.set(key, { revision, nodes });
 	return nodes.get(chat) ?? null;
 }
 
@@ -712,9 +750,11 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	const campaign = studyCampaign(snapshot, view, new Set());
 	const limit = campaign.lessonMinutes.get(id) ?? maxNewMinutes;
 	const minutes = Math.round(Math.min(limit, maxNewMinutes, Math.max(minNewMinutes, node.hoursMid * 60)));
-	const events = readStudyEvents(domain);
+	const { events } = readLearnerHistory(domain, snapshot, view, new Date().toISOString());
 	const finished = finishedExposures(events);
 	const closedForReinforcement = new Set(events.flatMap(e => e.kind === "lesson-finished" && e.outcome === "reinforce" ? [e.exposureId] : []));
+	const domainChatsDir = chatsDir(PATHS.data, domain);
+	const chatExists = (sessionId: string) => /^[A-Za-z0-9_-]+$/.test(sessionId) && fs.existsSync(path.join(domainChatsDir, `${sessionId}.json`));
 	const activeMain = events.findLast(
 		e => e.kind === "exposure"
 			&& !finished.has(e.id)
@@ -722,7 +762,7 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 			&& e.source === "ai_lesson"
 			&& e.nodeId === id
 			&& e.sessionId
-			&& getChat(e.sessionId),
+			&& chatExists(e.sessionId),
 	);
 	const completedMain = events.findLast(
 		e => e.kind === "exposure"
@@ -732,7 +772,7 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 			&& e.source === "ai_lesson"
 			&& e.nodeId === id
 			&& e.sessionId
-			&& getChat(e.sessionId),
+			&& chatExists(e.sessionId),
 	);
 	const side = events.findLast(
 		e => e.kind === "exposure"
@@ -741,7 +781,7 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 			&& e.source === "ai_lesson"
 			&& e.nodeId === id
 			&& e.sessionId
-			&& getChat(e.sessionId),
+			&& chatExists(e.sessionId),
 	);
 	const regionMaterials: RegionMaterials = region.kind === "unit" ? await readRegionMaterials(domain, id) : { region: id, materials: [], references: [], videoSearch: false };
 	const materials = relevantMaterials(regionMaterials, id);
@@ -749,7 +789,7 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	const book = materials.find(m => m.kind === "book");
 	if (withReading && book && !book.linkOnly) excerpt = await excerptFor(domain, book).catch(() => "");
 	if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
-	const { route, missing } = node.isLeaf ? lessonRoute(domain,view,events,id) : { route: [], missing: [] };
+	const { route, missing } = node.isLeaf ? lessonRoute(domain, view, events, id, snapshot) : { route: [], missing: [] };
 	const activeSessionId = activeMain?.kind === "exposure" ? activeMain.sessionId : undefined;
 	const completedSessionId = completedMain?.kind === "exposure" ? completedMain.sessionId : undefined;
 	return {

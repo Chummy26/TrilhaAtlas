@@ -12,7 +12,12 @@ const nextConfig: NextConfig = {
 	// Leave multipart headroom for notes and regional books. This is a
 	// proxy buffer, not a rejection gate: the import route also bounds reads,
 	// validates actual file bytes and handles incomplete multipart bodies.
-	experimental: { proxyClientMaxBodySize: Math.max(MAX_IMPORT_BODY_BYTES, MAX_BOOK_BODY_BYTES) },
+	experimental: {
+		proxyClientMaxBodySize: Math.max(MAX_IMPORT_BODY_BYTES, MAX_BOOK_BODY_BYTES),
+		optimizePackageImports: ["radix-ui", "d3-force", "d3-selection", "d3-shape", "d3-zoom", "dagre-d3-es"],
+		cssChunking: "graph",
+		turbopackLazyDynamicImports: true,
+	},
 	// Desktop target (Electron wrapper, 2026-09-17): standalone output = a
 	// self-contained .next/standalone/server.js the Electron shell spawns
 	// on 127.0.0.1. Harmless for plain web deploys (extra build output).

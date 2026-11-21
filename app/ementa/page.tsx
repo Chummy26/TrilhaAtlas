@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { StudyHeartbeat } from "@/components/study/study-heartbeat";
 import { SyllabusView, type SyllabusTab } from "@/components/study/syllabus-view";
-import { activeDomainId, listStudyDomains, StudyError, studyNotebook, studySyllabus } from "@/src/server";
+import type { DomainNotebook } from "@/src/core";
+import { activeDomainId, listStudyDomains, StudyError, studyCoursePageData, studySyllabus } from "@/src/server";
 
 export const dynamic = "force-dynamic";
 
@@ -24,18 +25,28 @@ export default async function SyllabusPage({
 	const domain = activeDomainId();
 	if (!domain || (query.dominio && query.dominio !== domain)) redirect("/");
 
+	const initialTab = parseTab(query.aba);
 	let syllabus;
-	let notebook;
+	let notebook: DomainNotebook | null = null;
+	let domainTitle: string | undefined;
 	try {
-		syllabus = studySyllabus();
-		notebook = studyNotebook();
+		if (initialTab === "caderno") {
+			const data = studyCoursePageData();
+			syllabus = data.syllabus;
+			notebook = data.notebook;
+			domainTitle = data.domainTitle;
+		} else {
+			syllabus = studySyllabus();
+		}
 	} catch (error) {
 		if (error instanceof StudyError && (error.status === 404 || error.status === 409)) redirect("/");
 		throw error;
 	}
 
-	const domainInfo = listStudyDomains().domains.find((d) => d.id === domain);
-	const domainTitle = domainInfo?.title.pt ?? domain;
+	if (!domainTitle) {
+		const domainInfo = listStudyDomains().domains.find((d) => d.id === domain);
+		domainTitle = domainInfo?.title.pt ?? domain;
+	}
 	const initialAction = parseAction(query.acao);
 	const requestedChapter = query.capitulo?.trim() || undefined;
 	const matchedChapter = requestedChapter
@@ -54,7 +65,7 @@ export default async function SyllabusPage({
 				initialSyllabus={syllabus}
 				initialNotebook={notebook}
 				domainTitle={domainTitle}
-				initialTab={parseTab(query.aba)}
+				initialTab={initialTab}
 				initialModule={initialModule}
 				initialChapterId={initialChapterId}
 				initialAction={initialAction}

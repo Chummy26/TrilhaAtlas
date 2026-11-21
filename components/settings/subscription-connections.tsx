@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { NATIVE_SUBSCRIPTIONS, type NativeSubscriptionProviderId, type NativeSubscriptionStatus } from "@/src/core";
 import { Button } from "@/components/ui/button";
 import { notifySettingsSaved } from "@/components/settings-signal";
@@ -31,21 +31,27 @@ export function NativeSubscriptionUIProvider({ children }: { children: React.Rea
 	const interaction = status?.interaction, prompt = interaction?.prompt;
 	const management = view === "manage";
 	const busy = operation === "control" || status?.committing === true;
-	async function refresh() {
+	async function refresh(notifyOnChange = false) {
 		const request = ++sequence.current;
 		try {
 			const values = await bridge?.status();
 			if (!mounted.current || request !== sequence.current || !Array.isArray(values)) return;
+			const previous = statusesRef.current;
 			const accepted = NATIVE_SUBSCRIPTIONS.map(({ providerId }) => {
-				const next = values.find((s) => s.providerId === providerId), old = statusesRef.current.find((s) => s.providerId === providerId);
+				const next = values.find((s) => s.providerId === providerId), old = previous.find((s) => s.providerId === providerId);
 				return next && (!old || next.revision >= old.revision) ? next : old ?? emptySubscriptionStatus(providerId);
 			});
-			statusesRef.current = accepted; setStatuses(accepted);
+			const changed = previous.length !== accepted.length || JSON.stringify(previous) !== JSON.stringify(accepted);
+			statusesRef.current = accepted;
+			if (changed) {
+				setStatuses(accepted);
+				if (notifyOnChange) notifySettingsSaved("keys");
+			}
 		} catch { if (mounted.current && request === sequence.current) setError("The desktop connection is unavailable. Retry when the app is ready."); }
 	}
 	useEffect(() => {
 		mounted.current = true; void refresh();
-		const off = bridge?.onChange(() => { void refresh(); notifySettingsSaved("keys"); });
+		const off = bridge?.onChange(() => { void refresh(true); });
 		return () => { mounted.current = false; generation.current++; off?.(); };
 		// The root-lifetime subscriber reads current state through refs.
 	}, [bridge]);
@@ -81,7 +87,11 @@ export function NativeSubscriptionUIProvider({ children }: { children: React.Rea
 		catch { if (mounted.current && generation.current === owner) setError("Sign-in did not complete. Try connecting again."); }
 		finally { if (mounted.current && generation.current === owner) setOperation(null); }
 	}
-	return <Context.Provider value={{ statuses, busy: !!operation, open }}>
+	const openRef = useRef(open);
+	openRef.current = open;
+	const stableOpen = useCallback((providerId: NativeSubscriptionProviderId) => openRef.current(providerId), []);
+	const contextValue = useMemo(() => ({ statuses, busy: !!operation, open: stableOpen }), [statuses, operation, stableOpen]);
+	return <Context.Provider value={contextValue}>
 		{children}
 		{dialog && descriptor && status && <ConnectionDialog key={`${dialog}:${view}:${confirm}`} label={`${descriptor.label} connection`} testid="subscription-connection-dialog" backdropTestid="subscription-dialog-backdrop" busy={busy} onClose={close}>
 			<h2 className="text-sm font-semibold text-foreground">{descriptor.label}</h2>

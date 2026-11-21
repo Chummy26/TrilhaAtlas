@@ -60,6 +60,7 @@ export interface SideChatService {
 }
 const runKey = (chatId: string, threadId: string) => `${chatId}\u0000${threadId}`;
 const encoder = new TextEncoder();
+const TEXT_BROADCAST_FLUSH_MS = 64;
 
 export function createSideChatService(deps: SideChatDeps): SideChatService {
 	const runs = new Map<string, SideRun>();
@@ -193,13 +194,38 @@ export function createSideChatService(deps: SideChatDeps): SideChatService {
 		const broadcast = (event: SideStreamEvent) => {
 			for (const listener of [...run.listeners]) { try { listener(event); } catch { /* detached view */ } }
 		};
+		let pendingText: string | undefined;
+		let lastTextBroadcastAt = 0;
+		let textFlushTimer: ReturnType<typeof setTimeout> | undefined;
+		const flushPendingText = () => {
+			if (textFlushTimer) {
+				clearTimeout(textFlushTimer);
+				textFlushTimer = undefined;
+			}
+			if (pendingText !== undefined) {
+				const text = pendingText;
+				pendingText = undefined;
+				lastTextBroadcastAt = Date.now();
+				broadcast({ type: "text", text });
+			}
+		};
+		const scheduleTextBroadcast = (text: string) => {
+			pendingText = text;
+			const elapsed = Date.now() - lastTextBroadcastAt;
+			if (elapsed >= TEXT_BROADCAST_FLUSH_MS) {
+				flushPendingText();
+			} else if (!textFlushTimer) {
+				textFlushTimer = setTimeout(flushPendingText, TEXT_BROADCAST_FLUSH_MS - elapsed);
+			}
+		};
 		announce(chatId);
 		run.settled = (async () => {
 			let settledThread: SideChatThread | undefined;
 			try {
 				const result = await streamSideAnswer({ engine, instructions, turns, signal: run.controller.signal, chatId, runId: run.answerId,
-					onText: (text) => { run.text = text; run.updatedAt = new Date().toISOString(); broadcast({ type: "text", text }); },
+					onText: (text) => { run.text = text; run.updatedAt = new Date().toISOString(); scheduleTextBroadcast(text); },
 				});
+				flushPendingText();
 				const at = new Date().toISOString();
 				const answer: SideChatMessage = {
 					id: run.answerId, role: "assistant", text: result.text, at, model: run.model, requestId: input.requestId,
@@ -217,9 +243,14 @@ export function createSideChatService(deps: SideChatDeps): SideChatService {
 					} catch { /* deleted session has no usage destination */ }
 				}
 			} catch (error) {
+				flushPendingText();
 				console.error(`[chat ${chatId}] side answer failed to save:`, error);
 				broadcast({ type: "error", error: "The side answer could not be saved." });
 			} finally {
+				if (textFlushTimer) {
+					clearTimeout(textFlushTimer);
+					textFlushTimer = undefined;
+				}
 				runs.delete(key);
 				announce(chatId);
 				emit("record-changed", { chatId });

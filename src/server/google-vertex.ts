@@ -20,6 +20,7 @@ export function googleVertexStatus(probe?: GoogleVertexProbeEnv): GoogleVertexSt
 
 /** True when explicitly enabled AND local ADC + project + location are available. */
 export function googleVertexAvailable(probe?: GoogleVertexProbeEnv): boolean {
+	if (!googleVertexEnabled()) return false;
 	return googleVertexStatus(probe).ready;
 }
 

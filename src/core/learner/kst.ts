@@ -143,18 +143,28 @@ export function impliedCredit(graph: LearnerGraphView, raw: (id: NodeId) => numb
 
 /** Boolean closure: raw set plus everything mandatory below it. */
 export function impliedClosure(graph: LearnerGraphView, raw: ReadonlySet<NodeId>): Set<NodeId> {
-	const credit = impliedCredit(graph, (id) => (raw.has(id) ? 1 : 0), 1);
 	const out = new Set<NodeId>();
-	for (const [id, v] of credit) if (v >= 1) out.add(id);
+	for (const id of raw) if (graph.nodes.has(id)) out.add(id);
+	if (out.size === 0) return out;
+	const mandatory = graphIndex(graph).mandatory;
+	for (let i = graph.ids.length - 1; i >= 0; i--) {
+		const v = graph.ids[i] as NodeId;
+		if (!out.has(v)) continue;
+		const req = mandatory.get(v);
+		if (!req) continue;
+		for (let j = 0; j < req.length; j++) out.add(req[j] as NodeId);
+	}
 	return out;
 }
 
 /** Add every container whose clause lies inside the set (forward pass). */
 function addMilestones(graph: LearnerGraphView, set: Set<NodeId>): Set<NodeId> {
-	for (const id of graph.ids) {
+	const containers = graphIndex(graph).containers;
+	for (let i = 0; i < containers.length; i++) {
+		const id = containers[i] as NodeId;
 		if (set.has(id)) continue;
-		const node = graph.nodes.get(id);
-		if (node && !node.isLeaf && clauseSatisfied(node.clauses, (m) => set.has(m))) set.add(id);
+		const node = graph.nodes.get(id)!;
+		if (clauseSatisfied(node.clauses, (m) => set.has(m))) set.add(id);
 	}
 	return set;
 }
@@ -174,18 +184,36 @@ export interface StructuralState {
 	frontier: NodeId[];
 }
 
+/** Lightweight unlocking set A (avoids attained/placed/implied/outerFringe work). */
+export function knownSetOf(snapshot: Pick<LearnerSnapshot, "nodes">, graph: LearnerGraphView): Set<NodeId> {
+	const raw = new Set<NodeId>();
+	for (const id of Object.keys(snapshot.nodes)) {
+		const s = snapshot.nodes[id];
+		if (s && (s.attainedAt || s.placedAt || s.lessonCompletedAt) && graph.nodes.has(id)) raw.add(id);
+	}
+	if (raw.size === 0 && !graphIndex(graph).hasEmptyContainer) return raw;
+	return addMilestones(graph, impliedClosure(graph, raw));
+}
+
 export function structuralState(snapshot: Pick<LearnerSnapshot, "nodes">, graph: LearnerGraphView): StructuralState {
 	const attained = new Set<NodeId>();
 	const placed = new Set<NodeId>();
-	for (const id of graph.ids) {
+	const raw = new Set<NodeId>();
+	for (const id of Object.keys(snapshot.nodes)) {
 		const s = snapshot.nodes[id];
-		if (!s) continue;
-		if (s.attainedAt) attained.add(id);
-		else if (s.placedAt) placed.add(id);
+		if (!s || !graph.nodes.has(id)) continue;
+		if (s.attainedAt) {
+			attained.add(id);
+			raw.add(id);
+		} else if (s.placedAt) {
+			placed.add(id);
+			raw.add(id);
+		}
+		if (s.lessonCompletedAt) raw.add(id);
 	}
-	const raw = new Set<NodeId>([...attained, ...placed]);
-	for (const id of graph.ids) if (snapshot.nodes[id]?.lessonCompletedAt) raw.add(id);
-	const known = addMilestones(graph, impliedClosure(graph, raw));
+	const known = raw.size === 0 && !graphIndex(graph).hasEmptyContainer
+		? new Set<NodeId>()
+		: addMilestones(graph, impliedClosure(graph, raw));
 	const implied = new Set<NodeId>();
 	for (const id of known) if (!raw.has(id)) implied.add(id);
 	return { attained, placed, implied, known, frontier: outerFringe(graph, known, { leavesOnly: true }) };
@@ -194,7 +222,10 @@ export function structuralState(snapshot: Pick<LearnerSnapshot, "nodes">, graph:
 /** K* = interior of the implied closure of {masteredAt} (milestones included). */
 export function crispState(snapshot: Pick<LearnerSnapshot, "nodes">, graph: LearnerGraphView): Set<NodeId> {
 	const mastered = new Set<NodeId>();
-	for (const id of graph.ids) if (snapshot.nodes[id]?.masteredAt) mastered.add(id);
+	for (const id of Object.keys(snapshot.nodes)) {
+		if (snapshot.nodes[id]?.masteredAt && graph.nodes.has(id)) mastered.add(id);
+	}
+	if (mastered.size === 0 && !graphIndex(graph).hasEmptyContainer) return mastered;
 	return interior(graph, addMilestones(graph, impliedClosure(graph, mastered)));
 }
 
@@ -236,9 +267,11 @@ export function masteredTop(snapshot: LearnerSnapshot, graph: LearnerGraphView):
 
 // ─── retention role (r2 §9.9 "Retenção desejada por papel") ──────────────────
 
-/** Studyable dependents of id, looking through container milestones. */
-export function studyableDependents(graph: LearnerGraphView, id: NodeId): NodeId[] {
+/** Studyable dependents of id, looking through container milestones (memoized per view). */
+export function studyableDependents(graph: LearnerGraphView, id: NodeId): readonly NodeId[] {
 	const index = graphIndex(graph);
+	const cached = index.studyableDependentsCache.get(id);
+	if (cached) return cached;
 	const out = new Set<NodeId>();
 	const seen = new Set<NodeId>([id]);
 	const stack = [...(index.dependents.get(id) ?? [])];
@@ -251,7 +284,9 @@ export function studyableDependents(graph: LearnerGraphView, id: NodeId): NodeId
 		if (node.isLeaf) out.add(d);
 		else for (const next of index.dependents.get(d) ?? []) stack.push(next);
 	}
-	return [...out];
+	const list = [...out];
+	index.studyableDependentsCache.set(id, list);
+	return list;
 }
 
 export type RetentionRole = "frontierPrereq" | "default" | "distantLeaf";
@@ -261,21 +296,39 @@ export type RetentionRole = "frontierPrereq" | "default" | "distantLeaf";
  * containers), 0.85 for leaves nothing studyable builds on and outside the
  * goals, 0.90 otherwise.
  */
-export function retentionRole(graph: LearnerGraphView, id: NodeId, isKnown: (id: NodeId) => boolean): RetentionRole {
+export function retentionRole(
+	graph: LearnerGraphView,
+	id: NodeId,
+	isKnown: (id: NodeId) => boolean,
+	frontierSet?: ReadonlySet<NodeId>,
+): RetentionRole {
 	const node = graph.nodes.get(id);
 	if (!node) return "default";
 	const deps = studyableDependents(graph, id);
-	for (const j of deps) {
-		if (isKnown(j)) continue;
-		const dep = graph.nodes.get(j);
-		if (dep && clauseSatisfied(dep.clauses, isKnown)) return "frontierPrereq";
+	if (frontierSet) {
+		for (let i = 0; i < deps.length; i++) {
+			if (frontierSet.has(deps[i] as NodeId)) return "frontierPrereq";
+		}
+	} else {
+		for (let i = 0; i < deps.length; i++) {
+			const j = deps[i] as NodeId;
+			if (isKnown(j)) continue;
+			const dep = graph.nodes.get(j);
+			if (dep && clauseSatisfied(dep.clauses, isKnown)) return "frontierPrereq";
+		}
 	}
 	if (deps.length === 0 && node.goalWeight <= 0) return "distantLeaf";
 	return "default";
 }
 
-export function desiredRetentionFor(graph: LearnerGraphView, id: NodeId, isKnown: (id: NodeId) => boolean, params: LearnerParams): number {
-	return params.desiredRetention[retentionRole(graph, id, isKnown)];
+export function desiredRetentionFor(
+	graph: LearnerGraphView,
+	id: NodeId,
+	isKnown: (id: NodeId) => boolean,
+	params: LearnerParams,
+	frontierSet?: ReadonlySet<NodeId>,
+): number {
+	return params.desiredRetention[retentionRole(graph, id, isKnown, frontierSet)];
 }
 
 // ─── particle-filter diagnostic (r2 §9.7) ────────────────────────────────────

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2Icon, MicIcon } from "lucide-react";
 import { useSettingsDialog } from "@/components/settings/settings-dialog";
+import { useSettingsSeed } from "@/components/settings-seed";
+import { useSettingsSaved } from "@/components/settings-signal";
 import { Hint } from "@/components/ui/hint";
 import { deepgramListenUrl, type DictationLanguage } from "@/src/core";
 import { useDictationLanguage } from "@/components/dictation-preference";
@@ -345,6 +347,10 @@ export function useDictation({ append, destination = "primary", disabled = false
 }): Dictation {
 	const primary = destination === "primary";
 	const owner = useRef(Symbol("dictation")).current;
+	const seed = useSettingsSeed();
+	const hasDictationKey = seed?.hasDictationKey;
+	const hasDictationKeyRef = useRef(hasDictationKey);
+	hasDictationKeyRef.current = hasDictationKey;
 	const { getLanguage } = useDictationLanguage();
 	const [phase, setPhaseState] = useState<DictationPhase>("idle");
 	const phaseRef = useRef<DictationPhase>("idle");
@@ -455,7 +461,7 @@ export function useDictation({ append, destination = "primary", disabled = false
 				if (failed) waiter.reject(failed.error);
 				else waiter.resolve();
 			}
-			if (warmNext) warmTokens.refresh();
+			if (warmNext && hasDictationKeyRef.current !== false) warmTokens.refresh();
 		};
 		if (appended && typeof (appended as PromiseLike<unknown>).then === "function") {
 			appendPendingRef.current = true;
@@ -630,7 +636,7 @@ export function useDictation({ append, destination = "primary", disabled = false
 		} catch (e) {
 			if (gen !== genRef.current) return;
 			setError(e instanceof Error ? e.message : "token unavailable");
-			cleanup();
+			cleanup(false);
 			return;
 		}
 		if (gen !== genRef.current) return;
@@ -718,14 +724,16 @@ export function useDictation({ append, destination = "primary", disabled = false
 	// focused plugin control first, otherwise core fallback; Esc always
 	// cancels the actual recording owner rather than the focused widget.
 	useEffect(() => {
-		warmTokens.refresh(); // pre-mint at mount (mitigation D) — silent if keyless
+		// Only pre-mint eagerly on mount when the server confirmed a dictation key
+		// exists; otherwise warm lazily on hover/focus to avoid cold-boot 503 storms.
+		if (hasDictationKey === true) warmTokens.refresh();
 		return () => {
 			// Navigation cancels capture: invalidate every pending await before
 			// releasing resources, and never append into a different page's input.
 			bufferRef.current = [];
 			cleanup(false);
 		};
-	}, [cleanup]);
+	}, [cleanup, hasDictationKey]);
 	useEffect(() => registerController(owner, { primary, toggle, cancel }), [owner, primary, toggle, cancel]);
 
 	return {
@@ -759,11 +767,20 @@ export function useDictation({ append, destination = "primary", disabled = false
 export function DictationBar({ dictation, disabled = false }: { dictation: Dictation; disabled?: boolean }) {
 	const { phase, error, levelRef, toggle, active, clearError, blocked } = dictation;
 	const { open: openSettings } = useSettingsDialog();
+	const seed = useSettingsSeed();
+	const [keysUpdated, setKeysUpdated] = useState(false);
+	useSettingsSaved((section) => {
+		if (section === "keys") setKeysUpdated(true);
+	});
 	/** The keyless click (zero-keys wave, owner dictation trio): the errored
 	 *  idle button deep-links Settings → Keys → the Deepgram row and clears
 	 *  the error — the surface is clean when the user returns. Any other
 	 *  error keeps the old behavior (click = retry, which clears). */
 	const keyless = error === DICTATION_KEYLESS;
+	const warmOnIntent = useCallback(() => {
+		if (seed?.hasDictationKey === false && !keysUpdated) return;
+		if (!keyless && !disabled && !blocked) warmTokens.mint().catch(() => {});
+	}, [seed?.hasDictationKey, keysUpdated, keyless, disabled, blocked]);
 	const [levels, setLevels] = useState<number[]>(() => new Array(METER_CELLS).fill(0));
 	/** Adaptive cell count (owner round 2): derived from the meter's
 	 *  measured width — narrow rows show fewer bars instead of
@@ -815,6 +832,8 @@ export function DictationBar({ dictation, disabled = false }: { dictation: Dicta
 			>
 				<button
 					type="button"
+					onMouseEnter={warmOnIntent}
+					onFocus={warmOnIntent}
 					onClick={() => {
 						if (keyless) {
 							clearError();

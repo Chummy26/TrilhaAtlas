@@ -19,6 +19,7 @@
 
 import { z } from "zod";
 import { MODEL_ROLES, type RoleSpec } from "../models/role-spec.ts";
+import { SKILL_MAP_STYLES } from "../study/map-style.ts";
 import { isWindowsDeviceName } from "./paths.ts";
 import { DOMAIN_ID_PATTERN, type DomainManifest, type DomainProfile } from "./types.ts";
 
@@ -90,6 +91,7 @@ export const domainManifestSchema = z
 		title: localizedTextSchema,
 		accent: z.string().min(1),
 		icon: z.string().min(1),
+		mapStyle: z.enum(SKILL_MAP_STYLES).optional(),
 		levelScheme: z.enum(["cefr", "ee", "generic"]),
 		targetHours: bandSchema("targetHours", { int: false }),
 		edgeMode: z.enum(["strict", "relaxed"]),

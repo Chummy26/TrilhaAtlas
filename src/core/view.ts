@@ -138,45 +138,50 @@ function lastSuccessfulPlanInit(parts: LhViewPart[]): number {
 	return idx;
 }
 
+interface ViewCheckpoint {
+	messages: readonly LhMessage[];
+	inputLen: number;
+	out: readonly LhViewMessage[];
+	compaction: (LhMarkerMessage & { details: CompactionDetails }) | null;
+	outputErrorIds: ReadonlySet<string>;
+}
+
+// WeakMap keyed by the first settled (frozen) message of a session: preserves
+// referential identity (===) for all historical LhViewMessage / LhViewPart
+// objects across streaming chunks while auto-collecting when a session leaves.
+const prefixCheckpoints = new WeakMap<LhMessage, ViewCheckpoint>();
+
+function messageTouchedByLive(m: LhMessage, live: LiveTurnState | undefined): boolean {
+	if (!live) return false;
+	if (live.streamingIds.has(m.id)) return true;
+	if (live.executions.size > 0 && (m as { role?: string }).role === "assistant") {
+		const content = (m as AssistantMessage).content;
+		for (let i = 0; i < content.length; i++) {
+			const block = content[i]!;
+			if (block.type === "toolCall" && live.executions.has(block.id)) return true;
+		}
+	}
+	return false;
+}
+
+function isSendToUserError(m: LhMessage): m is LhMessage & ToolResultMessage {
+	return (
+		(m as { role?: string }).role === "toolResult" &&
+		(m as ToolResultMessage).toolName === SEND_TO_USER_TOOL &&
+		(m as ToolResultMessage).isError === true
+	);
+}
+
+function hasPluginProblemResult(m: LhMessage): boolean {
+	if ((m as { role?: string }).role !== "toolResult") return false;
+	const details = (m as { details?: unknown }).details;
+	return details !== null && typeof details === "object" && "pluginProblem" in details;
+}
+
 /** Project the native record (+ live turn working list) into the client's
  *  view messages. Pure: the same input always projects to the same list. */
 export function projectView(messages: readonly LhMessage[], live?: LiveTurnState): LhViewMessage[] {
-	const out: LhViewMessage[] = [];
-	// Output calls become text rather than tool parts, so read settled
-	// failures up front: a failed call must retain the normal error path.
-	const outputErrors = new Map<string, ToolResultMessage>();
-	for (const message of messages) {
-		if (message.role === "toolResult" && message.toolName === SEND_TO_USER_TOOL && message.isError) {
-			outputErrors.set(message.toolCallId, message);
-		}
-	}
-
-	const lastAssistant = (): LhViewMessage | undefined => {
-		const last = out[out.length - 1];
-		return last && last.role === "assistant" ? last : undefined;
-	};
-	const findToolPart = (result: LhMessage & ToolResultMessage): LhViewPart | undefined => {
-		for (let i = out.length - 1; i >= 0; i--) {
-			// NEWEST-FIRST part scan within a group (the Lacan heal, 2026-10-04):
-			// a result pairs with the most RECENT call carrying its id. Unique
-			// ids (the uniquifier guarantees them for new turns) make scan order
-		// irrelevant; for legacy duplicate-id records (DeepSeek's per-response
-		// `call_0`) this routes each answer to its own call instead of letting
-		// a later result overwrite an earlier question's card.
-			const parts = out[i]!.parts;
-			for (let p = parts.length - 1; p >= 0; p--) {
-				const part = parts[p]!;
-				if (!part.type.startsWith("tool-") || part.toolCallId !== result.toolCallId) continue;
-				if (part.pluginQuestion) {
-					const occurrence = { messageId: part.sourceMessageId!, contentIndex: part.sourceContentIndex!, toolCallId: part.toolCallId!, toolName: part.type.slice(5) };
-					if (pluginQuestionResultMatches(result, occurrence, part.pluginQuestion) || (result.isError && part.pluginQuestion.status !== "posed")) return part;
-					continue;
-				}
-				if (!result.lhQuestionOccurrence && !readPluginQuestionCancellation(result.details)) return part;
-			}
-		}
-		return undefined;
-	};
+	if (messages.length === 0) return [];
 
 	// The active compaction (owner round 14): the fold emits the CUT
 	// DIVIDER — the longer, at-the-seam marker — immediately BEFORE the
@@ -185,7 +190,130 @@ export function projectView(messages: readonly LhMessage[], live?: LiveTurnState
 	// user (full history is never hidden); only the MODEL's context jumps.
 	const compaction = activeCompactionOf(messages);
 
-	for (const m of messages) {
+	const firstMsg = messages[0]!;
+	const firstFrozen = Object.isFrozen(firstMsg);
+	const cached = firstFrozen ? prefixCheckpoints.get(firstMsg) : undefined;
+
+	let startIdx = 0;
+	let out: LhViewMessage[] = [];
+	let sharedCount = 0;
+	const detached = new Set<number>();
+
+	// Reuse the settled prefix when every prefix message matches by exact frozen
+	// identity, compaction did not move, live turn state does not touch the
+	// prefix, and the suffix contains no retroactive send_to_user error or
+	// pluginProblem result that would alter an earlier assistant projection.
+	if (cached && cached.compaction === compaction && messages.length >= cached.inputLen) {
+		let prefixMatches = true;
+		for (let i = 0; i < cached.inputLen; i++) {
+			const m = messages[i]!;
+			if (m !== cached.messages[i] || messageTouchedByLive(m, live)) {
+				prefixMatches = false;
+				break;
+			}
+		}
+		if (prefixMatches) {
+			for (let i = cached.inputLen; i < messages.length; i++) {
+				const m = messages[i]!;
+				if (hasPluginProblemResult(m) || (isSendToUserError(m) && !cached.outputErrorIds.has(m.toolCallId))) {
+					prefixMatches = false;
+					break;
+				}
+			}
+		}
+		if (prefixMatches) {
+			startIdx = cached.inputLen;
+			out = cached.out.slice();
+			sharedCount = cached.out.length;
+		}
+	}
+
+	if (startIdx === messages.length) {
+		return out;
+	}
+
+	// Output calls become text rather than tool parts, so read settled
+	// failures up front: a failed call must retain the normal error path.
+	const outputErrors = new Map<string, ToolResultMessage>();
+	for (let i = startIdx; i < messages.length; i++) {
+		const message = messages[i]!;
+		if (isSendToUserError(message)) {
+			outputErrors.set(message.toolCallId, message);
+		}
+	}
+
+	// Find how far the frozen, non-live settled prefix extends so we can cache
+	// it (even on the first call of a reattached stream before any idle frame).
+	let settledLen = startIdx;
+	if (firstFrozen) {
+		while (settledLen < messages.length) {
+			const m = messages[settledLen]!;
+			if (!Object.isFrozen(m) || messageTouchedByLive(m, live)) break;
+			settledLen++;
+		}
+	}
+	let canSnapshotSettled = settledLen > (cached?.inputLen ?? 0) && settledLen > 0;
+	if (canSnapshotSettled && settledLen < messages.length) {
+		// Only snapshot a mid-array boundary if the remaining suffix cannot
+		// retroactively change send_to_user errors or pluginProblem lookups.
+		for (let i = settledLen; i < messages.length; i++) {
+			const m = messages[i]!;
+			if (hasPluginProblemResult(m) || isSendToUserError(m)) {
+				canSnapshotSettled = false;
+				break;
+			}
+		}
+	}
+
+	const detachMessage = (idx: number): LhViewMessage => {
+		if (idx < sharedCount && !detached.has(idx)) {
+			const orig = out[idx]!;
+			out[idx] = { ...orig, parts: orig.parts.slice() };
+			detached.add(idx);
+		}
+		return out[idx]!;
+	};
+
+	const lastAssistant = (): LhViewMessage | undefined => {
+		if (out.length === 0) return undefined;
+		const lastIdx = out.length - 1;
+		const last = out[lastIdx];
+		return last && last.role === "assistant" ? detachMessage(lastIdx) : undefined;
+	};
+
+	const findToolPart = (result: LhMessage & ToolResultMessage): { msgIdx: number; partIdx: number } | undefined => {
+		for (let i = out.length - 1; i >= 0; i--) {
+			// NEWEST-FIRST part scan within a group (the Lacan heal, 2026-10-04):
+			// a result pairs with the most RECENT call carrying its id. Unique
+			// ids (the uniquifier guarantees them for new turns) make scan order
+			// irrelevant; for legacy duplicate-id records (DeepSeek's per-response
+			// `call_0`) this routes each answer to its own call instead of letting
+			// a later result overwrite an earlier question's card.
+			const parts = out[i]!.parts;
+			for (let p = parts.length - 1; p >= 0; p--) {
+				const part = parts[p]!;
+				if (!part.type.startsWith("tool-") || part.toolCallId !== result.toolCallId) continue;
+				if (part.pluginQuestion) {
+					const occurrence = { messageId: part.sourceMessageId!, contentIndex: part.sourceContentIndex!, toolCallId: part.toolCallId!, toolName: part.type.slice(5) };
+					if (pluginQuestionResultMatches(result, occurrence, part.pluginQuestion) || (result.isError && part.pluginQuestion.status !== "posed")) return { msgIdx: i, partIdx: p };
+					continue;
+				}
+				if (!result.lhQuestionOccurrence && !readPluginQuestionCancellation(result.details)) return { msgIdx: i, partIdx: p };
+			}
+		}
+		return undefined;
+	};
+
+	let midSnapshotOut: LhViewMessage[] | null = null;
+
+	for (let mi = startIdx; mi < messages.length; mi++) {
+		if (canSnapshotSettled && settledLen < messages.length && mi === settledLen) {
+			midSnapshotOut = out.slice();
+			sharedCount = midSnapshotOut.length;
+			detached.clear();
+		}
+
+		const m = messages[mi]!;
 		const role = (m as { role?: string }).role;
 
 		if (compaction && m.id === compaction.details.firstKeptMessageId) {
@@ -214,12 +342,23 @@ export function projectView(messages: readonly LhMessage[], live?: LiveTurnState
 		}
 
 		if (role === "custom") {
-			projectMarker(m as LhMarkerMessage, out);
+			projectMarker(m as LhMarkerMessage, out, detachMessage);
 			continue;
 		}
 
 		if (role === "toolResult") {
-			applyResultTo(findToolPart(m as LhMessage & ToolResultMessage), m as ToolResultMessage);
+			const match = findToolPart(m as LhMessage & ToolResultMessage);
+			if (match) {
+				let targetPart: LhViewPart;
+				if (match.msgIdx < sharedCount) {
+					const msg = detachMessage(match.msgIdx);
+					targetPart = { ...msg.parts[match.partIdx]! };
+					msg.parts[match.partIdx] = targetPart;
+				} else {
+					targetPart = out[match.msgIdx]!.parts[match.partIdx]!;
+				}
+				applyResultTo(targetPart, m as ToolResultMessage);
+			}
 			continue;
 		}
 
@@ -320,6 +459,21 @@ export function projectView(messages: readonly LhMessage[], live?: LiveTurnState
 		}
 	}
 
+	if (canSnapshotSettled) {
+		const snapshotOut = settledLen === messages.length ? out.slice() : midSnapshotOut;
+		if (snapshotOut) {
+			const errorIds = new Set<string>(startIdx > 0 && cached ? cached.outputErrorIds : undefined);
+			for (const id of outputErrors.keys()) errorIds.add(id);
+			prefixCheckpoints.set(firstMsg, {
+				messages: messages.slice(0, settledLen),
+				inputLen: settledLen,
+				out: snapshotOut,
+				compaction,
+				outputErrorIds: errorIds,
+			});
+		}
+	}
+
 	return out;
 }
 
@@ -408,7 +562,11 @@ function applyResultTo(part: LhViewPart | undefined, result: ToolResultMessage):
 }
 
 /** A marker's projected message (handoff/steers) or splice (plan block). */
-function projectMarker(marker: LhMarkerMessage, out: LhViewMessage[]): void {
+function projectMarker(
+	marker: LhMarkerMessage,
+	out: LhViewMessage[],
+	detachMessage: (idx: number) => LhViewMessage,
+): void {
 	switch (marker.customType) {
 		case "graph-context": {
 			// The session's map context (owner, 2026-10-04): user-side —
@@ -521,10 +679,12 @@ function projectMarker(marker: LhMarkerMessage, out: LhViewMessage[]): void {
 		case "plan-block": {
 			// No message of its own: splice into the preceding assistant
 			// group, IN FLOW after the last successful plan_init call.
-			const group = out[out.length - 1];
-			if (!group || group.role !== "assistant") return;
-			const idx = lastSuccessfulPlanInit(group.parts);
+			const lastIdx = out.length - 1;
+			const last = lastIdx >= 0 ? out[lastIdx] : undefined;
+			if (!last || last.role !== "assistant") return;
+			const idx = lastSuccessfulPlanInit(last.parts);
 			if (idx === -1) return;
+			const group = detachMessage(lastIdx);
 			const { block } = marker.details as { planCallId: string; block: PlanBlockData };
 			group.parts.splice(idx + 1, 0, { type: "data-plan-block", id: marker.id, data: block });
 			return;

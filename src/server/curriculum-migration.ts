@@ -114,6 +114,63 @@ export function loadElectronicsCurriculum(dir: string, edgeMode: DomainManifest[
 	return loadDomainCurriculum("electronics", dir, edgeMode, readSeeds);
 }
 
+interface SnapshotMeta {
+	schemaVersion: 1;
+	domain: string;
+	revision: string;
+	edgeMode: DomainManifest["edgeMode"];
+	ledgerStat: string;
+	snapshotStat: string;
+	snapshotVersion: number;
+	snapshotHash: string;
+}
+
+const SNAPSHOT_META_NAME = "snapshot.meta.json";
+
+function fileStatStamp(file: string): string | null {
+	const stat = fs.statSync(file, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) return null;
+	return `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`;
+}
+
+function tryFastLoadSnapshot(
+	domain: string,
+	dir: string,
+	edgeMode: DomainManifest["edgeMode"],
+): { snapshot: CurriculumSnapshot; stamp: string } | null {
+	// If a lock directory exists (live writer or interrupted revision), take the locked path.
+	if (fs.statSync(path.join(dir, ".revision-lock"), { throwIfNoEntry: false })) return null;
+	const ledgerStat = fileStatStamp(path.join(dir, "ledger.jsonl"));
+	const snapshotStat = fileStatStamp(path.join(dir, "snapshot.json"));
+	if (!ledgerStat || !snapshotStat) return null;
+	const rawMeta = optionalText(path.join(dir, SNAPSHOT_META_NAME));
+	if (!rawMeta) return null;
+	try {
+		const meta = JSON.parse(rawMeta) as Partial<SnapshotMeta>;
+		if (
+			meta.schemaVersion !== 1
+			|| meta.domain !== domain
+			|| meta.revision !== REVISION
+			|| meta.edgeMode !== edgeMode
+			|| meta.ledgerStat !== ledgerStat
+			|| meta.snapshotStat !== snapshotStat
+			|| typeof meta.snapshotVersion !== "number"
+			|| typeof meta.snapshotHash !== "string"
+		) {
+			return null;
+		}
+		const stored = optionalText(path.join(dir, "snapshot.json"));
+		if (!stored) return null;
+		const snapshot = JSON.parse(stored) as CurriculumSnapshot;
+		if (snapshot.version !== meta.snapshotVersion || snapshot.certificate?.hash !== meta.snapshotHash) {
+			return null;
+		}
+		return { snapshot, stamp: electronicsCurriculumStamp(dir) };
+	} catch {
+		return null;
+	}
+}
+
 export function loadDomainCurriculum(
 	domain: string,
 	dir: string,
@@ -121,9 +178,14 @@ export function loadDomainCurriculum(
 	readSeeds: () => CurriculumSeedFile[],
 	proposal?: (current: CurriculumSnapshot) => PatchEnvelope | undefined,
 ): { snapshot: CurriculumSnapshot; stamp: string } | null {
+	if (!proposal) {
+		const fast = tryFastLoadSnapshot(domain, dir, edgeMode);
+		if (fast) return fast;
+	}
 	return withCurriculumLock(dir, () => {
 		const ledgerFile = path.join(dir, "ledger.jsonl");
 		const snapshotFile = path.join(dir, "snapshot.json");
+		const metaFile = path.join(dir, SNAPSHOT_META_NAME);
 		let ledger = optionalText(ledgerFile);
 		const stored = optionalText(snapshotFile);
 		const opts = { edgeMode };
@@ -193,6 +255,23 @@ export function loadDomainCurriculum(
 		}
 		const serialized = JSON.stringify(snapshot);
 		if (stored !== serialized) writeFileAtomicSync(snapshotFile, serialized);
+		const ledgerStat = fileStatStamp(ledgerFile);
+		const snapshotStat = fileStatStamp(snapshotFile);
+		if (ledgerStat && snapshotStat) {
+			const nextMeta = JSON.stringify({
+				schemaVersion: 1,
+				domain,
+				revision: REVISION,
+				edgeMode,
+				ledgerStat,
+				snapshotStat,
+				snapshotVersion: snapshot.version,
+				snapshotHash: snapshot.certificate.hash,
+			} satisfies SnapshotMeta);
+			if (optionalText(metaFile) !== nextMeta) {
+				writeFileAtomicSync(metaFile, nextMeta, { allowInPlaceFallback: true });
+			}
+		}
 		return { snapshot, stamp: electronicsCurriculumStamp(dir) };
 	});
 }

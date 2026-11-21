@@ -27,7 +27,7 @@
  * EXPAND icon (opens the session overlay) when a chat page is mounted.
  */
 
-import { cloneElement, createContext, isValidElement, useContext, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { cloneElement, createContext, isValidElement, memo, useContext, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { CheckIcon, CopyIcon, MaximizeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -144,7 +144,7 @@ export function codeSource(children: ReactNode): string {
  *  zoom pill — the zoom/pan home is the session overlay. While the fence is
  *  still streaming (the trailing open fence), a quiet skeleton instead of a
  *  doomed parse. */
-function MermaidInline({ chart }: { chart: string }) {
+const MermaidInline = memo(function MermaidInline({ chart }: { chart: string }) {
 	const displayOnly = useContext(MarkdownDisplayOnlyContext);
 	const [svg, setSvg] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -232,7 +232,7 @@ function MermaidInline({ chart }: { chart: string }) {
 			</div>}
 		</div>
 	);
-}
+});
 
 /** The Streamdown `code` override: inline code passes through with the
  *  house inline classes; block fences split — mermaid renders as the bare
@@ -268,6 +268,7 @@ export function MarkdownCode(props: ComponentProps<"code"> & ExtraProps) {
 		<div className="group/md relative" data-testid="md-code">
 			{!displayOnly && <CopyCorner className="absolute top-1.5 right-2 z-10" getText={() => source} label="Copy code" />}
 			<CodeBlock
+				key={displayOnly ? `${language}\0${source}` : undefined}
 				code={source}
 				language={language}
 				className={className}

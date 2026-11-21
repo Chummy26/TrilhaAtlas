@@ -1,23 +1,11 @@
 /**
  * <Icon> — the hand-inked cel icon set (estudos-sota M8 — SÍNTESE §2.12;
- * r9 §7.4 and §8). Renders the compiled layers of components/icons/
- * generated.ts bottom to top: fill → shade (flat tones, hard 45°
- * terminator) → on-fill ink (strokes drawn over the tone: --cel-on-fill,
- * "texto sobre cor é sempre tinta") → ink (the hand-drawn outline,
- * currentColor) → hl (specular, only ≥20 px and only on objects that carry
- * one). Without tones (`tone={false}`, classic themes) the on-fill strokes
- * are plain ink.
- *
- *   <Icon name="xp" size={24} />                 its own tone (XP grape)
- *   <Icon name="book" tone="coral" soft />       a pinned, pale tone
- *   <Icon name="search" className="size-4" />    16 px → the micro ink
- *   <Icon name="mic" live />                     3-frame boil (recording)
- *   <Icon name="warning" title="Atenção" />      informative: role="img"
- *
- * Color comes only from currentColor and CSS custom properties
- * (`--icon-fill/-shade/-ink/-hl`, components/icons/tones.ts), so the icon
- * follows the theme: in a cel theme it is toned; in the classic themes the
- * tone tokens are undefined and it degrades to a clean line icon.
+ * r9 §7.4 and §8). References compiled `<symbol>` definitions in
+ * `public/icons/sprite.svg` via `<use href>` and lightweight metadata in
+ * `components/icons/meta.ts`, keeping ~171 KB of SVG path geometry out of JS
+ * bundles while preserving exact cel layer order, LOD (`--micro`), live 3-frame
+ * boil (`--boil`), tone pinning, specular gating (<20 px), and `tone={false}`
+ * parity via CSS custom properties (`--icon-fill/-shade/-ink/-ink-on-fill/-hl`).
  *
  * Accessibility (r9 §8.4): decorative by default (`aria-hidden`); pass
  * `title` for a standalone informative icon (role="img" + <title>); an
@@ -27,8 +15,8 @@
  */
 
 import type { CSSProperties, SVGProps } from "react";
-import { ICONS, resolveIconName, type IconAlias, type IconName } from "./generated.ts";
-import { layerPaint, toneVars, type IconTone } from "./tones.ts";
+import { ICON_META, resolveIconName, type IconAlias, type IconMeta, type IconName } from "./meta.ts";
+import { toneVars, type IconTone } from "./tones.ts";
 
 export interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name" | "children" | "fill" | "stroke" | "title"> {
 	/** Icon (or alias) to draw. */
@@ -54,32 +42,48 @@ export function sizeFromClassName(className: string | undefined): number | undef
 	return m ? Number(m[1]) * 4 : undefined;
 }
 
-/** The drawing behind a name or alias; throws on an unknown name. */
-export function iconLayers(name: string) {
-	const resolved = resolveIconName(name);
-	if (!resolved) throw new Error(`Ícone desconhecido: "${name}"`);
-	return ICONS[resolved];
+/** Resolve an icon name or alias to its canonical name and metadata; throws on an unknown name. */
+export function resolveIconMeta(name: string): { id: IconName; meta: IconMeta } {
+	const id = resolveIconName(name);
+	if (!id) throw new Error(`Ícone desconhecido: "${name}"`);
+	return { id, meta: ICON_META[id] };
 }
 
 export function Icon({ name, size, tone = true, soft = false, title, micro, live = false, className, style, ...rest }: IconProps) {
-	const icon = iconLayers(name);
+	const { id, meta } = resolveIconMeta(name);
 	const px = size ?? sizeFromClassName(className) ?? 24;
-	const useMicro = icon.micro !== undefined && (micro ?? px <= 16);
-	const ink = useMicro ? icon.micro! : icon.ink;
-	const inkOnFill = useMicro ? icon.microOnFill : icon.inkOnFill;
-	const toned = tone !== false && icon.fill !== undefined;
-	const ownTone = icon.tone ?? "accent";
+	const useMicro = Boolean(meta.hasMicro) && (micro ?? px <= 16);
+	const useBoil = Boolean(live && meta.hasBoil && !useMicro);
+	const symbolId = useMicro ? `${id}--micro` : useBoil ? `${id}--boil` : id;
+	const ownTone = meta.tone ?? "accent";
+	const toned = tone !== false && Boolean(meta.hasFill);
 	const pinned: IconTone | null = typeof tone === "string" ? tone : soft ? ownTone : null;
-	const vars = toned && pinned ? (toneVars(pinned, soft) as CSSProperties) : undefined;
-	const paint = (layer: "fill" | "shade" | "ink" | "hl") => ({ fill: layerPaint(layer, ownTone) });
-	// Over a colored tone the on-fill strokes are ink; with no tone under
-	// them (tone={false}) they are ordinary ink. A pinned tone decides too
-	// (the neutral surface keeps currentColor).
-	const onFillPaint = { fill: toned ? layerPaint("onFill", pinned ?? ownTone) : layerPaint("ink") };
-	const boil = live && icon.boil && !useMicro ? icon.boil : null;
-	const frames = boil ? [ink, boil[0], boil[1]] : null;
-	const onFillFrames = boil && inkOnFill ? [inkOnFill, icon.boilOnFill?.[0] || inkOnFill, icon.boilOnFill?.[1] || inkOnFill] : null;
-	const g = icon.grid;
+
+	let vars: Record<string, string> | undefined;
+	const setVar = (key: string, value: string) => {
+		(vars ??= {})[key] = value;
+	};
+
+	if (tone === false && meta.hasFill) {
+		setVar("--icon-fill", "transparent");
+		setVar("--icon-shade", "transparent");
+		setVar("--icon-ink-on-fill", "var(--icon-ink, currentColor)");
+		if (meta.hasHl) setVar("--icon-hl", "transparent");
+	} else if (toned) {
+		if (pinned) {
+			const ramp = toneVars(pinned, soft);
+			setVar("--icon-fill", ramp["--icon-fill"]);
+			setVar("--icon-shade", ramp["--icon-shade"]);
+			if (pinned === "neutral") {
+				setVar("--icon-ink-on-fill", "var(--icon-ink, currentColor)");
+			}
+		}
+		if (meta.hasHl && px < 20) {
+			setVar("--icon-hl", "transparent");
+		}
+	}
+
+	const g = meta.grid;
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -87,34 +91,14 @@ export function Icon({ name, size, tone = true, soft = false, title, micro, live
 			width={px}
 			height={px}
 			className={className}
-			style={vars ? { ...vars, ...style } : style}
+			style={vars ? { ...(vars as CSSProperties), ...style } : style}
 			focusable="false"
 			data-icon={name}
 			{...(title ? { role: "img", "aria-label": title } : { "aria-hidden": true })}
 			{...rest}
 		>
 			{title ? <title>{title}</title> : null}
-			{toned && icon.fill ? <path d={icon.fill} style={paint("fill")} /> : null}
-			{toned && icon.shade ? <path d={icon.shade} style={paint("shade")} /> : null}
-			{onFillFrames ? (
-				<g className="cel-boil">
-					{onFillFrames.map((d, i) => (
-						<path key={i} d={d} style={onFillPaint} />
-					))}
-				</g>
-			) : inkOnFill ? (
-				<path d={inkOnFill} style={onFillPaint} />
-			) : null}
-			{frames ? (
-				<g className="cel-boil">
-					{frames.map((d, i) => (
-						<path key={i} d={d} style={paint("ink")} />
-					))}
-				</g>
-			) : ink ? (
-				<path d={ink} style={paint("ink")} />
-			) : null}
-			{toned && icon.hl && px >= 20 ? <path d={icon.hl} style={paint("hl")} /> : null}
+			<use href={`/icons/sprite.svg#${symbolId}`} />
 		</svg>
 	);
 }

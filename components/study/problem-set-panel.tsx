@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import { useI18n } from "@/components/i18n";
@@ -62,6 +62,108 @@ function countWords(text: string): number {
 	if (!trimmed) return 0;
 	return trimmed.split(/\s+/u).filter(Boolean).length;
 }
+
+const ProblemSetItemRow = memo(function ProblemSetItemRow({
+	item,
+	idx,
+	fieldId,
+	value,
+	disabled,
+	onAnswerChange,
+	t,
+}: {
+	item: ProblemSetItem;
+	idx: number;
+	fieldId: string;
+	value: string;
+	disabled: boolean;
+	onAnswerChange: (itemId: string, next: string) => void;
+	t: Translator;
+}) {
+	const words = countWords(value);
+	const metMin = words >= item.minWords;
+	return (
+		<li className="space-y-2 rounded-xl border border-border/55 bg-background/60 p-3.5">
+			<div className="flex flex-wrap items-center justify-between gap-2">
+				<label htmlFor={fieldId} className="text-sm font-semibold text-foreground">
+					{idx + 1}. {item.nodeTitle}
+				</label>
+				<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
+					{t("course.problemSet.minWords", { words, min: item.minWords })}
+				</span>
+			</div>
+			<p className="max-w-[65ch] text-[15px] leading-relaxed text-foreground/95">
+				{item.prompt}
+			</p>
+			{item.hint && (
+				<details className="study-disclosure text-xs">
+					<summary>{t("course.problemSet.hintSummary")}</summary>
+					<div className="study-disclosure-body text-muted-foreground">
+						{item.hint}
+					</div>
+				</details>
+			)}
+			<textarea
+				id={fieldId}
+				name={item.id}
+				className="cel-input min-h-24 w-full resize-y p-3 text-sm leading-relaxed"
+				placeholder={t("course.problemSet.answerPlaceholder")}
+				maxLength={10000}
+				disabled={disabled}
+				value={value}
+				onChange={(e) => onAnswerChange(item.id, e.target.value)}
+			/>
+		</li>
+	);
+});
+
+type ProblemSetLabStep = NonNullable<ModuleProblemSet["lab"]>["steps"][number];
+
+const ProblemSetLabStepRow = memo(function ProblemSetLabStepRow({
+	step,
+	idx,
+	stepFieldId,
+	note,
+	disabled,
+	onNoteChange,
+	t,
+}: {
+	step: ProblemSetLabStep;
+	idx: number;
+	stepFieldId: string;
+	note: string;
+	disabled: boolean;
+	onNoteChange: (stepId: string, next: string) => void;
+	t: Translator;
+}) {
+	const words = countWords(note);
+	const metMin = words >= step.minWords;
+	return (
+		<li className="flex flex-col gap-2 rounded-xl border border-border/55 bg-background/65 p-3.5">
+			<div className="flex flex-wrap items-center justify-between gap-2">
+				<label htmlFor={stepFieldId} className="text-sm font-semibold text-foreground">
+					{idx + 1}/4 · {step.phase}
+				</label>
+				<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
+					{t("course.problemSet.wordsCount", { words, min: step.minWords })}
+				</span>
+			</div>
+			<p className="text-xs leading-relaxed text-muted-foreground">
+				{step.prompt}
+			</p>
+			<textarea
+				id={stepFieldId}
+				name={`lab:${step.id}`}
+				className="cel-input mt-auto min-h-24 w-full resize-y p-2.5 text-sm leading-relaxed"
+				placeholder={t("course.problemSet.labStepPlaceholder", { phase: step.phase })}
+				maxLength={6000}
+				disabled={disabled}
+				value={note}
+				onChange={(e) => onNoteChange(step.id, e.target.value)}
+			/>
+		</li>
+	);
+});
 
 export function ProblemSetPanel({
 	domainId,
@@ -178,6 +280,16 @@ export function ProblemSetPanel({
 		}
 	};
 
+	const handleAnswerChange = useCallback((itemId: string, next: string) => {
+		setAnswers((prev) => ({ ...prev, [itemId]: next }));
+		setError((prev) => (prev ? "" : prev));
+	}, []);
+
+	const handleLabNoteChange = useCallback((stepId: string, next: string) => {
+		setLabNotes((prev) => ({ ...prev, [stepId]: next }));
+		setError((prev) => (prev ? "" : prev));
+	}, []);
+
 	const mapHref = (nodeId: string) =>
 		`/mapa?dominio=${encodeURIComponent(domainId)}&no=${encodeURIComponent(nodeId)}`;
 
@@ -251,52 +363,18 @@ export function ProblemSetPanel({
 									<span className="text-xs text-muted-foreground">{meta.description}</span>
 								</div>
 								<ol className="space-y-3">
-									{group.items.map((item, idx) => {
-										const fieldId = `${formId}-item-${item.id}`;
-										const value = answers[item.id] ?? "";
-										const words = countWords(value);
-										const metMin = words >= item.minWords;
-										return (
-											<li
-												key={item.id}
-												className="space-y-2 rounded-xl border border-border/55 bg-background/60 p-3.5"
-											>
-												<div className="flex flex-wrap items-center justify-between gap-2">
-													<label htmlFor={fieldId} className="text-sm font-semibold text-foreground">
-														{idx + 1}. {item.nodeTitle}
-													</label>
-													<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
-														{t("course.problemSet.minWords", { words, min: item.minWords })}
-													</span>
-												</div>
-												<p className="max-w-[65ch] text-[15px] leading-relaxed text-foreground/95">
-													{item.prompt}
-												</p>
-												{item.hint && (
-													<details className="study-disclosure text-xs">
-														<summary>{t("course.problemSet.hintSummary")}</summary>
-														<div className="study-disclosure-body text-muted-foreground">
-															{item.hint}
-														</div>
-													</details>
-												)}
-												<textarea
-													id={fieldId}
-													name={item.id}
-													className="cel-input min-h-24 w-full resize-y p-3 text-sm leading-relaxed"
-													placeholder={t("course.problemSet.answerPlaceholder")}
-													maxLength={10000}
-													disabled={submitting}
-													value={value}
-													onChange={(e) => {
-														const next = e.target.value;
-														setAnswers((prev) => ({ ...prev, [item.id]: next }));
-														if (error) setError("");
-													}}
-												/>
-											</li>
-										);
-									})}
+									{group.items.map((item, idx) => (
+										<ProblemSetItemRow
+											key={item.id}
+											item={item}
+											idx={idx}
+											fieldId={`${formId}-item-${item.id}`}
+											value={answers[item.id] ?? ""}
+											disabled={submitting}
+											onAnswerChange={handleAnswerChange}
+											t={t}
+										/>
+									))}
 								</ol>
 							</div>
 						);
@@ -329,44 +407,18 @@ export function ProblemSetPanel({
 							</div>
 
 							<ol className="grid gap-3 md:grid-cols-2">
-								{problemSet.lab.steps.map((step, idx) => {
-									const stepFieldId = `${formId}-lab-${step.id}`;
-									const note = labNotes[step.id] ?? "";
-									const words = countWords(note);
-									const metMin = words >= step.minWords;
-									return (
-										<li
-											key={step.id}
-											className="flex flex-col gap-2 rounded-xl border border-border/55 bg-background/65 p-3.5"
-										>
-											<div className="flex flex-wrap items-center justify-between gap-2">
-												<label htmlFor={stepFieldId} className="text-sm font-semibold text-foreground">
-													{idx + 1}/4 · {step.phase}
-												</label>
-												<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
-													{t("course.problemSet.wordsCount", { words, min: step.minWords })}
-												</span>
-											</div>
-											<p className="text-xs leading-relaxed text-muted-foreground">
-												{step.prompt}
-											</p>
-											<textarea
-												id={stepFieldId}
-												name={`lab:${step.id}`}
-												className="cel-input mt-auto min-h-24 w-full resize-y p-2.5 text-sm leading-relaxed"
-												placeholder={t("course.problemSet.labStepPlaceholder", { phase: step.phase })}
-												maxLength={6000}
-												disabled={submitting}
-												value={note}
-												onChange={(e) => {
-													const next = e.target.value;
-													setLabNotes((prev) => ({ ...prev, [step.id]: next }));
-													if (error) setError("");
-												}}
-											/>
-										</li>
-									);
-								})}
+								{problemSet.lab.steps.map((step, idx) => (
+									<ProblemSetLabStepRow
+										key={step.id}
+										step={step}
+										idx={idx}
+										stepFieldId={`${formId}-lab-${step.id}`}
+										note={labNotes[step.id] ?? ""}
+										disabled={submitting}
+										onNoteChange={handleLabNoteChange}
+										t={t}
+									/>
+								))}
 							</ol>
 						</div>
 					)}

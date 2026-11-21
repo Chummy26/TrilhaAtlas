@@ -11,9 +11,7 @@
 	background: var(--cel-accent);
 	opacity: .14;
 	mask: url("/study-dots.svg") top right / contain no-repeat;
-	animation: study-drift 14s ease-in-out infinite alternate;
 }
-@keyframes study-drift { to { transform: translateY(8px); opacity: .08; } }
 
 /* Refined cel surface hierarchy: crisp outline, subtle top rim, dry offset shadow. */
 [data-theme-family="cel"] .cel-card {
@@ -412,7 +410,7 @@
 	.lab-controls { border-inline-start: 0; border-top: 1px solid var(--lab-rule); }
 }
 @media (prefers-reduced-motion: reduce) {
-	[data-theme-family="cel"] .study-frame::before, .lab-flow { animation: none; }
+	.lab-flow { animation: none; }
 	.lab-event { transition: none; }
 }
 @media (max-width: 639px) {
@@ -960,21 +958,10 @@
 
 /* ─── Onigiri-inspired micro-craft across the app shell ─── */
 
-/* Floating pill scrollbar thumb (Onigiri theme.css recipe) */
-::-webkit-scrollbar {
-	width: 9px;
-	height: 9px;
-}
-::-webkit-scrollbar-thumb {
-	background: color-mix(in srgb, var(--color-border) 82%, transparent);
-	background-clip: padding-box;
-	border: 2px solid transparent;
-	border-radius: 999px;
-	transition: background-color 160ms ease;
-}
-::-webkit-scrollbar-thumb:hover {
-	background: var(--color-muted-foreground);
-	background-clip: padding-box;
+/* Offscreen study cards/sections skip layout and paint until scrolled near viewport. */
+.study-cv-block {
+	content-visibility: auto;
+	contain-intrinsic-size: auto 280px;
 }
 
 /* Crisp menu entrance (Onigiri popover physics) */

@@ -66,17 +66,62 @@ export function readOptionalText(file: string): string | null {
 	}
 }
 
+type CourseStoreCache = {
+	moduleScores: Map<string, { stamp: string; map: Map<string, ScoreRecord> }>;
+	problemSetScores: Map<string, { stamp: string; map: Map<string, ProblemSetScoreRecord> }>;
+	prepNotes: Map<string, { stamp: string; notes: Record<string, FlippedPrepNote> }>;
+};
+
+const COURSE_STORE_CACHE_KEY = Symbol.for("learnharness.server.courseStore");
+const MAX_COURSE_CACHE_ENTRIES = 64;
+
+function courseStoreCache(): CourseStoreCache {
+	const g = globalThis as typeof globalThis & { [COURSE_STORE_CACHE_KEY]?: CourseStoreCache };
+	return (g[COURSE_STORE_CACHE_KEY] ??= {
+		moduleScores: new Map(),
+		problemSetScores: new Map(),
+		prepNotes: new Map(),
+	});
+}
+
+function fileStatStamp(file: string): string | null {
+	const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true, throwIfNoEntry: false });
+	if (!stat || !stat.isFile()) return null;
+	return `${stat.dev}|${stat.ino}|${stat.ctimeNs}|${stat.mtimeNs}|${stat.size}`;
+}
+
+function setBounded<K, V>(map: Map<K, V>, key: K, value: V): void {
+	if (map.size >= MAX_COURSE_CACHE_ENTRIES && !map.has(key)) {
+		const oldest = map.keys().next().value;
+		if (oldest !== undefined) map.delete(oldest);
+	}
+	map.set(key, value);
+}
+
 export function appendJsonlAtomic(file: string, record: unknown): void {
 	fs.mkdirSync(path.dirname(file), { recursive: true });
 	const current = readOptionalText(file) ?? "";
 	const prefix = current === "" || current.endsWith("\n") ? current : `${current}\n`;
 	writeFileAtomicSync(file, `${prefix}${JSON.stringify(record)}\n`, { allowInPlaceFallback: true });
+	const resolved = path.resolve(file);
+	const cache = courseStoreCache();
+	cache.moduleScores.delete(resolved);
+	cache.problemSetScores.delete(resolved);
 }
 
 /** Read the latest integrative exam score per targetId (moduleId or chapter level) from module-exams.jsonl. */
 export function readModuleScoreMap(domainId: string): Map<string, ScoreRecord> {
+	const file = path.resolve(moduleExamsFile(domainId));
+	const cache = courseStoreCache().moduleScores;
+	const stamp = fileStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return new Map();
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return new Map(cached.map);
 	const map = new Map<string, ScoreRecord>();
-	const raw = readOptionalText(moduleExamsFile(domainId));
+	const raw = readOptionalText(file);
 	if (!raw) return map;
 	for (const line of raw.split("\n")) {
 		const trimmed = line.trim();
@@ -96,13 +141,23 @@ export function readModuleScoreMap(domainId: string): Map<string, ScoreRecord> {
 			// Skip malformed lines so one bad entry never blocks reads.
 		}
 	}
-	return map;
+	setBounded(cache, file, { stamp, map });
+	return new Map(map);
 }
 
 /** Read the latest problem-set score per moduleId from problem-sets.jsonl (backward-compatible if missing). */
 export function readProblemSetScoreMap(domainId: string): Map<string, ProblemSetScoreRecord> {
+	const file = path.resolve(problemSetsFile(domainId));
+	const cache = courseStoreCache().problemSetScores;
+	const stamp = fileStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return new Map();
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return new Map(cached.map);
 	const map = new Map<string, ProblemSetScoreRecord>();
-	const raw = readOptionalText(problemSetsFile(domainId));
+	const raw = readOptionalText(file);
 	if (!raw) return map;
 	for (const line of raw.split("\n")) {
 		const trimmed = line.trim();
@@ -134,16 +189,28 @@ export function readProblemSetScoreMap(domainId: string): Map<string, ProblemSet
 			// Skip malformed lines so one bad entry never blocks reads.
 		}
 	}
-	return map;
+	setBounded(cache, file, { stamp, map });
+	return new Map(map);
 }
 
 export function readPrepNotes(domainId: string): Record<string, FlippedPrepNote> {
-	const raw = readOptionalText(prepNotesFile(domainId));
+	const file = path.resolve(prepNotesFile(domainId));
+	const cache = courseStoreCache().prepNotes;
+	const stamp = fileStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return {};
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return structuredClone(cached.notes);
+	const raw = readOptionalText(file);
 	if (!raw) return {};
 	try {
 		const parsed = JSON.parse(raw) as unknown;
 		if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-			return parsed as Record<string, FlippedPrepNote>;
+			const notes = parsed as Record<string, FlippedPrepNote>;
+			setBounded(cache, file, { stamp, notes });
+			return structuredClone(notes);
 		}
 	} catch {
 		// Corrupted prep-notes file falls back to empty map.
@@ -153,6 +220,18 @@ export function readPrepNotes(domainId: string): Record<string, FlippedPrepNote>
 
 /** Read a single node's saved flipped pre-reading note, or null when none exists. */
 export function readPrepNote(domainId: string, nodeId: string): FlippedPrepNote | null {
+	const file = path.resolve(prepNotesFile(domainId));
+	const cache = courseStoreCache().prepNotes;
+	const stamp = fileStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return null;
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) {
+		const note = cached.notes[nodeId];
+		return note ? structuredClone(note) : null;
+	}
 	const notes = readPrepNotes(domainId);
 	return notes[nodeId] ?? null;
 }
@@ -170,24 +249,40 @@ export function writePrepNotes(domainId: string, notes: Record<string, FlippedPr
 	const file = prepNotesFile(domainId);
 	fs.mkdirSync(path.dirname(file), { recursive: true });
 	writeFileAtomicSync(file, JSON.stringify(notes, null, "\t"), { allowInPlaceFallback: true });
+	courseStoreCache().prepNotes.delete(path.resolve(file));
 }
 
 export function studyActivitySummary(domainId: string, at: string): { minutes14d: number; activeDays14d: number; totalStudiedMinutes: number } {
 	const stats = createStatsStore(PATHS.data);
+	const months = stats.listMonths("activity");
+	if (months.length === 0) {
+		return { minutes14d: 0, activeDays14d: 0, totalStudiedMinutes: 0 };
+	}
 	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 	const endMs = Date.parse(at);
 	const safeEnd = Number.isFinite(endMs) ? endMs : Date.now();
+	const toIso = new Date(safeEnd + 1).toISOString();
 	const start = new Date(safeEnd);
 	start.setDate(start.getDate() - 13);
 	start.setHours(0, 0, 0, 0);
-	const range14d = { from: start.toISOString(), to: new Date(safeEnd + 1).toISOString() };
-	const events14d = stats.readActivity(range14d, { domain: domainId }).events;
-	const daily14d = aggregateActivity(events14d, { range: range14d, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId });
+	const startMs = start.getTime();
+	const range14d = { from: start.toISOString(), to: toIso };
+	const earliestFrom = `${months[0]}-01T00:00:00.000Z`;
+	const allFromMs = Math.min(Date.parse(earliestFrom), startMs);
+	const allTimeRange = { from: new Date(allFromMs).toISOString(), to: toIso };
+
+	// Single read pass over existing activity months computes both 14d and all-time totals.
+	const allEvents = stats.readActivity(allTimeRange, { domain: domainId }).events;
+	if (allEvents.length === 0) {
+		return { minutes14d: 0, activeDays14d: 0, totalStudiedMinutes: 0 };
+	}
+	const events14d = allEvents.filter((event) => Date.parse(event.at) >= startMs);
+	const daily14d = events14d.length > 0
+		? aggregateActivity(events14d, { range: range14d, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId })
+		: [];
 	const sec14d = daily14d.reduce((sum, day) => sum + day.activeSec, 0);
 	const activeDays14d = daily14d.filter((day) => day.activeSec >= 60).length;
 
-	const allTimeRange = { from: "2020-01-01T00:00:00.000Z", to: new Date(safeEnd + 1).toISOString() };
-	const allEvents = stats.readActivity(allTimeRange, { domain: domainId }).events;
 	const allDaily = aggregateActivity(allEvents, { range: allTimeRange, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId });
 	const totalSec = allDaily.reduce((sum, day) => sum + day.activeSec, 0);
 	return {

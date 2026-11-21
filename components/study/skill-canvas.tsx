@@ -1,919 +1,314 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useAppearance } from "@/components/settings/appearance";
+import { useI18n } from "@/components/i18n";
 import { Icon } from "@/components/icons/icon";
-import { CEL_RAMPS, shiftHex, type ThemeColors, layoutSkillMap, type SkillEdge, type SkillLayout, type SkillMap, type SkillNode, type SkillPoint } from "@/src/core";
+import {
+	SKILL_MAP_STYLES,
+	defaultSkillMapStyleForDomain,
+	isSkillMapStyle,
+	layoutSkillMap,
+	type SkillMap,
+	type SkillMapStyle,
+	type SkillPoint,
+} from "@/src/core";
+import { MapStyleIcon } from "./map-style-icons.tsx";
+import { drawSkillMap } from "./skill-canvas-draw.ts";
+import {
+	BOTTOM_GUTTER,
+	MINIMAP_H,
+	MINIMAP_PAD,
+	MINIMAP_W,
+	TOP_GUTTER,
+	TextMetricsCache,
+	buildMinimapCache,
+	buildPalette,
+	computeZoneStats,
+	dotRadius,
+	effectivePointY,
+	fitZoom,
+	type Camera,
+	type CanvasStrings,
+	type MinimapCache,
+	type Pixel,
+	type Viewport,
+} from "./skill-canvas-palette.ts";
 
-const AREA_RAMPS = Object.values(CEL_RAMPS);
-
-const TAU = Math.PI * 2;
-const TOP_GUTTER = 52;
-const BOTTOM_GUTTER = 82;
-const SIDE_GUTTER = 24;
-const MINIMAP_W = 164;
-const MINIMAP_H = 104;
-const MINIMAP_PAD = 12;
-
-type Pixel = { x: number; y: number };
-type Viewport = { width: number; height: number; ratio: number };
-type Camera = Pixel & { zoom: number };
 type MapControls = { scale: (factor: number) => void; reset: () => void; reveal: (id: string, focus?: boolean) => void };
-type ZoneStats = Map<string, { completed: number; total: number }>;
 
-const STATUS_LABEL: Record<string, string> = {
-	completed: "Concluído",
-	inProgress: "Em andamento",
-	available: "Disponível",
-	locked: "Pendente",
-	known: "Inferido",
-};
-
-function tint(color: number, dark: boolean) {
-	return AREA_RAMPS[color % AREA_RAMPS.length]![dark ? "lite" : "deep"];
+interface AnchorZoomAnim {
+	startLog: number;
+	targetLog: number;
+	anchorWX: number;
+	anchorWY: number;
+	anchorSX: number;
+	anchorSY: number;
+	t0: number;
+	duration: number;
 }
 
-function fitZoom(layout: SkillLayout, viewport: Viewport) {
-	return Math.min(
-		1,
-		Math.max(1, viewport.width - SIDE_GUTTER * 2) / layout.width,
-		Math.max(1, viewport.height - TOP_GUTTER - BOTTOM_GUTTER) / layout.height,
-	);
+interface FlyAnim {
+	startCenterX: number;
+	startCenterY: number;
+	startLog: number;
+	targetCenterX: number;
+	targetCenterY: number;
+	targetLog: number;
+	overviewAfter: boolean;
+	t0: number;
+	duration: number;
 }
 
-function dotRadius(point: SkillPoint, zoom: number) {
-	return Math.max(point.kind === "atom" ? 1.75 : 2.6, Math.min(16, point.radius * zoom));
+const STYLE_LABEL_KEY = {
+	constellation: "map.canvas.styleConstellation",
+	hextech: "map.canvas.styleHextech",
+	citadel: "map.canvas.styleCitadel",
+	atlas: "map.canvas.styleAtlas",
+	clarity: "map.canvas.styleClarity",
+} as const satisfies Record<SkillMapStyle, string>;
+
+function is25DStyle(style: SkillMapStyle): boolean {
+	return style === "constellation" || style === "hextech" || style === "citadel";
 }
 
-function computeZoneStats(nodes: readonly SkillNode[]): ZoneStats {
-	const byId = new Map(nodes.map(n => [n.id, n]));
-	const stats: ZoneStats = new Map();
-	const bump = (id: string, done: boolean) => {
-		const entry = stats.get(id) ?? { completed: 0, total: 0 };
-		entry.total++;
-		if (done) entry.completed++;
-		stats.set(id, entry);
-	};
-	for (const node of nodes) {
-		if (!node.leaf || node.reinforcementFor) continue;
-		if (node.region) bump(node.region, node.completed);
-		let cur: SkillNode | undefined = node;
-		while (cur && cur.kind !== "area" && cur.kind !== "domain") {
-			cur = cur.parent ? byId.get(cur.parent) : undefined;
-		}
-		if (cur?.kind === "area") bump(cur.id, node.completed);
-	}
-	return stats;
+function storageKeyFor(domain: string): string {
+	return `trilhaatlas:map-style:${domain}`;
 }
 
-function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines: number): string[] {
-	if (ctx.measureText(text).width <= maxWidth) return [text];
-	const words = text.split(/\s+/).filter(Boolean);
-	const lines: string[] = [];
-	let current = "";
-	for (let i = 0; i < words.length; i++) {
-		const word = words[i]!;
-		const candidate = current ? `${current} ${word}` : word;
-		if (ctx.measureText(candidate).width <= maxWidth) {
-			current = candidate;
-			continue;
-		}
-		if (lines.length === maxLines - 1) {
-			let tail = current ? `${current} ${words.slice(i).join(" ")}` : words.slice(i).join(" ");
-			while (tail.length > 1 && ctx.measureText(tail + "…").width > maxWidth) tail = tail.slice(0, -1);
-			lines.push(tail + "…");
-			return lines;
-		}
-		if (current) {
-			lines.push(current);
-			current = word;
-		} else {
-			let chunk = word;
-			while (chunk.length > 1 && ctx.measureText(chunk + "…").width > maxWidth) chunk = chunk.slice(0, -1);
-			lines.push(chunk + "…");
-			current = "";
-		}
-	}
-	if (current) lines.push(current);
-	return lines;
-}
-
-function drawCheckGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, stroke: string) {
-	ctx.save();
-	ctx.beginPath();
-	ctx.moveTo(x - r * 0.42, y + r * 0.02);
-	ctx.lineTo(x - r * 0.1, y + r * 0.36);
-	ctx.lineTo(x + r * 0.46, y - r * 0.34);
-	ctx.strokeStyle = stroke;
-	ctx.lineWidth = Math.max(1.5, r * 0.24);
-	ctx.lineCap = "round";
-	ctx.lineJoin = "round";
-	ctx.stroke();
-	ctx.restore();
-}
-
-function drawPlayGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string) {
-	ctx.save();
-	ctx.beginPath();
-	ctx.moveTo(x - r * 0.24, y - r * 0.34);
-	ctx.lineTo(x + r * 0.42, y);
-	ctx.lineTo(x - r * 0.24, y + r * 0.34);
-	ctx.closePath();
-	ctx.fillStyle = fill;
-	ctx.fill();
-	ctx.restore();
-}
-
-function drawLockGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string) {
-	ctx.save();
-	ctx.strokeStyle = color;
-	ctx.fillStyle = color;
-	ctx.lineWidth = Math.max(1.1, r * 0.15);
-	const bw = r * 0.68;
-	const bh = r * 0.52;
-	ctx.beginPath();
-	ctx.arc(x, y - bh * 0.35, bw * 0.28, Math.PI, 0);
-	ctx.stroke();
-	ctx.beginPath();
-	ctx.roundRect(x - bw / 2, y - bh * 0.35, bw, bh, 1.5);
-	ctx.fill();
-	ctx.restore();
-}
-
-function drawAtlas(
-	ctx: CanvasRenderingContext2D,
-	layout: SkillLayout,
-	nodes: Map<string, SkillNode>,
-	zoneStats: ZoneStats,
-	view: Viewport,
-	camera: Camera,
-	selected: string,
-	hovered: string | undefined,
-	current: string | undefined,
-	colors: ThemeColors,
-	dark: boolean,
-	fontFamily: string,
-) {
-	const { width, height, ratio } = view;
-	const { zoom } = camera;
-	const fit = fitZoom(layout, view);
-	const relativeZoom = zoom / fit;
-	const project = (point: Pixel): Pixel => ({ x: camera.x + point.x * zoom, y: camera.y + point.y * zoom });
-	const visible = (p: Pixel, margin = 24) => p.x >= -margin && p.y >= -margin && p.x <= width + margin && p.y <= height + margin;
-	const focusId = hovered ?? selected;
-
-	const completedColor = dark ? CEL_RAMPS.mint.lite : CEL_RAMPS.mint.deep;
-	const inProgressColor = dark ? CEL_RAMPS.amber.lite : CEL_RAMPS.amber.deep;
-	const beacon = dark ? CEL_RAMPS.teal.lite : CEL_RAMPS.teal.deep;
-	const ink = dark ? "#07070b" : colors.text;
-
-	ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-	ctx.clearRect(0, 0, width, height);
-
-	// 1. Area and unit zones — crisp cartographic regions with embedded progress meters
-	for (const zone of layout.zones) {
-		const { x, y } = project(zone);
-		const w = zone.width * zoom;
-		const h = zone.height * zoom;
-		if (x > width || y > height || x + w < 0 || y + h < 0) continue;
-		const areaColor = tint(zone.color, dark);
-		const zStat = zoneStats.get(zone.id);
-		const fraction = zStat && zStat.total > 0 ? zStat.completed / zStat.total : 0;
-		const zoneDone = fraction >= 1;
-		const hasProgress = fraction > 0;
-
-		ctx.beginPath();
-		if (zone.heading === "area") {
-			const rad = Math.min(20, w / 4, h / 4);
-			ctx.roundRect(x, y, w, h, rad);
-			ctx.fillStyle = (zoneDone ? completedColor : areaColor) + (zoneDone ? (dark ? "15" : "10") : (dark ? "08" : "06"));
-			ctx.fill();
-			ctx.strokeStyle = (zoneDone ? completedColor : areaColor) + (zoneDone ? (dark ? "54" : "45") : (dark ? "28" : "22"));
-			ctx.lineWidth = relativeZoom >= 1.8 ? 1.5 : 1.15;
-			ctx.stroke();
-
-			// Progress bar along top edge of area when progress > 0
-			if (hasProgress && w > 54) {
-				const barW = Math.max(8, Math.min(w - 24, (w - 24) * fraction));
-				ctx.beginPath();
-				ctx.roundRect(x + 12, y - 1.5, w - 24, 3, 2);
-				ctx.fillStyle = shiftHex(colors.border, 0) + (dark ? "38" : "2c");
-				ctx.fill();
-				ctx.beginPath();
-				ctx.roundRect(x + 12, y - 1.5, barW, 3, 2);
-				ctx.fillStyle = completedColor;
-				ctx.fill();
-			}
-
-			// Area progress pill in top-right corner when there is room
-			if (hasProgress && zStat && w >= 120) {
-				const badge = `${zStat.completed}/${zStat.total}`;
-				ctx.font = `700 ${relativeZoom >= 1.8 ? 11 : 10}px ${fontFamily}`;
-				const bw = ctx.measureText(badge).width + 12;
-				const bx = x + w - bw - 8;
-				const by = y + 6;
-				if (bx > x + 60 && by > 2 && by < height - 18) {
-					ctx.beginPath();
-					ctx.roundRect(bx, by, bw, 17, 999);
-					ctx.fillStyle = colors.surface;
-					ctx.fill();
-					ctx.strokeStyle = completedColor + (dark ? "88" : "77");
-					ctx.lineWidth = 1;
-					ctx.stroke();
-					ctx.textBaseline = "middle";
-					ctx.fillStyle = completedColor;
-					ctx.fillText(badge, bx + 6, by + 9);
-				}
-			}
-		} else {
-			const rad = Math.min(12, w / 4, h / 4);
-			ctx.roundRect(x, y, w, h, rad);
-			ctx.fillStyle = zoneDone
-				? completedColor + (dark ? "1e" : "15")
-				: areaColor + (dark ? "0a" : "07");
-			ctx.fill();
-			if (zoneDone || relativeZoom >= 1.25) {
-				ctx.strokeStyle = zoneDone ? completedColor + (dark ? "66" : "55") : areaColor + (dark ? "28" : "22");
-				ctx.lineWidth = zoneDone ? 1.25 : 0.9;
-				ctx.stroke();
-			}
-			// Unit header bar and progress counter when zoomed in
-			if (relativeZoom >= 1.65 && w >= 92 && h >= 44) {
-				const unitNode = nodes.get(zone.id);
-				if (unitNode) {
-					const unitPt = layout.points.get(zone.id);
-					const leftInset = unitPt ? Math.max(12, project(unitPt).x - x + dotRadius(unitPt, zoom) + 8) : 10;
-					ctx.font = `600 11px ${fontFamily}`;
-					ctx.textBaseline = "top";
-					const countText = zStat && zStat.total > 0 ? `${zStat.completed}/${zStat.total}` : "";
-					const countW = countText ? ctx.measureText(countText).width + 10 : 0;
-					const maxTitleW = Math.max(24, w - leftInset - 8 - countW);
-					let title = unitNode.title;
-					if (ctx.measureText(title).width > maxTitleW) {
-						while (title.length > 1 && ctx.measureText(title + "…").width > maxTitleW) title = title.slice(0, -1);
-						title += "…";
-					}
-					ctx.fillStyle = zoneDone ? completedColor : areaColor;
-					ctx.fillText(title, x + leftInset, y + 6);
-					if (countText) {
-						ctx.fillStyle = hasProgress ? completedColor : colors.textMuted;
-						ctx.fillText(countText, x + w - countW + 2, y + 6);
-					}
-				}
-			}
-		}
-	}
-
-	// 1b. Subtle vertical elevation cue at overview zoom (Foundations at base → Advanced at crown)
-	if (relativeZoom < 1.5 && width >= 540 && height >= 320) {
-		ctx.save();
-		ctx.font = `600 10.5px ${fontFamily}`;
-		ctx.textBaseline = "middle";
-		const railX = 16;
-		const topY = 24;
-		const botY = height - 74;
-		ctx.strokeStyle = shiftHex(colors.border, 0) + (dark ? "44" : "40");
-		ctx.lineWidth = 1;
-		ctx.setLineDash([3, 4]);
-		ctx.beginPath();
-		ctx.moveTo(railX, botY - 12);
-		ctx.lineTo(railX, topY + 12);
-		ctx.stroke();
-		ctx.setLineDash([]);
-		ctx.fillStyle = colors.textMuted;
-		ctx.fillText("↑ Avançado", railX - 4, topY);
-		ctx.fillText("Base · Fundamentos", railX - 4, botY);
-		ctx.restore();
-	}
-
-	// 2. Overview prerequisite links & root trunk branches flowing upward (base → crown)
-	if (relativeZoom < 2.25) {
-		const trunkPath = new Path2D();
-		const branchPath = new Path2D();
-		for (const link of layout.overviewLinks) {
-			const from = project(link.from);
-			const to = project(link.to);
-			const dx = to.x - from.x;
-			const dy = to.y - from.y;
-			const length = Math.hypot(dx, dy);
-			if (length < 12) continue;
-			const isTrunk = link.from.kind === "domain";
-			const target = isTrunk ? trunkPath : branchPath;
-			if (isTrunk) {
-				const midY = (from.y + to.y) / 2;
-				target.moveTo(from.x, from.y - dotRadius(link.from, zoom));
-				target.bezierCurveTo(from.x, midY, to.x, midY, to.x, to.y + dotRadius(link.to, zoom) + 2);
-				continue;
-			}
-			const ux = dx / length;
-			const uy = dy / length;
-			const bend = Math.min(28, length * 0.12);
-			const tx = to.x - ux * (dotRadius(link.to, zoom) + 4);
-			const ty = to.y - uy * (dotRadius(link.to, zoom) + 4);
-			const controlX = tx - dx * 0.33 + uy * bend;
-			const controlY = ty - dy * 0.33 - ux * bend;
-			target.moveTo(from.x, from.y);
-			target.bezierCurveTo(from.x + dx * 0.33 + uy * bend, from.y + dy * 0.33 - ux * bend, controlX, controlY, tx, ty);
-			const tangent = Math.hypot(tx - controlX, ty - controlY) || 1;
-			const vx = (tx - controlX) / tangent;
-			const vy = (ty - controlY) / tangent;
-			const wing = length > 32 ? 3.2 : 2.2;
-			target.moveTo(tx - vx * wing * 1.5 - vy * wing, ty - vy * wing * 1.5 + vx * wing);
-			target.lineTo(tx, ty);
-			target.lineTo(tx - vx * wing * 1.5 + vy * wing, ty - vy * wing * 1.5 - vx * wing);
-		}
-		ctx.strokeStyle = shiftHex(colors.textMuted, 0) + (dark ? "44" : "50");
-		ctx.lineWidth = 1.1;
-		ctx.stroke(branchPath);
-
-		ctx.strokeStyle = shiftHex(colors.textMuted, 0) + (dark ? "72" : "78");
-		ctx.lineWidth = 1.85;
-		ctx.stroke(trunkPath);
-	}
-
-	// 3. Detailed edges (ambient vs prominent semantic dependencies)
-	const preInColor = dark ? CEL_RAMPS.amber.lite : CEL_RAMPS.amber.deep;
-	const preOutColor = dark ? CEL_RAMPS.mint.lite : CEL_RAMPS.mint.deep;
-	const hierProminent = dark ? CEL_RAMPS.sky.lite : CEL_RAMPS.sky.deep;
-
-	function drawEdgePath(from: Pixel, to: Pixel, sourceGap: number, targetGap: number, curved: boolean, arrow: boolean, prominent: boolean) {
-		const dx = to.x - from.x;
-		const dy = to.y - from.y;
-		const length = Math.hypot(dx, dy);
-		if (length < sourceGap + targetGap + 3) return;
-		const ux = dx / length;
-		const uy = dy / length;
-		const sx = from.x + ux * sourceGap;
-		const sy = from.y + uy * sourceGap;
-		const tx = to.x - ux * targetGap;
-		const ty = to.y - uy * targetGap;
-		let vx = ux;
-		let vy = uy;
-		if (curved && length > 26) {
-			const bend = Math.min(24, length * 0.13);
-			const cx = (sx + tx) / 2 + uy * bend;
-			const cy = (sy + ty) / 2 - ux * bend;
-			ctx.moveTo(sx, sy);
-			ctx.quadraticCurveTo(cx, cy, tx, ty);
-			const tanLen = Math.hypot(tx - cx, ty - cy) || 1;
-			vx = (tx - cx) / tanLen;
-			vy = (ty - cy) / tanLen;
-		} else {
-			ctx.moveTo(sx, sy);
-			ctx.lineTo(tx, ty);
-		}
-		if (arrow && length >= 15) {
-			const wing = prominent ? 4.8 : 3.2;
-			const bx = tx - vx * wing * 1.7;
-			const by = ty - vy * wing * 1.7;
-			ctx.moveTo(bx - vy * wing, by + vx * wing);
-			ctx.lineTo(tx, ty);
-			ctx.lineTo(bx + vy * wing, by - vx * wing);
-		}
-	}
-
-	function drawAmbientEdges(kind: SkillEdge["kind"]) {
-		const isPre = kind === "prerequisite";
-		const completedPath = new Path2D();
-		const pendingPath = new Path2D();
-		for (const edge of layout.edges) {
-			if (kind !== edge.kind) continue;
-			const rootEdge = edge.from.kind === "domain" || edge.to.kind === "domain";
-			const touchesActive = (!rootEdge || relativeZoom >= 1.5) && (edge.from.id === selected || edge.to.id === selected || edge.from.id === hovered || edge.to.id === hovered);
-			if (touchesActive) continue;
-			if (edge.crossesRegion && relativeZoom < 2.25) continue;
-			const from = project(edge.from);
-			const to = project(edge.to);
-			if (Math.max(from.x, to.x) < -12 || Math.max(from.y, to.y) < -12 || Math.min(from.x, to.x) > width + 12 || Math.min(from.y, to.y) > height + 12) continue;
-			const length = Math.hypot(to.x - from.x, to.y - from.y);
-			if (edge.crossesRegion && length > Math.min(width, height) * (kind === "related" ? 0.35 : 0.75)) continue;
-			const fromNode = nodes.get(edge.from.id);
-			const toNode = nodes.get(edge.to.id);
-			const bothDone = Boolean(fromNode?.completed && toNode?.completed);
-			const target = bothDone ? completedPath : pendingPath;
-			const sourceGap = dotRadius(edge.from, zoom);
-			const targetGap = dotRadius(edge.to, zoom) + 1.5;
-			const dx = to.x - from.x;
-			const dy = to.y - from.y;
-			if (length < sourceGap + targetGap + 3) continue;
-			const ux = dx / length;
-			const uy = dy / length;
-			const sx = from.x + ux * sourceGap;
-			const sy = from.y + uy * sourceGap;
-			const tx = to.x - ux * targetGap;
-			const ty = to.y - uy * targetGap;
-			let vx = ux;
-			let vy = uy;
-			if (isPre && edge.crossesRegion && length > 26) {
-				const bend = Math.min(22, length * 0.12);
-				const cx = (sx + tx) / 2 + uy * bend;
-				const cy = (sy + ty) / 2 - ux * bend;
-				target.moveTo(sx, sy);
-				target.quadraticCurveTo(cx, cy, tx, ty);
-				const tanLen = Math.hypot(tx - cx, ty - cy) || 1;
-				vx = (tx - cx) / tanLen;
-				vy = (ty - cy) / tanLen;
-			} else {
-				target.moveTo(sx, sy);
-				target.lineTo(tx, ty);
-			}
-			if (isPre && relativeZoom >= 1.9 && length >= 15) {
-				const wing = 3.1;
-				const bx = tx - vx * wing * 1.7;
-				const by = ty - vy * wing * 1.7;
-				target.moveTo(bx - vy * wing, by + vx * wing);
-				target.lineTo(tx, ty);
-				target.lineTo(bx + vy * wing, by - vx * wing);
-			}
-		}
-		ctx.setLineDash(kind === "related" ? [3, 4] : []);
-		ctx.strokeStyle = shiftHex(colors.border, 0) + (isPre ? "4e" : "34");
-		ctx.lineWidth = isPre ? 0.85 : 0.7;
-		ctx.stroke(pendingPath);
-
-		ctx.strokeStyle = completedColor + (dark ? "72" : "66");
-		ctx.lineWidth = relativeZoom >= 2 ? 1.5 : 1.1;
-		ctx.stroke(completedPath);
-	}
-
-	function drawProminentEdges() {
-		const buckets: { color: string; dash: number[]; width: number; list: SkillEdge[] }[] = [
-			{ color: hierProminent, dash: [], width: 1.6, list: [] },
-			{ color: colors.textMuted, dash: [4, 4], width: 1.5, list: [] },
-			{ color: preInColor, dash: [], width: 2.2, list: [] },
-			{ color: preOutColor, dash: [], width: 2.2, list: [] },
-		];
-		for (const edge of layout.edges) {
-			const rootEdge = edge.from.kind === "domain" || edge.to.kind === "domain";
-			const touchesActive = (!rootEdge || relativeZoom >= 1.5) && (edge.from.id === selected || edge.to.id === selected || edge.from.id === hovered || edge.to.id === hovered);
-			if (!touchesActive) continue;
-			if (edge.kind === "hierarchy") buckets[0]!.list.push(edge);
-			else if (edge.kind === "related") buckets[1]!.list.push(edge);
-			else if (edge.to.id === focusId) buckets[2]!.list.push(edge);
-			else buckets[3]!.list.push(edge);
-		}
-		for (const bucket of buckets) {
-			if (!bucket.list.length) continue;
-			ctx.beginPath();
-			ctx.strokeStyle = bucket.color;
-			ctx.lineWidth = bucket.width;
-			ctx.setLineDash(bucket.dash);
-			for (const edge of bucket.list) {
-				const from = project(edge.from);
-				const to = project(edge.to);
-				if (Math.max(from.x, to.x) < -24 || Math.max(from.y, to.y) < -24 || Math.min(from.x, to.x) > width + 24 || Math.min(from.y, to.y) > height + 24) continue;
-				const isPre = edge.kind === "prerequisite";
-				drawEdgePath(from, to, dotRadius(edge.from, zoom) + 1.5, dotRadius(edge.to, zoom) + 2.8, isPre, isPre, true);
-			}
-			ctx.stroke();
-		}
-	}
-
-	for (const kind of ["hierarchy", "related", "prerequisite"] as const) drawAmbientEdges(kind);
-	drawProminentEdges();
-	ctx.setLineDash([]);
-
-	// 4. Nodes — Multi-LOD rendering (distant overview contrast + crisp close-up cel-shading with icons)
-	let visibleCount = 0;
-	const foregroundPoints: { point: SkillPoint; screen: Pixel; node: SkillNode }[] = [];
-
-	function drawShape(x: number, y: number, r: number, landmark: boolean) {
-		ctx.beginPath();
-		if (landmark) {
-			const lr = r * 1.08;
-			ctx.moveTo(x, y - lr);
-			ctx.lineTo(x + lr, y);
-			ctx.lineTo(x, y + lr);
-			ctx.lineTo(x - lr, y);
-			ctx.closePath();
-		} else {
-			ctx.arc(x, y, r, 0, TAU);
-		}
-	}
-
-	// Pass A: pending / locked nodes and non-completed landmarks (calm recessed layer)
-	for (const point of layout.points.values()) {
-		const screen = project(point);
-		if (!visible(screen)) continue;
-		if (visible(screen, 0)) visibleCount++;
-		const node = nodes.get(point.id)!;
-		const active = point.id === selected || point.id === hovered || point.id === current;
-		const highlight = active || node.completed || node.inProgress || (node.leaf && node.state === "available");
-		if (highlight) {
-			foregroundPoints.push({ point, screen, node });
-			continue;
-		}
-		const radius = dotRadius(point, zoom);
-		const landmark = point.kind === "domain" || point.kind === "area" || point.kind === "unit";
-		if (landmark) {
-			const areaColor = tint(point.color, dark);
-			if (radius >= 6) {
-				drawShape(screen.x + 1.5, screen.y + 1.5, radius, true);
-				ctx.fillStyle = dark ? "rgb(0 0 0 / 0.45)" : "rgb(30 27 46 / 0.16)";
-				ctx.fill();
-			}
-			drawShape(screen.x, screen.y, radius, true);
-			ctx.fillStyle = colors.surface;
-			ctx.fill();
-			ctx.strokeStyle = areaColor + (dark ? "88" : "7c");
-			ctx.lineWidth = radius >= 6 ? 1.6 : 1.15;
-			ctx.stroke();
-		} else {
-			const r = relativeZoom < 1.8 ? Math.max(1.35, radius * 0.84) : radius * 0.92;
-			drawShape(screen.x, screen.y, r, false);
-			ctx.fillStyle = relativeZoom >= 2.6 ? colors.surface : shiftHex(colors.border, 0) + (dark ? "54" : "50");
-			ctx.fill();
-			if (relativeZoom >= 2.6) {
-				ctx.strokeStyle = shiftHex(colors.border, 0) + (dark ? "8c" : "7c");
-				ctx.lineWidth = 1.25;
-				ctx.stroke();
-				if (r >= 8.5) drawLockGlyph(ctx, screen.x, screen.y, r * 0.72, colors.textMuted);
-			}
-		}
-	}
-
-	// Pass B: completed, in-progress, available frontier, and active nodes (high-contrast foreground)
-	for (const { point, screen, node } of foregroundPoints) {
-		const baseRadius = dotRadius(point, zoom);
-		const isSelected = point.id === selected;
-		const isHovered = point.id === hovered;
-		const active = isSelected || isHovered;
-		const landmark = point.kind === "domain" || point.kind === "area" || point.kind === "unit";
-		const radius = node.completed || node.inProgress
-			? baseRadius + (relativeZoom < 1.8 && !landmark ? 0.95 : 0.45)
-			: node.state === "available" && !landmark
-				? baseRadius + (relativeZoom < 1.8 ? 0.6 : 0.25)
-				: baseRadius;
-
-		if (active || point.id === current) {
-			ctx.beginPath();
-			ctx.arc(screen.x, screen.y, radius + (isSelected ? 8 : 6.5), 0, TAU);
-			ctx.fillStyle = colors.surface;
-			ctx.fill();
-			ctx.strokeStyle = isSelected ? colors.accent : colors.text;
-			ctx.lineWidth = isSelected ? 2.4 : 1.6;
-			ctx.stroke();
-		}
-
-		if (node.completed) {
-			ctx.beginPath();
-			ctx.arc(screen.x, screen.y, radius + (relativeZoom < 1.6 ? 2.2 : 3.4), 0, TAU);
-			ctx.fillStyle = completedColor + (dark ? "3c" : "2c");
-			ctx.fill();
-		} else if (node.inProgress) {
-			ctx.beginPath();
-			ctx.arc(screen.x, screen.y, radius + (relativeZoom < 1.6 ? 2.5 : 4), 0, TAU);
-			ctx.fillStyle = inProgressColor + (dark ? "32" : "26");
-			ctx.fill();
-			ctx.strokeStyle = inProgressColor;
-			ctx.lineWidth = 1.5;
-			ctx.setLineDash([2.8, 2.2]);
-			ctx.stroke();
-			ctx.setLineDash([]);
-		}
-
-		// Cel-shading hard offset shadow when zoomed in
-		if (radius >= 6) {
-			drawShape(screen.x + 1.8, screen.y + 1.8, radius, landmark);
-			ctx.fillStyle = dark ? "rgb(0 0 0 / 0.55)" : "rgb(30 27 46 / 0.22)";
-			ctx.fill();
-		}
-
-		drawShape(screen.x, screen.y, radius, landmark);
-		if (node.completed) {
-			ctx.fillStyle = completedColor;
-		} else if (node.inProgress) {
-			ctx.fillStyle = inProgressColor;
-		} else if (node.state === "available") {
-			ctx.fillStyle = colors.surface;
-		} else if (landmark) {
-			ctx.fillStyle = tint(point.color, dark);
-		} else {
-			ctx.fillStyle = colors.text;
-		}
-		ctx.fill();
-
-		// Close-up interior glyphs (Multi-LOD)
-		if (radius >= 6.8 && !landmark) {
-			if (node.completed) {
-				drawCheckGlyph(ctx, screen.x, screen.y, radius, dark ? "#07070b" : "#ffffff");
-			} else if (node.inProgress) {
-				ctx.beginPath();
-				ctx.arc(screen.x, screen.y, radius * 0.34, 0, TAU);
-				ctx.fillStyle = dark ? "#07070b" : "#ffffff";
-				ctx.fill();
-			} else if (node.state === "available") {
-				drawPlayGlyph(ctx, screen.x, screen.y, radius * 0.72, colors.text);
-			}
-		} else if (node.completed && radius >= 4) {
-			// Crisp specular highlight at mid zoom
-			ctx.beginPath();
-			ctx.arc(screen.x - radius * 0.28, screen.y - radius * 0.28, Math.max(1, radius * 0.24), 0, TAU);
-			ctx.fillStyle = "rgb(255 255 255 / 0.6)";
-			ctx.fill();
-		}
-
-		drawShape(screen.x, screen.y, radius, landmark);
-		if (active) {
-			ctx.strokeStyle = colors.text;
-			ctx.lineWidth = 1.8;
-		} else if (node.state === "available" && !node.completed && !node.inProgress) {
-			ctx.strokeStyle = colors.text;
-			ctx.lineWidth = relativeZoom < 1.8 ? 1.5 : 1.9;
-		} else {
-			ctx.strokeStyle = ink;
-			ctx.lineWidth = radius >= 6 ? 1.5 : 1;
-		}
-		ctx.stroke();
-	}
-
-	// 5. Paint the learner position beacon last so crowded neighbors cannot cover it
-	const position = current && layout.points.get(current);
-	if (position) {
-		const { x, y } = project(position);
-		if (visible({ x, y })) {
-			const radius = Math.max(4.8, dotRadius(position, zoom));
-			ctx.save();
-			ctx.beginPath();
-			ctx.arc(x, y, radius + 7, 0, TAU);
-			ctx.fillStyle = beacon + "26";
-			ctx.fill();
-			ctx.strokeStyle = beacon;
-			ctx.lineWidth = 2;
-			ctx.stroke();
-
-			ctx.beginPath();
-			ctx.arc(x, y, radius + 1.2, 0, TAU);
-			ctx.fillStyle = beacon;
-			ctx.fill();
-			ctx.strokeStyle = colors.surface;
-			ctx.lineWidth = 2;
-			ctx.stroke();
-			ctx.restore();
-		}
-	}
-
-	// 6. Multi-LOD Labels (single-line area headings at overview; crisp 2-line skill cards up close; collision-safe pills)
-	const labels = [];
-	for (const point of layout.points.values()) {
-		const active = point.id === selected || point.id === hovered;
-		const priority = point.id === current ? 6 : active ? 5 : point.kind === "domain" ? 4 : point.kind === "area" ? 3 : point.kind === "unit" ? 2 : 1;
-		// Unit titles are drawn directly inside unit zone headers once zoomed in >= 1.65
-		if (!active && priority === 2 && relativeZoom >= 1.65) continue;
-		if (!active && ((priority === 1 && relativeZoom < (point.kind === "topic" ? 2.15 : 3.2)) || (priority === 2 && relativeZoom < 1.45))) continue;
-		const screen = project(point);
-		if (visible(screen, 28)) labels.push({ point, screen, priority, active });
-	}
-	labels.sort((a, b) => b.priority - a.priority);
-	const occupied: { left: number; right: number; top: number; bottom: number }[] = [];
-	const zoneById = new Map(layout.zones.map(zone => [zone.id, zone]));
-	ctx.textBaseline = "middle";
-	ctx.lineJoin = "round";
-
-	for (const { point, screen, priority, active } of labels) {
-		const isHeading = priority > 1 && point.kind !== "topic" && point.kind !== "atom";
-		const node = nodes.get(point.id)!;
-		const pill = point.id === current || active;
-		const closeSkill = !pill && priority === 1 && relativeZoom >= 3.2;
-
-		if (closeSkill) {
-			ctx.font = `600 11.5px ${fontFamily}`;
-			const maxW = Math.min(148, Math.max(92, zoom * 62));
-			const lines = wrapLines(ctx, node.title, maxW, 2);
-			const lineH = 14;
-			const boxW = Math.max(...lines.map(l => ctx.measureText(l).width)) + 12;
-			const boxH = lines.length * lineH + 6;
-			const cx = Math.max(boxW / 2 + 6, Math.min(width - boxW / 2 - 6, screen.x));
-			const topY = Math.min(height - boxH - 8, screen.y + dotRadius(point, zoom) + 7);
-			const bounds = { left: cx - boxW / 2 - 3, right: cx + boxW / 2 + 3, top: topY - 2, bottom: topY + boxH + 2 };
-			if (occupied.some(b => b.left < bounds.right && b.right > bounds.left && b.top < bounds.bottom && b.bottom > bounds.top)) continue;
-			occupied.push(bounds);
-
-			ctx.beginPath();
-			ctx.roundRect(cx - boxW / 2, topY, boxW, boxH, 7);
-			ctx.fillStyle = shiftHex(colors.surface, 0) + (dark ? "e0" : "eb");
-			ctx.fill();
-			ctx.strokeStyle = node.completed
-				? completedColor + "70"
-				: node.inProgress
-					? inProgressColor + "70"
-					: shiftHex(colors.border, 0) + "55";
-			ctx.lineWidth = 1;
-			ctx.stroke();
-
-			ctx.textAlign = "center";
-			ctx.fillStyle = node.completed || node.inProgress || node.state === "available" ? colors.text : colors.textMuted;
-			for (const [idx, line] of lines.entries()) {
-				ctx.fillText(line, cx, topY + 3 + lineH * (idx + 0.5));
-			}
-			ctx.textAlign = "left";
-			continue;
-		}
-
-		const fontSize = priority >= 4 ? 13 : priority >= 3 ? 12.5 : priority >= 2 ? 12 : 11.5;
-		const fontWeight = priority >= 3 ? "700" : priority >= 2 ? "600" : "500";
-		ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
-		const padX = pill ? 8 : 0;
-		const isDomainRoot = point.kind === "domain" && relativeZoom < 2.25;
-		const x = isDomainRoot
-			? Math.max(8, Math.min(screen.x - ctx.measureText(node.title).width / 2, width - 84))
-			: Math.max(8, Math.min(screen.x + dotRadius(point, zoom) + 9, width - 84));
-		const y = isDomainRoot
-			? Math.min(height - 16, screen.y + dotRadius(point, zoom) + 15)
-			: isHeading ? screen.y : Math.min(height - 16, screen.y + dotRadius(point, zoom) + 12);
-		const zone = zoneById.get(point.id);
-		const zoneHasBadge = Boolean(zone && zone.heading === "area" && (zoneStats.get(zone.id)?.completed ?? 0) > 0 && zone.width * zoom >= 120);
-		const available = Math.min(width - x - padX - 8, zone && !pill ? project(zone).x + zone.width * zoom - x - (zoneHasBadge ? 56 : 8) : 290);
-		if (available < 28) continue;
-
-		const stateKey = node.completed ? "completed" : node.inProgress ? "inProgress" : node.state;
-		const suffix = point.id === hovered && node.leaf ? ` · ${STATUS_LABEL[stateKey] ?? ""}` : "";
-		let label = (point.id === current ? "Você está aqui · " : "") + node.title + suffix;
-		if (ctx.measureText(label).width > available) {
-			const maxChars = Math.min(label.length, Math.ceil(available / 5));
-			label = label.slice(0, maxChars);
-			while (label.length > 1 && ctx.measureText(label + "…").width > available) label = label.slice(0, -1);
-			label += "…";
-		}
-		const textWidth = ctx.measureText(label).width;
-		let textY = y;
-		const overlaps = (topY: number) => {
-			const b = { left: x - padX - 3, right: x + textWidth + padX + 3, top: topY - (pill ? 13 : 8), bottom: topY + (pill ? 13 : 8) };
-			return occupied.some(o => o.left < b.right && o.right > b.left && o.top < b.bottom && o.bottom > b.top);
-		};
-		if (pill && overlaps(textY)) {
-			for (const dy of [-26, 26, -50, 50]) {
-				const candidateY = Math.max(18, Math.min(height - 18, y + dy));
-				if (!overlaps(candidateY)) { textY = candidateY; break; }
-			}
-		}
-		const bounds = {
-			left: x - padX - 3,
-			right: x + textWidth + padX + 3,
-			top: textY - (pill ? 13 : 8),
-			bottom: textY + (pill ? 13 : 8),
-		};
-		if (!pill && occupied.some(b => b.left < bounds.right && b.right > bounds.left && b.top < bounds.bottom && b.bottom > bounds.top)) continue;
-		occupied.push(bounds);
-
-		if (pill) {
-			const rx = x - padX;
-			const ry = textY - 12;
-			const rw = textWidth + padX * 2;
-			const rh = 24;
-			ctx.beginPath();
-			ctx.roundRect(rx + 1.5, ry + 1.5, rw, rh, 999);
-			ctx.fillStyle = dark ? "rgb(0 0 0 / 0.45)" : "rgb(30 27 46 / 0.16)";
-			ctx.fill();
-
-			ctx.beginPath();
-			ctx.roundRect(rx, ry, rw, rh, 999);
-			ctx.fillStyle = colors.surface;
-			ctx.fill();
-			ctx.strokeStyle = point.id === current ? beacon : colors.accent;
-			ctx.lineWidth = 1.6;
-			ctx.stroke();
-			ctx.fillStyle = point.id === current ? beacon : colors.text;
-			ctx.fillText(label, x, textY + 0.5);
-		} else {
-			ctx.lineWidth = 3.5;
-			ctx.strokeStyle = colors.surface;
-			ctx.fillStyle = priority === 3 ? tint(point.color, dark) : colors.text;
-			ctx.strokeText(label, x, textY);
-			ctx.fillText(label, x, textY);
-		}
-	}
-
-	// 7. Interactive Minimap when zoomed in (relativeZoom > 1.45)
-	if (relativeZoom > 1.45 && width >= 460 && height >= 280) {
-		const mx = width - MINIMAP_W - MINIMAP_PAD;
-		const my = height - MINIMAP_H - MINIMAP_PAD;
-		const innerPad = 8;
-		const scaleX = (MINIMAP_W - innerPad * 2) / Math.max(1, layout.width);
-		const scaleY = (MINIMAP_H - innerPad * 2) / Math.max(1, layout.height);
-		const ms = Math.min(scaleX, scaleY);
-		const ox = mx + (MINIMAP_W - layout.width * ms) / 2;
-		const oy = my + (MINIMAP_H - layout.height * ms) / 2;
-
-		ctx.save();
-		ctx.beginPath();
-		ctx.roundRect(mx + 2, my + 2, MINIMAP_W, MINIMAP_H, 12);
-		ctx.fillStyle = dark ? "rgb(0 0 0 / 0.45)" : "rgb(30 27 46 / 0.15)";
-		ctx.fill();
-
-		ctx.beginPath();
-		ctx.roundRect(mx, my, MINIMAP_W, MINIMAP_H, 12);
-		ctx.fillStyle = shiftHex(colors.surface, 0) + (dark ? "ec" : "f2");
-		ctx.fill();
-		ctx.strokeStyle = shiftHex(colors.border, 0) + "88";
-		ctx.lineWidth = 1.25;
-		ctx.stroke();
-		ctx.clip();
-
-		for (const zone of layout.zones) {
-			if (zone.heading !== "area") continue;
-			ctx.fillStyle = tint(zone.color, dark) + (dark ? "24" : "1c");
-			ctx.fillRect(ox + zone.x * ms, oy + zone.y * ms, Math.max(2, zone.width * ms), Math.max(2, zone.height * ms));
-		}
-		for (const point of layout.points.values()) {
-			const node = nodes.get(point.id);
-			if (!node) continue;
-			const px = ox + point.x * ms;
-			const py = oy + point.y * ms;
-			if (point.id === current) {
-				ctx.fillStyle = beacon;
-				ctx.beginPath();
-				ctx.arc(px, py, 3, 0, TAU);
-				ctx.fill();
-			} else if (node.completed) {
-				ctx.fillStyle = completedColor;
-				ctx.fillRect(px - 1.1, py - 1.1, 2.2, 2.2);
-			} else if (node.inProgress) {
-				ctx.fillStyle = inProgressColor;
-				ctx.fillRect(px - 1.2, py - 1.2, 2.4, 2.4);
-			}
-		}
-
-		// Viewport lens rectangle
-		const vx = ox + (-camera.x / zoom) * ms;
-		const vy = oy + (-camera.y / zoom) * ms;
-		const vw = (width / zoom) * ms;
-		const vh = (height / zoom) * ms;
-		ctx.fillStyle = colors.accent + "1f";
-		ctx.fillRect(vx, vy, vw, vh);
-		ctx.strokeStyle = colors.accent;
-		ctx.lineWidth = 1.5;
-		ctx.strokeRect(vx, vy, vw, vh);
-		ctx.restore();
-	}
-
-	return visibleCount;
-}
-
-export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; selected: string; locate: number; onPick: (id: string) => void }) {
+export const SkillCanvas = memo(function SkillCanvas({
+	map,
+	selected,
+	locate,
+	onPick,
+}: {
+	map: SkillMap;
+	selected: string;
+	locate: number;
+	onPick: (id: string) => void;
+}) {
 	const { colors, resolvedMode } = useAppearance();
+	const { t } = useI18n();
+	const initialStyle: SkillMapStyle = map.mapStyle ?? defaultSkillMapStyleForDomain(map.domain);
+	const [style, setStyle] = useState<SkillMapStyle>(initialStyle);
+	const [depth, setDepth] = useState(0.62);
+	const depthRef = useRef(depth);
+	depthRef.current = depth;
+
 	const canvas = useRef<HTMLCanvasElement>(null);
+	const zoomLabelRef = useRef<HTMLSpanElement>(null);
 	const controls = useRef<MapControls>(null);
 	const camera = useRef<Camera | undefined>(undefined);
 	const atOverview = useRef(true);
-	const previousDomain = useRef("");
+	const previousLayoutKey = useRef("");
 	const lastLocate = useRef(locate);
 	const active = useRef(selected);
 	const pick = useRef(onPick);
 	const hintId = useId();
-	const [zoomPct, setZoomPct] = useState(100);
-	const layout = useMemo(() => layoutSkillMap(map.nodes), [map.nodes]);
-	const nodes = useMemo(() => new Map(map.nodes.map(node => [node.id, node])), [map.nodes]);
+
+	// Sync style when switching domains (server manifest wins; fallback to localStorage if unset)
+	useEffect(() => {
+		if (map.mapStyle && isSkillMapStyle(map.mapStyle)) {
+			setStyle(map.mapStyle);
+			return;
+		}
+		try {
+			const cached = window.localStorage.getItem(storageKeyFor(map.domain));
+			if (isSkillMapStyle(cached)) {
+				setStyle(cached);
+				return;
+			}
+		} catch {
+			// Ignore storage errors in private contexts.
+		}
+		setStyle(defaultSkillMapStyleForDomain(map.domain));
+	}, [map.domain, map.mapStyle]);
+
+	const handleSelectStyle = useCallback(
+		(next: SkillMapStyle) => {
+			if (next === style) return;
+			setStyle(next);
+			try {
+				window.localStorage.setItem(storageKeyFor(map.domain), next);
+			} catch {
+				// Ignore storage errors.
+			}
+			void fetch("/api/study/map-style", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ domain: map.domain, style: next }),
+			}).catch(() => {
+				// Keep optimistic local preference even if offline.
+			});
+		},
+		[map.domain, style],
+	);
+
+	const layout = useMemo(() => layoutSkillMap(map.nodes, style), [map.nodes, style]);
+	const nodes = useMemo(() => new Map(map.nodes.map((node) => [node.id, node])), [map.nodes]);
 	const zoneStats = useMemo(() => computeZoneStats(map.nodes), [map.nodes]);
+	const palette = useMemo(() => buildPalette(colors, resolvedMode === "dark"), [colors, resolvedMode]);
+	const strings = useMemo<CanvasStrings>(
+		() => ({
+			youAreHere: t("map.canvas.youAreHere"),
+			completed: t("map.canvas.legendCompleted"),
+			inProgress: t("map.canvas.legendInProgress"),
+			available: t("map.canvas.legendAvailable"),
+			pending: t("map.canvas.legendPending"),
+			inferred: t("map.tree.statusKnown"),
+		}),
+		[t],
+	);
 	const anchorId = map.position ?? map.next;
 
-	useEffect(() => { pick.current = onPick; }, [onPick]);
+	useEffect(() => {
+		pick.current = onPick;
+	}, [onPick]);
+
 	useEffect(() => {
 		const surface = canvas.current;
 		const ctx = surface?.getContext("2d");
 		if (!surface || !ctx) return;
+
 		const fontFamily = getComputedStyle(document.body).fontFamily || "system-ui, sans-serif";
 		const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		const textCache = new TextMetricsCache();
+		let minimapCache: MinimapCache | null = null;
+		let canvasRect: DOMRect | null = null;
+		let lastZoomPct = 100;
 		let view: Viewport = { width: 0, height: 0, ratio: 1 };
 		let frame = 0;
 		let animFrame = 0;
+		let zoomAnim: AnchorZoomAnim | null = null;
+		let flyAnim: FlyAnim | null = null;
 		let hovered: string | undefined;
-		if (!camera.current || previousDomain.current !== map.domain) atOverview.current = true;
+
+		const layoutKey = `${map.domain}:${style}`;
+		if (!camera.current || previousLayoutKey.current !== layoutKey) atOverview.current = true;
+		previousLayoutKey.current = layoutKey;
+
 		const pointers = new Map<number, Pixel>();
 		let down: Pixel | undefined;
 		let dragged = false;
 		let draggingMinimap = false;
-		previousDomain.current = map.domain;
+		let draggingDepth = false;
+
+		function getMinimap(): MinimapCache {
+			if (!minimapCache || minimapCache.ratio !== view.ratio) {
+				minimapCache = buildMinimapCache(layout, nodes, palette, anchorId, view.ratio);
+			}
+			return minimapCache;
+		}
 
 		function cancelAnim() {
+			zoomAnim = null;
+			flyAnim = null;
 			if (animFrame) {
 				cancelAnimationFrame(animFrame);
 				animFrame = 0;
 			}
 		}
 
-		function syncZoomLabel() {
-			if (!camera.current || !view.width) return;
+		function zoomBounds() {
 			const fit = fitZoom(layout, view);
-			const pct = Math.round((camera.current.zoom / fit) * 100);
-			setZoomPct(prev => (Math.abs(prev - pct) >= 5 ? pct : prev));
+			return {
+				fit,
+				minZoom: fit * 0.55,
+				maxZoom: Math.max(4.5, fit * 9.5),
+			};
+		}
+
+		function syncZoomLabel(forcePct?: number) {
+			if (!camera.current || !view.width) return;
+			const pct = forcePct ?? Math.round((camera.current.zoom / fitZoom(layout, view)) * 100);
+			if (forcePct !== undefined || Math.abs(lastZoomPct - pct) >= 2) {
+				lastZoomPct = pct;
+				if (zoomLabelRef.current) zoomLabelRef.current.textContent = `${pct}%`;
+			}
+		}
+
+		function renderNow() {
+			if (!camera.current) return;
+			const visible = String(
+				drawSkillMap({
+					ctx: ctx!,
+					layout,
+					nodes,
+					zoneStats,
+					view,
+					camera: camera.current,
+					depth: depthRef.current,
+					selected: active.current,
+					hovered,
+					current: anchorId,
+					palette,
+					strings,
+					fontFamily,
+					textCache,
+					getMinimap,
+				}),
+			);
+			if (surface!.dataset.visibleNodeCount !== visible) surface!.dataset.visibleNodeCount = visible;
+			const mode = atOverview.current ? "overview" : "explore";
+			if (surface!.dataset.cameraMode !== mode) surface!.dataset.cameraMode = mode;
+			syncZoomLabel();
 		}
 
 		function redraw() {
 			if (frame) return;
 			frame = requestAnimationFrame(() => {
 				frame = 0;
-				if (camera.current) {
-					const visible = String(drawAtlas(ctx!, layout, nodes, zoneStats, view, camera.current, active.current, hovered, anchorId, colors, resolvedMode === "dark", fontFamily));
-					if (surface!.dataset.visibleNodeCount !== visible) surface!.dataset.visibleNodeCount = visible;
-					const mode = atOverview.current ? "overview" : "explore";
-					if (surface!.dataset.cameraMode !== mode) surface!.dataset.cameraMode = mode;
-					syncZoomLabel();
-				}
+				renderNow();
 			});
 		}
 
-		function animateTo(target: Camera, overviewAfter = false) {
+		function runAnimationLoop() {
+			if (animFrame) return;
+			const tick = (now: number) => {
+				animFrame = 0;
+				if (!camera.current) return;
+
+				if (zoomAnim) {
+					const u = Math.min(1, (now - zoomAnim.t0) / zoomAnim.duration);
+					const ease = 1 - (1 - u) ** 3;
+					const nextZoom = Math.exp(zoomAnim.startLog + (zoomAnim.targetLog - zoomAnim.startLog) * ease);
+					// Exact mathematical cursor-lock invariant: zero pixel drift on EVERY frame!
+					camera.current = {
+						x: zoomAnim.anchorSX - zoomAnim.anchorWX * nextZoom,
+						y: zoomAnim.anchorSY - zoomAnim.anchorWY * nextZoom,
+						zoom: nextZoom,
+					};
+					if (u >= 1) zoomAnim = null;
+				} else if (flyAnim) {
+					const u = Math.min(1, (now - flyAnim.t0) / flyAnim.duration);
+					const ease = u < 0.5 ? 4 * u * u * u : 1 - ((-2 * u + 2) ** 3) / 2;
+					const nextZoom = Math.exp(flyAnim.startLog + (flyAnim.targetLog - flyAnim.startLog) * ease);
+					const cx = flyAnim.startCenterX + (flyAnim.targetCenterX - flyAnim.startCenterX) * ease;
+					const cy = flyAnim.startCenterY + (flyAnim.targetCenterY - flyAnim.startCenterY) * ease;
+					camera.current = {
+						x: view.width / 2 - cx * nextZoom,
+						y: view.height / 2 - cy * nextZoom,
+						zoom: nextZoom,
+					};
+					if (u >= 1) {
+						atOverview.current = flyAnim.overviewAfter;
+						flyAnim = null;
+					}
+				}
+
+				if (frame) {
+					cancelAnimationFrame(frame);
+					frame = 0;
+				}
+				renderNow();
+				if (zoomAnim || flyAnim) {
+					animFrame = requestAnimationFrame(tick);
+				}
+			};
+			animFrame = requestAnimationFrame(tick);
+		}
+
+		function flyToCamera(target: Camera, overviewAfter = false) {
 			cancelAnim();
 			if (!camera.current || reducedMotion()) {
 				camera.current = target;
@@ -921,28 +316,19 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 				redraw();
 				return;
 			}
-			const start: Camera = { ...camera.current };
-			const t0 = performance.now();
-			const duration = 260;
-			function step(now: number) {
-				const raw = Math.min(1, (now - t0) / duration);
-				const ease = 1 - (1 - raw) ** 3;
-				camera.current = {
-					x: start.x + (target.x - start.x) * ease,
-					y: start.y + (target.y - start.y) * ease,
-					zoom: start.zoom + (target.zoom - start.zoom) * ease,
-				};
-				if (raw < 1) {
-					redraw();
-					animFrame = requestAnimationFrame(step);
-				} else {
-					animFrame = 0;
-					camera.current = target;
-					atOverview.current = overviewAfter;
-					redraw();
-				}
-			}
-			animFrame = requestAnimationFrame(step);
+			const start = camera.current;
+			flyAnim = {
+				startCenterX: (view.width / 2 - start.x) / start.zoom,
+				startCenterY: (view.height / 2 - start.y) / start.zoom,
+				startLog: Math.log(Math.max(1e-4, start.zoom)),
+				targetCenterX: (view.width / 2 - target.x) / target.zoom,
+				targetCenterY: (view.height / 2 - target.y) / target.zoom,
+				targetLog: Math.log(Math.max(1e-4, target.zoom)),
+				overviewAfter,
+				t0: performance.now(),
+				duration: 280,
+			};
+			runAnimationLoop();
 		}
 
 		function overviewCamera(): Camera {
@@ -957,12 +343,12 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 		function overview(animate = false) {
 			const target = overviewCamera();
 			if (animate && camera.current) {
-				animateTo(target, true);
+				flyToCamera(target, true);
 			} else {
 				cancelAnim();
 				camera.current = target;
 				atOverview.current = true;
-				setZoomPct(100);
+				syncZoomLabel(100);
 				redraw();
 			}
 		}
@@ -970,8 +356,9 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 		function resize() {
 			const width = surface!.clientWidth;
 			const height = surface!.clientHeight;
-			const ratio = Math.max(1, window.devicePixelRatio || 1);
+			const ratio = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
 			if (!width || !height) return;
+			canvasRect = surface!.getBoundingClientRect();
 			const lastView = view;
 			view = { width, height, ratio };
 			const pixelsWide = Math.round(width * ratio);
@@ -986,25 +373,48 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			redraw();
 		}
 
-		function scaleAt(anchor: Pixel, factor: number, animate = false) {
+		function invalidateRect() {
+			canvasRect = null;
+		}
+
+		// Cursor-anchored log-zoom: pins the world coordinate under `anchor` with 0 px drift!
+		function scaleAt(anchor: Pixel, factor: number, smooth = true) {
 			const current = camera.current;
 			if (!current) return;
-			const fit = fitZoom(layout, view);
-			const next = Math.max(fit * 0.7, Math.min(Math.max(3.5, fit * 8.5), current.zoom * factor));
-			if (next === current.zoom) return;
-			const change = next / current.zoom;
-			const target: Camera = {
-				x: anchor.x - (anchor.x - current.x) * change,
-				y: anchor.y - (anchor.y - current.y) * change,
-				zoom: next,
-			};
+			flyAnim = null;
+
+			const { minZoom, maxZoom } = zoomBounds();
+			const baseLog = zoomAnim ? zoomAnim.targetLog : Math.log(current.zoom);
+			const nextLog = Math.max(Math.log(minZoom), Math.min(Math.log(maxZoom), baseLog + Math.log(factor)));
+			if (Math.abs(nextLog - Math.log(current.zoom)) < 1e-4) return;
+
+			const anchorWX = (anchor.x - current.x) / current.zoom;
+			const anchorWY = (anchor.y - current.y) / current.zoom;
 			atOverview.current = false;
-			if (animate) animateTo(target, false);
-			else {
+
+			if (!smooth || reducedMotion()) {
 				cancelAnim();
-				camera.current = target;
+				const nextZoom = Math.exp(nextLog);
+				camera.current = {
+					x: anchor.x - anchorWX * nextZoom,
+					y: anchor.y - anchorWY * nextZoom,
+					zoom: nextZoom,
+				};
 				redraw();
+				return;
 			}
+
+			zoomAnim = {
+				startLog: Math.log(current.zoom),
+				targetLog: nextLog,
+				anchorWX,
+				anchorWY,
+				anchorSX: anchor.x,
+				anchorSY: anchor.y,
+				t0: performance.now(),
+				duration: 90,
+			};
+			runAnimationLoop();
 		}
 
 		function move(dx: number, dy: number) {
@@ -1023,7 +433,7 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 		function minimapBounds() {
 			if (!camera.current || view.width < 460 || view.height < 280) return null;
 			const relativeZoom = camera.current.zoom / fitZoom(layout, view);
-			if (relativeZoom <= 1.45) return null;
+			if (relativeZoom <= 1.35) return null;
 			const mx = view.width - MINIMAP_W - MINIMAP_PAD;
 			const my = view.height - MINIMAP_H - MINIMAP_PAD;
 			const innerPad = 8;
@@ -1054,14 +464,19 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			reveal(id, focus) {
 				const point = layout.points.get(id);
 				const current = camera.current;
-				if (point && current && focus) {
-					const zoom = Math.max(current.zoom, fitZoom(layout, view) * 4);
-					animateTo({ x: view.width / 2 - point.x * zoom, y: view.height / 2 - point.y * zoom, zoom }, false);
-				} else if (point && current && !atOverview.current) {
+				if (!point || !current) {
+					redraw();
+					return;
+				}
+				const py = effectivePointY(point, style, depthRef.current);
+				if (focus) {
+					const zoom = Math.max(current.zoom, fitZoom(layout, view) * (style === "clarity" ? 2.6 : 3.8));
+					flyToCamera({ x: view.width / 2 - point.x * zoom, y: view.height / 2 - py * zoom, zoom }, false);
+				} else if (!atOverview.current) {
 					const x = current.x + point.x * current.zoom;
-					const y = current.y + point.y * current.zoom;
+					const y = current.y + py * current.zoom;
 					if (x < 16 || x > view.width - 16 || y < 16 || y > view.height - 16) {
-						animateTo({ x: current.x + (view.width / 2 - x), y: current.y + (view.height / 2 - y), zoom: current.zoom }, false);
+						flyToCamera({ x: current.x + (view.width / 2 - x), y: current.y + (view.height / 2 - y), zoom: current.zoom }, false);
 					} else {
 						redraw();
 					}
@@ -1072,30 +487,81 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 		};
 
 		function location(event: MouseEvent): Pixel {
-			const rect = surface!.getBoundingClientRect();
-			return { x: (event.clientX - rect.left) * view.width / rect.width, y: (event.clientY - rect.top) * view.height / rect.height };
+			const rect = canvasRect ?? (canvasRect = surface!.getBoundingClientRect());
+			return {
+				x: ((event.clientX - rect.left) * view.width) / Math.max(1, rect.width),
+				y: ((event.clientY - rect.top) * view.height) / Math.max(1, rect.height),
+			};
 		}
+
 		function hit(point: Pixel, touch = false) {
 			const current = camera.current;
 			if (!current) return;
+			const minHit = touch ? 16 : 10;
+			const maxScreenR = Math.max(minHit, 24);
+			const searchWorldR = maxScreenR / current.zoom;
+			// Account for max 2.5D Z lift so spatial grid lookup never misses elevated points
+			const zLiftAllowance = is25DStyle(style) ? 45 * depthRef.current : 0;
+			const wx = (point.x - current.x) / current.zoom;
+			const wy = (point.y - current.y) / current.zoom;
+			const { cellSize, cells } = layout.spatialGrid;
+			const minCx = Math.floor((wx - searchWorldR) / cellSize);
+			const maxCx = Math.floor((wx + searchWorldR) / cellSize);
+			const minCy = Math.floor((wy - searchWorldR) / cellSize);
+			const maxCy = Math.floor((wy + searchWorldR + zLiftAllowance) / cellSize);
+
 			let closest: string | undefined;
-			let best = Infinity;
-			for (const candidate of layout.points.values()) {
-				const distance = Math.hypot(current.x + candidate.x * current.zoom - point.x, current.y + candidate.y * current.zoom - point.y);
-				if (distance < best && distance <= Math.max(touch ? 15 : 9, dotRadius(candidate, current.zoom) + 5)) {
-					best = distance;
+			let bestSq = Infinity;
+			const checkCandidate = (candidate: SkillPoint) => {
+				const cy = effectivePointY(candidate, style, depthRef.current);
+				const dx = current.x + candidate.x * current.zoom - point.x;
+				const dy = current.y + cy * current.zoom - point.y;
+				const distSq = dx * dx + dy * dy;
+				if (distSq >= bestSq) return;
+				const r = Math.max(minHit, dotRadius(candidate, current.zoom) + 6);
+				if (distSq <= r * r) {
+					bestSq = distSq;
 					closest = candidate.id;
 				}
+			};
+
+			const cellCount = (maxCx - minCx + 1) * (maxCy - minCy + 1);
+			if (cellCount <= layout.points.size) {
+				for (let cx = minCx; cx <= maxCx; cx++) {
+					for (let cy = minCy; cy <= maxCy; cy++) {
+						const ids = cells.get(`${cx},${cy}`);
+						if (!ids) continue;
+						for (const id of ids) {
+							const candidate = layout.points.get(id);
+							if (candidate) checkCandidate(candidate);
+						}
+					}
+				}
+			} else {
+				for (const candidate of layout.points.values()) checkCandidate(candidate);
 			}
 			return closest;
 		}
+
 		function inMinimap(point: Pixel): boolean {
 			const mm = minimapBounds();
 			return Boolean(mm && point.x >= mm.mx && point.x <= mm.mx + MINIMAP_W && point.y >= mm.my && point.y <= mm.my + MINIMAP_H);
 		}
+
+		function onContextMenu(event: MouseEvent) {
+			if (is25DStyle(style)) event.preventDefault();
+		}
+
 		function pointerDown(event: PointerEvent) {
-			if (event.button !== 0) return;
 			const point = location(event);
+			if ((event.button === 2 || (event.button === 0 && event.shiftKey)) && is25DStyle(style)) {
+				draggingDepth = true;
+				down = point;
+				surface!.setPointerCapture(event.pointerId);
+				surface!.style.cursor = "ns-resize";
+				return;
+			}
+			if (event.button !== 0) return;
 			if (inMinimap(point)) {
 				draggingMinimap = true;
 				surface!.setPointerCapture(event.pointerId);
@@ -1111,8 +577,18 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			surface!.setPointerCapture(event.pointerId);
 			surface!.style.cursor = "grabbing";
 		}
+
 		function pointerMove(event: PointerEvent) {
 			const point = location(event);
+			if (draggingDepth && down) {
+				const dy = point.y - down.y;
+				down = point;
+				const next = Math.max(0, Math.min(1, depthRef.current - dy * 0.004));
+				depthRef.current = next;
+				setDepth(next);
+				redraw();
+				return;
+			}
 			if (draggingMinimap) {
 				jumpMinimap(point);
 				return;
@@ -1121,8 +597,11 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			if (!previous) {
 				if (event.pointerType !== "mouse" || pointers.size) return;
 				if (inMinimap(point)) {
-					if (hovered !== undefined) { hovered = undefined; redraw(); }
-					surface!.style.cursor = "pointer";
+					if (hovered !== undefined) {
+						hovered = undefined;
+						redraw();
+					}
+					if (surface!.style.cursor !== "pointer") surface!.style.cursor = "pointer";
 					return;
 				}
 				const target = hit(point);
@@ -1137,14 +616,27 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			pointers.set(event.pointerId, point);
 			if (other) {
 				const distance = Math.hypot(previous.x - other.x, previous.y - other.y);
-				if (distance >= 1) scaleAt({ x: (previous.x + other.x) / 2, y: (previous.y + other.y) / 2 }, Math.hypot(point.x - other.x, point.y - other.y) / distance);
+				if (distance >= 1) {
+					scaleAt(
+						{ x: (previous.x + other.x) / 2, y: (previous.y + other.y) / 2 },
+						Math.hypot(point.x - other.x, point.y - other.y) / distance,
+						false,
+					);
+				}
 				move((point.x - previous.x) / 2, (point.y - previous.y) / 2);
 			} else if (dragged || (down && Math.hypot(point.x - down.x, point.y - down.y) > 4)) {
 				dragged = true;
 				move(point.x - previous.x, point.y - previous.y);
 			}
 		}
+
 		function pointerEnd(event: PointerEvent) {
+			if (draggingDepth) {
+				draggingDepth = false;
+				down = undefined;
+				surface!.style.cursor = hovered ? "pointer" : "grab";
+				return;
+			}
 			if (draggingMinimap) {
 				draggingMinimap = false;
 				return;
@@ -1158,38 +650,78 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			down = undefined;
 			surface!.style.cursor = hovered ? "pointer" : "grab";
 		}
+
 		function doubleClick(event: MouseEvent) {
 			const point = location(event);
 			if (inMinimap(point)) return;
-			scaleAt(point, 1.85, true);
+			const target = hit(point);
+			if (target) {
+				pick.current(target);
+				controls.current?.reveal(target, true);
+				return;
+			}
+			scaleAt(point, 1.9, true);
 		}
+
 		function clearHover() {
-			hovered = undefined;
-			redraw();
+			if (hovered !== undefined) {
+				hovered = undefined;
+				redraw();
+			}
 		}
+
 		function wheel(event: WheelEvent) {
 			event.preventDefault();
-			const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? view.height : 1;
-			scaleAt(location(event), Math.exp(-event.deltaY * unit * 0.002));
+			let dy = event.deltaY;
+			if (event.deltaMode === 1) dy *= 26;
+			else if (event.deltaMode === 2) dy *= view.height;
+			dy = Math.max(-180, Math.min(180, dy));
+			const sensitivity = event.ctrlKey ? 0.0085 : 0.0022;
+			scaleAt(location(event), Math.exp(-dy * sensitivity), !event.ctrlKey);
 		}
+
 		function keyboard(event: KeyboardEvent) {
 			switch (event.key) {
-				case "+": case "=": scale(1.4); break;
-				case "-": scale(1 / 1.4); break;
-				case "Home": case "0": overview(true); break;
-				case "ArrowLeft": move(64, 0); break;
-				case "ArrowRight": move(-64, 0); break;
-				case "ArrowUp": move(0, 64); break;
-				case "ArrowDown": move(0, -64); break;
-				default: return;
+				case "+":
+				case "=":
+					scale(1.4);
+					break;
+				case "-":
+					scale(1 / 1.4);
+					break;
+				case "Home":
+				case "0":
+					overview(true);
+					break;
+				case "ArrowLeft":
+					move(64, 0);
+					break;
+				case "ArrowRight":
+					move(-64, 0);
+					break;
+				case "ArrowUp":
+					move(0, 64);
+					break;
+				case "ArrowDown":
+					move(0, -64);
+					break;
+				default:
+					return;
 			}
 			event.preventDefault();
 		}
 
+		const onFontsChanged = () => {
+			textCache.clear();
+			redraw();
+		};
+
 		resize();
 		const observer = new ResizeObserver(resize);
 		observer.observe(surface);
-		window.addEventListener("resize", resize);
+		window.addEventListener("scroll", invalidateRect, { capture: true, passive: true });
+		document.fonts?.addEventListener("loadingdone", onFontsChanged);
+		surface.addEventListener("contextmenu", onContextMenu);
 		surface.addEventListener("wheel", wheel, { passive: false });
 		surface.addEventListener("pointerdown", pointerDown);
 		surface.addEventListener("pointermove", pointerMove);
@@ -1199,9 +731,12 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 		surface.addEventListener("pointerleave", clearHover);
 		surface.addEventListener("dblclick", doubleClick);
 		surface.addEventListener("keydown", keyboard);
+
 		return () => {
 			observer.disconnect();
-			window.removeEventListener("resize", resize);
+			window.removeEventListener("scroll", invalidateRect, true);
+			document.fonts?.removeEventListener("loadingdone", onFontsChanged);
+			surface.removeEventListener("contextmenu", onContextMenu);
 			surface.removeEventListener("wheel", wheel);
 			surface.removeEventListener("pointerdown", pointerDown);
 			surface.removeEventListener("pointermove", pointerMove);
@@ -1214,8 +749,14 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 			cancelAnimationFrame(frame);
 			cancelAnim();
 			controls.current = null;
+			textCache.clear();
 		};
-	}, [layout, nodes, zoneStats, map.domain, anchorId, colors, resolvedMode]);
+	}, [layout, nodes, zoneStats, map.domain, anchorId, palette, strings, style]);
+
+	// Redraw smoothly when the 2.5D relief slider moves without resetting camera
+	useEffect(() => {
+		controls.current?.reveal(active.current, false);
+	}, [depth]);
 
 	useEffect(() => {
 		active.current = selected;
@@ -1224,56 +765,158 @@ export function SkillCanvas({ map, selected, locate, onPick }: { map: SkillMap; 
 	}, [selected, locate]);
 
 	return (
-		<div className="cel-card relative overflow-hidden"
-			style={{ backgroundImage: "radial-gradient(color-mix(in srgb, var(--border) 24%, transparent) 1px, transparent 1px)", backgroundSize: "16px 16px" }}>
-			<canvas ref={canvas} tabIndex={0} aria-label={`Mapa de ${map.title}. ${layout.points.size} nós.`} aria-describedby={hintId}
-				data-node-count={layout.points.size} data-edge-count={layout.edges.length}
-				className="block h-[clamp(26rem,64vh,46rem)] w-full touch-none cursor-grab focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring">
-				Use a busca ou a lista de habilidades para navegar pelos nós do mapa.
-			</canvas>
-			<div className="absolute right-2.5 top-2.5 flex flex-wrap items-center justify-end gap-1.5">
-				{anchorId && (
-					<button type="button" aria-label="Centralizar na posição atual" className="cel-button min-h-8 px-2.5 py-1 text-xs"
-						onClick={() => { pick.current(anchorId); controls.current?.reveal(anchorId, true); }}>
-						<span aria-hidden="true" className="size-2 rounded-full bg-[var(--c-teal,#2ec4b6)]" />
-						Você está aqui
+		<div className="cel-card overflow-hidden">
+			{/* Dedicated top toolbar: 5 visual styles with hand-drawn SVGs + camera & 2.5D controls */}
+			<div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/65 bg-card/95 px-3 py-2">
+				<div
+					role="group"
+					aria-label={t("map.canvas.styleSelectorAria")}
+					className="flex flex-wrap items-center gap-1"
+				>
+					{SKILL_MAP_STYLES.map((item) => {
+						const activeStyle = item === style;
+						const label = t(STYLE_LABEL_KEY[item]);
+						return (
+							<button
+								key={item}
+								type="button"
+								aria-pressed={activeStyle}
+								title={label}
+								onClick={() => handleSelectStyle(item)}
+								className={
+									"inline-flex items-center gap-1.5 rounded-[9px] border px-2.5 py-1 text-xs font-semibold transition-colors " +
+									(activeStyle
+										? "border-transparent bg-[var(--cel-accent,var(--lh-accent))] text-[var(--cel-on-fill,#07070b)] shadow-xs"
+										: "border-transparent text-muted-foreground hover:border-border/70 hover:bg-accent/70 hover:text-foreground")
+								}
+							>
+								<MapStyleIcon style={item} size={15} className="shrink-0" />
+								<span>{label}</span>
+							</button>
+						);
+					})}
+				</div>
+
+				<div className="flex flex-wrap items-center justify-end gap-1.5">
+					{is25DStyle(style) && (
+						<label
+							title={t("map.canvas.depthAria")}
+							className="inline-flex items-center gap-1.5 rounded-[9px] border border-border/65 bg-background/60 px-2 py-1 text-[11px] font-semibold text-muted-foreground"
+						>
+							<span>{t("map.canvas.depthShort")}</span>
+							<input
+								type="range"
+								min={0}
+								max={1}
+								step={0.05}
+								value={depth}
+								aria-label={t("map.canvas.depthAria")}
+								onChange={(e) => setDepth(Number(e.target.value))}
+								className="w-14 accent-[var(--cel-accent,var(--lh-accent))]"
+							/>
+						</label>
+					)}
+					{anchorId && (
+						<button
+							type="button"
+							aria-label={t("map.canvas.centerCurrentAria")}
+							className="cel-button min-h-8 px-2.5 py-1 text-xs"
+							onClick={() => {
+								pick.current(anchorId);
+								controls.current?.reveal(anchorId, true);
+							}}
+						>
+							<span aria-hidden="true" className="size-2 rounded-full bg-[var(--c-teal,#2ec4b6)]" />
+							<span>{t("map.canvas.youAreHere")}</span>
+						</button>
+					)}
+					<button
+						type="button"
+						aria-label={t("map.canvas.overviewAria")}
+						className="cel-button min-h-8 px-2.5 py-1 text-xs"
+						onClick={() => controls.current?.reset()}
+					>
+						<Icon name="maximize" size={14} tone={false} />
+						<span>{t("map.canvas.overview")}</span>
 					</button>
-				)}
-				<button type="button" aria-label="Visão geral do mapa" className="cel-button min-h-8 px-2.5 py-1 text-xs" onClick={() => controls.current?.reset()}>
-					<Icon name="maximize" size={14} tone={false} />
-					Visão geral
-				</button>
-				<div className="flex items-center overflow-hidden rounded-[10px] border border-border/70 bg-card shadow-xs">
-					<button type="button" aria-label="Afastar mapa" className="flex size-8 items-center justify-center text-sm font-bold hover:bg-accent" onClick={() => controls.current?.scale(1 / 1.4)}>−</button>
-					<span className="min-w-11 border-x border-border/50 px-1.5 text-center font-mono text-[11px] text-muted-foreground tabular-nums" aria-hidden="true">{zoomPct}%</span>
-					<button type="button" aria-label="Aproximar mapa" className="flex size-8 items-center justify-center text-sm font-bold hover:bg-accent" onClick={() => controls.current?.scale(1.4)}>+</button>
+					<div className="flex items-center overflow-hidden rounded-[10px] border border-border/70 bg-card shadow-xs">
+						<button
+							type="button"
+							aria-label={t("map.canvas.zoomOutAria")}
+							className="flex size-8 items-center justify-center text-sm font-bold hover:bg-accent"
+							onClick={() => controls.current?.scale(1 / 1.4)}
+						>
+							−
+						</button>
+						<span
+							ref={zoomLabelRef}
+							className="min-w-11 border-x border-border/50 px-1.5 text-center font-mono text-[11px] text-muted-foreground tabular-nums"
+							aria-hidden="true"
+						>
+							100%
+						</span>
+						<button
+							type="button"
+							aria-label={t("map.canvas.zoomInAria")}
+							className="flex size-8 items-center justify-center text-sm font-bold hover:bg-accent"
+							onClick={() => controls.current?.scale(1.4)}
+						>
+							+
+						</button>
+					</div>
 				</div>
 			</div>
-			<div className="pointer-events-none absolute bottom-2.5 left-2.5 max-w-[calc(100%-1.25rem)] rounded-xl border border-border/60 bg-card/95 px-3 py-2 text-xs text-card-foreground shadow-sm">
-				<p id={hintId} className="text-muted-foreground tabular-nums">{layout.points.size} nós · Arraste, clique duplo ou use + e −</p>
-				<div className="mt-1.5 flex flex-wrap items-center gap-x-3.5 gap-y-1">
-					<span className="inline-flex items-center gap-1.5">
-						<span aria-hidden="true" className="size-2.5 rounded-full bg-[var(--c-teal,#2ec4b6)] ring-2 ring-[var(--c-teal,#2ec4b6)]/35" />
-						Você está aqui
-					</span>
-					<span className="inline-flex items-center gap-1.5">
-						<span aria-hidden="true" className="size-2.5 rounded-full border border-foreground/60 bg-[var(--cel-success,var(--lh-success))] ring-2 ring-[var(--cel-success,var(--lh-success))]/30" />
-						Concluído
-					</span>
-					<span className="inline-flex items-center gap-1.5">
-						<span aria-hidden="true" className="size-2.5 rounded-full border border-dashed border-[var(--cel-warning,var(--lh-warning))] bg-[var(--cel-warning,var(--lh-warning))]" />
-						Em andamento
-					</span>
-					<span className="inline-flex items-center gap-1.5">
-						<span aria-hidden="true" className="size-2.5 rounded-full border-2 border-foreground bg-card" />
-						Disponível
-					</span>
-					<span className="inline-flex items-center gap-1.5">
-						<span aria-hidden="true" className="size-2 rounded-full bg-border/60" />
-						Pendente
-					</span>
+
+			{/* Canvas stage */}
+			<div
+				className="relative overflow-hidden"
+				style={{
+					backgroundImage: "radial-gradient(color-mix(in srgb, var(--border) 22%, transparent) 1px, transparent 1px)",
+					backgroundSize: "16px 16px",
+				}}
+			>
+				<canvas
+					ref={canvas}
+					tabIndex={0}
+					aria-label={t("map.canvas.canvasAria", { title: map.title, count: layout.points.size })}
+					aria-describedby={hintId}
+					data-node-count={layout.points.size}
+					data-edge-count={layout.edges.length}
+					data-map-style={style}
+					className="block h-[clamp(28rem,66vh,48rem)] w-full touch-none cursor-grab focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring"
+				>
+					{t("map.canvas.fallbackText")}
+				</canvas>
+
+				{/* Bottom-left: Compact status legend */}
+				<div className="pointer-events-none absolute bottom-2.5 left-2.5 max-w-[calc(100%-1.25rem)] rounded-xl border border-border/60 bg-card/95 px-3 py-2 text-xs text-card-foreground shadow-sm">
+					<p id={hintId} className="text-muted-foreground tabular-nums">
+						{t("map.canvas.hint", { count: layout.points.size })}
+					</p>
+					<div className="mt-1.5 flex flex-wrap items-center gap-x-3.5 gap-y-1">
+						<span className="inline-flex items-center gap-1.5">
+							<span aria-hidden="true" className="size-2.5 rounded-full bg-[var(--c-teal,#2ec4b6)] ring-2 ring-[var(--c-teal,#2ec4b6)]/35" />
+							{t("map.canvas.youAreHere")}
+						</span>
+						<span className="inline-flex items-center gap-1.5">
+							<span aria-hidden="true" className="size-2.5 rounded-full border border-foreground/60 bg-[var(--cel-success,var(--lh-success))] ring-2 ring-[var(--cel-success,var(--lh-success))]/30" />
+							{t("map.canvas.legendCompleted")}
+						</span>
+						<span className="inline-flex items-center gap-1.5">
+							<span aria-hidden="true" className="size-2.5 rounded-full border border-dashed border-[var(--cel-warning,var(--lh-warning))] bg-[var(--cel-warning,var(--lh-warning))]" />
+							{t("map.canvas.legendInProgress")}
+						</span>
+						<span className="inline-flex items-center gap-1.5">
+							<span aria-hidden="true" className="size-2.5 rounded-full border-2 border-foreground bg-card" />
+							{t("map.canvas.legendAvailable")}
+						</span>
+						<span className="inline-flex items-center gap-1.5">
+							<span aria-hidden="true" className="size-2 rounded-full bg-border/60" />
+							{t("map.canvas.legendPending")}
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
 	);
-}
+});

@@ -10,6 +10,7 @@
  */
 
 import type { ModelRole, RoleSpec } from "../models/role-spec.ts";
+import type { SkillMapStyle } from "../study/map-style.ts";
 
 /** Readable folder/URL-safe id. Node ids inside the domain use `nodePrefix`. */
 export type DomainId = "english" | "electronics" | (string & {});
@@ -46,6 +47,8 @@ export interface DomainManifest {
 	accent: string;
 	/** Icon name from the hand-drawn icon set. */
 	icon: string;
+	/** Visual style of the curriculum skill tree (`/mapa`). Picked randomly on creation; editable anytime. */
+	mapStyle?: SkillMapStyle;
 	levelScheme: DomainLevelScheme;
 	/** Target study hours for the full track (≈1000–1500 for 1y+ at 2–4 h/day). */
 	targetHours: { lo: number; hi: number };

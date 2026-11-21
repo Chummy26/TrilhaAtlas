@@ -1,7 +1,7 @@
 import { Home } from "@/components/home";
 import { StudyHeartbeat } from "@/components/study/study-heartbeat";
-import { listStudyDomains, studyAccountSummary, readSettingsRecord } from "@/src/server";
-import { resolveSettings, slotsConfigured } from "@/src/core";
+import { listStudyDomains, studyAccountSummary, studyToday, readSettingsRecord } from "@/src/server";
+import { resolveSettings, slotsConfigured, type StudyToday } from "@/src/core";
 
 // Dynamic: the configured state is server-rendered into the page (the
 // setup CTA's truth on the first frame), and every navigation re-reads
@@ -14,6 +14,14 @@ export default function HomePage() {
 	// record's models section lacks any slot pin.
 	const record = readSettingsRecord();
 	const domains = listStudyDomains();
+	let initialToday: StudyToday | null = null;
+	if (domains.active) {
+		try {
+			initialToday = studyToday();
+		} catch {
+			initialToday = null;
+		}
+	}
 	// GRAPH RENDERING (owner, 2026-10-06): off = the home's main view is
 	// the chains view. Resolved through the one core resolver (missing
 	// section / absent key → factory default on); re-read per navigation.
@@ -21,7 +29,13 @@ export default function HomePage() {
 	return (
 		<>
 			<StudyHeartbeat domain={domains.active} kind="reading" />
-			<Home domains={domains} account={studyAccountSummary(domains.domains)} initialConfigured={slotsConfigured(record?.models)} rendering={rendering} />
+			<Home
+				domains={domains}
+				account={studyAccountSummary(domains.domains)}
+				initialToday={initialToday}
+				initialConfigured={slotsConfigured(record?.models)}
+				rendering={rendering}
+			/>
 		</>
 	);
 }

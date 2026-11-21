@@ -109,6 +109,74 @@ export function emitGenerated(icons: readonly CompiledIcon[], aliases: Readonly<
 	return L.join("\n");
 }
 
+/** components/icons/meta.ts — lightweight icon metadata for <Icon> (zero SVG path strings). */
+export function emitMeta(icons: readonly CompiledIcon[], aliases: Readonly<Record<string, string>> = {}): string {
+	const names = new Set(icons.map((i) => i.name));
+	for (const [alias, target] of Object.entries(aliases)) {
+		if (names.has(alias)) throw new Error(`alias "${alias}" collides with an icon of the same name`);
+		if (!names.has(target)) throw new Error(`alias "${alias}" points at unknown icon "${target}"`);
+	}
+	const L: string[] = [
+		"/**",
+		` * ${HEADER("Lightweight cel icon metadata consumed by <Icon> (zero path strings; geometry lives in public/icons/sprite.svg).")}`,
+		" */",
+		"",
+		'import type { IconTone } from "./tones.ts";',
+		"",
+		"export interface IconMeta {",
+		"\treadonly grid: 24 | 48;",
+		"\treadonly tone?: IconTone;",
+		"\treadonly hasMicro?: true;",
+		"\treadonly hasBoil?: true;",
+		"\treadonly hasFill?: true;",
+		"\treadonly hasHl?: true;",
+		"}",
+		"",
+		"/** Every icon name (kebab-case, semantic — r9 §8.4). */",
+		"export type IconName =",
+	];
+	icons.forEach((icon, i) => L.push(`\t| ${q(icon.name)}${i === icons.length - 1 ? ";" : ""}`));
+	L.push("", "export const ICON_META: Readonly<Record<IconName, IconMeta>> = {");
+	for (const icon of icons) {
+		const fields: string[] = [`grid: ${icon.grid}`];
+		if (icon.tone) fields.push(`tone: ${q(icon.tone)}`);
+		if (icon.micro !== undefined) fields.push("hasMicro: true");
+		if (icon.boil) fields.push("hasBoil: true");
+		if (icon.fill !== undefined) fields.push("hasFill: true");
+		if (icon.hl !== undefined) fields.push("hasHl: true");
+		L.push(`\t${q(icon.name)}: { ${fields.join(", ")} },`);
+	}
+	L.push(
+		"};",
+		"",
+		"/** Every icon name, sorted. */",
+		"export const ICON_NAMES = Object.keys(ICON_META) as readonly IconName[];",
+		"",
+		"/** Product words that name an existing drawing (no duplicate paths). */",
+		"export const ICON_ALIASES = {",
+	);
+	for (const a of Object.keys(aliases).sort()) L.push(`\t${q(a)}: ${q(aliases[a]!)},`);
+	L.push(
+		"} as const satisfies Readonly<Record<string, IconName>>;",
+		"",
+		"/** An alias name. */",
+		"export type IconAlias = keyof typeof ICON_ALIASES;",
+		"",
+		"/** Narrow an arbitrary value to an icon name. */",
+		"export function isIconName(value: unknown): value is IconName {",
+		'\treturn typeof value === "string" && Object.prototype.hasOwnProperty.call(ICON_META, value);',
+		"}",
+		"",
+		"/** Resolve a name or alias to its icon name; null when unknown. */",
+		"export function resolveIconName(value: string): IconName | null {",
+		"\tif (isIconName(value)) return value;",
+		"\treturn Object.prototype.hasOwnProperty.call(ICON_ALIASES, value) ? ICON_ALIASES[value as IconAlias] : null;",
+		"}",
+		"",
+	);
+	return L.join("\n");
+}
+
 /** The `<path>` elements of one icon at full detail, painted via CSS vars. */
 export function iconPaths(icon: CompiledIcon): string {
 	const p = (d: string | undefined, layer: "fill" | "shade" | "onFill" | "ink" | "hl", cls: string = layer) =>
@@ -117,13 +185,49 @@ export function iconPaths(icon: CompiledIcon): string {
 	return [p(icon.fill, "fill"), p(icon.shade, "shade"), p(icon.inkOnFill, "onFill", "ink-on-fill"), p(icon.ink, "ink"), p(icon.hl, "hl")].join("");
 }
 
-/** public/icons/sprite.svg — one `<symbol id="name">` per icon. */
+/** The `<path>` elements of one icon at micro detail (≤16 px), painted via CSS vars. */
+export function iconMicroPaths(icon: CompiledIcon): string {
+	const p = (d: string | undefined, layer: "fill" | "shade" | "onFill" | "ink" | "hl", cls: string = layer) =>
+		d ? `<path class="icon-${cls}" d="${d}" style="fill:${layerPaint(layer, icon.tone)}"/>` : "";
+	return [p(icon.fill, "fill"), p(icon.shade, "shade"), p(icon.microOnFill, "onFill", "ink-on-fill"), p(icon.micro, "ink"), p(icon.hl, "hl")].join("");
+}
+
+/** The `<path>` and `.cel-boil` `<g>` elements of one live-boiling icon. */
+export function iconBoilPaths(icon: CompiledIcon): string {
+	const p = (d: string | undefined, layer: "fill" | "shade" | "onFill" | "ink" | "hl", cls: string = layer) =>
+		d ? `<path class="icon-${cls}" d="${d}" style="fill:${layerPaint(layer, icon.tone)}"/>` : "";
+	const onFillFrames = icon.boil && icon.inkOnFill
+		? [icon.inkOnFill, icon.boilOnFill?.[0] || icon.inkOnFill, icon.boilOnFill?.[1] || icon.inkOnFill]
+		: null;
+	const inkFrames = icon.boil ? [icon.ink, icon.boil[0], icon.boil[1]] : null;
+	const onFillBoil = onFillFrames
+		? `<g class="cel-boil">${onFillFrames.map((d) => p(d, "onFill", "ink-on-fill")).join("")}</g>`
+		: p(icon.inkOnFill, "onFill", "ink-on-fill");
+	const inkBoil = inkFrames
+		? `<g class="cel-boil">${inkFrames.map((d) => p(d, "ink")).join("")}</g>`
+		: p(icon.ink, "ink");
+	return [p(icon.fill, "fill"), p(icon.shade, "shade"), onFillBoil, inkBoil, p(icon.hl, "hl")].join("");
+}
+
+const SPRITE_BOIL_STYLE =
+	"<defs><style>.cel-boil>*{opacity:0;animation:cel-boil var(--cel-boil-dur) step-end infinite}.cel-boil>:first-child{opacity:1}.cel-boil>:nth-child(2){animation-delay:calc(var(--cel-boil-dur)*-2/3)}.cel-boil>:nth-child(3){animation-delay:calc(var(--cel-boil-dur)*-1/3)}@keyframes cel-boil{0%{opacity:1}33.333%{opacity:0}100%{opacity:0}}@media(prefers-reduced-motion:reduce){.cel-boil>*{animation:none}}</style></defs>";
+
+/** public/icons/sprite.svg — `<symbol id="name">`, plus `--micro` and `--boil` variants when present. */
 export function emitSprite(icons: readonly CompiledIcon[]): string {
 	const out: string[] = [];
 	out.push('<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">');
 	out.push(`<!-- ${HEADER("Use: <svg viewBox=\"0 0 24 24\"><use href=\"/icons/sprite.svg#home\"/></svg>.")} -->`);
+	out.push(SPRITE_BOIL_STYLE);
 	for (const icon of icons) {
-		out.push(`<symbol id="${icon.name}" viewBox="0 0 ${icon.grid} ${icon.grid}"><title>${escapeXml(icon.label)}</title>${iconPaths(icon)}</symbol>`);
+		const vb = `viewBox="0 0 ${icon.grid} ${icon.grid}"`;
+		const title = `<title>${escapeXml(icon.label)}</title>`;
+		out.push(`<symbol id="${icon.name}" ${vb}>${title}${iconPaths(icon)}</symbol>`);
+		if (icon.micro !== undefined) {
+			out.push(`<symbol id="${icon.name}--micro" ${vb}>${title}${iconMicroPaths(icon)}</symbol>`);
+		}
+		if (icon.boil) {
+			out.push(`<symbol id="${icon.name}--boil" ${vb}>${title}${iconBoilPaths(icon)}</symbol>`);
+		}
 	}
 	out.push("</svg>");
 	out.push("");

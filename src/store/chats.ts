@@ -52,12 +52,38 @@ function createChat(title: string, kind?: "practice"): ChatRecord {
 	return { ...record, version: CURRENT_CHAT_VERSION }; // the in-memory twin of what landed on disk
 }
 
+type SummaryEntry = { stamp: string; summary: ChatSummary; hasExtractions: boolean };
+type ChatsCacheState = { byDir: Map<string, Map<string, SummaryEntry>> };
+
+const CHATS_CACHE_KEY = Symbol.for("learnharness.store.chats");
+const MAX_CACHED_DIRS = 16;
+
+function chatsCache(): ChatsCacheState {
+	const g = globalThis as typeof globalThis & { [CHATS_CACHE_KEY]?: ChatsCacheState };
+	return (g[CHATS_CACHE_KEY] ??= { byDir: new Map() });
+}
+
+function dirSummaries(directory: string): Map<string, SummaryEntry> {
+	const resolved = path.resolve(directory);
+	const byDir = chatsCache().byDir;
+	let map = byDir.get(resolved);
+	if (!map) {
+		if (byDir.size >= MAX_CACHED_DIRS) {
+			const oldest = byDir.keys().next().value;
+			if (oldest !== undefined) byDir.delete(oldest);
+		}
+		map = new Map();
+		byDir.set(resolved, map);
+	}
+	return map;
+}
+
 /** THE WRITE CHOKE POINT (schema-versioning wave, owner 2026-10-10): every
  *  record persist goes through here and carries the CURRENT version stamp —
  *  lazy migration means existing files only get stamped on their next write.
  *  A future-version guard lives on the read side (getChat). */
 function writeChat(record: ChatRecord): void {
-	summaries.delete(record.id + ".json");
+	dirSummaries(PATHS.chats).delete(record.id + ".json");
 	writeFileAtomicSync(chatFile(record.id), JSON.stringify({ ...record, version: CURRENT_CHAT_VERSION }, null, "\t"), { allowInPlaceFallback: true });
 }
 
@@ -79,16 +105,10 @@ function getChat(id: string): ChatRecord | null {
 	return parsed as ChatRecord;
 }
 
-type SummaryEntry = { stamp: string; summary: ChatSummary };
-let summaryDirectory = "";
-let summaries = new Map<string, SummaryEntry>();
-
-function listChats(): ChatSummary[] {
+function scanSummaries(): Map<string, SummaryEntry> {
 	const directory = PATHS.chats;
-	if (summaryDirectory !== directory) {
-		summaryDirectory = directory;
-		summaries.clear();
-	}
+	const resolved = path.resolve(directory);
+	const previous = dirSummaries(directory);
 	try {
 		fs.mkdirSync(directory, { recursive: true });
 		const next = new Map<string, SummaryEntry>();
@@ -97,8 +117,8 @@ function listChats(): ChatSummary[] {
 			const file = path.join(directory, name);
 			try {
 				const stat = fs.statSync(/* turbopackIgnore: true */ file, { bigint: true });
-				const stamp = [stat.ino, stat.ctimeNs, stat.mtimeNs, stat.size].join("/");
-				const cached = summaries.get(name);
+				const stamp = [stat.dev, stat.ino, stat.ctimeNs, stat.mtimeNs, stat.size].join("/");
+				const cached = previous.get(name);
 				if (cached?.stamp === stamp) { next.set(name, cached); continue; }
 				const record = getChat(name.slice(0, -5));
 				if (!record) continue;
@@ -106,14 +126,32 @@ function listChats(): ChatSummary[] {
 				const summary = { ...fields, kind: fields.kind ?? "teach", messageCount: messages.length,
 					phase: phaseAt3Lh(messages), pendingQuestion: danglingQuestionOf(messages) !== null,
 					pendingProblem: activeProblemOf(messages) !== null };
-				next.set(name, { stamp, summary });
+				next.set(name, { stamp, summary, hasExtractions: Boolean(extractions?.length) });
 			} catch (error) {
 				console.error(`[chat ${name}] summary unavailable:`, error);
 			}
 		}
-		summaries = next;
-		return Array.from(next.values(), entry => structuredClone(entry.summary)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-	} catch { return []; }
+		chatsCache().byDir.set(resolved, next);
+		return next;
+	} catch {
+		return new Map();
+	}
+}
+
+function listChats(): ChatSummary[] {
+	const entries = scanSummaries();
+	return Array.from(entries.values(), entry => structuredClone(entry.summary)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+/** Stat-cached listing of chats that actually carry extraction runs (for graphCosts). */
+export function listChatsWithExtractions(): { id: string; title: string }[] {
+	const entries = scanSummaries();
+	const out: { id: string; title: string; updatedAt: string }[] = [];
+	for (const entry of entries.values()) {
+		if (entry.hasExtractions) out.push({ id: entry.summary.id, title: entry.summary.title, updatedAt: entry.summary.updatedAt });
+	}
+	out.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+	return out.map(({ id, title }) => ({ id, title }));
 }
 
 /** Persist the full native message list (the record IS the agent state —
@@ -199,8 +237,10 @@ function renameChat(id: string, title: string): ChatRecord {
  *  choreography (core/graph-deletion.ts), not the store's. */
 function deleteChat(id: string): boolean {
 	try {
-		fs.unlinkSync(chatFile(id));
-		removeLeftoverTemps(chatFile(id));
+		const file = chatFile(id);
+		fs.unlinkSync(file);
+		dirSummaries(PATHS.chats).delete(id + ".json");
+		removeLeftoverTemps(file);
 		emit("chats-changed", {}); // only a real removal — the present-entry law
 		return true;
 	} catch {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useContext, useState } from "react";
-import { ChatActionsContext } from "@/components/chat";
+import { memo, useContext, useMemo, useState } from "react";
+import { ChatActionsContext } from "@/components/chat-actions-context";
 import { DownloadIcon, MaximizeIcon } from "lucide-react";
 import { InvertDiscIcon } from "@/components/artifacts/invert-disc";
 import { Toggle } from "@/components/settings/controls";
@@ -42,7 +42,7 @@ export function VisualCard({ part }: ArtifactPartProps) {
 }
 
 /** The figure itself — exported: the steer card renders the delivered artifact. */
-export function VisualOutputCard({
+export const VisualOutputCard = memo(function VisualOutputCard({
 	output,
 	messageId,
 	initialInverted = false,
@@ -53,7 +53,10 @@ export function VisualOutputCard({
 }) {
 	const result = output as VisualResult | undefined;
 	const snapshot = useImageSnapshot(result?.image?.snapshotId);
-	const svg = result?.image && snapshot.image ? embedLearnerImage(result.svg, snapshot.image) : result?.svg ?? "";
+	const svg = useMemo(
+		() => (result?.image && snapshot.image ? embedLearnerImage(result.svg, snapshot.image) : result?.svg ?? ""),
+		[result?.image, result?.svg, snapshot.image],
+	);
 	const overlay = useSessionMermaid();
 	const actions = useContext(ChatActionsContext);
 	// Brightness inversion (owner, 2026-10-07): the switch state PERSISTS on
@@ -71,7 +74,10 @@ export function VisualOutputCard({
 			body: JSON.stringify({ input: { messageId, inverted: next } }),
 		}).catch(() => {});
 	};
-	const natural = result && typeof result.svg === "string" ? svgNaturalWidth(result.svg) : null;
+	const natural = useMemo(
+		() => (result && typeof result.svg === "string" ? svgNaturalWidth(result.svg) : null),
+		[result],
+	);
 	if (!result || typeof result.svg !== "string") {
 		return (
 			<div className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
@@ -179,4 +185,4 @@ export function VisualOutputCard({
 			</div>
 		</div>
 	);
-}
+});

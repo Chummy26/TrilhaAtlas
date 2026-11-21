@@ -1,5 +1,9 @@
 import katex from "katex";
 
+if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+	void import("katex/dist/katex.min.css").catch(() => {});
+}
+
 /**
  * THE LaTeX glyph seam (owner ruling, 2026-09-30): UI connectors that
  * want math symbols render the REAL LaTeX glyphs through KaTeX — the

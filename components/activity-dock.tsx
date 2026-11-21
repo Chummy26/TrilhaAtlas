@@ -114,53 +114,72 @@ const ActivityContext = createContext<{ feed: ActivityFeed; refresh: () => void 
  */
 export function ActivityProvider({ children }: { children: React.ReactNode }) {
 	const [feed, setFeed] = useState<ActivityFeed>(EMPTY_FEED);
-	const [nonce, setNonce] = useState(0);
-	const refresh = useCallback(() => setNonce((n) => n + 1), []);
-	const refreshRef = useRef(refresh);
-	refreshRef.current = refresh;
+	const aliveRef = useRef(true);
+	const fetchSeqRef = useRef(0);
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-	useEffect(() => {
-		let alive = true;
+	const refresh = useCallback(() => {
+		const seq = ++fetchSeqRef.current;
 		void (async () => {
 			try {
 				const res = await fetch("/api/activity");
 				if (res.ok) {
 					const data = (await res.json()) as Partial<ActivityFeed>;
-					if (alive)
-						setFeed({ jobs: data.jobs ?? [], pluginWorkers: data.pluginWorkers ?? [], extractions: data.extractions ?? [] });
+					if (!aliveRef.current || seq !== fetchSeqRef.current) return;
+					const jobs = data.jobs ?? [];
+					const pluginWorkers = data.pluginWorkers ?? [];
+					const extractions = data.extractions ?? [];
+					setFeed((prev) => {
+						if (
+							jobs.length === 0 &&
+							pluginWorkers.length === 0 &&
+							extractions.length === 0 &&
+							prev.jobs.length === 0 &&
+							(prev.pluginWorkers?.length ?? 0) === 0 &&
+							prev.extractions.length === 0
+						) {
+							return prev;
+						}
+						return { jobs, pluginWorkers, extractions };
+					});
 				}
 			} catch {
 				// transport blip: keep the last feed, announce again next event
 			}
 		})();
+	}, []);
+
+	useEffect(() => {
+		aliveRef.current = true;
+		refresh();
 		return () => {
-			alive = false;
+			aliveRef.current = false;
+			fetchSeqRef.current++;
 		};
-	}, [nonce]);
+	}, [refresh]);
 
 	// Announcements → one trailing fetch per burst (the S4 debounce law).
-	const scheduleAnnouncedFetch = () => {
+	const scheduleAnnouncedFetch = useCallback(() => {
 		if (debounceRef.current) clearTimeout(debounceRef.current);
 		debounceRef.current = setTimeout(() => {
 			debounceRef.current = undefined;
-			refreshRef.current();
+			refresh();
 		}, 250);
-	};
+	}, [refresh]);
 	useServerEvent("activity-changed", scheduleAnnouncedFetch);
 	useServerEvent("jobs-changed", scheduleAnnouncedFetch);
 	// Reconnect catch-up: events missed while the channel was down.
-	useServerResync(() => refreshRef.current());
+	useServerResync(refresh);
 
 	// The visibility nudge: returning to the tab refetches immediately —
 	// anything missed while hidden lands at once.
 	useEffect(() => {
 		const onVisibility = () => {
-			if (document.visibilityState === "visible") setNonce((n) => n + 1);
+			if (document.visibilityState === "visible") refresh();
 		};
 		document.addEventListener("visibilitychange", onVisibility);
 		return () => document.removeEventListener("visibilitychange", onVisibility);
-	}, []);
+	}, [refresh]);
 
 	// The debounce timer never outlives the provider.
 	useEffect(
@@ -170,7 +189,8 @@ export function ActivityProvider({ children }: { children: React.ReactNode }) {
 		[],
 	);
 
-	return <ActivityContext.Provider value={{ feed, refresh }}>{children}</ActivityContext.Provider>;
+	const value = useMemo(() => ({ feed, refresh }), [feed, refresh]);
+	return <ActivityContext.Provider value={value}>{children}</ActivityContext.Provider>;
 }
 
 /** The activity feed seam for the rest of the shell: the dock's data +

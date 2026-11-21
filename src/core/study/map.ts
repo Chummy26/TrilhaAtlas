@@ -2,6 +2,7 @@ import type { CurriculumSnapshot, NodeKind } from "../curriculum/types.ts";
 import { structuralState } from "../learner/kst.ts";
 import type { LearnerGraphView } from "../learner/graph-view.ts";
 import type { LearnerSnapshot } from "../learner/types.ts";
+import type { SkillMapStyle } from "./map-style.ts";
 
 export interface SkillNode {
 	id: string;
@@ -25,6 +26,7 @@ export interface SkillMap {
 	domain: string;
 	title: string;
 	nodes: SkillNode[];
+	mapStyle?: SkillMapStyle;
 	next?: string;
 	position?: string;
 	reinforcement?: string;

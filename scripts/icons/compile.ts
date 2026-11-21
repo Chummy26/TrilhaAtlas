@@ -458,6 +458,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
 /** Output files, relative to the repo root. */
 export const OUTPUTS = {
 	generated: "components/icons/generated.ts",
+	meta: "components/icons/meta.ts",
 	sprite: "public/icons/sprite.svg",
 } as const;
 
@@ -491,11 +492,12 @@ export function syncOutputs(root: string, files: Readonly<Record<string, string>
 
 async function main(argv: string[]): Promise<number> {
 	const { ICON_ALIASES, ICON_DEFS } = await import("./defs/index.ts");
-	const { emitGenerated, emitSprite } = await import("./emit.ts");
+	const { emitGenerated, emitMeta, emitSprite } = await import("./emit.ts");
 	const t0 = Date.now();
 	const icons = compileAll(ICON_DEFS);
 	const files: Record<string, string> = {
 		[OUTPUTS.generated]: emitGenerated(icons, ICON_ALIASES),
+		[OUTPUTS.meta]: emitMeta(icons, ICON_ALIASES),
 		[OUTPUTS.sprite]: emitSprite(icons),
 	};
 	const { written, stale } = syncOutputs(ROOT, files, argv.includes("--check"));

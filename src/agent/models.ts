@@ -64,6 +64,7 @@ let providerSource: ProviderSource | undefined;
 let googleVertexSettingsSource: (() => GoogleVertexSettings | undefined) | undefined;
 let googleModelsOverlaySource: ((providerId: "google-vertex" | "google") => readonly Model<Api>[]) | undefined;
 const googleBaseProviders = new Map<"google-vertex" | "google", ReturnType<typeof builtinProviders>[number]>();
+const googleOverlayRefs = new Map<"google-vertex" | "google", readonly Model<Api>[]>();
 const googleOverlaySignatures = new Map<"google-vertex" | "google", string>();
 
 /** Configuration IO is injected by the server; the agent never imports stores. */
@@ -86,6 +87,7 @@ export function configureGoogleVertexRuntime(source: () => GoogleVertexSettings 
 /** Inject dynamically discovered Google / Vertex models (e.g. models.dev cache) into piModels(). */
 export function configureGoogleModelsOverlay(source: (providerId: "google-vertex" | "google") => readonly Model<Api>[]): void {
 	googleModelsOverlaySource = source;
+	googleOverlayRefs.clear();
 	googleOverlaySignatures.clear();
 }
 
@@ -95,6 +97,8 @@ function syncGoogleOverlay(modelsCollection: MutableModels): void {
 		const base = googleBaseProviders.get(pid);
 		if (!base) continue;
 		const extra = googleModelsOverlaySource(pid);
+		if (googleOverlayRefs.get(pid) === extra) continue;
+		googleOverlayRefs.set(pid, extra);
 		const signature = extra.map((m) => m.id).join("\0");
 		if (googleOverlaySignatures.get(pid) === signature) continue;
 		googleOverlaySignatures.set(pid, signature);

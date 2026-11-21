@@ -47,8 +47,12 @@ function extractSummary(data: PlacementApiPayload | PlacementSummary | null): Pl
 
 export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps) {
 	const t = useT();
+	const tRef = useRef(t);
+	tRef.current = t;
+	const onCompletedRef = useRef(onCompleted);
+	onCompletedRef.current = onCompleted;
 	const router = useRouter();
-	const starterRef = useRef(new SessionStarter());
+	const starterRef = useRef<SessionStarter | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [busy, setBusy] = useState(false);
 	const [startingRecommended, setStartingRecommended] = useState(false);
@@ -62,7 +66,7 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 			if (nextSummary) {
 				setSummary(nextSummary);
 				setQuestion(null);
-				if (notify) onCompleted?.(nextSummary);
+				if (notify) onCompletedRef.current?.(nextSummary);
 				return;
 			}
 			if (raw && typeof raw === "object" && "question" in raw) {
@@ -70,7 +74,7 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 				if (raw.question) setSummary(null);
 			}
 		},
-		[onCompleted],
+		[],
 	);
 
 	useEffect(() => {
@@ -80,18 +84,18 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 		fetch("/api/study/placement", { signal: ctrl.signal })
 			.then(async (res) => {
 				const data = (await res.json().catch(() => null)) as PlacementApiPayload | null;
-				if (!res.ok) throw new Error(data?.error ?? t("course.placement.errLoad"));
+				if (!res.ok) throw new Error(data?.error ?? tRef.current("course.placement.errLoad"));
 				if (!ctrl.signal.aborted) applyPayload(data, false);
 			})
 			.catch((err: unknown) => {
 				if (ctrl.signal.aborted) return;
-				setError(err instanceof Error ? err.message : t("course.placement.errLoad"));
+				setError(err instanceof Error ? err.message : tRef.current("course.placement.errLoad"));
 			})
 			.finally(() => {
 				if (!ctrl.signal.aborted) setLoading(false);
 			});
 		return () => ctrl.abort();
-	}, [applyPayload, t]);
+	}, [applyPayload]);
 
 	const runAction = useCallback(
 		async (body: { action: "start" | "answer" | "finish"; nodeId?: string; correct?: boolean }) => {
@@ -203,6 +207,7 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 				hours: { lo: minutes / 60, hi: minutes / 60 },
 				kind: "atom",
 			};
+			starterRef.current ??= new SessionStarter();
 			const href = await starterRef.current.start(
 				studyLessonRequest({
 					domainId: resolvedDomainId,

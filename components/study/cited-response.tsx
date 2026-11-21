@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, memo, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { MessageResponse, streamdownRehypePlugins } from "@/components/ai-elements/message";
 import { linkPdfCitations } from "./citation-markup.ts";
 import type { PdfCitationBook } from "@/src/core";
@@ -9,7 +9,8 @@ type Shelf = { domain: string; books: PdfCitationBook[] };
 const CitationContext = createContext<Shelf | null>(null);
 
 export function CitationShelf({ domain, books, children }: Shelf & { children: ReactNode }) {
-	return <CitationContext.Provider value={{ domain, books }}>{children}</CitationContext.Provider>;
+	const value = useMemo(() => ({ domain, books }), [domain, books]);
+	return <CitationContext.Provider value={value}>{children}</CitationContext.Provider>;
 }
 
 function PagePreview({ domain, source, page, onClose }: { domain: string; source: PdfCitationBook; page: number; onClose: () => void }) {
@@ -45,7 +46,7 @@ function PagePreview({ domain, source, page, onClose }: { domain: string; source
 	</dialog>;
 }
 
-export function CitedResponse({ text }: { text: string }) {
+export const CitedResponse = memo(function CitedResponse({ text, streaming = false }: { text: string; streaming?: boolean }) {
 	const shelf = useContext(CitationContext);
 	const trigger = useRef<HTMLButtonElement | null>(null);
 	const [preview, setPreview] = useState<{ source: PdfCitationBook; page: number }>();
@@ -60,7 +61,7 @@ export function CitedResponse({ text }: { text: string }) {
 			setPreview({ source, page });
 		}
 	}}>
-		<MessageResponse className="tutor-prose" rehypePlugins={plugins}>{text}</MessageResponse>
+		<MessageResponse className="tutor-prose" rehypePlugins={plugins} streaming={streaming}>{text}</MessageResponse>
 		{preview && shelf && <PagePreview {...preview} domain={shelf.domain} onClose={() => { setPreview(undefined); requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true })); }} />}
 	</div>;
-}
+});

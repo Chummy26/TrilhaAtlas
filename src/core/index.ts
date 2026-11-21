@@ -119,24 +119,18 @@ export type * from "./plugin-ui.ts";
 export type * from "./plugin-tree.ts";
 export * from "./plugin-agents.ts";
 // ─── estudos-sota modules (docs/research/00-SINTESE.md) ─────────────────────
-// Flat: names are unique across these barrels. Namespaced: curriculum and
-// learner both export `NodeStatus`/`NodeId`-style vocabularies, and memory /
-// resources carry generic helper names (mmr, ids) — keep them qualified.
+// Server-only core subtrees (curriculum, learner, lesson, memory, resources,
+// formal, englishFinale) are deliberately NOT re-exported here so client bundles
+// never pull Zod schemas or server evaluators through the core barrel; server
+// code and tests import those subpaths directly.
 export * from "./domains/index.ts";
 export * from "./models/index.ts";
 export * from "./stats/index.ts";
 export * from "./progress/index.ts";
 export * from "./study/index.ts";
 export * from "./lesson-activity.ts";
-export * as curriculum from "./curriculum/index.ts";
-export * as learner from "./learner/index.ts";
-export * as lesson from "./lesson/index.ts";
-export * as memory from "./memory/index.ts";
-export * as resources from "./resources/index.ts";
 export * from "./study/creation.ts";
 export * from "./divider-lab.ts";
-export * from "./formal/index.ts";
-export { englishFinale } from "./study/english-campaign.ts";
 
 // Interface languages (English first): locales, message namespaces, translator.
 export * from "./i18n/index.ts";

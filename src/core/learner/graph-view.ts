@@ -73,10 +73,40 @@ export interface GraphIndex {
 	prereqs: ReadonlyMap<NodeId, readonly NodeId[]>;
 	/** n such that n.encompasses contains id, with the edge weight. */
 	encompassedBy: ReadonlyMap<NodeId, readonly { id: NodeId; w: number }[]>;
+	/** Non-leaf container ids in topological order. */
+	containers: readonly NodeId[];
+	/** True when any container has an empty clause system or empty clause (always satisfied). */
+	hasEmptyContainer: boolean;
+	/** Mandatory clause members (intersection across OR clauses) per id. */
+	mandatory: ReadonlyMap<NodeId, readonly NodeId[]>;
+	/** Undirected expanded leaf-to-leaf adjacency (a <-> b iff leaf a ∈ expandedClauses(b)). */
+	readonly leafNeighbors: ReadonlyMap<NodeId, readonly NodeId[]>;
+	/** Memoized studyable (leaf) dependents per id, looking through container milestones. */
+	studyableDependentsCache: Map<NodeId, readonly NodeId[]>;
 }
 
 const EMPTY: readonly NodeId[] = Object.freeze([]);
 const indexCache = new WeakMap<LearnerGraphView, GraphIndex>();
+
+function computeMandatory(clauses: readonly (readonly NodeId[])[]): readonly NodeId[] {
+	if (clauses.length === 0) return EMPTY;
+	const first = clauses[0];
+	if (!first || first.length === 0) return EMPTY;
+	if (clauses.length === 1) return first;
+	const out: NodeId[] = [];
+	for (let i = 0; i < first.length; i++) {
+		const m = first[i] as NodeId;
+		let all = true;
+		for (let c = 1; c < clauses.length; c++) {
+			if (!clauses[c]!.includes(m)) {
+				all = false;
+				break;
+			}
+		}
+		if (all) out.push(m);
+	}
+	return out.length > 0 ? out : EMPTY;
+}
 
 /** Memoized derived indexes of a view. */
 export function graphIndex(view: LearnerGraphView): GraphIndex {
@@ -87,9 +117,20 @@ export function graphIndex(view: LearnerGraphView): GraphIndex {
 	const dependents = new Map<NodeId, NodeId[]>();
 	const prereqs = new Map<NodeId, NodeId[]>();
 	const encompassedBy = new Map<NodeId, { id: NodeId; w: number }[]>();
+	const containers: NodeId[] = [];
+	const mandatory = new Map<NodeId, readonly NodeId[]>();
+	let hasEmptyContainer = false;
 	for (const id of view.ids) {
 		const node = view.nodes.get(id);
 		if (!node) continue;
+		if (!node.isLeaf) {
+			containers.push(id);
+			if (!hasEmptyContainer && (node.clauses.length === 0 || node.clauses.some((c) => c.length === 0))) {
+				hasEmptyContainer = true;
+			}
+		}
+		const req = computeMandatory(node.clauses);
+		if (req.length > 0) mandatory.set(id, req);
 		const members = new Set<NodeId>();
 		for (const clause of node.clauses) for (const m of clause) members.add(m);
 		const list = [...members].filter((m) => pos.has(m));
@@ -106,7 +147,46 @@ export function graphIndex(view: LearnerGraphView): GraphIndex {
 			rev.push({ id, w: e.w });
 		}
 	}
-	const index: GraphIndex = { pos, dependents, prereqs, encompassedBy };
+	let cachedLeafNeighbors: ReadonlyMap<NodeId, readonly NodeId[]> | null = null;
+	const index: GraphIndex = {
+		pos,
+		dependents,
+		prereqs,
+		encompassedBy,
+		containers,
+		hasEmptyContainer,
+		mandatory,
+		studyableDependentsCache: new Map<NodeId, readonly NodeId[]>(),
+		get leafNeighbors(): ReadonlyMap<NodeId, readonly NodeId[]> {
+			if (cachedLeafNeighbors) return cachedLeafNeighbors;
+			const adj = new Map<NodeId, Set<NodeId>>();
+			const link = (u: NodeId, v: NodeId) => {
+				let su = adj.get(u);
+				if (!su) adj.set(u, (su = new Set()));
+				su.add(v);
+				let sv = adj.get(v);
+				if (!sv) adj.set(v, (sv = new Set()));
+				sv.add(u);
+			};
+			for (let i = 0; i < view.ids.length; i++) {
+				const b = view.ids[i] as NodeId;
+				const node = view.nodes.get(b);
+				if (!node || !node.isLeaf || node.clauses.length === 0) continue;
+				const clauses = expandedClauses(view, b);
+				for (let c = 0; c < clauses.length; c++) {
+					const clause = clauses[c]!;
+					for (let j = 0; j < clause.length; j++) {
+						const a = clause[j] as NodeId;
+						if (a !== b && pos.has(a)) link(a, b);
+					}
+				}
+			}
+			const out = new Map<NodeId, readonly NodeId[]>();
+			for (const [id, set] of adj) out.set(id, [...set]);
+			cachedLeafNeighbors = out;
+			return out;
+		},
+	};
 	indexCache.set(view, index);
 	return index;
 }
@@ -150,11 +230,25 @@ export function expandedClauses(view: LearnerGraphView, id: NodeId): readonly (r
 			if (subs.length === 0) continue;
 			const next: NodeId[][] = [];
 			for (const p of partial) {
-				for (const sub of subs) {
-					if (next.length >= MAX_EXPANDED_ALTERNATIVES) break;
-					const merged = [...p];
-					for (const x of sub) if (!merged.includes(x)) merged.push(x);
-					next.push(merged);
+				if (next.length >= MAX_EXPANDED_ALTERNATIVES) break;
+				if (p.length === 0) {
+					for (const sub of subs) {
+						if (next.length >= MAX_EXPANDED_ALTERNATIVES) break;
+						next.push([...sub]);
+					}
+				} else {
+					for (const sub of subs) {
+						if (next.length >= MAX_EXPANDED_ALTERNATIVES) break;
+						const seen = new Set<NodeId>(p);
+						const merged = [...p];
+						for (const x of sub) {
+							if (!seen.has(x)) {
+								seen.add(x);
+								merged.push(x);
+							}
+						}
+						next.push(merged);
+					}
 				}
 			}
 			partial = next;
@@ -165,6 +259,43 @@ export function expandedClauses(view: LearnerGraphView, id: NodeId): readonly (r
 	return out;
 }
 
+function heapPush(heap: number[], value: number): void {
+	let i = heap.length;
+	heap.push(value);
+	while (i > 0) {
+		const parent = (i - 1) >>> 1;
+		const pv = heap[parent] as number;
+		if (pv <= value) break;
+		heap[i] = pv;
+		i = parent;
+	}
+	heap[i] = value;
+}
+
+function heapPop(heap: number[]): number {
+	const top = heap[0] as number;
+	const last = heap.pop() as number;
+	const n = heap.length;
+	if (n > 0) {
+		let i = 0;
+		const half = n >>> 1;
+		while (i < half) {
+			let child = (i << 1) + 1;
+			let cv = heap[child] as number;
+			const right = child + 1;
+			if (right < n && (heap[right] as number) < cv) {
+				child = right;
+				cv = heap[right] as number;
+			}
+			if (last <= cv) break;
+			heap[i] = cv;
+			i = child;
+		}
+		heap[i] = last;
+	}
+	return top;
+}
+
 /**
  * Build a view from an unordered node list: validates references and
  * computes a deterministic topological order (Kahn, ties by input order).
@@ -172,50 +303,57 @@ export function expandedClauses(view: LearnerGraphView, id: NodeId): readonly (r
  * cycles, or a node failing `assertGraphView` (bad weights, NaN fields).
  */
 export function buildGraphView(entries: readonly ({ id: NodeId } & LearnerGraphNode)[]): LearnerGraphView {
+	const n = entries.length;
 	const nodes = new Map<NodeId, LearnerGraphNode>();
 	const order = new Map<NodeId, number>();
-	for (const entry of entries) {
+	const idByIndex: NodeId[] = new Array(n);
+	for (let i = 0; i < n; i++) {
+		const entry = entries[i]!;
 		if (nodes.has(entry.id)) throw new LearnerGraphError(`Nó duplicado no grafo: ${entry.id}`, [entry.id]);
 		const { id, ...node } = entry;
 		nodes.set(id, node);
-		order.set(id, order.size);
+		order.set(id, i);
+		idByIndex[i] = id;
 	}
-	const indeg = new Map<NodeId, number>();
-	const out = new Map<NodeId, NodeId[]>();
-	for (const [id, node] of nodes) {
-		const members = new Set<NodeId>();
+	const indeg = new Int32Array(n);
+	const out: number[][] = Array.from({ length: n }, () => []);
+	for (let i = 0; i < n; i++) {
+		const id = idByIndex[i] as NodeId;
+		const node = nodes.get(id) as LearnerGraphNode;
+		const members = new Set<number>();
 		for (const clause of node.clauses) {
 			for (const m of clause) {
 				if (m === id) throw new LearnerGraphError(`Nó ${id} referencia a si mesmo nas cláusulas.`, [id]);
-				if (!nodes.has(m)) throw new LearnerGraphError(`Cláusula de ${id} referencia id inexistente: ${m}`, [id, m]);
-				members.add(m);
+				const mIdx = order.get(m);
+				if (mIdx === undefined) throw new LearnerGraphError(`Cláusula de ${id} referencia id inexistente: ${m}`, [id, m]);
+				members.add(mIdx);
 			}
 		}
 		for (const e of node.encompasses) {
 			if (!nodes.has(e.id)) throw new LearnerGraphError(`encompasses de ${id} referencia id inexistente: ${e.id}`, [id, e.id]);
 			if (!(e.w > 0 && e.w <= 1)) throw new LearnerGraphError(`Peso de encompasses fora de (0,1] em ${id} → ${e.id}: ${e.w}`, [id, e.id]);
 		}
-		indeg.set(id, members.size);
-		for (const m of members) {
-			let list = out.get(m);
-			if (!list) out.set(m, (list = []));
-			list.push(id);
-		}
+		indeg[i] = members.size;
+		for (const mIdx of members) out[mIdx]!.push(i);
 	}
-	const ready = [...nodes.keys()].filter((id) => indeg.get(id) === 0);
+	// Ascending insertion order already satisfies the binary min-heap property.
+	const heap: number[] = [];
+	for (let i = 0; i < n; i++) if (indeg[i] === 0) heap.push(i);
 	const ids: NodeId[] = [];
-	while (ready.length > 0) {
-		ready.sort((a, b) => (order.get(a) ?? 0) - (order.get(b) ?? 0));
-		const id = ready.shift() as NodeId;
-		ids.push(id);
-		for (const dep of out.get(id) ?? []) {
-			const left = (indeg.get(dep) ?? 0) - 1;
-			indeg.set(dep, left);
-			if (left === 0) ready.push(dep);
+	while (heap.length > 0) {
+		const idx = heapPop(heap);
+		ids.push(idByIndex[idx] as NodeId);
+		const deps = out[idx]!;
+		for (let j = 0; j < deps.length; j++) {
+			const dep = deps[j] as number;
+			const left = (indeg[dep] as number) - 1;
+			indeg[dep] = left;
+			if (left === 0) heapPush(heap, dep);
 		}
 	}
-	if (ids.length !== nodes.size) {
-		const stuck = [...nodes.keys()].filter((id) => (indeg.get(id) ?? 0) > 0);
+	if (ids.length !== n) {
+		const stuck: NodeId[] = [];
+		for (let i = 0; i < n; i++) if ((indeg[i] as number) > 0) stuck.push(idByIndex[i] as NodeId);
 		throw new LearnerGraphError(`Ciclo nas cláusulas efetivas envolvendo: ${stuck.join(", ")}`, stuck);
 	}
 	const view: LearnerGraphView = { ids, nodes };

@@ -1,10 +1,11 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { useT } from "@/components/i18n";
 import type { LessonCourseContext } from "@/src/core";
 
-export function LessonCourseBar({
+export const LessonCourseBar = memo(function LessonCourseBar({
 	domainId,
 	nodeId,
 	course,
@@ -25,7 +26,7 @@ export function LessonCourseBar({
 		<nav
 			aria-label={t("lesson.courseBar.navAria")}
 			data-testid="lesson-course-bar"
-			className="lh-no-drag flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-border/60 bg-background/90 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur-sm"
+			className="lh-no-drag flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-border/60 bg-card/95 px-4 py-1.5 text-xs text-muted-foreground"
 		>
 			<Link href="/" className="font-medium text-foreground underline-offset-2 hover:underline">
 				{t("lesson.courseBar.backCampaign")}
@@ -88,4 +89,4 @@ export function LessonCourseBar({
 			)}
 		</nav>
 	);
-}
+});

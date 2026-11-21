@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { memo, useCallback, useId, useMemo } from "react";
 import { derivedNodeStatus, derivePlanStatuses } from "@/src/core";
 import {
 	PlanDiagram,
@@ -41,15 +41,18 @@ export function planExists(messages: readonly PopupMessage[]): boolean {
 	return !!tree && tree.nodes.length > 0;
 }
 
-export function PlanMarginalia({ messages }: { messages: readonly PopupMessage[] }) {
+export const PlanMarginalia = memo(function PlanMarginalia({ messages }: { messages: readonly PopupMessage[] }) {
 	const markerId = useId().replace(/[^a-zA-Z0-9-]/g, "");
 	const tree = useMemo(() => latestTree(messages), [messages]);
 	const statuses = useMemo(
 		() => (tree ? derivePlanStatuses(tree, messages as Parameters<typeof derivePlanStatuses>[1]) : null),
 		[tree, messages],
 	);
+	const statusOf = useCallback(
+		(id: string) => (statuses ? derivedNodeStatus(statuses, id) : "upcoming"),
+		[statuses],
+	);
 	if (!tree || tree.nodes.length === 0) return null; // no plan yet: nothing in the margin
-	const statusOf = (id: string) => (statuses ? derivedNodeStatus(statuses, id) : "upcoming");
 	return (
 		<PlanDiagram
 			nodes={tree.nodes}
@@ -62,4 +65,4 @@ export function PlanMarginalia({ messages }: { messages: readonly PopupMessage[]
 			fill
 		/>
 	);
-}
+});

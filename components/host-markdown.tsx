@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ComponentProps } from "react";
+import { memo, useEffect, useRef, useState, type ComponentProps } from "react";
 import type { ExtraProps } from "streamdown";
 import { ToolContentResponse } from "@/components/ai-elements/message";
 import { MarkdownDisplayOnlyContext, mdComponents } from "@/components/md-blocks";
@@ -49,12 +49,12 @@ const linkSafety = { enabled: false };
  * pipeline, including its presentation-only tool-math recovery. The local
  * profile never changes transcript controls or plugin renderers. A new snapshot
  * retires the old async code/diagram subtree. */
-export function HostMarkdown({ text }: { text: string }) {
+export const HostMarkdown = memo(function HostMarkdown({ text }: { text: string }) {
 	return (
 		<MarkdownDisplayOnlyContext.Provider value={true}>
-			<ToolContentResponse key={text} mode="static" isAnimating={false} controls={false} components={getComponents()} linkSafety={linkSafety}>
+			<ToolContentResponse mode="static" isAnimating={false} controls={false} components={getComponents()} linkSafety={linkSafety}>
 				{text}
 			</ToolContentResponse>
 		</MarkdownDisplayOnlyContext.Provider>
 	);
-}
+});

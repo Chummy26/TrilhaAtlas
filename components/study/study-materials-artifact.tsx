@@ -1,20 +1,20 @@
 import { Icon } from "@/components/icons/icon";
-import { studyAttachmentsSchema, type ArtifactPartProps } from "@/src/core";
+import { parseStudyAttachments, type ArtifactPartProps } from "@/src/core";
 
 const label = { book: "Livro completo", reading: "Leitura", video: "Vídeo" };
 
 export function StudyMaterialsArtifact({ part }: ArtifactPartProps) {
 	if (part.state === "output-error") return <p role="status" className="text-sm text-destructive">A busca de materiais falhou.</p>;
 	if (part.state !== "output-available") return <p role="status" className="text-sm text-muted-foreground">Buscando materiais para esta tarefa…</p>;
-	const result = studyAttachmentsSchema.safeParse(part.output);
-	if (!result.success || !result.data.items.length) return <p role="status" className="text-sm text-muted-foreground">Nenhum material correspondente foi encontrado.</p>;
+	const data = parseStudyAttachments(part.output);
+	if (!data || !data.items.length) return <p role="status" className="text-sm text-muted-foreground">Nenhum material correspondente foi encontrado.</p>;
 	return <section aria-label="Materiais para esta tarefa" className="cel-card my-3 max-w-prose space-y-2.5 p-4">
 		<div className="flex items-center gap-2 border-b border-border/50 pb-2">
 			<Icon name="book" size={17} />
 			<h3 className="cel-display text-base">Materiais para esta tarefa</h3>
 		</div>
 		<div className="space-y-2">
-			{result.data.items.map(item => (
+			{data.items.map(item => (
 				<div key={item.kind + item.url} className="flex items-start gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-accent/60">
 					<Icon name={item.kind === "video" ? "video" : "book"} size={17} />
 					<div className="min-w-0 flex-1">
