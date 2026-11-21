@@ -648,11 +648,11 @@ export function renderSixFrontReadmeBlock(bundle: SixFrontEvalBundle): string {
 		README_OFFICIAL_BENCH_BEGIN,
 		"## AI Tutor & Memory Benchmarks (6-Front Paired Evaluation)",
 		"",
-		`> **Protocolo de avaliação em 6 frentes (${bundle.generatedAt})** — Comparação pareada **Prompt atual − Prompt mínimo (contratos)** no mesmo modelo e contexto congelado, sob **juiz cego cruzado** (\`gpt-6.2-sol\` ↔ \`gpt-6.2-astra\`), sem média geral misturada e com **IC 95% pareado**. Relatório auditável item a item em [evals/reports/latest-evaluation.md](evals/reports/latest-evaluation.md) e [docs/impl/ai-tutor-benchmarks.md](docs/impl/ai-tutor-benchmarks.md).`,
+		`> **6-front paired evaluation protocol (${bundle.generatedAt})** — Paired delta (**Production prompt − Minimal-contract baseline**) on the same model and frozen context, scored by a **blind cross-model judge** (\`gpt-6.2-sol\` ↔ \`gpt-6.2-astra\`, hidden prompt identity, alternating A/B order) with **paired 95% CIs** and no mixed cross-front overall average. Full item-level audit logs in [evals/reports/latest-evaluation.md](evals/reports/latest-evaluation.md) and [docs/impl/ai-tutor-benchmarks.md](docs/impl/ai-tutor-benchmarks.md).`,
 		"",
-		"#### Placar Principal — Qualidade dos Prompts do Professor (Tutoria, Planejamento, Correção e Fontes)",
+		"#### Primary Scoreboard — Teacher Prompt Quality (Tutoring, Planning, Grading & Grounding)",
 		"",
-		"| Modelo | TutorMoments: Apoio | TutorMoments: Exigência | TutorMoments: Sem Excesso | TeachArena S0 (Tutoria) | TeachArena S1 (Julgamento NL) | Modos Próprios (Exame 0-Leak) | Planejamento (JSON+Conv) | Corretor LLM MAE (0–3) / False-Pass | Fontes & PDFs |",
+		"| Model | TutorMoments: Support | TutorMoments: Rigor | TutorMoments: Avoids Over-Scaffolding | TeachArena S0 (Tutoring) | TeachArena S1 (Judgment NL) | Own Modes (Exam 0-Leak) | Planning (JSON+Conv) | LLM Grader MAE (0–3) / False-Pass | Sources & PDFs |",
 		"|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
 	];
 
@@ -667,9 +667,9 @@ export function renderSixFrontReadmeBlock(bundle: SixFrontEvalBundle): string {
 
 	lines.push(
 		"",
-		"#### Placar Separado — Memória e Personalização (EvalMem 3 Estágios + LongMemEval-S) & Diagnóstico Complementar (MathTutorBench)",
+		"#### Separate Scoreboard — Memory & Personalization (EvalMem 3-Stage + LongMemEval-S) & Complementary Diagnostic (MathTutorBench)",
 		"",
-		"| Modelo | EvalMem Est. 1 (Registro) | EvalMem Est. 2 (Recuperação) | EvalMem Est. 3 (Uso Tutor) | LongMemEval-S | MathTutorBench (Corr · Loc · Socr · Sem Spoiler) |",
+		"| Model | EvalMem Stage 1 (Record) | EvalMem Stage 2 (Retrieval) | EvalMem Stage 3 (Tutor Use) | LongMemEval-S | MathTutorBench (Corr · Loc · Socr · No-Spoiler) |",
 		"|---|---:|---:|---:|---:|---|",
 	);
 
@@ -684,8 +684,8 @@ export function renderSixFrontReadmeBlock(bundle: SixFrontEvalBundle): string {
 
 	lines.push(
 		"",
-		`- **Corretor determinístico separado (\`module-exam.ts\` sobre 14 casos rotulados):** concordância exata **${bundle.deterministicModuleExamGrader.exactAgreementPct.toFixed(1)}%**, MAE **${bundle.deterministicModuleExamGrader.mae0to3.toFixed(2)}**, aprovações indevidas **${bundle.deterministicModuleExamGrader.falsePassRatePct.toFixed(1)}%** (comprovando por que respostas abertas usam \`lesson/grader.md\` em vez de heurística de palavras-chave).`,
-		`- **Nota de transparência:** resultados de TeachArena referem-se individualmente a Stage 0 (Tutoria) e Stage 1 (Julgamento); casos PT-BR e de Planejamento são adaptações internas em \`evals/\`. Reproduza com \`npm run verify:formal\`, \`npm run benchmark:harness\`, \`npm run benchmark:prompts\` e \`npm run benchmark:sota\`.`,
+		`- **Separate deterministic grader (\`module-exam.ts\` on 14 specialist-labeled cases):** exact agreement **${bundle.deterministicModuleExamGrader.exactAgreementPct.toFixed(1)}%**, MAE **${bundle.deterministicModuleExamGrader.mae0to3.toFixed(2)}**, false-pass rate **${bundle.deterministicModuleExamGrader.falsePassRatePct.toFixed(1)}%** (demonstrating quantitatively why open-ended grading uses \`lesson/grader.md\` rather than lexical overlap).`,
+		`- **Transparency note:** TeachArena scores are reported individually for Stage 0 (Situated Tutoring) and Stage 1 (Pedagogical Judgment) and are not a global TeachArena score; PT-BR and Planning suites are internal TrilhaAtlas adaptations in \`evals/\`. Reproduce with \`npm run verify:formal\`, \`npm run benchmark:harness\`, \`npm run benchmark:prompts\`, and \`npm run benchmark:sota\`.`,
 		README_OFFICIAL_BENCH_END,
 	);
 
