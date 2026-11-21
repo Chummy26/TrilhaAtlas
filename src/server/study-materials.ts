@@ -24,7 +24,7 @@ import { cachedText } from "./resources/provider-kit.ts";
 import { createResourceFetch } from "./resources/safe-fetch.ts";
 import { loadResourceSeeds } from "./resources/seeds.ts";
 import { createDefaultRegistry } from "./resources/registry.ts";
-import { curriculumSources, lessonRoute, loadCurriculum, studyDomains, StudyError } from "./study.ts";
+import { curriculumSources, finishedExposures, lessonRoute, loadCurriculum, studyDomains, StudyError } from "./study.ts";
 import { readStudyEvents, studyLogRevision } from "./study-log.ts";
 import { getChat } from "./chats.ts";
 import { detectFormat, importBookFile, importFromUrl, listLibrary, readLibraryItem, readLibraryChunks, type ImportedBook } from "./resources/user-library.ts";
@@ -713,10 +713,36 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	const limit = campaign.lessonMinutes.get(id) ?? maxNewMinutes;
 	const minutes = Math.round(Math.min(limit, maxNewMinutes, Math.max(minNewMinutes, node.hoursMid * 60)));
 	const events = readStudyEvents(domain);
+	const finished = finishedExposures(events);
 	const closedForReinforcement = new Set(events.flatMap(e => e.kind === "lesson-finished" && e.outcome === "reinforce" ? [e.exposureId] : []));
-	const previous = (exploratory: boolean) => events.findLast(e => e.kind === "exposure" && !closedForReinforcement.has(e.id) && !!e.exploratory === exploratory && e.source === "ai_lesson" && e.nodeId === id && e.sessionId && getChat(e.sessionId));
-	const main = previous(false);
-	const side = previous(true);
+	const activeMain = events.findLast(
+		e => e.kind === "exposure"
+			&& !finished.has(e.id)
+			&& !e.exploratory
+			&& e.source === "ai_lesson"
+			&& e.nodeId === id
+			&& e.sessionId
+			&& getChat(e.sessionId),
+	);
+	const completedMain = events.findLast(
+		e => e.kind === "exposure"
+			&& finished.has(e.id)
+			&& !closedForReinforcement.has(e.id)
+			&& !e.exploratory
+			&& e.source === "ai_lesson"
+			&& e.nodeId === id
+			&& e.sessionId
+			&& getChat(e.sessionId),
+	);
+	const side = events.findLast(
+		e => e.kind === "exposure"
+			&& !closedForReinforcement.has(e.id)
+			&& !!e.exploratory
+			&& e.source === "ai_lesson"
+			&& e.nodeId === id
+			&& e.sessionId
+			&& getChat(e.sessionId),
+	);
 	const regionMaterials: RegionMaterials = region.kind === "unit" ? await readRegionMaterials(domain, id) : { region: id, materials: [], references: [], videoSearch: false };
 	const materials = relevantMaterials(regionMaterials, id);
 	let excerpt = "";
@@ -724,5 +750,20 @@ export async function studyMapLesson(domain: string, id: string, withReading = f
 	if (withReading && book && !book.linkOnly) excerpt = await excerptFor(domain, book).catch(() => "");
 	if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
 	const { route, missing } = node.isLeaf ? lessonRoute(domain,view,events,id) : { route: [], missing: [] };
-	return { brief, minutes, finale: campaignFinale(snapshot, campaign, id), sessionId: main?.kind === "exposure" ? main.sessionId : undefined, explorationId: side?.kind === "exposure" ? side.sessionId : undefined, regionMaterials, materials, excerpt, route, missing };
+	const activeSessionId = activeMain?.kind === "exposure" ? activeMain.sessionId : undefined;
+	const completedSessionId = completedMain?.kind === "exposure" ? completedMain.sessionId : undefined;
+	return {
+		brief,
+		minutes,
+		finale: campaignFinale(snapshot, campaign, id),
+		sessionId: activeSessionId,
+		...(activeSessionId ? { activeSessionId } : {}),
+		...(completedSessionId ? { completedSessionId } : {}),
+		explorationId: side?.kind === "exposure" ? side.sessionId : undefined,
+		regionMaterials,
+		materials,
+		excerpt,
+		route,
+		missing,
+	};
 }

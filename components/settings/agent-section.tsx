@@ -728,7 +728,7 @@ export function AgentSection({
 											anchorTestid={`slot-model-${slot}`}
 										testid={`slot-model-menu-${slot}`}
 										onClose={() => { setOpenMenu(null); return "closed"; }}
-										menuClass="flex w-[22rem] flex-col rounded-xl border border-border bg-card p-2 text-xs shadow-xl"
+										menuClass="flex w-[26rem] max-w-[calc(100vw-2rem)] flex-col rounded-xl border border-border bg-card p-2 text-xs shadow-xl"
 									>
 										<ModelMenuList
 											models={catalog ?? undefined}

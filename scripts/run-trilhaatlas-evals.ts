@@ -41,12 +41,14 @@ import {
 	parseTeachArenaStage0,
 	parseTeachArenaStage1,
 	parseTutorMomentsRows,
+	partitionDevHeldout,
 	renderSixFrontMarkdown,
 	renderSixFrontReadmeBlock,
 	spliceOfficialReadmeSection,
 	stratifiedSample,
 	summarizeGraderPredictions,
 	type EvalModelSixFrontReport,
+	type EvalSplit,
 	type GoldGradingCase,
 	type GraderPrediction,
 	type OfficialTurn,
@@ -74,6 +76,11 @@ const modelSpecs = (modelsArg ?? "chatgpt:gpt-6.2-sol,chatgpt:gpt-6.2-astra")
 const explicitJudge = argVal("--judge=");
 
 const scale = Math.max(1, Number(argVal("--per-suite=") ?? "6"));
+const splitArg = (argVal("--split=") ?? "all").toLowerCase();
+if (splitArg !== "dev" && splitArg !== "heldout" && splitArg !== "all") {
+	throw new Error(`Invalid --split value "${splitArg}". Expected dev, heldout, or all.`);
+}
+const evalSplit = splitArg as EvalSplit;
 const thinkingLevel = (argVal("--thinking=") ?? "medium") as "off" | "minimal" | "low" | "medium" | "high";
 const judgeThinking = (argVal("--judge-thinking=") ?? "low") as "off" | "minimal" | "low" | "medium" | "high";
 const concurrency = Math.max(1, Math.min(4, Number(argVal("--concurrency=") ?? "2")));
@@ -246,14 +253,17 @@ async function evaluateEvalMemStage2Retrieval(cases: readonly {
 
 async function main() {
 	for (const spec of modelSpecs) assertGptOnly(spec);
+	console.log(`Evaluation split: ${evalSplit} | per-suite=${scale} | models=${modelSpecs.join(",")}`);
 
-	// 1. Load external official datasets (cached in .cache/benchmarks/)
+	// 1. Load external official datasets (cached in .cache/benchmarks/) & apply deterministic split
 	const tmText = await fetchCachedText(
 		"tutormoments-moments-520.jsonl",
 		"https://huggingface.co/datasets/allenai/tutormoments-preview/resolve/main/moments.jsonl",
 	);
-	const allTutorMoments = parseTutorMomentsRows(
-		tmText.trim().split(/\r?\n/).map(l => JSON.parse(l) as RawTutorMomentRow),
+	const allTutorMoments = partitionDevHeldout(
+		parseTutorMomentsRows(tmText.trim().split(/\r?\n/).map(l => JSON.parse(l) as RawTutorMomentRow)),
+		evalSplit,
+		x => x.id,
 	);
 	const tmSample = stratifiedSample(allTutorMoments, x => x.dimension, Math.max(4, scale));
 
@@ -261,32 +271,46 @@ async function main() {
 		"teacharena-stage0.json",
 		"https://huggingface.co/datasets/CinderD/TeachArena/resolve/main/tasks/stage0_situated_tutoring.json",
 	)) as RawTeachArenaTask[];
-	const ta0Sample = parseTeachArenaStage0(ta0Raw).slice(0, Math.max(4, Math.min(scale, 6)));
+	const ta0Sample = partitionDevHeldout(parseTeachArenaStage0(ta0Raw), evalSplit, x => x.id)
+		.slice(0, Math.max(4, scale));
 
 	const ta1Raw = JSON.parse(await fetchCachedText(
 		"teacharena-stage1.json",
 		"https://huggingface.co/datasets/CinderD/TeachArena/resolve/main/tasks/stage1_pedagogical_judgment.json",
 	)) as RawTeachArenaTask[];
-	const ta1Sample = parseTeachArenaStage1(ta1Raw).slice(0, Math.max(4, scale));
+	const ta1Sample = partitionDevHeldout(parseTeachArenaStage1(ta1Raw), evalSplit, x => x.id)
+		.slice(0, Math.max(4, scale));
 
 	const mtbRaw = JSON.parse(await fetchCachedText(
 		"mathtutorbench-mathdial_bridge.json",
 		"https://raw.githubusercontent.com/eth-lre/mathtutorbench/main/datasets/mathdial_bridge.json",
 	)) as RawMathTutorBenchItem[];
-	const mtbSample = stratifiedSample(parseMathTutorBenchItems(mtbRaw), x => x.category, Math.max(4, scale));
+	const mtbSample = stratifiedSample(
+		partitionDevHeldout(parseMathTutorBenchItems(mtbRaw), evalSplit, x => x.originalId),
+		x => x.category,
+		Math.max(4, scale),
+	);
 
 	const lmeRaw = JSON.parse(await fetchCachedText(
 		"longmemeval_oracle.json",
 		"https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/main/longmemeval_oracle.json",
 	)) as RawLongMemEvalItem[];
-	const lmeSample = stratifiedSample(parseLongMemEvalItems(lmeRaw), x => x.category, Math.max(6, scale));
+	const lmeSample = stratifiedSample(
+		partitionDevHeldout(parseLongMemEvalItems(lmeRaw), evalSplit, x => x.originalId),
+		x => x.category,
+		Math.max(6, scale),
+	);
 
 	const locomoSample = includeLoCoMo
 		? stratifiedSample(
-			parseLoCoMoItems(JSON.parse(await fetchCachedText(
-				"locomo10.json",
-				"https://raw.githubusercontent.com/snap-research/locomo/main/data/locomo10.json",
-			)) as RawLoCoMoDialogue[]),
+			partitionDevHeldout(
+				parseLoCoMoItems(JSON.parse(await fetchCachedText(
+					"locomo10.json",
+					"https://raw.githubusercontent.com/snap-research/locomo/main/data/locomo10.json",
+				)) as RawLoCoMoDialogue[]),
+				evalSplit,
+				x => x.originalId,
+			),
 			x => x.category,
 			Math.max(5, scale),
 		)
@@ -349,6 +373,15 @@ async function main() {
 			rubric: { id: string; weight: number; criterion: string }[];
 		}[];
 	};
+
+	const filterCuratedSplit = <T extends { split: string }>(cases: readonly T[]): T[] =>
+		evalSplit === "all" ? [...cases] : cases.filter(c => c.split === evalSplit);
+
+	modesData.cases = filterCuratedSplit(modesData.cases);
+	planningData.cases = filterCuratedSplit(planningData.cases);
+	gradingData.cases = filterCuratedSplit(gradingData.cases);
+	groundingData.cases = filterCuratedSplit(groundingData.cases);
+	memoryData.cases = filterCuratedSplit(memoryData.cases);
 
 	// 3. Deterministic Front 3 (module-exam.ts) & Front 5 Stage 2 (real retrieval)
 	const detGrader = evaluateDeterministicModuleExamGrader(gradingData.cases);
@@ -560,6 +593,7 @@ async function main() {
 	const modelReports: EvalModelSixFrontReport[] = [];
 	const auditLog: Record<string, unknown> = {
 		generatedAt: new Date().toISOString().slice(0, 10),
+		evalSplit,
 		promptHashes,
 		deterministicModuleExamGrader: detGrader,
 		evalMemStage2Retrieval: stage2Retrieval,

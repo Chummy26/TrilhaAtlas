@@ -24,6 +24,8 @@ export interface ModelCatalogEntry {
 	/** Null for native CLI aliases whose effective limits are session-specific. */
 	contextWindow: number | null;
 	maxTokens: number | null;
+	/** Optional ISO release date (YYYY-MM-DD) used to sort newer models first. */
+	releaseDate?: string;
 }
 
 /** Conversation default resolved from the strong slot, used for new sessions

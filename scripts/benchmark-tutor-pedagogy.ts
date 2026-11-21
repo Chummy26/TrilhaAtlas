@@ -12,7 +12,12 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { analyzeLessonPedagogy, buildMissionPedagogyDirective } from "../src/core/study/tutor-pedagogy.ts";
+import {
+	analyzeLessonPedagogy,
+	buildMissionPedagogyDirective,
+	isAdvancedDefenseNode,
+	isAdvancedReadingRequiredNode,
+} from "../src/core/study/tutor-pedagogy.ts";
 import { needsLessonExamContinuation } from "../src/core/study/lesson-conclusion.ts";
 import type { LhViewMessage } from "../src/core/view.ts";
 
@@ -165,10 +170,97 @@ const scenarios: Scenario[] = [
 			return s.stage === "exam-final-verdict" && /second and final/i.test(d) && /conclude_lesson/.test(d);
 		},
 	},
+	{
+		id: "college-defense-attempt1",
+		benchmark: "College Defense / Banca Examinadora",
+		check: () => {
+			const defenseObj = { ...objective, isAdvancedDefense: true, levelLabel: "Graduação" };
+			const m: LhViewMessage[] = [
+				u("1", "Iniciar"),
+				a("2", longExpl),
+				{ role: "assistant", id: "3", parts: [{ type: "tool-present_lesson_exam", toolCallId: "ex1", state: "output-available", output: { task: "Defenda o projeto e os limites de estabilidade." } }] },
+				u("4", "Escolhi R1 = 1 kΩ e R2 = 2 kΩ para 8 V.", "ex1"),
+			];
+			const s = analyzeLessonPedagogy(m);
+			const d = buildMissionPedagogyDirective(m, defenseObj);
+			return (
+				isAdvancedDefenseNode({ level: { scheme: "ee", band: 2 }, tags: ["checkpoint"] })
+				&& s.stage === "exam-first-verdict"
+				&& /Modo Banca Examinadora \/ Arguição/i.test(d)
+				&& /arguição crítica da banca/i.test(d)
+				&& /counter-questions/i.test(d)
+				&& /present_lesson_exam/.test(d)
+			);
+		},
+	},
+	{
+		id: "college-defense-attempt2-strict",
+		benchmark: "College Defense / Final Verdict",
+		check: () => {
+			const defenseObj = { ...objective, isAdvancedDefense: true, levelLabel: "Graduação" };
+			const m: LhViewMessage[] = [
+				u("1", "Iniciar"),
+				a("2", longExpl),
+				{ role: "assistant", id: "3", parts: [{ type: "tool-present_lesson_exam", toolCallId: "ex1", state: "output-available", output: { task: "Defesa 1" } }] },
+				u("4", "Resposta inicial sem casos-limite.", "ex1"),
+				{ role: "assistant", id: "5", parts: [{ type: "tool-present_lesson_exam", toolCallId: "ex2", state: "output-available", output: { task: "Arguição: defenda a carga e a tolerância.", feedback: "Faltou caso-limite." } }] },
+				u("6", "Sob carga de 10 kΩ a tensão cai, logo reduzo a impedância do divisor.", "ex2"),
+			];
+			const s = analyzeLessonPedagogy(m);
+			const d = buildMissionPedagogyDirective(m, defenseObj);
+			return (
+				s.stage === "exam-final-verdict"
+				&& /Modo Banca Examinadora \/ Arguição/i.test(d)
+				&& /second and final defense answer/i.test(d)
+				&& /conclude_lesson/.test(d)
+				&& /prerequisites stay locked/i.test(d)
+				&& /third question.*forbidden/i.test(d)
+			);
+		},
+	},
+	{
+		id: "college-reading-advanced-vs-beginner",
+		benchmark: "College Quality Reading Policy",
+		check: () => {
+			const advItem = { level: { scheme: "ee" as const, band: 3 as const }, tags: ["research"] };
+			const begItem = { level: { scheme: "cefr" as const, cefr: "A1" as const } };
+			const advRequired = isAdvancedReadingRequiredNode(advItem);
+			const begRequired = isAdvancedReadingRequiredNode(begItem);
+			const openMsgs = [u("1", "Iniciar aula")];
+			const advDir = buildMissionPedagogyDirective(openMsgs, { ...objective, requiresQualityReading: advRequired, levelLabel: "Pesquisa" });
+			const begDir = buildMissionPedagogyDirective(openMsgs, { ...objective, requiresQualityReading: begRequired, levelLabel: "A1" });
+			return (
+				advRequired === true
+				&& begRequired === false
+				&& /MANDATORY ADVANCED READING/.test(advDir)
+				&& /attach_study_materials/.test(advDir)
+				&& !/MANDATORY ADVANCED READING/.test(begDir)
+			);
+		},
+	},
+	{
+		id: "exam-multipart-parts-contract",
+		benchmark: "Structured Multi-Part Exam Gate",
+		check: () => {
+			const m = [u("1", "Iniciar"), a("2", longExpl), u("3", "Já domino isso, quero a prova")];
+			const s = analyzeLessonPedagogy(m);
+			const regDir = buildMissionPedagogyDirective(m, objective);
+			const defDir = buildMissionPedagogyDirective(m, { ...objective, isAdvancedDefense: true, levelLabel: "Graduação" });
+			return (
+				s.stage === "exam-ready"
+				&& /present_lesson_exam/.test(regDir)
+				&& /`parts`/.test(regDir)
+				&& /zero hints or solutions/i.test(regDir)
+				&& /present_lesson_exam/.test(defDir)
+				&& /`parts`/.test(defDir)
+				&& /zero hints or solutions/i.test(defDir)
+			);
+		},
+	},
 ];
 
 let passed = 0;
-console.log("=== Benchmark Pedagógico do Professor (10 cenários) ===");
+console.log(`=== Benchmark Pedagógico do Professor (${scenarios.length} cenários) ===`);
 for (const sc of scenarios) {
 	const ok = sc.check();
 	if (ok) passed++;

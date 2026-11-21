@@ -54,24 +54,24 @@ export function KnowledgeSummary({
 			    list) rides after the same parting. */}
 			<div className="flex flex-col gap-1">
 				<p className="font-ui text-sm text-muted-foreground">
-					{propositions} {propositions === 1 ? "proposition" : "propositions"}
+					{t("pages.minimalHome.propositions", { count: propositions })}
 				</p>
 				<p className="font-ui text-sm text-muted-foreground">
-					{chains} {chains === 1 ? "chain" : "chains"}
+					{t("pages.minimalHome.chains", { count: chains })}
 				</p>
 			</div>
 			<div className="h-4" aria-hidden="true" />
 			<div className="flex flex-col gap-1">
 				<p className="font-ui text-sm text-muted-foreground">
-					{teachSessions} {teachSessions === 1 ? "teaching session" : "teaching sessions"}
+					{t("pages.minimalHome.teachSessions", { count: teachSessions })}
 				</p>
 				<p className="font-ui text-sm text-muted-foreground">
-					{practiceSessions} {practiceSessions === 1 ? "practice session" : "practice sessions"}
+					{t("pages.minimalHome.practiceSessions", { count: practiceSessions })}
 				</p>
 			</div>
 			<div className="h-4" aria-hidden="true" />
 			<p className="font-ui text-sm text-muted-foreground">
-				{importedNotes} {importedNotes === 1 ? "imported note" : "imported notes"}
+				{t("pages.minimalHome.importedNotes", { count: importedNotes })}
 			</p>
 			{empty && (
 				<div className="pt-2 font-ui text-xs text-muted-foreground/70">
@@ -168,7 +168,7 @@ export function MinimalHome({
 								className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent"
 							>
 								<ListTreeIcon className="size-3" />
-								Chains
+								{t("pages.minimalHome.chainsButton")}
 							</button>
 						</Hint>
 					</div>

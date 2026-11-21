@@ -8,3 +8,5 @@ export * from "./role-spec.ts";
 export * from "./registry-types.ts";
 export * from "./merge.ts";
 export * from "./resolve.ts";
+export * from "./vendor.ts";
+export * from "./recency.ts";

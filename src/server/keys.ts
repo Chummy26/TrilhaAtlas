@@ -57,6 +57,8 @@ import { isSubscriptionProvider, subscriptionConnected } from "../agent/subscrip
 import { customProviderAvailable, installCustomProviderSource } from "./custom-provider.ts";
 import { claudeCodeAvailable } from "./claude-code-config.ts";
 import { CLAUDE_CODE_PROVIDER } from "../agent/claude-code/constants.ts";
+import { GOOGLE_VERTEX_PROVIDER } from "../core/contracts/google-vertex.ts";
+import { googleVertexAvailable, installGoogleVertexRuntime } from "./google-vertex.ts";
 import { CUSTOM_AUTH_BINDING } from "../core/custom-provider-auth.ts";
 
 // Shared HMR-stable provenance lets external CLIs exclude file-only injections
@@ -209,6 +211,7 @@ export function providerKeyPresent(provider: string): boolean {
 	// Explicit opt-in + installation only, never authentication readiness.
 	// Consulted at admission, not inside already-running agent loops.
 	if (provider === CLAUDE_CODE_PROVIDER) return claudeCodeAvailable();
+	if (provider === GOOGLE_VERTEX_PROVIDER) return googleVertexAvailable();
 	if (isSubscriptionProvider(provider)) return subscriptionConnected(provider);
 	const info = AUTH_PROVIDER_KEYS.find((p) => p.id === provider);
 	return info ? keyValue(info.envVar) !== undefined : true;
@@ -255,3 +258,4 @@ export function deleteKey(id: string): AuthKeyStatus {
 // imported by every route/handler path that touches keys).
 initAuthEnv();
 installCustomProviderSource();
+installGoogleVertexRuntime();

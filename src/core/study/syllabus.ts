@@ -47,6 +47,9 @@ export interface SyllabusModule {
 	examPassed?: boolean;
 	examAt?: string;
 	examUnlocked: boolean;
+	problemSetScore?: number;
+	problemSetPassed?: boolean;
+	problemSetAt?: string;
 	books: SyllabusMaterialRef[];
 	videos: SyllabusMaterialRef[];
 	lessons: SyllabusLesson[];
@@ -62,6 +65,10 @@ export interface SyllabusChapter {
 	hoursTotal: number;
 	hoursRemaining: number;
 	active: boolean;
+	examUnlocked?: boolean;
+	examScore?: number;
+	examPassed?: boolean;
+	examAt?: string;
 	modules: SyllabusModule[];
 }
 
@@ -110,6 +117,7 @@ export interface BuildStudySyllabusInput {
 	totalStudiedMinutes?: number;
 	dailyBudgetMin: number;
 	moduleScores?: ReadonlyMap<string, { score: number; passed: boolean; at: string }>;
+	problemSetScores?: ReadonlyMap<string, { score: number; passed: boolean; at: string }>;
 	materialsByUnit?: ReadonlyMap<string, { books: SyllabusMaterialRef[]; videos: SyllabusMaterialRef[] }>;
 	focusNodeId?: string;
 }
@@ -247,6 +255,7 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 		totalStudiedMinutes,
 		dailyBudgetMin,
 		moduleScores,
+		problemSetScores,
 		materialsByUnit,
 		focusNodeId,
 	} = input;
@@ -334,6 +343,7 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 			const examThreshold = Math.max(1, Math.ceil(modTotal * 0.7));
 			const examUnlocked = modTotal > 0 && modCompleted >= examThreshold;
 			const score = moduleScores?.get(mod.id);
+			const psScore = problemSetScores?.get(mod.id);
 			const mats = materialsByUnit?.get(mod.id);
 
 			chapterCompleted += modCompleted;
@@ -352,6 +362,7 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 				avgRetention: retentionCount > 0 ? round4(retentionSum / retentionCount) : null,
 				...(score !== undefined ? { examScore: score.score, examPassed: score.passed, examAt: score.at } : {}),
 				examUnlocked,
+				...(psScore !== undefined ? { problemSetScore: psScore.score, problemSetPassed: psScore.passed, problemSetAt: psScore.at } : {}),
 				books: mats ? mats.books.map((b) => ({ ...b })) : [],
 				videos: mats ? mats.videos.map((v) => ({ ...v })) : [],
 				lessons,
@@ -360,6 +371,13 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 
 		const active = activeChapterIndex === null && chapterCompleted < chapterTotal;
 		if (active) activeChapterIndex = chapterIdx;
+
+		const chapterExamThreshold = Math.max(1, Math.ceil(chapterTotal * 0.7));
+		const chapterExamUnlocked = chapterTotal > 0 && (
+			chapterCompleted >= chapterExamThreshold
+			|| (modules.length > 0 && modules.every((m) => m.examUnlocked || m.completed >= m.total))
+		);
+		const chapterScore = moduleScores?.get(cu.chapter.level) ?? moduleScores?.get(String(chapterIdx + 1));
 
 		totalLessons += chapterTotal;
 		completedLessons += chapterCompleted;
@@ -376,6 +394,8 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 			hoursTotal: round2(chapterHoursTotal),
 			hoursRemaining: round2(chapterHoursRemaining),
 			active,
+			examUnlocked: chapterExamUnlocked,
+			...(chapterScore !== undefined ? { examScore: chapterScore.score, examPassed: chapterScore.passed, examAt: chapterScore.at } : {}),
 			modules,
 		};
 	});

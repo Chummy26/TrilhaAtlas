@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
-import { useT } from "@/components/i18n";
+import { useI18n } from "@/components/i18n";
 import {
 	formatFlippedPrepForLesson,
 	type DomainNotebook,
@@ -15,6 +15,7 @@ import {
 	type StudySyllabus,
 	type SyllabusLesson,
 	type SyllabusModule,
+	type Translator,
 } from "@/src/core";
 import { SessionStarter, studyLessonRequest } from "../start-session.ts";
 import { lessonStatement } from "./lesson-statement.ts";
@@ -26,12 +27,18 @@ export type SyllabusTab = "ementa" | "caderno" | "nivelamento";
 type SyllabusFilter = "all" | "pending" | "lab" | "exams";
 type FlashcardExportMode = "obsidian" | "anki" | "apkg";
 
+type InlinePanelState =
+	| { scope: "module"; moduleId: string; kind: "prova" | "lista" }
+	| { scope: "chapter"; chapterLevel: string }
+	| null;
+
 export interface SyllabusViewProps {
 	initialSyllabus: StudySyllabus;
 	initialNotebook: DomainNotebook;
 	domainTitle: string;
 	initialTab?: SyllabusTab;
 	initialModule?: string;
+	initialChapterId?: string;
 	initialAction?: "prova" | "lista";
 }
 
@@ -46,6 +53,8 @@ interface LessonLookupResponse {
 	brief?: StudyNodeBrief;
 	minutes?: number;
 	sessionId?: string;
+	activeSessionId?: string;
+	completedSessionId?: string;
 	explorationId?: string;
 	error?: string;
 }
@@ -58,18 +67,13 @@ interface FlashcardExportApiResponse {
 	error?: string;
 }
 
-const TABS: readonly { id: SyllabusTab; label: string; icon: "chapter" | "flashcard" | "frontier" }[] = [
-	{ id: "ementa", label: "Ementa & Cronograma", icon: "chapter" },
-	{ id: "caderno", label: "Caderno & Flashcards", icon: "flashcard" },
-	{ id: "nivelamento", label: "Nivelamento", icon: "frontier" },
+const TAB_DEFS: readonly { id: SyllabusTab; icon: "chapter" | "flashcard" | "frontier" }[] = [
+	{ id: "ementa", icon: "chapter" },
+	{ id: "caderno", icon: "flashcard" },
+	{ id: "nivelamento", icon: "frontier" },
 ];
 
-const FILTERS: readonly { id: SyllabusFilter; label: string }[] = [
-	{ id: "all", label: "Todos" },
-	{ id: "pending", label: "Pendentes" },
-	{ id: "lab", label: "Com laboratório" },
-	{ id: "exams", label: "Provas destravadas" },
-];
+const FILTER_IDS: readonly SyllabusFilter[] = ["all", "pending", "lab", "exams"];
 
 const STATUS_MARKER: Record<SyllabusLesson["status"], string> = {
 	done: "✓",
@@ -78,56 +82,86 @@ const STATUS_MARKER: Record<SyllabusLesson["status"], string> = {
 	locked: "·",
 };
 
-const STATUS_LABEL: Record<SyllabusLesson["status"], string> = {
-	done: "Concluída",
-	"in-progress": "Em andamento",
-	available: "Disponível",
-	locked: "Pré-requisitos pendentes",
-};
-
-function formatNumber(n: number, decimals = 1): string {
-	return n.toFixed(decimals).replace(".", ",");
+function statusLabel(t: Translator, status: SyllabusLesson["status"]): string {
+	switch (status) {
+		case "done":
+			return t("course.syllabus.statusDone");
+		case "in-progress":
+			return t("course.syllabus.statusInProgress");
+		case "available":
+			return t("course.syllabus.statusAvailable");
+		case "locked":
+			return t("course.syllabus.statusLocked");
+	}
 }
 
-function formatDatePtBr(iso: string): string {
-	const clean = iso.slice(0, 10);
-	const parts = clean.split("-");
-	if (parts.length !== 3) return iso;
-	const [year, month, day] = parts;
-	return `${day}/${month}/${year}`;
+function tabLabel(t: Translator, tab: SyllabusTab): string {
+	switch (tab) {
+		case "ementa":
+			return t("course.syllabus.tabSyllabus");
+		case "caderno":
+			return t("course.syllabus.tabNotebook");
+		case "nivelamento":
+			return t("course.syllabus.tabPlacement");
+	}
 }
 
-function formatExportMessage(mode: FlashcardExportMode, data: FlashcardExportApiResponse): string {
+function filterLabel(t: Translator, filter: SyllabusFilter): string {
+	switch (filter) {
+		case "all":
+			return t("course.syllabus.filterAll");
+		case "pending":
+			return t("course.syllabus.filterPending");
+		case "lab":
+			return t("course.syllabus.filterLab");
+		case "exams":
+			return t("course.syllabus.filterExams");
+	}
+}
+
+function formatIsoDate(iso: string, dateFmt: Intl.DateTimeFormat): string {
+	const parsed = new Date(iso);
+	if (Number.isNaN(parsed.getTime())) return iso;
+	return dateFmt.format(parsed);
+}
+
+function formatExportMessage(
+	t: Translator,
+	mode: FlashcardExportMode,
+	data: FlashcardExportApiResponse,
+): string {
 	const modeLabel = mode === "obsidian" ? "Obsidian" : mode === "anki" ? "Anki" : ".apkg";
 	const inner = data.result;
 	if (inner && typeof inner === "object") {
 		const obj = inner as Record<string, unknown>;
 		if (typeof obj.message === "string" && obj.message.trim()) return obj.message.trim();
-		const count = typeof obj.count === "number"
-			? obj.count
-			: typeof obj.exported === "number"
-				? obj.exported
-				: typeof obj.cards === "number"
-					? obj.cards
-					: null;
-		const targetPath = typeof obj.path === "string"
-			? obj.path
-			: typeof obj.file === "string"
-				? obj.file
-				: typeof obj.outputPath === "string"
-					? obj.outputPath
-					: null;
+		const count =
+			typeof obj.count === "number"
+				? obj.count
+				: typeof obj.exported === "number"
+					? obj.exported
+					: typeof obj.cards === "number"
+						? obj.cards
+						: null;
+		const targetPath =
+			typeof obj.path === "string"
+				? obj.path
+				: typeof obj.file === "string"
+					? obj.file
+					: typeof obj.outputPath === "string"
+						? obj.outputPath
+						: null;
 		if (count !== null && targetPath) {
-			return `${modeLabel}: ${count} ${count === 1 ? "cartão exportado" : "cartões exportados"} em ${targetPath}.`;
+			return t("course.syllabus.exportCountPath", { mode: modeLabel, count, path: targetPath });
 		}
 		if (count !== null) {
-			return `${modeLabel}: ${count} ${count === 1 ? "cartão exportado" : "cartões exportados"} com sucesso.`;
+			return t("course.syllabus.exportCount", { mode: modeLabel, count });
 		}
 		if (targetPath) {
-			return `${modeLabel}: exportação concluída em ${targetPath}.`;
+			return t("course.syllabus.exportPath", { mode: modeLabel, path: targetPath });
 		}
 	}
-	return `Exportação para ${modeLabel} concluída.`;
+	return t("course.syllabus.exportDone", { mode: modeLabel });
 }
 
 function moduleMatchesFilter(mod: SyllabusModule, filter: SyllabusFilter): boolean {
@@ -159,6 +193,7 @@ function FlippedPrepDrawer({
 	onClose,
 	onStartWithPrep,
 }: FlippedPrepDrawerProps) {
+	const { t } = useI18n();
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState("");
@@ -177,7 +212,7 @@ function FlippedPrepDrawer({
 			.then(async (res) => {
 				const data = (await res.json().catch(() => null)) as FlippedApiResponse | null;
 				if (!res.ok || !data?.guide) {
-					throw new Error(data?.error ?? "Não foi possível carregar o guia de pré-leitura.");
+					throw new Error(data?.error ?? t("course.syllabus.flippedErrLoad"));
 				}
 				if (ctrl.signal.aborted) return;
 				setGuide(data.guide);
@@ -191,19 +226,22 @@ function FlippedPrepDrawer({
 			})
 			.catch((err: unknown) => {
 				if (ctrl.signal.aborted) return;
-				setError(err instanceof Error ? err.message : "Erro ao carregar pré-leitura.");
+				setError(err instanceof Error ? err.message : t("course.syllabus.flippedErrLoad"));
 			})
 			.finally(() => {
 				if (!ctrl.signal.aborted) setLoading(false);
 			});
 		return () => ctrl.abort();
-	}, [lesson.id]);
+	}, [lesson.id, t]);
 
-	const buildNote = useCallback((): FlippedPrepNote => ({
-		answers,
-		doubt,
-		completedMaterials,
-	}), [answers, doubt, completedMaterials]);
+	const buildNote = useCallback(
+		(): FlippedPrepNote => ({
+			answers,
+			doubt,
+			completedMaterials,
+		}),
+		[answers, doubt, completedMaterials],
+	);
 
 	const toggleMaterial = (kind: "book" | "video") => {
 		setCompletedMaterials((prev) =>
@@ -225,19 +263,18 @@ function FlippedPrepDrawer({
 				body: JSON.stringify({ nodeId: lesson.id, note }),
 			});
 			const data = (await res.json().catch(() => null)) as FlippedApiResponse | null;
-			if (!res.ok) throw new Error(data?.error ?? "Não foi possível salvar a pré-leitura.");
-			const formatted = typeof data?.formatted === "string"
-				? data.formatted
-				: formatFlippedPrepForLesson(guide, note);
-			setStatus("Anotações salvas para a abertura da aula.");
+			if (!res.ok) throw new Error(data?.error ?? t("course.syllabus.flippedErrSave"));
+			const formatted =
+				typeof data?.formatted === "string" ? data.formatted : formatFlippedPrepForLesson(guide, note);
+			setStatus(t("course.syllabus.flippedSaved"));
 			return formatted;
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Falha ao salvar pré-leitura.");
+			setError(err instanceof Error ? err.message : t("course.syllabus.flippedErrSave"));
 			return null;
 		} finally {
 			setSaving(false);
 		}
-	}, [buildNote, guide, lesson.id]);
+	}, [buildNote, guide, lesson.id, t]);
 
 	const handleGoToLesson = async () => {
 		if (!guide) return;
@@ -254,23 +291,25 @@ function FlippedPrepDrawer({
 			<div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/45 pb-2">
 				<div className="flex items-center gap-2">
 					<Icon name="book" size={16} />
-					<strong className="cel-display text-sm">Pré-leitura (Sala Invertida) · {lesson.title}</strong>
+					<strong className="cel-display text-sm">
+						{t("course.syllabus.flippedTitle", { title: lesson.title })}
+					</strong>
 				</div>
 				<button
 					type="button"
-					aria-label="Fechar pré-leitura"
+					aria-label={t("course.syllabus.flippedCloseAria")}
 					className="cel-button cel-button-ghost min-h-7 px-2 py-0.5 text-xs"
 					onClick={onClose}
 				>
 					<Icon name="close" size={13} tone={false} />
-					Fechar
+					{t("common.action.close")}
 				</button>
 			</div>
 
 			{loading && (
 				<p role="status" className="flex items-center gap-2 text-xs text-muted-foreground">
 					<Icon name="loader" size={14} live />
-					Carregando perguntas-guia…
+					{t("course.syllabus.flippedLoading")}
 				</p>
 			)}
 
@@ -291,7 +330,9 @@ function FlippedPrepDrawer({
 										checked={completedMaterials.includes("book")}
 										onChange={() => toggleMaterial("book")}
 									/>
-									<label htmlFor={`prep-book-${lesson.id}`} className="sr-only">Marcar leitura concluída</label>
+									<label htmlFor={`prep-book-${lesson.id}`} className="sr-only">
+										{t("course.syllabus.markBookDone")}
+									</label>
 									<Icon name="book" size={14} tone={false} />
 									<a
 										href={guide.primaryBook.url}
@@ -299,7 +340,8 @@ function FlippedPrepDrawer({
 										rel="noreferrer"
 										className="font-medium underline underline-offset-2 hover:text-foreground"
 									>
-										{guide.primaryBook.title}{guide.primaryBook.part ? ` · ${guide.primaryBook.part}` : ""}
+										{guide.primaryBook.title}
+										{guide.primaryBook.part ? ` · ${guide.primaryBook.part}` : ""}
 									</a>
 								</div>
 							)}
@@ -312,7 +354,9 @@ function FlippedPrepDrawer({
 										checked={completedMaterials.includes("video")}
 										onChange={() => toggleMaterial("video")}
 									/>
-									<label htmlFor={`prep-video-${lesson.id}`} className="sr-only">Marcar vídeo concluído</label>
+									<label htmlFor={`prep-video-${lesson.id}`} className="sr-only">
+										{t("course.syllabus.markVideoDone")}
+									</label>
 									<Icon name="video" size={14} tone={false} />
 									<a
 										href={guide.primaryVideo.url}
@@ -320,7 +364,8 @@ function FlippedPrepDrawer({
 										rel="noreferrer"
 										className="font-medium underline underline-offset-2 hover:text-foreground"
 									>
-										{guide.primaryVideo.title}{guide.primaryVideo.part ? ` · ${guide.primaryVideo.part}` : ""}
+										{guide.primaryVideo.title}
+										{guide.primaryVideo.part ? ` · ${guide.primaryVideo.part}` : ""}
 									</a>
 								</div>
 							)}
@@ -339,7 +384,7 @@ function FlippedPrepDrawer({
 									<textarea
 										id={fieldId}
 										className="cel-input min-h-16 w-full resize-y px-2.5 py-2 text-xs leading-relaxed"
-										placeholder="Anote sua síntese breve antes da aula…"
+										placeholder={t("course.syllabus.flippedAnswerPlaceholder")}
 										maxLength={800}
 										value={answers[q.id] ?? ""}
 										onChange={(e) => {
@@ -355,13 +400,13 @@ function FlippedPrepDrawer({
 
 					<div className="space-y-1">
 						<label htmlFor={`prep-doubt-${lesson.id}`} className="block text-xs font-semibold text-foreground">
-							Principal dúvida ou ponto de atrito para levar ao tutor
+							{t("course.syllabus.flippedDoubtLabel")}
 						</label>
 						<input
 							id={`prep-doubt-${lesson.id}`}
 							type="text"
 							className="cel-input w-full px-2.5 py-2 text-xs"
-							placeholder="Ex.: não ficou claro quando a aproximação deixa de valer…"
+							placeholder={t("course.syllabus.flippedDoubtPlaceholder")}
 							maxLength={400}
 							value={doubt}
 							onChange={(e) => {
@@ -372,7 +417,11 @@ function FlippedPrepDrawer({
 					</div>
 
 					{error && <p role="alert" className="text-xs text-destructive">{error}</p>}
-					{status && <p role="status" className="text-xs text-[var(--cel-success-text,var(--lh-success))]">{status}</p>}
+					{status && (
+						<p role="status" className="text-xs text-[var(--cel-success-text,var(--lh-success))]">
+							{status}
+						</p>
+					)}
 
 					<div className="flex flex-wrap items-center gap-2 pt-1">
 						<button
@@ -382,7 +431,7 @@ function FlippedPrepDrawer({
 							onClick={() => void handleGoToLesson()}
 						>
 							<Icon name="play" size={14} />
-							{starting ? "Abrindo aula…" : "Ir para a aula com minhas dúvidas"}
+							{starting ? t("course.syllabus.flippedOpening") : t("course.syllabus.flippedGoLesson")}
 						</button>
 						<button
 							type="button"
@@ -390,13 +439,13 @@ function FlippedPrepDrawer({
 							disabled={saving || starting}
 							onClick={() => void saveNote()}
 						>
-							{saving ? "Salvando…" : "Salvar anotações"}
+							{saving ? t("course.syllabus.flippedSaving") : t("course.syllabus.flippedSave")}
 						</button>
 						<Link
 							href={`/mapa?dominio=${encodeURIComponent(domainId)}&no=${encodeURIComponent(lesson.id)}`}
 							className="cel-button cel-button-ghost ml-auto min-h-8 px-2.5 py-1 text-xs"
 						>
-							Ver no mapa
+							{t("course.syllabus.viewOnMap")}
 						</Link>
 					</div>
 				</div>
@@ -411,15 +460,25 @@ export function SyllabusView({
 	domainTitle,
 	initialTab = "ementa",
 	initialModule,
+	initialChapterId,
 	initialAction,
 }: SyllabusViewProps) {
-	const t = useT();
+	const { t, intl } = useI18n();
 	const router = useRouter();
 	const starterRef = useRef(new SessionStarter());
 	const [tab, setTab] = useState<SyllabusTab>(initialTab);
 	const [filter, setFilter] = useState<SyllabusFilter>("all");
 	const [syllabus, setSyllabus] = useState<StudySyllabus>(initialSyllabus);
 	const [notebook, setNotebook] = useState<DomainNotebook>(initialNotebook);
+
+	const decFmt = useMemo(
+		() => new Intl.NumberFormat(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+		[intl],
+	);
+	const dateFmt = useMemo(
+		() => new Intl.DateTimeFormat(intl, { year: "numeric", month: "2-digit", day: "2-digit" }),
+		[intl],
+	);
 
 	useEffect(() => {
 		setSyllabus(initialSyllabus);
@@ -434,22 +493,38 @@ export function SyllabusView({
 		if (event.domainId === syllabus.domainId) router.refresh();
 	});
 
+	const matchedInitialChapter = useMemo(() => {
+		if (!initialChapterId) return undefined;
+		return syllabus.chapters.find(
+			(c) => c.level === initialChapterId || String(c.index) === initialChapterId,
+		);
+	}, [initialChapterId, syllabus.chapters]);
+
 	const defaultOpenChapters = useMemo(() => {
 		const open = new Set<number>();
 		if (initialModule) {
 			const owner = syllabus.chapters.find((c) => c.modules.some((m) => m.id === initialModule));
 			if (owner) open.add(owner.index);
 		}
+		if (matchedInitialChapter) {
+			open.add(matchedInitialChapter.index);
+		}
 		const activeChapter = syllabus.chapters.find((c) => c.active);
 		if (activeChapter) open.add(activeChapter.index);
 		if (open.size === 0 && syllabus.chapters[0]) open.add(syllabus.chapters[0].index);
 		return open;
-	}, [initialModule, syllabus.chapters]);
+	}, [initialModule, matchedInitialChapter, syllabus.chapters]);
 
 	const [openChapters, setOpenChapters] = useState<Set<number>>(defaultOpenChapters);
-	const [inlinePanel, setInlinePanel] = useState<{ moduleId: string; kind: "prova" | "lista" } | null>(
-		initialModule && initialAction ? { moduleId: initialModule, kind: initialAction } : null,
-	);
+	const [inlinePanel, setInlinePanel] = useState<InlinePanelState>(() => {
+		if (initialModule && initialAction) {
+			return { scope: "module", moduleId: initialModule, kind: initialAction };
+		}
+		if (matchedInitialChapter && initialAction === "prova") {
+			return { scope: "chapter", chapterLevel: matchedInitialChapter.level };
+		}
+		return null;
+	});
 	const [openFlippedNodeId, setOpenFlippedNodeId] = useState<string | null>(null);
 	const [startingNodeId, setStartingNodeId] = useState<string | null>(null);
 	const [launchError, setLaunchError] = useState("");
@@ -457,14 +532,18 @@ export function SyllabusView({
 	const [exportBusy, setExportBusy] = useState<FlashcardExportMode | null>(null);
 	const [exportStatus, setExportStatus] = useState<{ ok: boolean; text: string } | null>(null);
 
-	const completedHours = syllabus.completedLessonHours ?? Math.max(0, Math.round((syllabus.totalHours - syllabus.remainingHours) * 100) / 100);
+	const completedHours =
+		syllabus.completedLessonHours ??
+		Math.max(0, Math.round((syllabus.totalHours - syllabus.remainingHours) * 100) / 100);
 	const studiedHours = syllabus.studiedHours ?? 0;
-	const studiedLabel = studiedHours > 0
-		? (studiedHours < 1 ? `${Math.max(1, Math.round(studiedHours * 60))} min` : `${formatNumber(studiedHours)} h`)
-		: null;
-	const overallPct = syllabus.totalLessons > 0
-		? Math.round((100 * syllabus.completedLessons) / syllabus.totalLessons)
-		: 0;
+	const studiedLabel =
+		studiedHours > 0
+			? studiedHours < 1
+				? `${Math.max(1, Math.round(studiedHours * 60))} min`
+				: `${decFmt.format(studiedHours)} h`
+			: null;
+	const overallPct =
+		syllabus.totalLessons > 0 ? Math.round((100 * syllabus.completedLessons) / syllabus.totalLessons) : 0;
 	const { schedule } = syllabus;
 	const reviewReservePct = Math.round(schedule.reviewReserveShare * 100);
 
@@ -477,60 +556,95 @@ export function SyllabusView({
 		});
 	};
 
-	const startLessonForNode = useCallback(async (lesson: SyllabusLesson, preReadingNote?: string) => {
-		if (startingNodeId) return;
-		setStartingNodeId(lesson.id);
-		setLaunchError("");
-		try {
-			const endpoint = "/api/study/materials?" + new URLSearchParams({
-				domain: syllabus.domainId,
-				node: lesson.id,
-				lesson: "1",
-			});
-			const res = await fetch(endpoint);
-			const detail = (await res.json().catch(() => null)) as LessonLookupResponse | null;
-			if (!res.ok || !detail?.brief) {
-				throw new Error(detail?.error ?? "Não foi possível preparar esta aula.");
+	const startLessonForNode = useCallback(
+		async (lesson: SyllabusLesson, preReadingNote?: string) => {
+			if (startingNodeId) return;
+			setStartingNodeId(lesson.id);
+			setLaunchError("");
+			try {
+				const endpoint =
+					"/api/study/materials?" +
+					new URLSearchParams({
+						domain: syllabus.domainId,
+						node: lesson.id,
+						lesson: "1",
+					});
+				const res = await fetch(endpoint);
+				const detail = (await res.json().catch(() => null)) as LessonLookupResponse | null;
+				if (!res.ok || !detail?.brief) {
+					throw new Error(detail?.error ?? t("course.syllabus.errPrepareLesson"));
+				}
+				// Locked node: resume existing exploration session instead of spawning duplicates.
+				if (lesson.status === "locked" && detail.explorationId && !preReadingNote) {
+					router.push(`/chat/${encodeURIComponent(detail.explorationId)}`);
+					return;
+				}
+				// Non-locked node: resume active in-progress session (never a concluded chat) when no fresh pre-reading note was appended.
+				const activeId = detail.activeSessionId ?? detail.sessionId;
+				if (lesson.status !== "locked" && activeId && !preReadingNote) {
+					router.push(`/chat/${encodeURIComponent(activeId)}`);
+					return;
+				}
+				const minutes = Math.max(5, Math.round(detail.minutes ?? lesson.minutes));
+				const baseStatement = lessonStatement(detail.brief, minutes);
+				const statement = preReadingNote ? `${baseStatement}\n\n${preReadingNote}` : baseStatement;
+				const opening = preReadingNote ? `${lesson.title}\n\n${preReadingNote}` : lesson.title;
+				const target = await starterRef.current.start(
+					studyLessonRequest({
+						domainId: syllabus.domainId,
+						minutes,
+						title: lesson.title,
+						exploratory: lesson.status === "locked",
+						context: {
+							id: lesson.id,
+							name: lesson.title,
+							statement,
+						},
+					}),
+					fetch,
+					undefined,
+					opening,
+				);
+				router.push(target);
+			} catch (err) {
+				setLaunchError(err instanceof Error ? err.message : t("course.syllabus.errStartLesson"));
+				setStartingNodeId(null);
 			}
-			// If there is already an active lesson session and no fresh pre-reading note was appended, resume it.
-			if (detail.sessionId && !preReadingNote) {
-				router.push(`/chat/${encodeURIComponent(detail.sessionId)}`);
-				return;
+		},
+		[router, startingNodeId, syllabus.domainId, t],
+	);
+
+	const openPastLessonForNode = useCallback(
+		async (lesson: SyllabusLesson) => {
+			if (startingNodeId) return;
+			setStartingNodeId(`past:${lesson.id}`);
+			setLaunchError("");
+			try {
+				const endpoint =
+					"/api/study/materials?" +
+					new URLSearchParams({
+						domain: syllabus.domainId,
+						node: lesson.id,
+						lesson: "1",
+					});
+				const res = await fetch(endpoint);
+				const detail = (await res.json().catch(() => null)) as LessonLookupResponse | null;
+				if (!res.ok) {
+					throw new Error(detail?.error ?? t("course.syllabus.errPrepareLesson"));
+				}
+				if (detail?.completedSessionId) {
+					router.push(`/chat/${encodeURIComponent(detail.completedSessionId)}`);
+					return;
+				}
+				setLaunchError(t("course.syllabus.noPastLesson"));
+				setStartingNodeId(null);
+			} catch (err) {
+				setLaunchError(err instanceof Error ? err.message : t("course.syllabus.errPrepareLesson"));
+				setStartingNodeId(null);
 			}
-			const minutes = Math.max(5, Math.round(detail.minutes ?? lesson.minutes));
-			const baseStatement = lessonStatement(detail.brief, minutes);
-			const statement = preReadingNote
-				? `${baseStatement}\n\n${preReadingNote}`
-				: baseStatement;
-			const opening = preReadingNote
-				? `${lesson.title}\n\n${preReadingNote}`
-				: lesson.title;
-			const target = await starterRef.current.start(
-				studyLessonRequest({
-					domainId: syllabus.domainId,
-					minutes,
-					title: lesson.title,
-					exploratory: lesson.status === "locked",
-					context: {
-						id: lesson.id,
-						name: lesson.title,
-						statement,
-					},
-				}),
-				fetch,
-				undefined,
-				opening,
-			);
-			router.push(target);
-		} catch (err) {
-			setLaunchError(
-				err instanceof Error
-					? err.message
-					: "Não foi possível iniciar a aula. Verifique se os modelos de IA estão configurados.",
-			);
-			setStartingNodeId(null);
-		}
-	}, [router, startingNodeId, syllabus.domainId]);
+		},
+		[router, startingNodeId, syllabus.domainId, t],
+	);
 
 	const handleExportFlashcards = async (mode: FlashcardExportMode) => {
 		if (exportBusy) return;
@@ -544,13 +658,13 @@ export function SyllabusView({
 			});
 			const data = (await res.json().catch(() => null)) as FlashcardExportApiResponse | null;
 			if (!res.ok) {
-				throw new Error(data?.error ?? "Falha ao exportar flashcards.");
+				throw new Error(data?.error ?? t("course.syllabus.exportErr"));
 			}
-			setExportStatus({ ok: true, text: formatExportMessage(mode, data ?? {}) });
+			setExportStatus({ ok: true, text: formatExportMessage(t, mode, data ?? {}) });
 		} catch (err) {
 			setExportStatus({
 				ok: false,
-				text: err instanceof Error ? err.message : "Não foi possível exportar os flashcards.",
+				text: err instanceof Error ? err.message : t("course.syllabus.exportErr"),
 			});
 		} finally {
 			setExportBusy(null);
@@ -558,14 +672,14 @@ export function SyllabusView({
 	};
 
 	const handleTabKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-		const idx = TABS.findIndex((t) => t.id === tab);
+		const idx = TAB_DEFS.findIndex((item) => item.id === tab);
 		if (event.key === "ArrowRight") {
 			event.preventDefault();
-			const next = TABS[(idx + 1) % TABS.length]!;
+			const next = TAB_DEFS[(idx + 1) % TAB_DEFS.length]!;
 			setTab(next.id);
 		} else if (event.key === "ArrowLeft") {
 			event.preventDefault();
-			const prev = TABS[(idx - 1 + TABS.length) % TABS.length]!;
+			const prev = TAB_DEFS[(idx - 1 + TAB_DEFS.length) % TAB_DEFS.length]!;
 			setTab(prev.id);
 		}
 	};
@@ -576,7 +690,7 @@ export function SyllabusView({
 				...chapter,
 				modules: chapter.modules.filter((mod) => moduleMatchesFilter(mod, filter)),
 			}))
-			.filter((chapter) => filter === "all" || chapter.modules.length > 0);
+			.filter((chapter) => filter === "all" || chapter.modules.length > 0 || (filter === "exams" && Boolean(chapter.examUnlocked)));
 	}, [filter, syllabus.chapters]);
 
 	const mapDomainHref = `/mapa?dominio=${encodeURIComponent(syllabus.domainId)}`;
@@ -593,22 +707,19 @@ export function SyllabusView({
 							className="cel-button cel-button-ghost lh-no-drag min-h-9 px-2.5 text-sm"
 						>
 							<Icon name="chevron-left" size={16} tone={false} />
-							Hoje
+							{t("course.syllabus.backToday")}
 						</Link>
 						<div className="flex flex-wrap items-center gap-2">
-							<Link
-								href={mapDomainHref}
-								className="cel-button min-h-9 px-3 py-1.5 text-xs"
-							>
+							<Link href={mapDomainHref} className="cel-button min-h-9 px-3 py-1.5 text-xs">
 								<Icon name="map" size={14} tone={false} />
-								Explorar árvore
+								{t("course.syllabus.exploreTree")}
 							</Link>
 							<Link
 								href="/profile"
 								className="cel-button cel-button-ghost min-h-9 px-3 py-1.5 text-xs"
 							>
 								<Icon name="profile" size={14} tone={false} />
-								Boletim no Perfil
+								{t("course.syllabus.profileTranscript")}
 							</Link>
 						</div>
 					</div>
@@ -616,22 +727,27 @@ export function SyllabusView({
 					<div className="flex flex-wrap items-end justify-between gap-3">
 						<div className="space-y-1">
 							<h1 className="cel-display text-2xl leading-tight sm:text-3xl">
-								Ementa · {domainTitle}
+								{t("course.syllabus.title", { domain: domainTitle })}
 							</h1>
 							<p className="text-xs text-muted-foreground tabular-nums">
-								<strong className="font-semibold text-foreground">{syllabus.completedLessons}/{syllabus.totalLessons}</strong> aulas concluídas ({overallPct}%) ·{" "}
-								<strong className="font-semibold text-foreground">{formatNumber(completedHours)}/{formatNumber(syllabus.totalHours)} h</strong> estimadas em aulas
-								{studiedLabel ? <> · <strong className="font-semibold text-foreground">{studiedLabel}</strong> reais estudados</> : null}
+								{t("course.syllabus.headerSummary", {
+									completed: syllabus.completedLessons,
+									total: syllabus.totalLessons,
+									pct: overallPct,
+									completedHours: decFmt.format(completedHours),
+									totalHours: decFmt.format(syllabus.totalHours),
+								})}
+								{studiedLabel ? t("course.syllabus.headerStudied", { studied: studiedLabel }) : ""}
 							</p>
 						</div>
 
 						<div
 							role="tablist"
-							aria-label="Seções da ementa"
+							aria-label={t("course.syllabus.sectionsAria")}
 							onKeyDown={handleTabKeyDown}
 							className="flex flex-wrap gap-1.5"
 						>
-							{TABS.map((item) => {
+							{TAB_DEFS.map((item) => {
 								const selected = tab === item.id;
 								return (
 									<button
@@ -645,7 +761,7 @@ export function SyllabusView({
 										onClick={() => setTab(item.id)}
 									>
 										<Icon name={item.icon} size={14} tone={false} />
-										{item.label}
+										{tabLabel(t, item.id)}
 									</button>
 								);
 							})}
@@ -654,11 +770,14 @@ export function SyllabusView({
 				</header>
 
 				{launchError && (
-					<div role="alert" className="cel-card flex items-center justify-between gap-3 border-destructive/40 px-4 py-3 text-sm text-destructive">
+					<div
+						role="alert"
+						className="cel-card flex items-center justify-between gap-3 border-destructive/40 px-4 py-3 text-sm text-destructive"
+					>
 						<span>{launchError}</span>
 						<button
 							type="button"
-							aria-label="Dispensar aviso"
+							aria-label={t("course.syllabus.dismissAlert")}
 							className="cel-button cel-button-ghost min-h-7 px-2 text-xs"
 							onClick={() => setLaunchError("")}
 						>
@@ -674,31 +793,39 @@ export function SyllabusView({
 						aria-labelledby="syllabus-tab-ementa"
 						className="space-y-4"
 					>
-						<section aria-label="Cronograma realista" data-testid="syllabus-schedule-card" className="cel-card space-y-3.5 p-4 sm:p-5">
+						<section
+							aria-label={t("course.syllabus.scheduleAria")}
+							data-testid="syllabus-schedule-card"
+							className="cel-card space-y-3.5 p-4 sm:p-5"
+						>
 							<div className="flex flex-wrap items-center justify-between gap-2">
 								<div className="flex items-center gap-2">
 									<Icon name="calendar" size={18} />
 									<h2 className="cel-display text-lg leading-tight">{t("course.syllabus.scheduleTitle")}</h2>
 								</div>
 								<span className="study-pill study-pill-info tabular-nums">
-									{schedule.paceSource === "observed" ? "Ritmo observado (14 dias)" : "Ritmo planejado"}
+									{schedule.paceSource === "observed"
+										? t("course.syllabus.paceObserved")
+										: t("course.syllabus.pacePlanned")}
 								</span>
 							</div>
 
 							<div className="space-y-1.5">
 								<div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground tabular-nums">
 									<span>
-										<strong className="font-semibold text-foreground">{formatNumber(completedHours)} h</strong> em aulas concluídas ·{" "}
-										<strong className="font-semibold text-foreground">{formatNumber(syllabus.remainingHours)} h</strong> restantes
-										{studiedLabel ? <> · <strong className="font-semibold text-foreground">{studiedLabel}</strong> de estudo real</> : null}
+										{t("course.syllabus.scheduleCompletedRemaining", {
+											completedHours: decFmt.format(completedHours),
+											remainingHours: decFmt.format(syllabus.remainingHours),
+										})}
+										{studiedLabel ? t("course.syllabus.scheduleStudied", { studied: studiedLabel }) : ""}
 									</span>
-									<span>{overallPct}% das aulas</span>
+									<span>{t("course.syllabus.lessonsPct", { pct: overallPct })}</span>
 								</div>
 								<progress
 									className="study-progress block w-full"
 									max={Math.max(1, syllabus.totalLessons)}
 									value={syllabus.completedLessons}
-									aria-label={`Progresso geral da ementa: ${overallPct}%`}
+									aria-label={t("course.syllabus.overallProgressAria", { pct: overallPct })}
 								/>
 							</div>
 
@@ -707,12 +834,18 @@ export function SyllabusView({
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.forecast")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{syllabus.remainingHours <= 0
-											? "Concluído"
-											: `${formatNumber(schedule.weeksToFinish)}–${formatNumber(schedule.weeksToFinishP80)} sem`}
+											? t("course.syllabus.statusCompleted")
+											: t("course.syllabus.weeksRange", {
+												p50: decFmt.format(schedule.weeksToFinish),
+												p80: decFmt.format(schedule.weeksToFinishP80),
+											})}
 									</dd>
 									{syllabus.remainingHours > 0 && (
 										<p className="mt-0.5 text-[11px] text-muted-foreground tabular-nums">
-											{formatDatePtBr(schedule.estimatedCompletionDate)} a {formatDatePtBr(schedule.estimatedCompletionDateP80)}
+											{t("course.syllabus.dateRange", {
+												start: formatIsoDate(schedule.estimatedCompletionDate, dateFmt),
+												end: formatIsoDate(schedule.estimatedCompletionDateP80, dateFmt),
+											})}
 										</p>
 									)}
 								</div>
@@ -720,10 +853,13 @@ export function SyllabusView({
 								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.weeklyPace")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
-										{formatNumber(schedule.effectiveWeeklyHours)} h/sem
+										{t("course.syllabus.hoursPerWeek", { hours: decFmt.format(schedule.effectiveWeeklyHours) })}
 									</dd>
 									<p className="mt-0.5 text-[11px] text-muted-foreground tabular-nums">
-										Observado: {formatNumber(schedule.weeklyHoursObserved)} h · Planejado: {formatNumber(schedule.weeklyHoursPlanned)} h
+										{t("course.syllabus.paceBreakdown", {
+											observed: decFmt.format(schedule.weeklyHoursObserved),
+											planned: decFmt.format(schedule.weeklyHoursPlanned),
+										})}
 									</p>
 								</div>
 
@@ -731,7 +867,7 @@ export function SyllabusView({
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.reviewReserve")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">{reviewReservePct}% FSRS</dd>
 									<p className="mt-0.5 text-[11px] text-muted-foreground">
-										Revisões espaçadas e provas integradoras já descontadas
+										{t("course.syllabus.reviewReserveDesc")}
 									</p>
 								</div>
 
@@ -739,84 +875,218 @@ export function SyllabusView({
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.currentChapter")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{schedule.activeChapterWeeks <= 0
-											? "Concluído"
-											: `~${formatNumber(schedule.activeChapterWeeks)} sem`}
+											? t("course.syllabus.statusCompleted")
+											: t("course.syllabus.weeksApprox", { weeks: decFmt.format(schedule.activeChapterWeeks) })}
 									</dd>
 									<p className="mt-0.5 text-[11px] text-muted-foreground">
 										{syllabus.activeChapterIndex !== null
-											? syllabus.chapters[syllabus.activeChapterIndex]?.level ?? "Em andamento"
-											: "Todos os capítulos concluídos"}
+											? syllabus.chapters[syllabus.activeChapterIndex]?.level ?? t("course.syllabus.inProgress")
+											: t("course.syllabus.allChaptersDone")}
 									</p>
 								</div>
 							</dl>
 						</section>
 
-						<div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar ementa">
-							{FILTERS.map((item) => (
+						<div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("course.syllabus.filterAria")}>
+							{FILTER_IDS.map((item) => (
 								<button
-									key={item.id}
+									key={item}
 									type="button"
-									aria-pressed={filter === item.id}
+									aria-pressed={filter === item}
 									className="cel-chip min-h-8 cursor-pointer px-3 py-1 text-xs"
-									onClick={() => setFilter(item.id)}
+									onClick={() => setFilter(item)}
 								>
-									{item.label}
+									{filterLabel(t, item)}
 								</button>
 							))}
 						</div>
 
 						{filteredChapters.length === 0 ? (
 							<section className="cel-card p-5 text-sm text-muted-foreground">
-								Nenhum módulo corresponde ao filtro selecionado.
+								{t("course.syllabus.emptyFilter")}
 							</section>
 						) : (
 							<div className="space-y-3.5">
 								{filteredChapters.map((chapter) => {
 									const isOpen = openChapters.has(chapter.index) || filter !== "all";
 									const chapterPct = chapter.total > 0 ? Math.round((100 * chapter.completed) / chapter.total) : 0;
+									const chapterExamOpen =
+										inlinePanel?.scope === "chapter" && inlinePanel.chapterLevel === chapter.level;
+
 									return (
 										<section
 											key={`${chapter.level}-${chapter.index}`}
 											data-testid={`syllabus-chapter-${chapter.index}`}
 											className="cel-card overflow-hidden"
 										>
-											<button
-												type="button"
-												aria-expanded={isOpen}
-												onClick={() => toggleChapter(chapter.index)}
-												className="flex w-full cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent/40 sm:px-5"
-											>
-												<div className="min-w-0 flex-1 space-y-1">
-													<div className="flex flex-wrap items-center gap-2">
-														<span className="study-pill study-pill-accent">{chapter.level}</span>
-														<h2 className="cel-display text-base leading-snug sm:text-lg">{chapter.title}</h2>
-														{chapter.active && <span className="study-pill study-pill-info">Atual</span>}
-														{chapter.total > 0 && chapter.completed === chapter.total && (
-															<span className="study-pill study-pill-success">Concluído</span>
+											<div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
+												<button
+													type="button"
+													aria-expanded={isOpen}
+													onClick={() => toggleChapter(chapter.index)}
+													className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center justify-between gap-3 rounded-lg text-left transition-colors hover:bg-accent/30"
+												>
+													<div className="min-w-0 flex-1 space-y-1">
+														<div className="flex flex-wrap items-center gap-2">
+															<span className="study-pill study-pill-accent">{chapter.level}</span>
+															<h2 className="cel-display text-base leading-snug sm:text-lg">{chapter.title}</h2>
+															{chapter.active && (
+																<span className="study-pill study-pill-info">{t("course.syllabus.statusCurrent")}</span>
+															)}
+															{chapter.total > 0 && chapter.completed === chapter.total && (
+																<span className="study-pill study-pill-success">{t("course.syllabus.statusCompleted")}</span>
+															)}
+															{chapter.examScore !== undefined && (
+																<span
+																	className={
+																		chapter.examPassed
+																			? "study-pill study-pill-success tabular-nums"
+																			: "study-pill study-pill-warning tabular-nums"
+																	}
+																	title={
+																		chapter.examAt
+																			? t("course.syllabus.takenOn", { date: formatIsoDate(chapter.examAt, dateFmt) })
+																			: undefined
+																	}
+																>
+																	{t("course.syllabus.chapterExamScore", {
+																		score: decFmt.format(chapter.examScore),
+																		status: chapter.examPassed
+																			? t("course.syllabus.statusPassed")
+																			: t("course.syllabus.statusReinforce"),
+																	})}
+																</span>
+															)}
+															{chapter.examUnlocked && chapter.examScore === undefined && (
+																<span className="study-pill study-pill-info">
+																	{t("course.syllabus.chapterExamUnlocked")}
+																</span>
+															)}
+														</div>
+														{chapter.mission && (
+															<p className="max-w-[65ch] text-xs leading-relaxed text-muted-foreground">
+																{chapter.mission}
+															</p>
 														)}
 													</div>
-													{chapter.mission && (
-														<p className="max-w-[65ch] text-xs leading-relaxed text-muted-foreground">
-															{chapter.mission}
-														</p>
-													)}
-												</div>
-												<div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
-													<div className="text-right">
-														<p className="font-semibold text-foreground">{chapter.completed}/{chapter.total} aulas ({chapterPct}%)</p>
-														<p>{formatNumber(chapter.hoursRemaining)} h restantes</p>
+													<div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
+														<div className="text-right">
+															<p className="font-semibold text-foreground">
+																{t("course.syllabus.chapterLessons", {
+																	completed: chapter.completed,
+																	total: chapter.total,
+																	pct: chapterPct,
+																})}
+															</p>
+															<p>
+																{t("course.syllabus.hoursRemaining", {
+																	hours: decFmt.format(chapter.hoursRemaining),
+																})}
+															</p>
+														</div>
+														<Icon name={isOpen ? "chevron-up" : "chevron-down"} size={16} tone={false} />
 													</div>
-													<Icon name={isOpen ? "chevron-up" : "chevron-down"} size={16} tone={false} />
+												</button>
+
+												<button
+													type="button"
+													data-testid={`open-chapter-exam-${chapter.index}`}
+													aria-expanded={chapterExamOpen}
+													className={`cel-button min-h-9 shrink-0 px-3 py-1.5 text-xs ${chapter.examUnlocked && !chapter.examPassed ? "cel-button-primary" : ""}`}
+													title={
+														chapter.examUnlocked
+															? t("course.syllabus.chapterExamTitleUnlocked")
+															: t("course.syllabus.chapterExamTitleLocked")
+													}
+													onClick={() => {
+														setInlinePanel((curr) =>
+															curr?.scope === "chapter" && curr.chapterLevel === chapter.level
+																? null
+																: { scope: "chapter", chapterLevel: chapter.level },
+														);
+													}}
+												>
+													<Icon name="trophy" size={14} tone={false} />
+													{t("course.syllabus.chapterExamButton")}
+												</button>
+											</div>
+
+											{chapterExamOpen && (
+												<div className="border-t border-border/50 bg-background/45 p-3.5 sm:p-5">
+													<ModuleExamPanel
+														domainId={syllabus.domainId}
+														scope="chapter"
+														targetId={chapter.level}
+														targetTitle={`${chapter.level} · ${chapter.title}`}
+														onClose={() => setInlinePanel(null)}
+														onGraded={() => router.refresh()}
+													/>
 												</div>
-											</button>
+											)}
 
 											{isOpen && (
 												<div className="space-y-3.5 border-t border-border/50 bg-background/35 p-3.5 sm:p-5">
 													{chapter.modules.map((mod) => {
 														const visibleLessons = mod.lessons.filter((l) => lessonMatchesFilter(l, filter));
 														const modPct = mod.total > 0 ? Math.round((100 * mod.completed) / mod.total) : 0;
-														const activePanelKind = inlinePanel?.moduleId === mod.id ? inlinePanel.kind : null;
+														const activePanelKind =
+															inlinePanel?.scope === "module" && inlinePanel.moduleId === mod.id
+																? inlinePanel.kind
+																: null;
 														const isCurrentModule = syllabus.activeModuleId === mod.id;
+														const firstPendingLesson =
+															mod.lessons.find((l) => l.status === "in-progress" || l.status === "available") ??
+															mod.lessons[0];
+														const arcSteps = [
+															{
+																id: "prep",
+																label: t("course.syllabus.arcPrep"),
+																done: mod.completed > 0,
+																active: mod.books.length > 0 || mod.videos.length > 0,
+																onClick: firstPendingLesson
+																	? () =>
+																		setOpenFlippedNodeId((curr) =>
+																			curr === firstPendingLesson.id ? null : firstPendingLesson.id,
+																		)
+																	: undefined,
+															},
+															{
+																id: "lesson",
+																label: `${t("course.syllabus.arcLesson")} ${mod.completed}/${mod.total}`,
+																done: mod.total > 0 && mod.completed >= mod.total,
+																active: mod.completed > 0 && mod.completed < mod.total,
+															},
+															{
+																id: "pset",
+																label: t("course.syllabus.arcProblemSet"),
+																done: Boolean(mod.problemSetPassed),
+																active: !mod.problemSetPassed && mod.completed > 0,
+																onClick: () =>
+																	setInlinePanel((curr) =>
+																		curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "lista"
+																			? null
+																			: { scope: "module", moduleId: mod.id, kind: "lista" },
+																	),
+															},
+															{
+																id: "exam",
+																label: t("course.syllabus.arcExam"),
+																done: Boolean(mod.examPassed),
+																active: Boolean(mod.examUnlocked && !mod.examPassed),
+																onClick: () =>
+																	setInlinePanel((curr) =>
+																		curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "prova"
+																			? null
+																			: { scope: "module", moduleId: mod.id, kind: "prova" },
+																	),
+															},
+															{
+																id: "review",
+																label: t("course.syllabus.arcReview"),
+																done: mod.avgRetention !== null && mod.avgRetention >= 0.85,
+																active: mod.avgRetention !== null && mod.avgRetention < 0.85,
+															},
+														];
 
 														return (
 															<article
@@ -829,38 +1099,127 @@ export function SyllabusView({
 																	<div className="min-w-0 flex-1 space-y-1.5">
 																		<div className="flex flex-wrap items-center gap-2">
 																			<h3 className="cel-display text-base leading-snug">
-																				Módulo {mod.index} · {mod.title}
+																				{t("course.syllabus.moduleTitle", { index: mod.index, title: mod.title })}
 																			</h3>
-																			{isCurrentModule && <span className="study-pill study-pill-accent">{t("course.syllabus.inFocus")}</span>}
+																			{isCurrentModule && (
+																				<span className="study-pill study-pill-accent">{t("course.syllabus.inFocus")}</span>
+																			)}
 																			{mod.avgRetention !== null && (
-																				<span className="study-pill study-pill-info tabular-nums" title="Retenção média estimada pelo FSRS">
-																					Retenção {Math.round(mod.avgRetention * 100)}%
+																				<span
+																					className="study-pill study-pill-info tabular-nums"
+																					title={t("course.syllabus.retentionTitle")}
+																				>
+																					{t("course.syllabus.retentionPill", { pct: Math.round(mod.avgRetention * 100) })}
+																				</span>
+																			)}
+																			{mod.problemSetScore !== undefined && (
+																				<span
+																					className={
+																						mod.problemSetPassed
+																							? "study-pill study-pill-success tabular-nums"
+																							: "study-pill study-pill-warning tabular-nums"
+																					}
+																					title={
+																						mod.problemSetAt
+																							? t("course.syllabus.takenOn", { date: formatIsoDate(mod.problemSetAt, dateFmt) })
+																							: undefined
+																					}
+																				>
+																					{t("course.syllabus.problemSetScoreBadge", {
+																						score: decFmt.format(mod.problemSetScore),
+																						status: mod.problemSetPassed
+																							? t("course.syllabus.statusPassed")
+																							: t("course.syllabus.statusReview"),
+																					})}
 																				</span>
 																			)}
 																			{mod.examScore !== undefined && (
 																				<span
-																					className={mod.examPassed ? "study-pill study-pill-success tabular-nums" : "study-pill study-pill-warning tabular-nums"}
-																					title={mod.examAt ? `Realizada em ${formatDatePtBr(mod.examAt)}` : undefined}
+																					className={
+																						mod.examPassed
+																							? "study-pill study-pill-success tabular-nums"
+																							: "study-pill study-pill-warning tabular-nums"
+																					}
+																					title={
+																						mod.examAt
+																							? t("course.syllabus.takenOn", { date: formatIsoDate(mod.examAt, dateFmt) })
+																							: undefined
+																					}
 																				>
-																					Prova: {formatNumber(mod.examScore)}/10 {mod.examPassed ? "· Aprovado" : "· Reforço"}
+																					{t("course.syllabus.examScoreBadge", {
+																						score: decFmt.format(mod.examScore),
+																						status: mod.examPassed
+																							? t("course.syllabus.statusPassed")
+																							: t("course.syllabus.statusReinforce"),
+																					})}
 																				</span>
 																			)}
 																		</div>
 																		<div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground tabular-nums">
 																			<span>
-																				<strong className="font-semibold text-foreground">{mod.completed}/{mod.total}</strong> aulas ({modPct}%)
+																				{t("course.syllabus.chapterLessons", {
+																					completed: mod.completed,
+																					total: mod.total,
+																					pct: modPct,
+																				})}
 																			</span>
-																			<span>{formatNumber(mod.hoursRemaining)}/{formatNumber(mod.hoursTotal)} h restantes</span>
+																			<span>
+																				{t("course.syllabus.hoursRemainingOf", {
+																					remaining: decFmt.format(mod.hoursRemaining),
+																					total: decFmt.format(mod.hoursTotal),
+																				})}
+																			</span>
 																			{mod.examUnlocked && mod.examScore === undefined && (
-																				<span className="text-[var(--cel-success-text,var(--lh-success))]">{t("course.syllabus.examUnlocked")}</span>
+																				<span className="text-[var(--cel-success-text,var(--lh-success))]">
+																					{t("course.syllabus.examUnlocked")}
+																				</span>
 																			)}
 																		</div>
 																		<progress
 																			className="study-progress block w-full max-w-md"
 																			max={Math.max(1, mod.total)}
 																			value={mod.completed}
-																			aria-label={`Progresso do módulo ${mod.title}`}
+																			aria-label={t("course.syllabus.moduleProgressAria", { title: mod.title })}
 																		/>
+																		<ol
+																			aria-label={t("course.syllabus.arcAria")}
+																			data-testid={`module-arc-${mod.id}`}
+																			className="flex flex-wrap items-center gap-1 pt-1 text-[11px]"
+																		>
+																			{arcSteps.map((step, stepIdx) => {
+																				const pillCls = step.done
+																					? "border-[var(--cel-success,var(--lh-success))]/45 bg-[var(--cel-success,var(--lh-success))]/10 text-foreground"
+																					: step.active
+																						? "border-[var(--cel-accent,var(--primary))]/50 bg-[var(--cel-accent,var(--primary))]/10 text-foreground"
+																						: "border-border/50 bg-background/50 text-muted-foreground";
+																				return (
+																					<li key={step.id} className="inline-flex items-center gap-1">
+																						{stepIdx > 0 && (
+																							<span aria-hidden="true" className="text-muted-foreground/60">
+																								→
+																							</span>
+																						)}
+																						{step.onClick ? (
+																							<button
+																								type="button"
+																								onClick={step.onClick}
+																								className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-1.5 py-0.5 font-medium transition-colors hover:border-foreground/50 ${pillCls}`}
+																							>
+																								<span aria-hidden="true">{step.done ? "✓" : step.active ? "●" : "○"}</span>
+																								{step.label}
+																							</button>
+																						) : (
+																							<span
+																								className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-medium ${pillCls}`}
+																							>
+																								<span aria-hidden="true">{step.done ? "✓" : step.active ? "●" : "○"}</span>
+																								{step.label}
+																							</span>
+																						)}
+																					</li>
+																				);
+																			})}
+																		</ol>
 																	</div>
 
 																	<div className="flex flex-wrap items-center gap-2">
@@ -868,18 +1227,22 @@ export function SyllabusView({
 																			type="button"
 																			data-testid={`open-exam-${mod.id}`}
 																			aria-expanded={activePanelKind === "prova"}
-																			className={`cel-button min-h-9 px-3 py-1.5 text-xs ${mod.examUnlocked ? "cel-button-primary" : ""}`}
-																			title={mod.examUnlocked ? "Abrir Prova Integradora intercalada" : "Recomendada após 70% do módulo concluído (você pode abrir mesmo assim)"}
+																			className={`cel-button min-h-9 px-3 py-1.5 text-xs ${mod.examUnlocked && !mod.examPassed ? "cel-button-primary" : ""}`}
+																			title={
+																				mod.examUnlocked
+																					? t("course.syllabus.moduleExamTitleUnlocked")
+																					: t("course.syllabus.moduleExamTitleLocked")
+																			}
 																			onClick={() =>
 																				setInlinePanel((curr) =>
-																					curr?.moduleId === mod.id && curr.kind === "prova"
+																					curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "prova"
 																						? null
-																						: { moduleId: mod.id, kind: "prova" },
+																						: { scope: "module", moduleId: mod.id, kind: "prova" },
 																				)
 																			}
 																		>
 																			<Icon name="exercise" size={14} tone={false} />
-																			Prova Integradora
+																			{t("course.syllabus.moduleExamButton")}
 																		</button>
 																		<button
 																			type="button"
@@ -888,14 +1251,14 @@ export function SyllabusView({
 																			className="cel-button min-h-9 px-3 py-1.5 text-xs"
 																			onClick={() =>
 																				setInlinePanel((curr) =>
-																					curr?.moduleId === mod.id && curr.kind === "lista"
+																					curr?.scope === "module" && curr.moduleId === mod.id && curr.kind === "lista"
 																						? null
-																						: { moduleId: mod.id, kind: "lista" },
+																						: { scope: "module", moduleId: mod.id, kind: "lista" },
 																				)
 																			}
 																		>
 																			<Icon name="activity" size={14} tone={false} />
-																			Lista &amp; Lab
+																			{t("course.syllabus.problemSetButton")}
 																		</button>
 																	</div>
 																</div>
@@ -960,6 +1323,16 @@ export function SyllabusView({
 																	{visibleLessons.map((lesson, idx) => {
 																		const flippedOpen = openFlippedNodeId === lesson.id;
 																		const isStarting = startingNodeId === lesson.id;
+																		const isOpeningPast = startingNodeId === `past:${lesson.id}`;
+																		const lessonStatusText = statusLabel(t, lesson.status);
+																		const studyActionLabel =
+																			lesson.status === "done"
+																				? t("course.syllabus.practiceReview")
+																				: lesson.status === "in-progress"
+																					? t("course.syllabus.continue")
+																					: lesson.status === "locked"
+																						? t("course.syllabus.explore")
+																						: t("course.syllabus.study");
 																		return (
 																			<li
 																				key={lesson.id}
@@ -969,8 +1342,8 @@ export function SyllabusView({
 																				<div className="flex flex-wrap items-center gap-2">
 																					<span
 																						className="study-mission-marker"
-																						title={STATUS_LABEL[lesson.status]}
-																						aria-label={STATUS_LABEL[lesson.status]}
+																						title={lessonStatusText}
+																						aria-label={lessonStatusText}
 																					>
 																						{STATUS_MARKER[lesson.status]}
 																					</span>
@@ -981,13 +1354,19 @@ export function SyllabusView({
 																						{idx + 1}. {lesson.title}
 																					</Link>
 																					{lesson.hasLab && (
-																						<span className="study-pill study-pill-info">{t("course.syllabus.pillLab")}</span>
+																						<span className="study-pill study-pill-info">
+																							{t("course.syllabus.pillLab")}
+																						</span>
 																					)}
 																					{lesson.durable && (
-																						<span className="study-pill study-pill-success">{t("course.syllabus.pillDurable")}</span>
+																						<span className="study-pill study-pill-success">
+																							{t("course.syllabus.pillDurable")}
+																						</span>
 																					)}
 																					{lesson.isFinale && (
-																						<span className="study-pill study-pill-accent">{t("course.syllabus.pillFinale")}</span>
+																						<span className="study-pill study-pill-accent">
+																							{t("course.syllabus.pillFinale")}
+																						</span>
 																					)}
 																					<span className="text-xs tabular-nums text-muted-foreground">
 																						~{lesson.minutes} min
@@ -1004,8 +1383,20 @@ export function SyllabusView({
 																							}
 																						>
 																							<Icon name="book" size={13} tone={false} />
-																							Pré-leitura
+																							{t("course.syllabus.preReading")}
 																						</button>
+																						{lesson.status === "done" && (
+																							<button
+																								type="button"
+																								className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
+																								disabled={Boolean(startingNodeId)}
+																								onClick={() => void openPastLessonForNode(lesson)}
+																							>
+																								{isOpeningPast
+																									? t("course.syllabus.opening")
+																									: t("course.syllabus.viewPastLesson")}
+																							</button>
+																						)}
 																						<button
 																							type="button"
 																							className={`cel-button min-h-7 px-2.5 py-0.5 text-xs ${lesson.status === "in-progress" || lesson.status === "available" ? "cel-button-primary" : ""}`}
@@ -1013,7 +1404,7 @@ export function SyllabusView({
 																							onClick={() => void startLessonForNode(lesson)}
 																						>
 																							<Icon name="play" size={12} tone={false} />
-																							{isStarting ? "Abrindo…" : "Estudar"}
+																							{isStarting ? t("course.syllabus.opening") : studyActionLabel}
 																						</button>
 																					</div>
 																				</div>
@@ -1051,15 +1442,17 @@ export function SyllabusView({
 						aria-labelledby="syllabus-tab-caderno"
 						className="space-y-4"
 					>
-						<section aria-label="Exportação de flashcards" className="cel-card space-y-3 p-4 sm:p-5">
+						<section aria-label={t("course.syllabus.exportAria")} className="cel-card space-y-3 p-4 sm:p-5">
 							<div className="flex flex-wrap items-start justify-between gap-3">
 								<div className="space-y-0.5">
 									<div className="flex items-center gap-2">
 										<Icon name="export-cards" size={18} />
-										<h2 className="cel-display text-lg leading-tight">{t("course.syllabus.exportFlashcards")}</h2>
+										<h2 className="cel-display text-lg leading-tight">
+											{t("course.syllabus.exportFlashcards")}
+										</h2>
 									</div>
 									<p className="text-xs text-muted-foreground">
-										Exporte os cartões gerados nas suas aulas de {domainTitle} para revisão externa em Obsidian ou Anki.
+										{t("course.syllabus.exportDesc", { domain: domainTitle })}
 									</p>
 								</div>
 								<div className="flex flex-wrap items-center gap-2">
@@ -1071,7 +1464,7 @@ export function SyllabusView({
 										onClick={() => void handleExportFlashcards("obsidian")}
 									>
 										<Icon name="export-notes" size={14} tone={false} />
-										{exportBusy === "obsidian" ? "Exportando…" : "Obsidian"}
+										{exportBusy === "obsidian" ? t("course.syllabus.exporting") : "Obsidian"}
 									</button>
 									<button
 										type="button"
@@ -1081,7 +1474,7 @@ export function SyllabusView({
 										onClick={() => void handleExportFlashcards("anki")}
 									>
 										<Icon name="flashcard" size={14} tone={false} />
-										{exportBusy === "anki" ? "Exportando…" : "Anki"}
+										{exportBusy === "anki" ? t("course.syllabus.exporting") : "Anki"}
 									</button>
 									<button
 										type="button"
@@ -1091,7 +1484,7 @@ export function SyllabusView({
 										onClick={() => void handleExportFlashcards("apkg")}
 									>
 										<Icon name="download" size={14} tone={false} />
-										{exportBusy === "apkg" ? "Gerando…" : ".apkg"}
+										{exportBusy === "apkg" ? t("course.syllabus.generating") : ".apkg"}
 									</button>
 								</div>
 							</div>
@@ -1111,27 +1504,39 @@ export function SyllabusView({
 
 							<dl className="grid grid-cols-2 gap-2.5 border-t border-border/45 pt-3 sm:grid-cols-4">
 								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">Erros registrados</dt>
+									<dt className="text-[11px] text-muted-foreground">
+										{t("course.syllabus.recordedMistakes")}
+									</dt>
 									<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.totalMistakes}</dd>
 								</div>
 								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">Misconceptions ativas</dt>
+									<dt className="text-[11px] text-muted-foreground">
+										{t("course.syllabus.activeMisconceptions")}
+									</dt>
 									<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.activeMisconceptions}</dd>
 								</div>
 								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">Misconceptions superadas</dt>
-									<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.resolvedMisconceptions}</dd>
+									<dt className="text-[11px] text-muted-foreground">
+										{t("course.syllabus.overcomeMisconceptions")}
+									</dt>
+									<dd className="cel-display mt-0.5 text-lg tabular-nums">
+										{notebook.resolvedMisconceptions}
+									</dd>
 								</div>
 								<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
-									<dt className="text-[11px] text-muted-foreground">Conceitos consolidados</dt>
-									<dd className="cel-display mt-0.5 text-lg tabular-nums">{notebook.totalMasteredConcepts}</dd>
+									<dt className="text-[11px] text-muted-foreground">
+										{t("course.syllabus.consolidatedConcepts")}
+									</dt>
+									<dd className="cel-display mt-0.5 text-lg tabular-nums">
+										{notebook.totalMasteredConcepts}
+									</dd>
 								</div>
 							</dl>
 						</section>
 
 						{notebook.modules.length === 0 ? (
 							<section className="cel-card p-5 text-sm leading-relaxed text-muted-foreground">
-								Seu caderno ainda está vazio neste domínio. Conforme você fizer aulas, listas e provas integradoras, seus erros recorrentes, misconceptions e conceitos dominados aparecerão organizados por módulo aqui.
+								{t("course.syllabus.notebookEmpty")}
 							</section>
 						) : (
 							<div className="space-y-4">
@@ -1148,11 +1553,14 @@ export function SyllabusView({
 											<div className="space-y-2">
 												<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 													<Icon name="warning" size={14} />
-													Erros recorrentes ({mod.mistakes.length})
+													{t("course.syllabus.recurringMistakes", { count: mod.mistakes.length })}
 												</h4>
 												<ul className="space-y-2">
 													{mod.mistakes.map((mistake) => (
-														<li key={mistake.id} className="space-y-1 rounded-xl border border-border/50 bg-background/60 p-3 text-xs">
+														<li
+															key={mistake.id}
+															className="space-y-1 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+														>
 															<div className="flex flex-wrap items-center justify-between gap-2">
 																<div className="flex flex-wrap items-center gap-2">
 																	<Link
@@ -1162,19 +1570,30 @@ export function SyllabusView({
 																		{mistake.nodeTitle}
 																	</Link>
 																	<span className="study-pill study-pill-warning">
-																		{mistake.kind === "reinforce" ? "Reforço" : `Nota ${mistake.grade ?? 0}/3`}
+																		{mistake.kind === "reinforce"
+																			? t("course.syllabus.statusReinforce")
+																			: t("course.syllabus.gradeOutOf3", { grade: mistake.grade ?? 0 })}
 																	</span>
 																</div>
 																<span className="text-[11px] tabular-nums text-muted-foreground">
-																	{formatDatePtBr(mistake.at)}
+																	{formatIsoDate(mistake.at, dateFmt)}
 																</span>
 															</div>
 															{mistake.quizContext && (
 																<div className="space-y-1 text-muted-foreground">
-																	<p><strong className="text-foreground/90">{t("course.syllabus.question")}</strong> {mistake.quizContext.question}</p>
-																	<p><strong className="text-foreground/90">{t("course.syllabus.yourAnswer")}</strong> {mistake.quizContext.answer}</p>
+																	<p>
+																		<strong className="text-foreground/90">{t("course.syllabus.question")}</strong>{" "}
+																		{mistake.quizContext.question}
+																	</p>
+																	<p>
+																		<strong className="text-foreground/90">{t("course.syllabus.yourAnswer")}</strong>{" "}
+																		{mistake.quizContext.answer}
+																	</p>
 																	{mistake.quizContext.expected && (
-																		<p><strong className="text-foreground/90">{t("course.syllabus.expected")}</strong> {mistake.quizContext.expected}</p>
+																		<p>
+																			<strong className="text-foreground/90">{t("course.syllabus.expected")}</strong>{" "}
+																			{mistake.quizContext.expected}
+																		</p>
 																	)}
 																</div>
 															)}
@@ -1191,17 +1610,28 @@ export function SyllabusView({
 											<div className="space-y-2">
 												<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 													<Icon name="weak-spot" size={14} />
-													Misconceptions ({mod.misconceptions.length})
+													{t("course.syllabus.misconceptionsHeading", { count: mod.misconceptions.length })}
 												</h4>
 												<ul className="space-y-2">
 													{mod.misconceptions.map((m) => {
 														const pct = Math.round(m.probability * 100);
 														return (
-															<li key={`${m.nodeId}-${m.id}`} className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs">
+															<li
+																key={`${m.nodeId}-${m.id}`}
+																className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+															>
 																<div className="flex flex-wrap items-center justify-between gap-2">
 																	<div className="flex flex-wrap items-center gap-2">
-																		<span className={m.status === "active" ? "study-pill study-pill-warning" : "study-pill study-pill-success"}>
-																			{m.status === "active" ? "Ativa" : "Superada"}
+																		<span
+																			className={
+																				m.status === "active"
+																					? "study-pill study-pill-warning"
+																					: "study-pill study-pill-success"
+																			}
+																		>
+																			{m.status === "active"
+																				? t("course.syllabus.misconceptionActive")
+																				: t("course.syllabus.misconceptionResolved")}
 																		</span>
 																		<Link
 																			href={mapNodeHref(m.nodeId)}
@@ -1210,14 +1640,16 @@ export function SyllabusView({
 																			{m.nodeTitle}
 																		</Link>
 																	</div>
-																	<span className="font-semibold tabular-nums text-foreground">{pct}% Beta</span>
+																	<span className="font-semibold tabular-nums text-foreground">
+																		{t("course.syllabus.misconceptionBeta", { pct })}
+																	</span>
 																</div>
 																<p className="leading-relaxed text-foreground/90">{m.text}</p>
 																<progress
 																	className="study-progress block w-full"
 																	max={100}
 																	value={pct}
-																	aria-label={`Probabilidade Beta da misconception: ${pct}%`}
+																	aria-label={t("course.syllabus.misconceptionBetaAria", { pct })}
 																/>
 															</li>
 														);
@@ -1230,11 +1662,14 @@ export function SyllabusView({
 											<div className="space-y-2">
 												<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 													<Icon name="check" size={14} />
-													Conceitos dominados ({mod.masteredConcepts.length})
+													{t("course.syllabus.masteredConcepts", { count: mod.masteredConcepts.length })}
 												</h4>
 												<ul className="grid gap-2.5 sm:grid-cols-2">
 													{mod.masteredConcepts.map((concept) => (
-														<li key={concept.nodeId} className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs">
+														<li
+															key={concept.nodeId}
+															className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+														>
 															<div className="flex flex-wrap items-center gap-1.5">
 																<Link
 																	href={mapNodeHref(concept.nodeId)}
@@ -1242,8 +1677,16 @@ export function SyllabusView({
 																>
 																	{concept.title}
 																</Link>
-																{concept.mastered && <span className="study-pill study-pill-success">{t("course.syllabus.mastered")}</span>}
-																{concept.durable && <span className="study-pill study-pill-info">{t("course.syllabus.pillDurable")}</span>}
+																{concept.mastered && (
+																	<span className="study-pill study-pill-success">
+																		{t("course.syllabus.mastered")}
+																	</span>
+																)}
+																{concept.durable && (
+																	<span className="study-pill study-pill-info">
+																		{t("course.syllabus.pillDurable")}
+																	</span>
+																)}
 															</div>
 															{concept.summary && (
 																<p className="leading-relaxed text-muted-foreground">{concept.summary}</p>
@@ -1273,10 +1716,7 @@ export function SyllabusView({
 						role="tabpanel"
 						aria-labelledby="syllabus-tab-nivelamento"
 					>
-						<PlacementDialog
-							domainId={syllabus.domainId}
-							onCompleted={() => router.refresh()}
-						/>
+						<PlacementDialog domainId={syllabus.domainId} onCompleted={() => router.refresh()} />
 					</div>
 				)}
 			</div>

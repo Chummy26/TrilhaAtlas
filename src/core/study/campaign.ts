@@ -273,13 +273,13 @@ export function guidedLessonOptions(
 	};
 }
 
-interface ChapterUnits {
+export interface ChapterUnits {
 	chapterIndex: number;
 	chapter: CampaignChapter;
 	modules: { id: string; title: string; leafIds: string[] }[];
 }
 
-function chapterUnitsOf(snapshot: CurriculumSnapshot, graph: LearnerGraphView, campaign: StudyCampaign): ChapterUnits[] {
+export function chapterUnitsOf(snapshot: CurriculumSnapshot, graph: LearnerGraphView, campaign: StudyCampaign): ChapterUnits[] {
 	const leaves = graph.ids.filter(id => graph.nodes.get(id)?.isLeaf && !snapshot.items[id]?.reinforcementFor);
 	const isEnglish = snapshot.domainId === "english" && campaign.journey.every(c => cefr.includes(c.level));
 	const stageMap = new Map<number, string[]>();

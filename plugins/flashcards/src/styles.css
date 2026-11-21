@@ -1,47 +1,78 @@
 /* ==========================================================================
-   TrilhaAtlas Flashcards — Redesigned UI (Onigiri-inspired craft + Cel tokens)
+   TrilhaAtlas Flashcards — Spacious Editorial Onigiri Design + Cel Tokens
    ========================================================================== */
 
 .fc-root {
-  /* Calm, high-contrast semantic tokens (dark defaults) */
-  --fc-red: #e07466;
-  --fc-amber: #dfb059;
-  --fc-green: #5cc494;
-  --fc-blue: #6aaae0;
-  --fc-accent: var(--cel-accent, var(--lh-accent, var(--primary, #ffd23f)));
+  /* Exact Onigiri dark surface & semantic tokens harmonized with Cel themes */
+  --fc-teal: #33aebf;
+  --fc-red: #f8776e;
+  --fc-amber: #f7ad6b;
+  --fc-green: #35b850;
+  --fc-blue: #6bb6ec;
+  --fc-flame: #ff6b35;
+  --fc-star: #ffd700;
+  --fc-star-empty: #8f9299;
+
+  --fc-pill-new-bg: #33aebf;
+  --fc-pill-new-fg: #f7fbff;
+  --fc-pill-learn-bg: #ff453a;
+  --fc-pill-learn-fg: #fff5f5;
+  --fc-pill-review-bg: #12b765;
+  --fc-pill-review-fg: #f4fff8;
+
+  --fc-accent: var(--cel-accent, var(--lh-accent, var(--primary, #33aebf)));
   --fc-accent-text: var(--cel-accent-text, var(--fc-accent));
-  --fc-surface: var(--cel-surface-1, var(--card, #1c1c1c));
-  --fc-surface-soft: var(--cel-surface-2, var(--muted, #171c22));
-  --fc-border: color-mix(in srgb, var(--border, #434343) 62%, transparent);
-  --fc-border-strong: color-mix(in srgb, var(--border, #434343) 90%, transparent);
-  --fc-rim: var(--cel-rim, rgb(255 255 255 / 0.08));
-  --fc-shadow-card: 0 3px 0 color-mix(in srgb, var(--cel-bg-shade, #0b0e12) 88%, black), 0 10px 28px -14px rgb(0 0 0 / 0.45);
-  --fc-shadow-subtle: 0 2px 0 color-mix(in srgb, var(--cel-bg-shade, #0b0e12) 82%, black);
-  --fc-donut-empty: color-mix(in srgb, var(--border, #434343) 36%, transparent);
-  --fc-heat-0: color-mix(in srgb, var(--foreground, #e6e6e6) 7%, transparent);
-  --fc-heat-1: color-mix(in srgb, var(--fc-green) 26%, var(--fc-surface-soft));
-  --fc-heat-2: color-mix(in srgb, var(--fc-green) 48%, var(--fc-surface-soft));
-  --fc-heat-3: color-mix(in srgb, var(--fc-green) 74%, var(--fc-surface-soft));
-  --fc-heat-4: var(--fc-green);
+  --fc-surface: var(--cel-surface-1, var(--card, #202020));
+  --fc-surface-soft: var(--cel-surface-2, var(--muted, #171717));
+  --fc-highlight: color-mix(in srgb, var(--foreground, #f1f2f4) 5.5%, var(--fc-surface));
+  --fc-border: color-mix(in srgb, var(--border, #45464b) 72%, transparent);
+  --fc-border-strong: color-mix(in srgb, var(--border, #45464b) 95%, transparent);
+  --fc-rim: var(--cel-rim, rgb(255 255 255 / 0.05));
+  --fc-shadow-card: 0 1px 2px rgb(0 0 0 / 0.16), 0 8px 24px -18px rgb(0 0 0 / 0.42);
+  --fc-shadow-subtle: 0 1px 2px rgb(0 0 0 / 0.14);
+  --fc-donut-empty: color-mix(in srgb, var(--foreground, #f1f2f4) 11%, transparent);
+
+  /* Exact Onigiri Teal (#33AEBF) dark heatmap intensity ramp */
+  --fc-heat-0: color-mix(in srgb, var(--foreground, #f1f2f4) 8%, var(--fc-surface));
+  --fc-heat-1: #319fae;
+  --fc-heat-2: #50bbc9;
+  --fc-heat-3: #80cad5;
+  --fc-heat-4: #c4e4e9;
   --fc-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  color: var(--foreground, inherit);
-  font-size: 14px;
-  line-height: 1.5;
+  color: var(--foreground, #f1f2f4);
+  font-size: 15px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
 .light .fc-root,
 [data-theme-mode="light"] .fc-root {
-  --fc-red: #c95246;
-  --fc-amber: #b87b16;
-  --fc-green: #26875c;
-  --fc-blue: #2970b6;
-  --fc-border: color-mix(in srgb, var(--cel-line, var(--border, #1e1b2e)) 20%, transparent);
-  --fc-border-strong: color-mix(in srgb, var(--cel-line, var(--border, #1e1b2e)) 34%, transparent);
-  --fc-shadow-card: 0 3px 0 var(--cel-bg-shade, #ece8df), 0 10px 24px -14px rgb(30 27 46 / 0.16);
-  --fc-shadow-subtle: 0 2px 0 var(--cel-bg-shade, #ece8df);
-  --fc-heat-0: color-mix(in srgb, var(--foreground, #1e1b2e) 7%, transparent);
+  --fc-red: #f4685f;
+  --fc-amber: #f5a05a;
+  --fc-green: #26a641;
+  --fc-blue: #5eaadf;
+
+  --fc-pill-new-bg: #1e8cff;
+  --fc-pill-new-fg: #ffffff;
+  --fc-pill-learn-bg: #ff5757;
+  --fc-pill-learn-fg: #ffffff;
+  --fc-pill-review-bg: #19c96b;
+  --fc-pill-review-fg: #ffffff;
+
+  --fc-highlight: color-mix(in srgb, var(--foreground, #202124) 4%, var(--fc-surface));
+  --fc-border: color-mix(in srgb, var(--cel-line, var(--border, #e3e4e7)) 22%, transparent);
+  --fc-border-strong: color-mix(in srgb, var(--cel-line, var(--border, #e3e4e7)) 38%, transparent);
+  --fc-shadow-card: 0 1px 2px rgb(30 27 46 / 0.04), 0 8px 22px -16px rgb(30 27 46 / 0.12);
+  --fc-shadow-subtle: 0 1px 2px rgb(30 27 46 / 0.05);
+  --fc-donut-empty: color-mix(in srgb, var(--foreground, #202124) 10%, transparent);
+
+  /* Exact Onigiri Teal (#33AEBF) light heatmap intensity ramp */
+  --fc-heat-0: #e6e6e6;
+  --fc-heat-1: #c6e0e3;
+  --fc-heat-2: #78c2cc;
+  --fc-heat-3: #3fb1c1;
+  --fc-heat-4: #288895;
 }
 
 .fc-root [hidden] { display: none !important; }
@@ -50,191 +81,55 @@
   color: var(--destructive, var(--fc-red));
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: 13px;
-  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0;
 }
 .fc-root .fc-error:empty,
+.fc-root .fc-file-status:empty,
+.fc-root .fc-batch-area:empty,
 .fc-tree-rename-error:empty { display: none; }
-.fc-root .fc-muted { color: var(--muted-foreground, #888); font-size: 12.5px; }
+.fc-root .fc-muted { color: var(--muted-foreground, #8b8e95); font-size: 13.5px; }
 .fc-root .fc-markdown { overflow-wrap: anywhere; min-width: 0; }
 .fc-root .fc-markdown > :first-child { margin-top: 0; }
 .fc-root .fc-markdown > :last-child { margin-bottom: 0; }
 
-/* ─── Library Layout ─────────────────────────────────────────────────────── */
+/* ─── Spacious Vertical Editorial Library Canvas ─────────────────────────── */
 
 .fc-library {
-  padding: 24px clamp(16px, 3.2vw, 36px) 52px;
-  max-width: 1120px;
+  container-type: inline-size;
+  container-name: fc-lib;
+  max-width: 1180px;
   margin: 0 auto;
+  padding: 28px clamp(24px, 3.2cqi, 44px) 68px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 26px;
 }
 
-/* ─── Hero Overview Banner (Onigiri sidebar-hero + status dots) ──────────── */
+/* ─── Status Summary & Generation Toolbar ────────────────────────────────── */
 
-.fc-root .fc-hero {
+.fc-root .fc-home-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 18px 28px;
-  padding: 20px 24px;
-  border-radius: 16px;
-  border: 1.5px solid var(--fc-border);
-  background: var(--fc-surface);
-  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
+  gap: 12px 20px;
+  padding: 2px 2px 0;
 }
 
-.fc-root .fc-hero-primary {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.fc-root .fc-hero-eyebrow {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--muted-foreground, #888);
-  line-height: 1;
-}
-
-.fc-root .fc-hero-figure {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-}
-
-.fc-root .fc-hero-num {
-  font-size: clamp(32px, 4.5vw, 42px);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  color: var(--foreground, inherit);
-}
-
-.fc-root .fc-hero-unit {
+.fc-root .fc-home-sub {
+  margin: 0;
   font-size: 14px;
   font-weight: 500;
-  color: var(--muted-foreground, #888);
-}
-
-.fc-root .fc-hero-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 600;
-  line-height: 1.3;
-  background: color-mix(in srgb, var(--fc-green) 14%, transparent);
-  color: var(--fc-green);
-  border: 1px solid color-mix(in srgb, var(--fc-green) 36%, transparent);
-  align-self: center;
-}
-
-.fc-root .fc-hero-pill[data-ready="true"] {
-  background: color-mix(in srgb, var(--fc-accent) 16%, transparent);
-  color: var(--fc-accent-text);
-  border-color: color-mix(in srgb, var(--fc-accent) 45%, transparent);
-}
-
-.fc-root .fc-hero-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  margin-left: auto;
-  min-width: 0;
-}
-
-.fc-root .fc-hero-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.fc-root .fc-hero-stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--fc-state-shade, var(--foreground)) 10%, var(--fc-surface-soft));
-  border: 1px solid color-mix(in srgb, var(--fc-state-shade, var(--border)) 24%, transparent);
-  font-size: 12px;
-  line-height: 1.1;
-}
-
-.fc-root .fc-hero-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--fc-state-shade);
-  flex: none;
-}
-
-.fc-root .fc-hero-stat-val {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--foreground, inherit);
-}
-
-.fc-root .fc-hero-stat-label {
-  color: color-mix(in srgb, var(--fc-state-shade) 20%, var(--muted-foreground, #888) 80%);
-  font-weight: 500;
-}
-
-.fc-root .fc-hero-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 14px;
-  font-size: 12px;
-  color: var(--muted-foreground, #888);
+  line-height: 1.45;
+  color: var(--muted-foreground, #8b8e95);
   font-variant-numeric: tabular-nums;
 }
 
-.fc-root .fc-hero-streak {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--fc-surface-soft);
-  border: 1px solid var(--fc-border);
-  font-weight: 600;
-  font-size: 11.5px;
+.fc-root .fc-home-sub[data-ready="true"] {
+  color: color-mix(in srgb, var(--fc-teal) 35%, var(--foreground, inherit) 65%);
 }
-
-.fc-root .fc-hero-streak::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--muted-foreground, #888);
-  opacity: 0.45;
-}
-
-.fc-root .fc-hero-streak[data-active="true"] {
-  color: var(--fc-amber);
-  border-color: color-mix(in srgb, var(--fc-amber) 42%, transparent);
-  background: color-mix(in srgb, var(--fc-amber) 12%, transparent);
-}
-
-.fc-root .fc-hero-streak[data-active="true"]::before {
-  background: var(--fc-amber);
-  opacity: 1;
-}
-
-/* ─── Generation Toolbar ─────────────────────────────────────────────────── */
 
 .fc-root .fc-toolbar,
 .fc-root .fc-actions {
@@ -245,80 +140,227 @@
 }
 
 .fc-root .fc-toolbar {
-  padding: 10px 14px;
+  padding: 5px;
   border-radius: 14px;
-  border: 1.5px solid var(--fc-border);
-  background: color-mix(in srgb, var(--fc-surface-soft) 72%, var(--fc-surface));
-  box-shadow: var(--fc-shadow-subtle);
+  border: 1px solid var(--fc-border);
+  background: var(--fc-surface);
+  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-subtle);
 }
 
-.fc-root .fc-file-status { margin: -6px 0 0; padding-left: 4px; }
-.fc-root .fc-file-status:empty { display: none; }
+.fc-root .fc-file-status { margin: -14px 0 0; padding-left: 4px; }
 .fc-root .fc-file-name { overflow-wrap: anywhere; }
+
+/* ─── Spacious 4-Card Onigiri KPI Grid ───────────────────────────────────── */
+
+.fc-root .fc-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.fc-root .fc-kpi-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 146px;
+  padding: 22px 24px;
+  border-radius: 18px;
+  border: 1px solid var(--fc-border);
+  background: var(--fc-surface);
+  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
+  transition: border-color 150ms ease;
+}
+
+.fc-root .fc-kpi-card:hover {
+  border-color: var(--fc-border-strong);
+}
+
+.fc-root .fc-kpi-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--muted-foreground, #8b8e95);
+}
+
+.fc-root .fc-kpi-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.fc-root .fc-kpi-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  line-height: 1;
+}
+
+.fc-root .fc-kpi-num {
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground, inherit);
+}
+
+.fc-root .fc-kpi-unit {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--foreground, inherit);
+  opacity: 0.58;
+}
+
+.fc-root .fc-kpi-unit.is-inline {
+  margin-left: -0.16em;
+  font-size: 24px;
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+.fc-root .fc-kpi-card[data-active="true"] .fc-kpi-num::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 7px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--fc-flame);
+  transform: translateY(-4px);
+}
+
+/* Onigiri 5-dot retention meter (aligned across all 4 cards) */
+.fc-root .fc-kpi-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 12px;
+  opacity: 0.9;
+}
+
+.fc-root .fc-kpi-meter.is-placeholder {
+  visibility: hidden;
+}
+
+.fc-root .fc-kpi-star {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fc-star-empty) 32%, transparent);
+}
+
+.fc-root .fc-kpi-star.is-filled {
+  background: var(--fc-teal);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--fc-teal) 24%, transparent);
+}
 
 /* ─── Inputs & Fields ────────────────────────────────────────────────────── */
 
 .fc-root .fc-input {
   display: block;
   width: 100%;
-  border: 1.5px solid var(--fc-border);
-  border-radius: 10px;
-  padding: 8px 12px;
-  background: var(--background, transparent);
+  border: 1px solid var(--fc-border);
+  border-radius: 12px;
+  padding: 9px 14px;
+  background: var(--fc-highlight);
   color: inherit;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
+  line-height: 1.45;
   transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
 }
 
 .fc-root .fc-input:focus {
-  border-color: var(--cel-focus, var(--ring, #888));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cel-focus, var(--ring, #888)) 22%, transparent);
+  border-color: var(--cel-focus, var(--fc-teal));
+  background: var(--background, var(--fc-surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fc-teal) 20%, transparent);
   outline: none;
 }
 
 .fc-root textarea.fc-input {
-  min-height: 130px;
+  min-height: 136px;
   resize: vertical;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
-.fc-root .fc-field { display: block; margin: 0 0 14px; }
+.fc-root .fc-field { display: block; margin: 0 0 16px; }
 .fc-root .fc-label {
   display: block;
   font-weight: 600;
   margin-bottom: 6px;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.01em;
-  color: var(--muted-foreground, #888);
+  color: var(--muted-foreground, #8b8e95);
 }
 
 .fc-root .fc-check {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 0;
-  font-size: 13.5px;
+  gap: 9px;
+  padding: 6px 0;
+  font-size: 14.5px;
   cursor: pointer;
 }
-.fc-root .fc-check input { accent-color: var(--fc-accent); width: 15px; height: 15px; }
+.fc-root .fc-check input { accent-color: var(--fc-teal); width: 16px; height: 16px; }
 
-/* ─── Deck Panel & Tree (Onigiri decklist.css precision) ─────────────────── */
+/* ─── Spacious Full-Width Deck Panel ─────────────────────────────────────── */
 
 .fc-root .fc-deck-panel {
-  border: 1.5px solid var(--fc-border);
-  border-radius: 16px;
+  position: static;
+  max-height: none;
+  width: 100%;
+  border: 1px solid var(--fc-border);
+  border-radius: 20px;
   background: var(--fc-surface);
   box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.fc-root .fc-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 10px;
+}
+
+.fc-root .fc-sidebar-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted-foreground, #8b8e95);
+}
+
+.fc-root .fc-sidebar-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--fc-highlight);
+  color: var(--muted-foreground, #8b8e95);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .fc-root .fc-deck-toolbar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--fc-border) 60%, transparent);
+  gap: 12px;
+  padding: 6px 24px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--fc-border) 55%, transparent);
 }
 
 .fc-root .fc-search {
@@ -330,12 +372,12 @@
 
 .fc-root .fc-search-icon {
   position: absolute;
-  left: 11px;
+  left: 12px;
   top: 50%;
   width: 15px;
   height: 15px;
   transform: translateY(-50%);
-  color: var(--muted-foreground, #888);
+  color: var(--muted-foreground, #8b8e95);
   pointer-events: none;
   transition: color 140ms ease, transform 220ms var(--fc-ease);
 }
@@ -346,26 +388,25 @@
 }
 
 .fc-root .fc-search > .fc-input {
-  padding-left: 34px;
-  background: color-mix(in srgb, var(--background, transparent) 75%, var(--fc-surface-soft));
+  padding-left: 36px;
 }
 
 .fc-root .fc-selection-actions {
   justify-content: space-between;
-  gap: 8px 16px;
-  padding: 10px 16px;
-  border-bottom: 1px solid color-mix(in srgb, var(--fc-border) 55%, transparent);
-  background: color-mix(in srgb, var(--fc-surface-soft) 50%, var(--fc-surface));
+  gap: 10px 18px;
+  padding: 11px 24px;
+  border-bottom: 1px solid color-mix(in srgb, var(--fc-border) 50%, transparent);
+  background: var(--fc-highlight);
   transition: background-color 160ms ease;
 }
 
 .fc-root .fc-selection-actions[data-has-selection="true"] {
-  background: color-mix(in srgb, var(--fc-accent) 9%, var(--fc-surface));
+  background: color-mix(in srgb, var(--fc-teal) 10%, var(--fc-surface));
 }
 
 .fc-root .fc-delete-selected {
   display: inline-flex;
-  color: var(--muted-foreground, #888);
+  color: var(--muted-foreground, #8b8e95);
 }
 
 .fc-root .fc-selection-summary {
@@ -377,36 +418,42 @@
 }
 
 .fc-root .fc-selection-summary > .fc-muted {
-  min-width: 10ch;
+  min-width: 8ch;
   text-align: right;
   font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
   font-weight: 500;
 }
 
+.fc-root .fc-tree {
+  padding: 10px 16px 18px;
+}
+
 .fc-root .fc-tree > .fc-muted {
-  padding: 28px 20px;
+  padding: 32px 24px;
   text-align: center;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .fc-root .fc-tree-viewport { overflow-x: auto; }
-.fc-root .fc-tree-inner { min-width: 40rem; }
+.fc-root .fc-tree-inner { min-width: 0; width: 100%; }
 
 .fc-root .fc-tree-row-content {
   display: flex;
   flex: 1;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
-  padding-block: 2px;
+  padding-block: 6px;
 }
 
 .fc-root .fc-tree-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex: none;
-  color: var(--muted-foreground, #888);
-  transition: color 140ms ease;
+  color: var(--muted-foreground, #8b8e95);
+  opacity: 0.78;
+  transition: color 140ms ease, opacity 140ms ease;
 }
 
 .fc-root .fc-tree-name {
@@ -414,6 +461,7 @@
   flex-direction: column;
   align-items: stretch;
   min-width: 0;
+  flex: 1;
 }
 
 .fc-root .fc-tree-label {
@@ -424,6 +472,8 @@
   white-space: nowrap;
   color: inherit;
   font: inherit;
+  font-size: 15px;
+  font-weight: 500;
   text-align: left;
   transition: color 140ms ease;
 }
@@ -441,27 +491,72 @@
   text-underline-offset: 4px;
 }
 
-.fc-root .fc-tree-metadata {
-  color: var(--muted-foreground, #888);
+/* Signature Onigiri tri-colored deck counter pills (New / Learn / Review) */
+.fc-root .fc-deck-counts {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   flex: none;
-  font-size: 11px;
+  margin-left: auto;
+}
+
+.fc-root .fc-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  min-width: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  transition: opacity 140ms ease;
+}
+
+.fc-root .fc-count-pill.is-new {
+  background: var(--fc-pill-new-bg);
+  color: var(--fc-pill-new-fg);
+}
+
+.fc-root .fc-count-pill.is-learn {
+  background: var(--fc-pill-learn-bg);
+  color: var(--fc-pill-learn-fg);
+}
+
+.fc-root .fc-count-pill.is-review {
+  background: var(--fc-pill-review-bg);
+  color: var(--fc-pill-review-fg);
+}
+
+.fc-root .fc-count-pill.is-zero,
+.fc-root .fc-count-pill[data-zero="true"] {
+  opacity: 0.25;
+  font-weight: 500;
+}
+
+.fc-root .fc-tree-metadata {
+  color: var(--muted-foreground, #8b8e95);
+  flex: none;
+  font-size: 12px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  padding: 1px 7px;
+  padding: 2px 9px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  background: var(--fc-highlight);
 }
 .fc-root .fc-tree-metadata:empty { display: none; }
 
 /* Onigiri-style quiet row actions: subtle at rest, full clarity on hover/focus */
 .fc-root .fc-tree-more {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   flex: none;
-  color: var(--muted-foreground, #888);
-  opacity: 0.55;
+  color: var(--muted-foreground, #8b8e95);
+  opacity: 0.48;
   transition: opacity 150ms ease;
 }
 
@@ -473,14 +568,16 @@
 
 .fc-root [data-plugin-tree-row]:hover .fc-tree-icon {
   color: var(--foreground, inherit);
+  opacity: 1;
 }
 
 .fc-root [data-plugin-tree-row] {
+  border-radius: 10px;
   transition: background-color 140ms ease;
 }
 
 .fc-root [data-plugin-tree-row]:hover {
-  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  background: var(--fc-highlight);
 }
 
 .fc-root [data-plugin-tree-cell="due"] {
@@ -496,9 +593,9 @@
 .fc-root .fc-tree-rename {
   width: 100%;
   min-width: 5rem;
-  height: 24px;
+  height: 26px;
   border: 0;
-  border-bottom: 1.5px solid var(--cel-focus, var(--ring, #888));
+  border-bottom: 1.5px solid var(--fc-teal);
   border-radius: 0;
   background: transparent;
   color: inherit;
@@ -511,30 +608,30 @@
   color: var(--destructive, var(--fc-red));
   white-space: normal;
   overflow-wrap: anywhere;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* ─── Batch Progress Banner ──────────────────────────────────────────────── */
 
 .fc-root .fc-batch {
-  border: 1.5px solid color-mix(in srgb, var(--fc-accent) 42%, var(--fc-border));
-  border-radius: 14px;
-  padding: 14px 18px;
-  background: color-mix(in srgb, var(--fc-accent) 6%, var(--fc-surface));
+  border: 1px solid color-mix(in srgb, var(--fc-teal) 42%, var(--fc-border));
+  border-radius: 18px;
+  padding: 16px 22px;
+  background: color-mix(in srgb, var(--fc-teal) 6%, var(--fc-surface));
   box-shadow: var(--fc-shadow-subtle);
 }
 
 .fc-root .fc-batch > p { margin: 0 0 6px; }
-.fc-root .fc-batch .fc-actions { margin-top: 10px; }
+.fc-root .fc-batch .fc-actions { margin-top: 12px; }
 
-/* ─── Bento Spaced-Repetition Dashboard (Onigiri learner_stats + heatmap) ── */
+/* ─── Spacious Full-Width Bento Dashboard (Activity + Stats + Charts) ────── */
 
-.fc-root .fc-dashboard-slot { margin-top: 8px; }
+.fc-root .fc-dashboard-slot { margin: 0; }
 
 .fc-root .fc-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .fc-root .fc-dashboard-head {
@@ -543,27 +640,24 @@
   justify-content: space-between;
   gap: 12px;
   padding-inline: 2px;
+  margin-bottom: -6px;
 }
 
 .fc-root .fc-dashboard-heading {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.015em;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground, #8b8e95);
   margin: 0;
 }
 
 .fc-root .fc-dashboard-loading { margin: 0; }
 
-.fc-root .fc-bento-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 16px;
-}
-
 .fc-root .fc-bento-card {
-  border: 1.5px solid var(--fc-border);
-  border-radius: 16px;
-  padding: 18px 20px;
+  border: 1px solid var(--fc-border);
+  border-radius: 20px;
+  padding: 24px 26px;
   background: var(--fc-surface);
   box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
   min-width: 0;
@@ -573,224 +667,78 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .fc-root .fc-dashboard h3,
 .fc-root .fc-card-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.13em;
-  color: var(--muted-foreground, #888);
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground, #8b8e95);
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .fc-root .fc-card-kpi {
   font-size: 15px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--foreground, inherit);
-  letter-spacing: -0.01em;
-}
-
-/* State Donut + Proportional Bar + 4 Toned Tiles */
-.fc-root .fc-state-body {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.fc-root .fc-donut-wrap {
-  position: relative;
-  width: 84px;
-  height: 84px;
-  flex: none;
-  display: grid;
-  place-items: center;
-}
-
-.fc-root .fc-donut-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--fc-donut-empty);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 11px), #000 calc(100% - 10px));
-          mask: radial-gradient(farthest-side, transparent calc(100% - 11px), #000 calc(100% - 10px));
-  transition: background 260ms ease;
-}
-
-.fc-root .fc-donut-core {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1;
-}
-
-.fc-root .fc-donut-total {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  font-variant-numeric: tabular-nums;
-  color: var(--foreground, inherit);
-}
-
-.fc-root .fc-donut-unit {
-  margin-top: 2px;
-  font-size: 9.5px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted-foreground, #888);
-}
-
-.fc-root .fc-state-details {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.fc-root .fc-state-bar {
-  display: flex;
-  height: 8px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--foreground) 9%, transparent);
-}
-
-.fc-root [data-state="new"]        { --fc-state-shade: var(--fc-blue); }
-.fc-root [data-state="learning"]   { --fc-state-shade: var(--fc-amber); }
-.fc-root [data-state="review"]     { --fc-state-shade: var(--fc-green); }
-.fc-root [data-state="relearning"] { --fc-state-shade: var(--fc-red); }
-
-.fc-root .fc-state-segment {
-  display: block;
-  background: var(--fc-state-shade);
-  transition: width 320ms var(--fc-ease);
-}
-
-.fc-root .fc-state-legend {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.fc-root .fc-state-legend li {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--fc-state-shade) 11%, transparent);
-  border: 1px solid color-mix(in srgb, var(--fc-state-shade) 24%, transparent);
-  min-width: 0;
-}
-
-.fc-root .fc-state-legend .fc-state-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--fc-state-shade) 20%, var(--muted-foreground, #888) 80%);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.fc-root .fc-state-legend .fc-state-name::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--fc-state-shade);
-  flex: none;
-}
-
-.fc-root .fc-state-legend .fc-state-val {
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.1;
   font-variant-numeric: tabular-nums;
   color: var(--foreground, inherit);
 }
 
-/* Heatmap Card (14-day rhythm + streak chip) */
+/* Full-width Onigiri ACTIVITY Heatmap Card */
 .fc-root .fc-heatmap-card {
   display: flex;
   flex-direction: column;
 }
 
-.fc-root .fc-streak-chip {
+.fc-root .fc-heat-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fc-root .fc-streak-chip,
+.fc-root .fc-range-chip,
+.fc-root .fc-scope-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: var(--fc-surface-soft);
-  border: 1px solid var(--fc-border);
-  font-size: 11px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 9px;
+  background: var(--fc-highlight);
+  font-size: 12.5px;
   font-weight: 600;
-  color: var(--muted-foreground, #888);
+  color: var(--muted-foreground, #8b8e95);
   font-variant-numeric: tabular-nums;
 }
 
 .fc-root .fc-streak-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--muted-foreground, #888);
+  background: var(--muted-foreground, #8b8e95);
   opacity: 0.45;
 }
 
 .fc-root .fc-streak-chip[data-active="true"] {
-  color: var(--fc-amber);
-  background: color-mix(in srgb, var(--fc-amber) 12%, transparent);
-  border-color: color-mix(in srgb, var(--fc-amber) 40%, transparent);
-}
-
-.fc-root .fc-streak-chip[data-active="true"] .fc-streak-dot {
-  background: var(--fc-amber);
-  opacity: 1;
-}
-
-.fc-root .fc-heat-total {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-  margin-bottom: 14px;
-}
-
-.fc-root .fc-heat-total-num {
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.025em;
-  font-variant-numeric: tabular-nums;
   color: var(--foreground, inherit);
 }
 
-.fc-root .fc-heat-total-unit {
-  font-size: 12px;
-  color: var(--muted-foreground, #888);
+.fc-root .fc-streak-chip[data-active="true"] .fc-streak-dot {
+  background: var(--fc-flame);
+  opacity: 1;
 }
 
 .fc-root .fc-heatmap-cells {
   display: grid;
   grid-template-columns: repeat(14, minmax(0, 1fr));
-  gap: 5px;
-  margin-top: auto;
+  gap: 10px;
+  padding-block: 6px 4px;
 }
 
 .fc-root .fc-heatmap-cell {
@@ -798,14 +746,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
 }
 
 .fc-root .fc-heatmap-shape {
   display: block;
   width: 100%;
+  max-width: 56px;
   aspect-ratio: 1 / 1;
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--fc-heat-0);
   transition: transform 140ms var(--fc-ease), box-shadow 140ms ease;
 }
@@ -816,38 +765,39 @@
 .fc-root .fc-heatmap-cell[data-level="4"] .fc-heatmap-shape { background: var(--fc-heat-4); }
 
 .fc-root .fc-heatmap-cell.is-today .fc-heatmap-shape {
-  box-shadow: 0 0 0 1.5px var(--fc-surface), 0 0 0 3px var(--fc-accent);
+  box-shadow: 0 0 0 2px var(--fc-surface), 0 0 0 3.5px var(--fc-teal);
 }
 
 .fc-root .fc-heatmap-cell:hover .fc-heatmap-shape {
-  transform: scale(1.14);
+  transform: scale(1.08);
 }
 
 .fc-root .fc-heatmap-day {
-  font-size: 9.5px;
-  font-weight: 600;
-  color: var(--muted-foreground, #888);
-  line-height: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground, #8b8e95);
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .fc-root .fc-heatmap-cell.is-today .fc-heatmap-day {
   color: var(--foreground, inherit);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .fc-root .fc-heatmap-cell::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) translateY(2px);
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
   background: var(--popover, var(--fc-surface));
   color: var(--popover-foreground, var(--foreground));
   border: 1px solid var(--fc-border-strong);
   box-shadow: 0 6px 18px -6px rgb(0 0 0 / 0.35);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
   pointer-events: none;
@@ -883,21 +833,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 12px;
-  font-size: 11px;
-  color: var(--muted-foreground, #888);
+  margin-top: 16px;
+  font-size: 12.5px;
+  color: var(--muted-foreground, #8b8e95);
+  font-variant-numeric: tabular-nums;
 }
 
 .fc-root .fc-heatmap-scale {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .fc-root .fc-heatmap-swatch {
-  width: 9px;
-  height: 9px;
-  border-radius: 2.5px;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
   background: var(--fc-heat-0);
 }
 .fc-root .fc-heatmap-swatch[data-level="1"] { background: var(--fc-heat-1); }
@@ -905,17 +856,208 @@
 .fc-root .fc-heatmap-swatch[data-level="3"] { background: var(--fc-heat-3); }
 .fc-root .fc-heatmap-swatch[data-level="4"] { background: var(--fc-heat-4); }
 
-/* Charts Grid */
-.fc-root .fc-chart-grid {
+/* Lower Bento Row: Left = Onigiri STATS Card, Right = Full-Width SVG Charts */
+.fc-root .fc-bento-lower {
   display: grid;
-  gap: 16px;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.55fr);
+  gap: 20px;
+  align-items: start;
 }
 
-@media (min-width: 1450px) {
-  .fc-root .fc-chart-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.fc-root .fc-state-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fc-root .fc-state-card .fc-card-head {
+  margin-bottom: 4px;
+}
+
+/* Onigiri Donut + Total + 2-dot Legend */
+.fc-root .fc-donut-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fc-root .fc-donut-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex: none;
+}
+
+.fc-root .fc-donut-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--fc-donut-empty);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  transition: background 260ms ease;
+}
+
+.fc-root .fc-donut-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fc-root .fc-donut-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.1;
+}
+
+.fc-root .fc-donut-total {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground, inherit);
+}
+
+.fc-root .fc-donut-unit {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted-foreground, #8b8e95);
+}
+
+.fc-root .fc-donut-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.fc-root .fc-donut-leg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted-foreground, #8b8e95);
+}
+
+.fc-root .fc-donut-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.fc-root .fc-donut-dot.is-progress { background: var(--fc-blue); }
+.fc-root .fc-donut-dot.is-mastered { background: var(--fc-green); }
+
+/* Sleek 5px proportional capsule bar */
+.fc-root .fc-state-bar {
+  display: flex;
+  height: 5px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--fc-donut-empty);
+}
+
+.fc-root [data-state="new"]        { --fc-state-shade: var(--fc-blue); }
+.fc-root [data-state="learning"]   { --fc-state-shade: var(--fc-amber); }
+.fc-root [data-state="review"]     { --fc-state-shade: var(--fc-green); }
+.fc-root [data-state="relearning"] { --fc-state-shade: var(--fc-red); }
+
+.fc-root .fc-state-segment {
+  display: block;
+  background: var(--fc-state-shade);
+  transition: width 320ms var(--fc-ease);
+}
+
+/* Roomy Onigiri Tinted Pill Bars (New wide -> Learning | Relearning -> Review wide) */
+.fc-root .fc-state-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fc-root .fc-state-legend li {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: none;
+  background: color-mix(in srgb, var(--fc-state-shade) 13%, transparent);
+  min-width: 0;
+}
+
+/* Visual Onigiri row grouping while preserving strict DOM order [new, learning, review, relearning] */
+.fc-root .fc-state-legend li[data-state="new"]        { grid-column: 1 / -1; order: 1; }
+.fc-root .fc-state-legend li[data-state="learning"]   { order: 2; }
+.fc-root .fc-state-legend li[data-state="relearning"] { order: 3; }
+.fc-root .fc-state-legend li[data-state="review"]     { grid-column: 1 / -1; order: 4; }
+
+.fc-root .fc-state-legend .fc-state-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: color-mix(in srgb, var(--fc-state-shade) 24%, var(--muted-foreground, #8b8e95) 76%);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-root .fc-state-legend .fc-state-val {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground, inherit);
+}
+
+/* Onigiri Footer Hairline (Unseen / Total) */
+.fc-root .fc-stats-footer {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  margin-top: 4px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted-foreground, #8b8e95);
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-root .fc-stats-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--fc-border);
+}
+
+.fc-root .fc-stats-foot-item strong {
+  font-weight: 700;
+  color: var(--foreground, inherit);
+}
+
+.fc-root .fc-stats-foot-item.is-total {
+  font-weight: 600;
+}
+
+/* Charts Stack / Grid */
+.fc-root .fc-chart-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .fc-root .fc-chart {
@@ -929,8 +1071,8 @@
 .fc-root .fc-chart-svg {
   display: block;
   width: 100%;
-  min-width: 20rem;
-  max-width: 46rem;
+  min-width: 18rem;
+  max-width: none;
   height: auto;
   margin-inline: auto;
 }
@@ -939,13 +1081,13 @@
   stroke: var(--fc-border);
   stroke-width: 1;
   stroke-dasharray: 3 5;
-  opacity: 0.65;
+  opacity: 0.6;
 }
 
 .fc-root .fc-chart-baseline {
   stroke: var(--fc-border-strong);
   stroke-width: 1;
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .fc-root .fc-chart-bar {
@@ -960,7 +1102,7 @@
 .fc-root .fc-chart-bar[data-bucket="overdue"]  { fill: var(--fc-red); }
 .fc-root .fc-chart-bar[data-bucket="today"]    { fill: var(--fc-amber); }
 .fc-root .fc-chart-bar[data-bucket="future"]   { fill: var(--fc-blue); }
-.fc-root .fc-chart-bar[data-bucket="activity"] { fill: var(--fc-green); }
+.fc-root .fc-chart-bar[data-bucket="activity"] { fill: var(--fc-teal); }
 
 .fc-root .fc-chart-count {
   font-weight: 600;
@@ -971,24 +1113,41 @@
   font-weight: 500;
 }
 
-.fc-root .fc-chart-date { fill: var(--muted-foreground, #888); }
+.fc-root .fc-chart-date { fill: var(--muted-foreground, #8b8e95); }
 
 .fc-root .fc-chart-caption {
-  font-size: 11.5px;
+  font-size: 12.5px;
   line-height: 1.5;
-  color: var(--muted-foreground, #888);
+  color: var(--muted-foreground, #8b8e95);
   margin: 12px 0 0;
 }
 .fc-root .fc-chart > .fc-chart-caption { flex: 1; }
 
-@media (max-width: 960px) {
-  .fc-root .fc-bento-top,
-  .fc-root .fc-chart-grid {
+/* Container-Query Responsive Breakpoints for Library Canvas */
+@container fc-lib (max-width: 860px) {
+  .fc-root .fc-bento-lower {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-/* ─── Review & Practice Surface (Onigiri focused calm reviewer + Cel) ────── */
+@container fc-lib (max-width: 740px) {
+  .fc-root .fc-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container fc-lib (max-width: 600px) {
+  .fc-root .fc-sidebar-header { padding: 18px 18px 8px; }
+  .fc-root .fc-deck-toolbar { padding: 6px 18px 14px; }
+  .fc-root .fc-selection-actions { padding: 10px 18px; }
+  .fc-root .fc-tree { padding: 8px 10px 14px; }
+  .fc-root .fc-bento-card { padding: 20px; }
+  .fc-root .fc-heatmap-cells { gap: 6px; }
+  .fc-root .fc-heatmap-day { font-size: 11px; }
+  .fc-root .fc-tree-more { opacity: 1; }
+}
+
+/* ─── Calm, Book-Like Spacious Review & Practice Surface ─────────────────── */
 
 .fc-root.fc-review-surface {
   position: relative;
@@ -999,23 +1158,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 52px 24px 32px;
-  background: radial-gradient(
-    ellipse 80% 55% at 50% 0%,
-    color-mix(in srgb, var(--fc-accent) 6%, transparent),
-    transparent 70%
-  );
+  padding: clamp(44px, 6vh, 72px) clamp(24px, 4vw, 56px) 52px;
+  background: var(--background, var(--fc-surface-soft));
 }
 
 .fc-root.fc-review-surface:focus { outline: none; }
 
-/* Hairline top progress rail (Onigiri #reforge-progress) */
+/* Hairline top progress rail (scoped inside review surface) */
 .fc-root .fc-review-progress {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3.5px;
+  height: 3px;
   background: color-mix(in srgb, var(--foreground) 8%, transparent);
   z-index: 30;
   pointer-events: none;
@@ -1033,9 +1188,9 @@
   background: var(--fc-blue);
 }
 
-/* Rating press-feedback bloom FX (Onigiri ba-ease-bloom) */
+/* Rating press-feedback bloom FX (scoped inside review surface) */
 .fc-root .fc-review-fx {
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 25;
@@ -1076,7 +1231,7 @@
   --fc-rating-easy: var(--fc-blue);
   container-type: inline-size;
   width: 100%;
-  max-width: 46rem;
+  max-width: 54rem;
   flex: none;
   margin-block: auto;
   text-align: center;
@@ -1093,13 +1248,13 @@
   display: inline-flex;
   align-items: center;
   max-width: 100%;
-  padding: 5px 14px;
-  margin: 0 0 16px;
+  padding: 6px 16px;
+  margin: 0 0 22px;
   border-radius: 999px;
   border: 1px solid var(--fc-border);
-  background: var(--fc-surface-soft);
-  color: var(--muted-foreground, #888);
-  font-size: 12.5px;
+  background: var(--fc-surface);
+  color: var(--muted-foreground, #8b8e95);
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: 0.01em;
@@ -1108,7 +1263,7 @@
 
 .fc-root .fc-review-title:focus { outline: none; }
 
-/* Focused Flashcard Reading Surface */
+/* Book-Like Focused Flashcard Reading Surface */
 .fc-root .fc-review-card {
   position: relative;
   box-sizing: border-box;
@@ -1116,12 +1271,12 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  min-height: min(46cqw, 22rem);
-  padding: clamp(26px, 4.5vw, 46px) clamp(22px, 5vw, 48px);
-  border: 1.5px solid var(--fc-border-strong);
-  border-radius: 20px;
+  min-height: clamp(22rem, 42vh, 28rem);
+  padding: clamp(36px, 4.5vw, 56px) clamp(32px, 5vw, 64px);
+  border: 1px solid var(--fc-border);
+  border-radius: 24px;
   background: var(--fc-surface);
-  box-shadow: inset 0 1.5px 0 var(--fc-rim), var(--fc-shadow-card);
+  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
   text-align: center;
 }
 
@@ -1140,26 +1295,32 @@
 }
 
 .fc-root .fc-review-card > .fc-markdown {
-  font-size: clamp(18px, 2.3vw, 22px);
-  line-height: 1.58;
-  letter-spacing: -0.008em;
-  max-inline-size: 54ch;
+  font-family: var(--font-prose, inherit);
+  font-size: clamp(20px, 2.2vw, 24px);
+  line-height: var(--lh-prose-leading, 1.65);
+  letter-spacing: -0.01em;
+  max-inline-size: 65ch;
   margin-inline: auto;
   width: 100%;
 }
 
+.fc-root .fc-review-card .fc-markdown :where(ul, ol, pre, blockquote, table) {
+  text-align: left;
+}
+
 .fc-root .fc-review-card table { margin-inline: auto; }
 
-/* Calm centered hairline answer divider + pure fade reveal */
+/* Quiet centered 1px x 320px hairline answer divider + editorial reading flow */
 .fc-root .fc-answer:not(:empty) {
   position: relative;
-  padding-top: 28px;
-  margin-top: 28px;
-  font-size: clamp(16.5px, 2vw, 19px);
-  line-height: 1.62;
-  max-inline-size: 56ch;
+  font-family: var(--font-prose, inherit);
+  font-size: max(18px, var(--lh-prose-size, 18px));
+  line-height: var(--lh-prose-leading, 1.65);
+  max-inline-size: 65ch;
   margin-inline: auto;
   width: 100%;
+  margin-top: 36px;
+  padding-top: 34px;
   animation: fc-fade-in 240ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
 }
 
@@ -1169,9 +1330,9 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: min(260px, 65%);
+  width: min(320px, 72%);
   height: 1px;
-  background: var(--fc-border-strong);
+  background: var(--fc-border);
 }
 
 /* Remaining counter strip */
@@ -1179,8 +1340,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-top: 12px;
-  padding-inline: 4px;
+  margin-top: 18px;
+  padding-inline: 6px;
 }
 
 .fc-root .fc-review-bottom:empty { display: none; }
@@ -1189,13 +1350,13 @@
 .fc-root .fc-review-remaining {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 3px 10px;
+  gap: 8px;
+  padding: 4px 12px;
   border-radius: 999px;
-  background: var(--fc-surface-soft);
+  background: var(--fc-surface);
   border: 1px solid var(--fc-border);
-  color: var(--muted-foreground, #888);
-  font-size: 11.5px;
+  color: var(--muted-foreground, #8b8e95);
+  font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -1203,8 +1364,8 @@
 
 .fc-root .fc-review-remaining::before {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--fc-green);
 }
@@ -1213,27 +1374,27 @@
   background: var(--fc-blue);
 }
 
-/* Review Footer & Rating Grid */
+/* Review Footer & Calm Onigiri Rating Grid */
 .fc-root .fc-review-footer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  margin-top: 22px;
+  gap: 18px;
+  margin-top: 28px;
 }
 
 .fc-root .fc-review-footer .fc-actions {
   justify-content: center;
   align-items: stretch;
   width: 100%;
-  gap: 10px;
+  gap: 14px;
 }
 
 .fc-root .fc-review-footer .fc-actions.fc-actions-ratings {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-width: 36rem;
-  gap: 10px;
+  max-width: 44rem;
+  gap: 14px;
 }
 
 .fc-root .fc-review-footer > p { margin: 0; }
@@ -1242,7 +1403,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -1252,17 +1413,23 @@
 }
 
 .fc-root .fc-rating .fc-button > button {
-  min-height: 44px;
-  padding-inline: 18px;
+  min-width: 240px;
+  min-height: 48px;
+  padding-inline: 28px;
   border-radius: 12px;
+  font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  transition: transform 110ms ease-out, filter 130ms ease, box-shadow 130ms ease;
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, filter 140ms ease;
 }
 
 .fc-root .fc-actions-ratings .fc-rating .fc-button > button {
+  min-width: 0;
   width: 100%;
-  padding-inline: 10px;
+  min-height: 50px;
+  padding-inline: 16px;
+  font-size: 14.5px;
+  border-radius: 12px;
 }
 
 .fc-root .fc-rating[data-default="true"] .fc-button > button {
@@ -1270,28 +1437,28 @@
 }
 
 .fc-root .fc-rating .fc-button > button:hover:not(:disabled) {
-  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .fc-root .fc-rating .fc-button > button:active:not(:disabled) {
-  transform: translateY(1px);
+  filter: brightness(0.96);
 }
 
-/* Tactile keyboard keycap hints (Onigiri #ansbut::after) */
+/* Tactile keyboard keycap hints */
 .fc-root .fc-shortcut {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 20px;
-  padding: 0 7px;
-  border-radius: 6px;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 7px;
   border: 1px solid var(--fc-border-strong);
-  background: var(--fc-surface-soft);
+  background: var(--fc-surface);
   box-shadow: 0 1.5px 0 var(--fc-border-strong);
-  color: var(--muted-foreground, #888);
+  color: var(--muted-foreground, #8b8e95);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -1303,19 +1470,19 @@
 }
 
 .fc-root .fc-review-meta {
-  color: var(--muted-foreground, #888);
-  font-size: 13px;
+  color: var(--muted-foreground, #8b8e95);
+  font-size: 14px;
 }
 
 .fc-root .fc-review-empty,
 .fc-root .fc-practice-complete {
-  padding: 20px 28px;
-  border-radius: 16px;
-  border: 1.5px solid var(--fc-border);
+  padding: 24px 32px;
+  border-radius: 18px;
+  border: 1px solid var(--fc-border);
   background: var(--fc-surface);
   box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
   color: var(--foreground, inherit);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   animation: fc-card-in 200ms var(--fc-ease) both;
 }
@@ -1324,23 +1491,23 @@
 
 .fc-root .fc-debrief {
   width: 100%;
-  max-width: 34rem;
-  padding: 28px 28px 24px;
-  border-radius: 20px;
-  border: 1.5px solid var(--fc-border-strong);
+  max-width: 42rem;
+  padding: 36px 40px 32px;
+  border-radius: 22px;
+  border: 1px solid var(--fc-border);
   background: var(--fc-surface);
-  box-shadow: inset 0 1.5px 0 var(--fc-rim), var(--fc-shadow-card);
+  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
   text-align: center;
   animation: fc-card-in 220ms var(--fc-ease) both;
 }
 
 .fc-root .fc-debrief-eyebrow {
-  margin: 0 0 10px;
-  font-size: 10.5px;
+  margin: 0 0 12px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--muted-foreground, #888);
+  letter-spacing: 0.14em;
+  color: var(--muted-foreground, #8b8e95);
 }
 
 .fc-root .fc-debrief-hero {
@@ -1348,13 +1515,13 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 24px;
+  gap: 10px;
+  margin: 0 0 26px;
   line-height: 1;
 }
 
 .fc-root .fc-debrief-num {
-  font-size: clamp(32px, 6vw, 44px);
+  font-size: clamp(34px, 6vw, 46px);
   font-weight: 800;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
@@ -1363,21 +1530,21 @@
 
 .fc-root .fc-debrief-unit,
 .fc-root .fc-debrief-sep {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--muted-foreground, #888);
+  letter-spacing: 0.12em;
+  color: var(--muted-foreground, #8b8e95);
 }
 
 .fc-root .fc-debrief-bar {
   display: flex;
   width: 100%;
-  height: 12px;
+  height: 14px;
   border-radius: 999px;
   overflow: hidden;
   background: color-mix(in srgb, var(--foreground) 9%, transparent);
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .fc-root .fc-debrief-seg {
@@ -1394,17 +1561,17 @@
 .fc-root .fc-debrief-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 22px;
 }
 
 .fc-root .fc-debrief-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px 6px;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 14px;
   background: color-mix(in srgb, var(--fc-cell-color) 11%, transparent);
   border: 1px solid color-mix(in srgb, var(--fc-cell-color) 24%, transparent);
 }
@@ -1421,7 +1588,7 @@
 }
 
 .fc-root .fc-debrief-cell-n {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 800;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -1429,28 +1596,28 @@
 }
 
 .fc-root .fc-debrief-cell-l {
-  font-size: 10px;
+  font-size: 12.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   color: var(--fc-cell-color);
 }
 
 .fc-root .fc-debrief-cell.is-zero .fc-debrief-cell-l {
-  color: var(--muted-foreground, #888);
+  color: var(--muted-foreground, #8b8e95);
 }
 
 /* Practice Note */
-.fc-root.fc-practice-surface { padding-bottom: 20px; }
+.fc-root.fc-practice-surface { padding-bottom: 28px; }
 .fc-root.fc-practice-surface > .fc-practice-note {
   flex: none;
-  margin: 20px 0 0;
-  padding: 5px 14px;
+  margin: 24px 0 0;
+  padding: 6px 16px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--fc-blue) 10%, var(--fc-surface));
   border: 1px solid color-mix(in srgb, var(--fc-blue) 28%, transparent);
   color: var(--fc-blue);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   text-align: center;
 }
@@ -1461,18 +1628,19 @@
 .fc-root .fc-preview-card {
   text-align: center;
   min-height: 12rem;
-  padding: 28px 24px;
+  padding: 28px 28px;
+  border-radius: 18px;
 }
 
 .fc-dialog { min-width: 0; }
 .fc-dialog .fc-dialog-heading {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.015em;
   margin: 0 0 18px;
 }
 .fc-dialog .fc-actions {
-  margin-top: 18px;
+  margin-top: 20px;
   justify-content: flex-end;
 }
 .fc-dialog .fc-delete-description { margin-bottom: 12px; }
@@ -1480,8 +1648,8 @@
 
 /* ─── Plugin Settings & Sync Section ─────────────────────────────────────── */
 
-.fc-settings { padding: 12px 0; }
-.fc-root .fc-model-settings { display: grid; gap: 16px; margin-top: 18px; }
+.fc-settings { padding: 14px 0; }
+.fc-root .fc-model-settings { display: grid; gap: 18px; margin-top: 20px; }
 .fc-root .fc-model-overrides {
   display: flex;
   justify-content: flex-end;
@@ -1493,44 +1661,40 @@
 .fc-root .fc-thinking-row { display: inline-flex; }
 
 .fc-root .fc-sync-settings {
-  margin-top: 22px;
-  padding-top: 18px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid var(--fc-border);
 }
 
 .fc-root .fc-sync-title {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--muted-foreground, #888);
-  margin: 0 0 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted-foreground, #8b8e95);
+  margin: 0 0 14px;
 }
 
 .fc-root .fc-sync-settings .fc-actions {
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .fc-root .fc-sync-status {
-  margin: 10px 0 0;
-  font-size: 12.5px;
+  margin: 12px 0 0;
+  font-size: 13px;
   color: var(--fc-green);
 }
 
 .fc-root .fc-sync-status:empty { display: none; }
 
-/* ─── Responsive & Reduced Motion ────────────────────────────────────────── */
+/* ─── Narrow Viewport & Reduced Motion ───────────────────────────────────── */
 
 @media (max-width: 640px) {
-  .fc-library { padding: 14px 12px 36px; gap: 12px; }
-  .fc-root .fc-hero { padding: 16px; }
-  .fc-root .fc-hero-right { align-items: flex-start; margin-left: 0; }
-  .fc-root .fc-state-body { flex-direction: column; align-items: stretch; }
-  .fc-root .fc-donut-wrap { align-self: center; }
-  .fc-root .fc-state-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .fc-root.fc-review-surface { padding: 44px 14px 24px; }
-  .fc-root .fc-review-card { padding: 24px 18px; border-radius: 16px; }
+  .fc-library { padding: 18px 14px 44px; gap: 18px; }
+  .fc-root.fc-review-surface { padding: 40px 16px 28px; }
+  .fc-root .fc-review-card { padding: 28px 20px; border-radius: 18px; min-height: 18rem; }
   .fc-root .fc-review-footer .fc-actions.fc-actions-ratings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fc-root .fc-debrief { padding: 28px 20px 24px; }
   .fc-root .fc-debrief-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fc-root .fc-tree-more { opacity: 1; }
 }

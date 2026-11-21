@@ -3,10 +3,22 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons/icon";
+import { MenuShell } from "@/components/menu-shell";
 import { useModelCatalog } from "@/components/model-catalog";
+import { ModelMenuList } from "@/components/settings/model-menu";
 import { useSettingsDialog } from "@/components/settings/settings-dialog";
+import { formatTokens } from "@/components/usage-format";
 import { useT } from "@/components/i18n";
-import { campaignHours, campaignPaces, type CampaignPace, type DomainCreationStatus, type PluginModelValue } from "@/src/core";
+import {
+	campaignHours,
+	campaignPaces,
+	cleanModelDisplayName,
+	inferModelVendor,
+	subscriptionLabel,
+	type CampaignPace,
+	type DomainCreationStatus,
+	type PluginModelValue,
+} from "@/src/core";
 
 const endpoint = "/api/domains/create";
 const lastRequest = "trilhaatlas.domain-creation";
@@ -38,10 +50,15 @@ export function DomainCreator() {
 	const [status, setStatus] = useState<DomainCreationStatus>();
 	const [error, setError] = useState("");
 	const [busy, setBusy] = useState(false);
+	const [modelMenuOpen, setModelMenuOpen] = useState(false);
+	const modelAnchorRef = useRef<HTMLDivElement>(null);
 	const submitting = useRef(false);
 	const model = chosen ?? catalog?.defaults?.model;
 	const models = catalog?.models ?? [];
 	const selection = models.findIndex(entry => entry.provider === model?.provider && entry.id === model.id);
+	const selectedEntry = selection >= 0 ? models[selection] : undefined;
+	const selectedVendor = selectedEntry ? inferModelVendor(selectedEntry) : undefined;
+	const modelUnavailable = Boolean(catalog && model && !selectedEntry);
 	const working = status?.state === "planning" || status?.state === "materials";
 
 	useEffect(() => {
@@ -239,21 +256,88 @@ export function DomainCreator() {
 						</p>
 					</fieldset>
 
-					<label className="block space-y-2">
-						<span className="text-sm font-semibold">{t("pages.creator.modelLabel")}</span>
-						<select
-							className="cel-input block w-full px-3 py-2 text-sm"
-							value={selection}
-							disabled={working || busy}
-							onChange={event => {
-								const item = models[Number(event.target.value)];
-								if (item) setChosen({ provider: item.provider, id: item.id });
-							}}
-						>
-							<option value={-1} disabled>{t("pages.creator.chooseModel")}</option>
-							{models.map((entry, i) => <option key={entry.provider + "/" + entry.id} value={i}>{entry.name} · {entry.provider}</option>)}
-						</select>
-					</label>
+					<div className="space-y-2">
+						<span className="block text-sm font-semibold">{t("pages.creator.modelLabel")}</span>
+						<div ref={modelAnchorRef} className="relative">
+							<button
+								type="button"
+								data-testid="creator-model-trigger"
+								aria-expanded={modelMenuOpen}
+								aria-haspopup="listbox"
+								disabled={working || busy}
+								onClick={() => {
+									const next = !modelMenuOpen;
+									setModelMenuOpen(next);
+									if (next) refresh();
+								}}
+								className="cel-input flex w-full cursor-pointer items-center justify-between gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60"
+							>
+								{selectedEntry && selectedVendor ? (
+									<span className="flex min-w-0 flex-1 items-center gap-2.5">
+										<span
+											className="size-2 shrink-0 rounded-full"
+											style={{ backgroundColor: selectedVendor.accent }}
+											aria-hidden
+										/>
+										<span className="min-w-0 flex-1">
+											<span className="block truncate font-medium text-foreground">
+												{cleanModelDisplayName(selectedEntry, selectedVendor)}
+											</span>
+											<span className="block truncate text-xs text-muted-foreground">
+												{selectedVendor.id === "other" ? t("settings.models.otherVendor") : selectedVendor.label}
+												{" · "}
+												{subscriptionLabel(`${selectedEntry.provider}:${selectedEntry.id}`) ?? selectedEntry.provider}
+												{selectedEntry.contextWindow !== null ? ` · ${formatTokens(selectedEntry.contextWindow)}` : ""}
+											</span>
+										</span>
+									</span>
+								) : (
+									<span className="min-w-0 flex-1 truncate text-muted-foreground">
+										{modelUnavailable
+											? `${model?.provider}:${model?.id}`
+											: t("pages.creator.chooseModel")}
+									</span>
+								)}
+								<Icon
+									name="chevron-down"
+									size={16}
+									tone={false}
+									className={`shrink-0 text-muted-foreground transition-transform ${modelMenuOpen ? "rotate-180" : ""}`}
+								/>
+							</button>
+							{modelUnavailable && (
+								<p className="mt-1.5 text-xs text-destructive">
+									{t("settings.models.unavailableHint")}
+								</p>
+							)}
+							{modelMenuOpen && !working && !busy && (
+								<MenuShell
+									anchorRef={modelAnchorRef}
+									testid="creator-model-menu"
+									preferredSide="down"
+									align="left"
+									onClose={() => { setModelMenuOpen(false); return "closed"; }}
+									menuClass="flex w-[min(32rem,calc(100vw-2.5rem))] flex-col rounded-xl border border-border bg-card p-2 text-xs shadow-xl"
+								>
+									<ModelMenuList
+										models={catalog?.models}
+										effectiveId={selectedEntry?.id}
+										effectiveProvider={selectedEntry?.provider}
+										onPick={(entry) => {
+											setChosen({ provider: entry.provider, id: entry.id });
+											setModelMenuOpen(false);
+											setError("");
+										}}
+										footer={
+											catalog && catalog.models.length === 0
+												? "No models — add a provider key in Providers"
+												: undefined
+										}
+									/>
+								</MenuShell>
+							)}
+						</div>
+					</div>
 
 					<details className="study-disclosure text-sm">
 						<summary>Incluir seus próprios livros, PDFs ou vídeos iniciais{materials.length ? ` (${materials.length})` : " (opcional)"}</summary>

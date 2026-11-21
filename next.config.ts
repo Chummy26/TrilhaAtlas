@@ -55,9 +55,13 @@ const nextConfig: NextConfig = {
 		"*": [
 			"**/data/**/*",
 			"auth.json",
+			"**/auth.json",
 			"chatgpt-credentials.json*",
+			"**/chatgpt-credentials.json*",
 			"github-copilot-credentials.json*",
+			"**/github-copilot-credentials.json*",
 			"xai-credentials.json*",
+			"**/xai-credentials.json*",
 			".env*",
 		],
 	},

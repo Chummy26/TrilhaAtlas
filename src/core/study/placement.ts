@@ -7,7 +7,7 @@
  * frontier/chapter/module recommendations.
  */
 
-import type { CurriculumSnapshot } from "../curriculum/types.ts";
+import type { CurriculumItem, CurriculumSnapshot } from "../curriculum/types.ts";
 import { graphIndex, type LearnerGraphView } from "../learner/graph-view.ts";
 import {
 	defaultSkeleton,
@@ -23,8 +23,8 @@ import {
 	type DiagnosticState,
 } from "../learner/kst.ts";
 import { LEARNER_CONSTANTS } from "../learner/params.ts";
-import type { LearnerEvent, NodeState } from "../learner/types.ts";
-import { activeModuleOf, studyCampaign } from "./campaign.ts";
+import type { LearnerEvent, LearnerSnapshot, NodeState } from "../learner/types.ts";
+import { activeModuleOf, chapterUnitsOf, studyCampaign } from "./campaign.ts";
 import { nodeBrief } from "./projection.ts";
 
 export interface SerializedDiagnostic {
@@ -73,6 +73,86 @@ const PLACEMENT_MIN_QUESTIONS = 8;
 const PLACEMENT_MAX_QUESTIONS = 15;
 const PLACEMENT_SKELETON_MAX = 120;
 const PLACEMENT_THRESHOLD = 0.85;
+const CHAPTER_PLACED_OUT_RATIO = 0.8;
+const CEFR_DIFFICULTY_ORDER = ["pre-A1", "A1", "A2", "B1", "B2", "C1", "C2"] as const;
+const CEFR_DEFAULT_GSE = [15, 25, 36, 50, 66, 80, 88] as const;
+
+function levelSignalOf(item: CurriculumItem | undefined): number | null {
+	if (!item) return null;
+	if (item.level.scheme === "cefr") {
+		if (typeof item.level.gse === "number" && Number.isFinite(item.level.gse)) {
+			return item.level.gse;
+		}
+		const idx = CEFR_DIFFICULTY_ORDER.indexOf(item.level.cefr);
+		return idx >= 0 ? CEFR_DEFAULT_GSE[idx]! : null;
+	}
+	return item.level.band;
+}
+
+function buildPlacementDifficulty(
+	graph: LearnerGraphView,
+	snapshot?: CurriculumSnapshot,
+): ((id: string) => number) | undefined {
+	const ids = graph.ids;
+	if (ids.length === 0) return undefined;
+
+	const canonicalLeaves = ids.filter((id) => {
+		const node = graph.nodes.get(id);
+		return Boolean(node?.isLeaf && !node.reinforcementFor);
+	});
+	const zeroDepthLeaves = canonicalLeaves.filter((id) => (graph.nodes.get(id)?.depth ?? 0) === 0).length;
+	const isFlatGraph = canonicalLeaves.length > 0 && zeroDepthLeaves / canonicalLeaves.length > 0.35;
+
+	let maxDepth = 0;
+	for (const id of ids) {
+		const d = graph.nodes.get(id)?.depth ?? 0;
+		if (d > maxDepth) maxDepth = d;
+	}
+
+	const levelRaw = new Map<string, number>();
+	let minLevel = Infinity;
+	let maxLevel = -Infinity;
+	if (snapshot) {
+		for (const id of ids) {
+			const val = levelSignalOf(snapshot.items[id]);
+			if (val !== null) {
+				levelRaw.set(id, val);
+				if (val < minLevel) minLevel = val;
+				if (val > maxLevel) maxLevel = val;
+			}
+		}
+	}
+	const hasLevelSpread = levelRaw.size > 0 && maxLevel > minLevel;
+
+	// Deep DAGs without explicit snapshot levels use KST's standard depthDifficulty.
+	if (!hasLevelSpread && !isFlatGraph) return undefined;
+
+	const maxPos = Math.max(1, ids.length - 1);
+	const raw = new Map<string, number>();
+	let sum = 0;
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i]!;
+		const depthNorm = maxDepth > 0 ? (graph.nodes.get(id)?.depth ?? 0) / maxDepth : 0;
+		const posNorm = i / maxPos;
+		let score: number;
+		if (hasLevelSpread) {
+			const lv = levelRaw.get(id);
+			const levelNorm = lv !== undefined ? (lv - minLevel) / (maxLevel - minLevel) : posNorm;
+			score = isFlatGraph
+				? 0.75 * levelNorm + 0.15 * posNorm + 0.10 * depthNorm
+				: 0.55 * levelNorm + 0.35 * depthNorm + 0.10 * posNorm;
+		} else {
+			score = 0.75 * posNorm + 0.25 * depthNorm;
+		}
+		raw.set(id, score);
+		sum += score;
+	}
+	const mean = sum / ids.length;
+	let variance = 0;
+	for (const val of raw.values()) variance += (val - mean) ** 2;
+	const sd = Math.sqrt(variance / ids.length) || 1;
+	return (id: string) => ((raw.get(id) ?? mean) - mean) / sd;
+}
 
 function placementConfidencePct(graph: LearnerGraphView, state: DiagnosticState): number {
 	if (state.skeleton.length === 0) return 100;
@@ -160,9 +240,14 @@ export function deserializeDiagnostic(raw: SerializedDiagnostic): DiagnosticStat
 }
 
 /** Initialize an adaptive KST placement over up to 120 balanced topological leaves. */
-export function startPlacement(graph: LearnerGraphView, seed: string): DiagnosticState {
+export function startPlacement(
+	graph: LearnerGraphView,
+	seed: string,
+	snapshot?: CurriculumSnapshot,
+): DiagnosticState {
 	const skeleton = balancedSkeleton(graph, PLACEMENT_SKELETON_MAX);
-	return startDiagnostic(graph, { seed, skeleton });
+	const difficulty = buildPlacementDifficulty(graph, snapshot);
+	return startDiagnostic(graph, { seed, skeleton, ...(difficulty ? { difficulty } : {}) });
 }
 
 /** Current half-split placement question, or null when converged or capped at 15 answers. */
@@ -226,6 +311,7 @@ export function summarizePlacement(
 	graph: LearnerGraphView,
 	state: DiagnosticState,
 	meta: { id: string; seq: number; at: string; domainId: string },
+	existingLearner?: Pick<LearnerSnapshot, "nodes"> | null,
 ): { summary: PlacementSummary; event: LearnerEvent } {
 	const event = diagnosticEvent(state, meta);
 	const estimates = diagnosticEstimates(state);
@@ -241,12 +327,30 @@ export function summarizePlacement(
 
 	const placedNodeIds: string[] = [];
 	const virtualNodes: Record<string, NodeState> = {};
+
+	// Preserve existing attained/verified/completed learner progress before merging
+	// new placement estimates so re-running placement never regresses completed work.
+	if (existingLearner?.nodes) {
+		for (const [nodeId, nodeState] of Object.entries(existingLearner.nodes)) {
+			if (nodeState) virtualNodes[nodeId] = { ...nodeState };
+		}
+	}
+
 	for (const estimate of estimates) {
 		if (!leafSet.has(estimate.nodeId)) continue;
 		if (estimate.p >= PLACEMENT_THRESHOLD) {
 			placedNodeIds.push(estimate.nodeId);
-			const version = graph.nodes.get(estimate.nodeId)?.version ?? 1;
-			virtualNodes[estimate.nodeId] = minimalPlacedNodeState(estimate.nodeId, version, estimate.p, meta.at);
+			const existing = virtualNodes[estimate.nodeId];
+			if (!existing) {
+				const version = graph.nodes.get(estimate.nodeId)?.version ?? 1;
+				virtualNodes[estimate.nodeId] = minimalPlacedNodeState(estimate.nodeId, version, estimate.p, meta.at);
+			} else if (!existing.verified && !existing.attainedAt && !existing.lessonCompletedAt) {
+				virtualNodes[estimate.nodeId] = {
+					...existing,
+					pL: Math.max(existing.pL, estimate.p),
+					placedAt: existing.placedAt ?? meta.at,
+				};
+			}
 		}
 	}
 
@@ -255,16 +359,52 @@ export function summarizePlacement(
 	const effectiveFrontier = frontierNodeIds.length > 0 ? frontierNodeIds : struct.frontier;
 
 	const campaign = studyCampaign(snapshot, graph, struct.known);
+	const structure = chapterUnitsOf(snapshot, graph, campaign);
+	const chapterIndexByNode = new Map<string, number>();
+	for (const cu of structure) {
+		for (const mod of cu.modules) {
+			for (const leafId of mod.leafIds) {
+				chapterIndexByNode.set(leafId, cu.chapterIndex);
+			}
+		}
+	}
+
+	// Pick the first chapter where the learner has NOT effectively placed out (< 80% known),
+	// so stray unplaced beginner leaves never drag an advanced learner back to A1 / Etapa 1.
+	const targetChapterIdx = (() => {
+		const belowPlacedOut = campaign.journey.findIndex(
+			(c) => c.total > 0 && c.known / c.total < CHAPTER_PLACED_OUT_RATIO,
+		);
+		if (belowPlacedOut >= 0) return belowPlacedOut;
+		for (let i = campaign.journey.length - 1; i >= 0; i--) {
+			const c = campaign.journey[i]!;
+			if (c.known < c.total) return i;
+		}
+		return campaign.journey.length > 0 ? campaign.journey.length - 1 : -1;
+	})();
+
+	const targetChapterFrontier = targetChapterIdx >= 0
+		? effectiveFrontier.filter((id) => chapterIndexByNode.get(id) === targetChapterIdx)
+		: [];
+	const candidateFrontier = targetChapterFrontier.length > 0
+		? targetChapterFrontier
+		: effectiveFrontier;
+
 	let recommendedNodeId: string | undefined;
+	let bestRank = -Infinity;
 	let bestPriority = -Infinity;
-	for (const id of effectiveFrontier) {
+	for (const id of candidateFrontier) {
+		const chIdx = chapterIndexByNode.get(id) ?? -1;
 		const prio = campaign.priority(id);
-		if (prio > bestPriority) {
+		// When falling back outside targetChapter, prefer the highest frontier chapter first.
+		const rank = targetChapterFrontier.length > 0 ? 0 : chIdx;
+		if (rank > bestRank || (rank === bestRank && prio > bestPriority)) {
+			bestRank = rank;
 			bestPriority = prio;
 			recommendedNodeId = id;
 		}
 	}
-	if (!recommendedNodeId) recommendedNodeId = effectiveFrontier[0];
+	if (!recommendedNodeId) recommendedNodeId = candidateFrontier[0];
 
 	const recommendedNodeTitle = recommendedNodeId
 		? (snapshot.items[recommendedNodeId]?.title.pt ?? graph.nodes.get(recommendedNodeId)?.title ?? recommendedNodeId)
@@ -278,11 +418,11 @@ export function summarizePlacement(
 		new Set(struct.frontier),
 		recommendedNodeId,
 	);
-	const firstOpenChapter = campaign.journey.find((c) => c.known < c.total) ?? campaign.journey.at(-1);
+	const targetChapter = targetChapterIdx >= 0 ? campaign.journey[targetChapterIdx] : campaign.journey.at(-1);
 	const recommendedChapter = activeMod
 		? { level: activeMod.chapterLevel, title: activeMod.chapterTitle }
-		: firstOpenChapter
-			? { level: firstOpenChapter.level, title: firstOpenChapter.title }
+		: targetChapter
+			? { level: targetChapter.level, title: targetChapter.title }
 			: undefined;
 	const recommendedModule = activeMod
 		? {

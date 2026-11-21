@@ -444,37 +444,66 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 		return credential(background, expected);
 	}
 	const modelValue = () => ({ ...stamp(), status: snapshot(), accountId: active()?.id ?? null, models: catalog });
-	async function models() {
-		const sequence = ++catalogSequence;
-		try {
-			await ready();
-			if (!active()) return modelValue();
-			// Discovery is identity/scope authorization, not an invented model lease.
-			const token = await credential(false);
-			const body = await json(`${RESOURCE}/models`, { headers: { Authorization: `Bearer ${token.accessToken}` }, signal: AbortSignal.any([transportAbort.signal, AbortSignal.timeout(15000)]) });
-			authorized(false, undefined, token.epoch);
-			if (sequence !== catalogSequence || active()?.id !== token.accountId || !Array.isArray(body.models)) throw fail("catalog");
-			const visible = body.models
-				.filter(m => m?.visibility === "list" && m.supported_in_api !== false && nonempty(m.slug) && typeof m.display_name === "string")
-				.map(m => ({
-					id: m.slug, name: m.display_name,
-					...(Number.isSafeInteger(m.context_window) && m.context_window > 0 && { contextWindow: m.context_window }),
-					...(Number.isSafeInteger(m.max_output_tokens) && m.max_output_tokens > 0 && { maxOutput: m.max_output_tokens }),
-					...(Array.isArray(m.input_modalities) && { input: m.input_modalities.filter(mode => mode === "text" || mode === "image") }),
-					...(Array.isArray(m.supported_reasoning_levels) && { efforts: m.supported_reasoning_levels.map(level => level?.effort).filter(effort => typeof effort === "string") }),
-				}));
-			const changed = JSON.stringify(visible) !== JSON.stringify(catalog);
-			catalog = visible;
-			if (changed) authorityRevision++;
-			const hadError = catalogError !== null; catalogError = null;
-			if (changed || hadError) notify();
-			return modelValue();
-		} catch {
-			if (sequence === catalogSequence) {
-				if (catalog.length) { catalog = []; authorityRevision++; }
-				catalogError = publicError(fail("catalog")); notify();
+	let inFlightModels = null;
+	async function fetchAccountModels(accessToken) {
+		for (let attempt = 0; attempt < 2; attempt++) {
+			if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 250));
+			try {
+				return await json(`${RESOURCE}/models`, {
+					headers: { Authorization: `Bearer ${accessToken}` },
+					signal: AbortSignal.any([transportAbort.signal, AbortSignal.timeout(15000)]),
+				});
+			} catch (err) {
+				if (attempt === 1 || transportAbort.signal.aborted) throw err;
 			}
-			return modelValue();
+		}
+	}
+	async function models() {
+		await ready();
+		const currentAccount = active();
+		if (!currentAccount) return modelValue();
+		const currentEpoch = epoch;
+		if (inFlightModels && inFlightModels.epoch === currentEpoch && inFlightModels.accountId === currentAccount.id) {
+			return inFlightModels.promise;
+		}
+		const sequence = ++catalogSequence;
+		const run = (async () => {
+			try {
+				if (!active()) return modelValue();
+				// Discovery is identity/scope authorization, not an invented model lease.
+				const token = await credential(false);
+				const body = await fetchAccountModels(token.accessToken);
+				authorized(false, undefined, token.epoch);
+				if (sequence !== catalogSequence || active()?.id !== token.accountId || !Array.isArray(body.models)) throw fail("catalog");
+				const visible = body.models
+					.filter(m => m?.visibility === "list" && m.supported_in_api !== false && nonempty(m.slug) && typeof m.display_name === "string")
+					.map(m => ({
+						id: m.slug, name: m.display_name,
+						...(Number.isSafeInteger(m.context_window) && m.context_window > 0 && { contextWindow: m.context_window }),
+						...(Number.isSafeInteger(m.max_output_tokens) && m.max_output_tokens > 0 && { maxOutput: m.max_output_tokens }),
+						...(Array.isArray(m.input_modalities) && { input: m.input_modalities.filter(mode => mode === "text" || mode === "image") }),
+						...(Array.isArray(m.supported_reasoning_levels) && { efforts: m.supported_reasoning_levels.map(level => level?.effort).filter(effort => typeof effort === "string") }),
+					}));
+				const changed = JSON.stringify(visible) !== JSON.stringify(catalog);
+				catalog = visible;
+				if (changed) authorityRevision++;
+				const hadError = catalogError !== null; catalogError = null;
+				if (changed || hadError) notify();
+				return modelValue();
+			} catch {
+				if (sequence === catalogSequence) {
+					if (catalog.length) { catalog = []; authorityRevision++; }
+					catalogError = publicError(fail("catalog")); notify();
+				}
+				return modelValue();
+			}
+		})();
+		const entry = { epoch: currentEpoch, accountId: currentAccount.id, promise: run };
+		inFlightModels = entry;
+		try {
+			return await run;
+		} finally {
+			if (inFlightModels === entry) inFlightModels = null;
 		}
 	}
 	async function select(id) {

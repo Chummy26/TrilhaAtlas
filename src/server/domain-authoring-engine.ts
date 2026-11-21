@@ -15,6 +15,15 @@ export async function domainAuthoringEngine(domainId: string, model?: { provider
 		throw new Error("Conecte a conta do modelo em Configurações → Providers.");
 	}
 	const sameSlot = strong?.provider === spec.provider && strong.id === spec.id;
-	const engine = piEngineForSpec(sameSlot ? strong : spec, false, undefined, () => effectiveSettings().models.strong?.cacheRetention);
+	let engine: PiEngine;
+	try {
+		engine = piEngineForSpec(sameSlot ? strong : spec, false, undefined, () => effectiveSettings().models.strong?.cacheRetention);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : "";
+		if (message.includes("catalog has no model")) {
+			throw new Error(`O modelo "${spec.id}" não está disponível no catálogo atual de ${spec.provider}. Escolha outro modelo ou reconecte a conta em Configurações → Provedores.`);
+		}
+		throw error;
+	}
 	return observeEngineUsage(engine, "curriculum.generate", { domain: domainId, background: false });
 }

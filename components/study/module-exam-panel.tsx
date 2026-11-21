@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
-import { useT } from "@/components/i18n";
+import { useI18n } from "@/components/i18n";
 import type { ModuleExamResult } from "@/src/core";
 
 export interface ModuleExamPanelProps {
@@ -58,16 +58,18 @@ function countWords(text: string): number {
 
 function extractCreditCount(data: ModuleExamPostPayload | null): number {
 	if (!data || typeof data !== "object") return 0;
-	const candidates = [data.fireCreditsCount, data.implicitCredits, data.fireCredits, data.encompassedCredits, data.creditsApplied];
+	const candidates = [
+		data.fireCreditsCount,
+		data.implicitCredits,
+		data.fireCredits,
+		data.encompassedCredits,
+		data.creditsApplied,
+	];
 	for (const value of candidates) {
 		if (typeof value === "number" && Number.isFinite(value)) return value;
 		if (Array.isArray(value)) return value.length;
 	}
 	return 0;
-}
-
-function formatScore(score: number): string {
-	return score.toFixed(1).replace(".", ",");
 }
 
 export function ModuleExamPanel({
@@ -78,7 +80,7 @@ export function ModuleExamPanel({
 	onClose,
 	onGraded,
 }: ModuleExamPanelProps) {
-	const t = useT();
+	const { t, intl } = useI18n();
 	const formId = useId();
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
@@ -89,31 +91,39 @@ export function ModuleExamPanel({
 	const [fireCredits, setFireCredits] = useState(0);
 	const [attemptKey, setAttemptKey] = useState(0);
 
-	const loadExam = useCallback((seedOverride?: string, signal?: AbortSignal) => {
-		setLoading(true);
-		setError("");
-		const params = new URLSearchParams({ scope, target: targetId });
-		if (seedOverride) params.set("seed", seedOverride);
-		fetch(`/api/study/module-exam?${params.toString()}`, { signal })
-			.then(async (res) => {
-				const data = (await res.json().catch(() => null)) as (ModuleExamGetPayload & Partial<PublicExamView>) | null;
-				if (!res.ok) throw new Error(data?.error ?? "Não foi possível carregar a prova integradora.");
-				const loaded = data?.exam ?? (Array.isArray(data?.questions) ? (data as PublicExamView) : null);
-				if (!loaded) throw new Error("Formato inválido de prova retornado pelo servidor.");
-				if (signal?.aborted) return;
-				setExam(loaded);
-				setAnswers({});
-				setResult(null);
-				setFireCredits(0);
-			})
-			.catch((err: unknown) => {
-				if (signal?.aborted) return;
-				setError(err instanceof Error ? err.message : "Não foi possível carregar a prova integradora.");
-			})
-			.finally(() => {
-				if (!signal?.aborted) setLoading(false);
-			});
-	}, [scope, targetId]);
+	const scoreFmt = useMemo(
+		() => new Intl.NumberFormat(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+		[intl],
+	);
+
+	const loadExam = useCallback(
+		(seedOverride?: string, signal?: AbortSignal) => {
+			setLoading(true);
+			setError("");
+			const params = new URLSearchParams({ scope, target: targetId });
+			if (seedOverride) params.set("seed", seedOverride);
+			fetch(`/api/study/module-exam?${params.toString()}`, { signal })
+				.then(async (res) => {
+					const data = (await res.json().catch(() => null)) as (ModuleExamGetPayload & Partial<PublicExamView>) | null;
+					if (!res.ok) throw new Error(data?.error ?? t("course.exam.errLoad"));
+					const loaded = data?.exam ?? (Array.isArray(data?.questions) ? (data as PublicExamView) : null);
+					if (!loaded) throw new Error(t("course.exam.errFormat"));
+					if (signal?.aborted) return;
+					setExam(loaded);
+					setAnswers({});
+					setResult(null);
+					setFireCredits(0);
+				})
+				.catch((err: unknown) => {
+					if (signal?.aborted) return;
+					setError(err instanceof Error ? err.message : t("course.exam.errLoad"));
+				})
+				.finally(() => {
+					if (!signal?.aborted) setLoading(false);
+				});
+		},
+		[scope, targetId, t],
+	);
 
 	useEffect(() => {
 		const ctrl = new AbortController();
@@ -126,7 +136,7 @@ export function ModuleExamPanel({
 		if (!exam || submitting) return;
 		const unanswered = exam.questions.filter((q) => !(answers[q.id] ?? "").trim());
 		if (unanswered.length === exam.questions.length) {
-			setError("Responda às questões antes de entregar a prova integradora.");
+			setError(t("course.exam.errEmpty"));
 			return;
 		}
 		setSubmitting(true);
@@ -144,15 +154,15 @@ export function ModuleExamPanel({
 			});
 			const data = (await res.json().catch(() => null)) as (ModuleExamPostPayload & Partial<ModuleExamResult>) | null;
 			if (!res.ok) {
-				throw new Error(data?.error ?? "Não foi possível corrigir a prova integradora.");
+				throw new Error(data?.error ?? t("course.exam.errGrade"));
 			}
 			const graded = data?.result ?? (typeof data?.score10 === "number" ? (data as ModuleExamResult) : null);
-			if (!graded) throw new Error("Resposta de correção inválida.");
+			if (!graded) throw new Error(t("course.exam.errGradeResponse"));
 			setResult(graded);
 			setFireCredits(extractCreditCount(data));
 			onGraded?.(graded);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Falha ao entregar a prova integradora.");
+			setError(err instanceof Error ? err.message : t("course.exam.errSubmit"));
 		} finally {
 			setSubmitting(false);
 		}
@@ -161,12 +171,13 @@ export function ModuleExamPanel({
 	const mapHref = (nodeId: string) =>
 		`/mapa?dominio=${encodeURIComponent(domainId)}&no=${encodeURIComponent(nodeId)}`;
 
-	const scopeLabel = scope === "chapter" ? "Prova Integradora do Capítulo" : "Prova Integradora do Módulo";
+	const scopeLabel = scope === "chapter" ? t("course.exam.chapterTitle") : t("course.exam.moduleTitle");
 
 	return (
 		<section
 			aria-label={`${scopeLabel} · ${targetTitle}`}
 			data-testid="module-exam-panel"
+			data-exam-scope={scope}
 			className="cel-card space-y-4 p-4 md:p-5"
 		>
 			<div className="flex flex-wrap items-start justify-between gap-2 border-b border-border/50 pb-3">
@@ -177,18 +188,21 @@ export function ModuleExamPanel({
 						<span className="study-pill study-pill-accent">{t("course.exam.interleaved")}</span>
 					</div>
 					<p className="text-xs text-muted-foreground">
-						{targetTitle} · Questões embaralhadas sem identificação de tópico (nota mínima {exam ? formatScore(exam.passingScore10) : "7,5"}/10, sem zerar questão).
+						{t("course.exam.subtitle", {
+							title: targetTitle,
+							passing: scoreFmt.format(exam ? exam.passingScore10 : 7.5),
+						})}
 					</p>
 				</div>
 				{onClose && (
 					<button
 						type="button"
-						aria-label="Fechar prova integradora"
+						aria-label={t("course.exam.closeAria")}
 						className="cel-button cel-button-ghost min-h-8 px-2 py-1 text-xs"
 						onClick={onClose}
 					>
 						<Icon name="close" size={14} tone={false} />
-						Fechar
+						{t("common.action.close")}
 					</button>
 				)}
 			</div>
@@ -196,7 +210,7 @@ export function ModuleExamPanel({
 			{loading && (
 				<p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
 					<Icon name="loader" size={16} live />
-					Montando questões intercaladas…
+					{t("course.exam.loading")}
 				</p>
 			)}
 
@@ -208,7 +222,7 @@ export function ModuleExamPanel({
 						className="cel-button min-h-9 px-3.5 py-1.5 text-xs"
 						onClick={() => setAttemptKey((k) => k + 1)}
 					>
-						Tentar novamente
+						{t("common.action.retry")}
 					</button>
 				</div>
 			)}
@@ -231,10 +245,10 @@ export function ModuleExamPanel({
 									>
 										<div className="flex flex-wrap items-center justify-between gap-2">
 											<label htmlFor={fieldId} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-												Item {idx + 1} de {exam.questions.length}
+												{t("course.exam.itemOf", { index: idx + 1, total: exam.questions.length })}
 											</label>
 											<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
-												{words}/{question.minWords} palavras mín.
+												{t("course.exam.minWords", { words, min: question.minWords })}
 											</span>
 										</div>
 										<p className="max-w-[65ch] text-[16px] leading-relaxed text-foreground">
@@ -244,7 +258,7 @@ export function ModuleExamPanel({
 											id={fieldId}
 											name={question.id}
 											className="cel-input min-h-28 w-full resize-y p-3 text-sm leading-relaxed"
-											placeholder="Identifique o princípio que governa a situação e desenvolva a solução com justificativa completa…"
+											placeholder={t("course.exam.answerPlaceholder")}
 											maxLength={12000}
 											disabled={submitting}
 											value={value}
@@ -263,7 +277,7 @@ export function ModuleExamPanel({
 
 						<div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-3">
 							<p className="text-xs text-muted-foreground">
-								Todas as questões são corrigidas em lote ao enviar.
+								{t("course.exam.batchHint")}
 							</p>
 							<button
 								type="submit"
@@ -272,7 +286,7 @@ export function ModuleExamPanel({
 								disabled={submitting}
 							>
 								<Icon name="check" size={15} />
-								{submitting ? "Corrigindo prova…" : "Entregar prova integradora"}
+								{submitting ? t("course.exam.submitting") : t("course.exam.submit")}
 							</button>
 						</div>
 					</form>
@@ -284,18 +298,18 @@ export function ModuleExamPanel({
 					<div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/75 p-4">
 						<div className="space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
-								<span className="cel-display text-2xl tabular-nums">{formatScore(result.score10)}/10</span>
+								<span className="cel-display text-2xl tabular-nums">{scoreFmt.format(result.score10)}/10</span>
 								<span className={result.passed ? "study-pill study-pill-success" : "study-pill study-pill-warning"}>
-									{result.passed ? "Aprovado" : "Reforço indicado"}
+									{result.passed ? t("course.exam.passed") : t("course.exam.reinforce")}
 								</span>
 								{result.hasZeroQuestion && (
-									<span className="study-pill study-pill-warning">Questão zerada</span>
+									<span className="study-pill study-pill-warning">{t("course.exam.zeroedQuestion")}</span>
 								)}
 							</div>
 							<p className="max-w-[65ch] text-sm leading-relaxed text-foreground/90">{result.summary}</p>
 						</div>
 						<div className="rounded-xl border border-border/50 bg-card/80 px-3 py-2 text-right">
-							<p className="text-[11px] uppercase tracking-wider text-muted-foreground">Créditos implícitos FIRe</p>
+							<p className="text-[11px] uppercase tracking-wider text-muted-foreground">{t("course.exam.fireCredits")}</p>
 							<p className="cel-display text-lg tabular-nums">{fireCredits}</p>
 						</div>
 					</div>
@@ -308,12 +322,16 @@ export function ModuleExamPanel({
 							>
 								<div className="flex flex-wrap items-center justify-between gap-2">
 									<div className="flex flex-wrap items-center gap-2">
-										<strong className="font-semibold">Questão {idx + 1}</strong>
+										<strong className="font-semibold">{t("course.exam.questionNumber", { index: idx + 1 })}</strong>
 										<span className={qr.grade >= 2 ? "study-pill study-pill-success tabular-nums" : "study-pill study-pill-warning tabular-nums"}>
-											Nota {qr.grade}/3
+											{t("course.exam.gradeOutOf3", { grade: qr.grade })}
 										</span>
 										<span className="text-xs text-muted-foreground tabular-nums">
-											{qr.matchedCriteria}/{qr.totalCriteria} critérios · {qr.wordCount} palavras
+											{t("course.exam.criteriaWords", {
+												matched: qr.matchedCriteria,
+												total: qr.totalCriteria,
+												words: qr.wordCount,
+											})}
 										</span>
 									</div>
 									{qr.grade <= 1 && (
@@ -322,7 +340,7 @@ export function ModuleExamPanel({
 											className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--cel-link,var(--lh-accent))] underline underline-offset-2"
 										>
 											<Icon name="map" size={13} tone={false} />
-											Revisar no mapa
+											{t("course.exam.reviewOnMap")}
 										</Link>
 									)}
 								</div>
@@ -335,7 +353,7 @@ export function ModuleExamPanel({
 						<div className="space-y-2 rounded-xl border border-border/55 bg-background/70 p-3.5">
 							<p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 								<Icon name="weak-spot" size={14} />
-								Tópicos para revisar no mapa ({result.weakNodeIds.length})
+								{t("course.exam.weakTopics", { count: result.weakNodeIds.length })}
 							</p>
 							<div className="flex flex-wrap gap-2">
 								{[...new Set(result.weakNodeIds)].map((nodeId, idx) => (
@@ -345,7 +363,7 @@ export function ModuleExamPanel({
 										className="cel-button min-h-8 px-3 py-1 text-xs"
 									>
 										<Icon name="map" size={13} tone={false} />
-										Revisar tópico {idx + 1} no mapa
+										{t("course.exam.reviewTopicOnMap", { index: idx + 1 })}
 									</Link>
 								))}
 							</div>
@@ -358,7 +376,7 @@ export function ModuleExamPanel({
 							className="cel-button min-h-9 px-3.5 py-1.5 text-xs"
 							onClick={() => setAttemptKey((k) => k + 1)}
 						>
-							Gerar nova versão da prova
+							{t("course.exam.newVersion")}
 						</button>
 						{onClose && (
 							<button
@@ -366,7 +384,7 @@ export function ModuleExamPanel({
 								className="cel-button cel-button-ghost min-h-9 px-3 py-1.5 text-xs"
 								onClick={onClose}
 							>
-								Voltar à ementa
+								{t("course.exam.backToSyllabus")}
 							</button>
 						)}
 					</div>

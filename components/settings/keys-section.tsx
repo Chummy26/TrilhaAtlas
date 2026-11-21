@@ -37,6 +37,7 @@ import {
 import { SettingsGroup } from "./controls.tsx";
 import { SubscriptionConnections } from "./subscription-connections.tsx";
 import { ClaudeCodeInstallationStatus } from "./claude-code-status.tsx";
+import { GoogleVertexStatusPanel } from "./google-vertex-status.tsx";
 import { ProviderMenuList } from "./model-menu.tsx";
 import { useInteractionLayer, useInteractionLayers, useOptionalInteractionLayers } from "@/components/interaction-layers";
 import { isInteractionScopeEligible } from "@/components/plugin-input-focus";
@@ -575,6 +576,10 @@ export function KeysSection({
 				</div>}
 			</SettingsGroup>
 
+
+			<SettingsGroup label="Google Cloud (Vertex AI)" testid="group-google-vertex">
+				<GoogleVertexStatusPanel />
+			</SettingsGroup>
 
 			<SettingsGroup label="External CLI" testid="group-external-cli">
 				<ClaudeCodeInstallationStatus />

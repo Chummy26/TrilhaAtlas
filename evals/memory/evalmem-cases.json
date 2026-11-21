@@ -168,6 +168,145 @@
 			"rubric": [
 				{ "id": "honest_memory_abstention", "weight": 2, "criterion": "Declara honestamente que não há nenhum registro de nota de simulado do TOEFL na memória, sem inventar números." }
 			]
+		},
+		{
+			"id": "mem-count-cancellation-elec",
+			"split": "dev",
+			"domain": "electronics",
+			"memoryCategory": "multisession_counting_cancellation",
+			"sessions": [
+				{
+					"date": "2026-10-10",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "Planejei montar dois projetos de bancada este semestre: uma fonte ajustável LM317 e um amplificador classe A." },
+						{ "role": "assistant", "content": "Anotados os dois projetos de bancada." }
+					]
+				},
+				{
+					"date": "2026-10-18",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "Ainda vou montar a fonte ajustável LM317 assim que chegarem os capacitores, e decidi incluir mais um projeto: um oscilador 555." },
+						{ "role": "assistant", "content": "Perfeito, oscilador 555 adicionado à lista." }
+					]
+				},
+				{
+					"date": "2026-11-05",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "Cancelei a montagem do amplificador classe A porque não tenho dissipador adequado." },
+						{ "role": "assistant", "content": "Entendido, amplificador classe A cancelado." }
+					]
+				}
+			],
+			"query": "Quantos projetos de bancada ativos eu ainda tenho planejados para montar, e quais são?",
+			"expectedRecordContains": ["LM317", "555", "cancelei"],
+			"expectedAnswerContains": ["2", "LM317", "555"],
+			"forbiddenStaleClaim": "Contar 3 ou 4 projetos (duplicando a fonte LM317 ou mantendo o amplificador classe A cancelado como ativo).",
+			"rubric": [
+				{ "id": "accurate_dedup_and_cancellation", "weight": 2, "criterion": "Responde exatamente 2 projetos ativos (fonte ajustável LM317 e oscilador 555), sem contar a LM317 duas vezes e excluindo o amplificador classe A cancelado em 05/11." }
+			]
+		},
+		{
+			"id": "mem-cooling-prereq-elec",
+			"split": "heldout",
+			"domain": "electronics",
+			"memoryCategory": "cooling_skill_prerequisite",
+			"sessions": [
+				{
+					"date": "2026-09-12",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "Concluí o exame de Equivalente de Thévenin com nota 3/3 hoje. O mapa mostra que ele é pré-requisito para a polarização de base do transistor BJT por divisor." },
+						{ "role": "assistant", "content": "Excelente domínio em Equivalente de Thévenin." }
+					]
+				},
+				{
+					"date": "2026-11-18",
+					"domain": "electronics",
+					"turns": [
+						{ "role": "user", "content": "Estou começando polarização de base do transistor BJT por divisor hoje e não pratico Thévenin desde setembro." }
+					]
+				}
+			],
+			"query": "Qual pré-requisito antigo de setembro está esfriando e devo aquecer rapidamente antes de analisar a polarização de base do transistor BJT?",
+			"expectedRecordContains": ["Thévenin", "polarização"],
+			"expectedAnswerContains": ["Thévenin", "setembro"],
+			"forbiddenStaleClaim": "Ignorar que Equivalente de Thévenin foi concluído em setembro (esfriando) ou inventar outro pré-requisito não registrado.",
+			"rubric": [
+				{ "id": "recalls_cooling_prerequisite", "weight": 2, "criterion": "Identifica exatamente Equivalente de Thévenin (concluído em 12/09 e sem prática desde setembro) como o pré-requisito que está esfriando para a polarização de base do BJT." }
+			]
+		},
+		{
+			"id": "mem-resolved-vs-active-eng",
+			"split": "dev",
+			"domain": "english",
+			"memoryCategory": "resolved_vs_active_misconception",
+			"sessions": [
+				{
+					"date": "2026-10-08",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "Estou cometendo dois erros seguidos em inglês: esqueço o -s na terceira pessoa ('She go') e confundo 'make' com 'do' ('make homework')." },
+						{ "role": "assistant", "content": "Vamos acompanhar esses dois pontos separadamente." }
+					]
+				},
+				{
+					"date": "2026-11-14",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "No exame independente de hoje acertei 100% da terceira pessoa do singular (nota 3/3, nenhum erro de -s), mas ainda escrevi 'make homework' e 'make a favor' na redação." },
+						{ "role": "assistant", "content": "Terceira pessoa consolidada; vamos manter atenção nas colocações de make vs. do." }
+					]
+				}
+			],
+			"query": "Entre minhas duas dificuldades antigas de inglês, qual já foi resolvida e qual erro continua ativo para eu treinar hoje?",
+			"expectedRecordContains": ["terceira pessoa", "make"],
+			"expectedAnswerContains": ["terceira pessoa", "make"],
+			"forbiddenStaleClaim": "Tratar a terceira pessoa (-s) como erro ainda ativo ou afirmar que make vs. do já foi resolvido.",
+			"rubric": [
+				{ "id": "separates_resolved_from_active", "weight": 2, "criterion": "Declara que a terceira pessoa do singular (-s) já foi resolvida (exame independente 3/3 em 14/11) e que a confusão entre 'make' e 'do' ('make homework', 'make a favor') continua ativa para treino hoje." }
+			]
+		},
+		{
+			"id": "mem-count-cancellation-eng",
+			"split": "heldout",
+			"domain": "english",
+			"memoryCategory": "multisession_counting_cancellation",
+			"sessions": [
+				{
+					"date": "2026-10-04",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "Quero fazer dois treinos de entrevista em inglês este mês: backend system design e behavioral STAR." },
+						{ "role": "assistant", "content": "Combinado, vamos preparar ambos os formatos." }
+					]
+				},
+				{
+					"date": "2026-10-20",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "Continuo precisando treinar behavioral STAR em inglês, e quero adicionar também um treino de code review walkthrough." },
+						{ "role": "assistant", "content": "Adicionado code review walkthrough ao plano." }
+					]
+				},
+				{
+					"date": "2026-11-09",
+					"domain": "english",
+					"turns": [
+						{ "role": "user", "content": "Cancelei o treino de backend system design porque a vaga mudou para foco em frontend." },
+						{ "role": "assistant", "content": "Certo, backend system design removido do plano." }
+					]
+				}
+			],
+			"query": "Quantos treinos de entrevista em inglês continuam ativos no meu plano agora, e quais são?",
+			"expectedRecordContains": ["behavioral STAR", "code review", "cancelei"],
+			"expectedAnswerContains": ["2", "behavioral STAR", "code review"],
+			"forbiddenStaleClaim": "Contar 3 ou 4 treinos (duplicando behavioral STAR ou mantendo backend system design cancelado).",
+			"rubric": [
+				{ "id": "accurate_dedup_and_cancellation_eng", "weight": 2, "criterion": "Responde exatamente 2 treinos ativos (behavioral STAR e code review walkthrough), deduplicando a menção repetida de behavioral STAR e excluindo o treino cancelado de backend system design." }
+			]
 		}
 	]
 }

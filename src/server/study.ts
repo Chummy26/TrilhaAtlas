@@ -32,7 +32,7 @@ import type { DomainId, DomainManifest, DomainProfile } from "../core/domains/ty
 import { emit } from "../core/events.ts";
 import type { LearnerGraphView } from "../core/learner/graph-view.ts";
 import { emptySnapshot, foldEvents } from "../core/learner/fold.ts";
-import { DEFAULT_LEARNER_PARAMS } from "../core/learner/params.ts";
+import { DEFAULT_LEARNER_PARAMS, LEARNER_CONSTANTS } from "../core/learner/params.ts";
 import { planDay, routeTo } from "../core/learner/planner.ts";
 import { buildPromptSnapshot } from "../core/learner/snapshot.ts";
 import { computeSignals } from "../core/learner/signals.ts";
@@ -51,19 +51,36 @@ import {
 } from "../core/study/campaign.ts";
 import type { Evidence, Grade, LearnerEvent, LearnerSnapshot, PlanItem } from "../core/learner/types.ts";
 import { learnerViewOf, lessonBranchNodes, nodeBrief, type StudyNodeBrief } from "../core/study/projection.ts";
-import type { StudyDomainList, StudyProfile, StudyToday } from "../core/study/types.ts";
+import { buildStudySyllabus } from "../core/study/syllabus.ts";
+import type {
+	LessonContinuityMeta,
+	StudyDomainList,
+	StudyProfile,
+	StudyToday,
+	StudyTodayCoolingAlert,
+	StudyTodayModuleAssessment,
+	StudyTodayPacing,
+	StudyTodayUrgentReview,
+} from "../core/study/types.ts";
 import { lessonCredit } from "../core/progress/xp.ts";
 import { levelProgress } from "../core/progress/levels.ts";
 import { tierStanding } from "../core/progress/tiers.ts";
-import { retrievability } from "../core/learner/fsrs.ts";
+import { FSRS_STATE, retrievability } from "../core/learner/fsrs.ts";
 import { aggregateActivity, aggregateUsage, denseDailySeries } from "../core/stats/aggregate.ts";
 import { addDays, dayKey } from "../core/stats/dates.ts";
 import { parseActivityEvent } from "../core/stats/schema.ts";
-import { chatsDir, isUsableDomainId, learnerDir } from "../core/domains/paths.ts";
+import { chatsDir, isUsableDomainId } from "../core/domains/paths.ts";
 import { buildDomainTranscript } from "../core/study/transcript.ts";
 import { isAdvancedDefenseNode, isAdvancedReadingRequiredNode } from "../core/study/tutor-pedagogy.ts";
 import { STUDY_HEARTBEAT_SEC, WORKSPACE_SCOPE } from "../core/stats/types.ts";
 import { createStatsStore, type StatsStore } from "../store/stats-store.ts";
+import {
+	hasSavedPrepNote,
+	readModuleScoreMap,
+	readPrepNote,
+	readProblemSetScoreMap,
+	studyActivitySummary,
+} from "./course-store.ts";
 import { appendStudyEvent, nextStudySeq, persistChatEvent, readStudyEvents, studyLogRevision } from "./study-log.ts";
 import { gradeStudyQuiz } from "../core/study/quiz.ts";
 import { failedChecks, queueReinforcements } from "./study-expansion.ts";
@@ -433,8 +450,8 @@ export function parseStudyEvent(body: unknown): NewEvent | null {
 	return null;
 }
 
-/** Append one learner event to the ACTIVE domain's log; returns the fresh "Hoje". */
-function finishedExposures(events: readonly LearnerEvent[]) {
+/** Exposure IDs whose lesson has been closed (passed or reinforced). */
+export function finishedExposures(events: readonly LearnerEvent[]) {
 	const finished = new Set<string>();
 	for (const e of events) {
 		if (e.kind === "lesson-finished") finished.add(e.exposureId);
@@ -449,6 +466,76 @@ function completionState(events: LearnerEvent[], sessionId: string) {
 	return exposure ? { exposure, completed: finishedExposures(events).has(exposure.id) } : null;
 }
 
+function buildLessonContinuityMeta(params: {
+	domainId: string;
+	cur: { snapshot: CurriculumSnapshot; view: LearnerGraphView };
+	snap: LearnerSnapshot;
+	known: ReadonlySet<string>;
+	available: ReadonlySet<string>;
+	campaign: ReturnType<typeof studyCampaign>;
+	course: LessonCourseContext | null;
+	dailyBudgetMin: number;
+	at: string;
+	today: StudyToday | null;
+	next: StudyToday["next"];
+}): LessonContinuityMeta {
+	const { domainId, cur, snap, known, available, campaign, course, dailyBudgetMin, at, today, next } = params;
+	const moduleScores = readModuleScoreMap(domainId);
+	const problemSetScores = readProblemSetScoreMap(domainId);
+	const syllabus = buildStudySyllabus({
+		snapshot: cur.snapshot,
+		graph: cur.view,
+		learner: snap,
+		campaign,
+		known,
+		available,
+		at,
+		recentMinutes14d: 0,
+		dailyBudgetMin,
+		moduleScores,
+		problemSetScores,
+	});
+	const chapter = course
+		? syllabus.chapters.find((c) => c.level === course.chapterLevel)
+		: undefined;
+	const mod = course
+		? (chapter?.modules.find((m) => m.id === course.moduleId)
+			?? syllabus.chapters.flatMap((c) => c.modules).find((m) => m.id === course.moduleId))
+		: undefined;
+	const prepHref = next?.prepHref
+		?? (course
+			? `/ementa?dominio=${encodeURIComponent(domainId)}&modulo=${encodeURIComponent(course.moduleId)}`
+			: undefined);
+	const optionalPractice = today?.optionalPractice
+		? {
+			id: today.optionalPractice.id,
+			nodeId: today.optionalPractice.id,
+			domain: domainId,
+			title: today.optionalPractice.title,
+		}
+		: null;
+	return {
+		...(mod ? {
+			moduleExamUnlocked: mod.examUnlocked,
+			moduleExamPassed: Boolean(mod.examPassed),
+			...(mod.examScore !== undefined ? { moduleExamScore: mod.examScore } : {}),
+			problemSetPassed: Boolean(mod.problemSetPassed),
+			...(mod.problemSetScore !== undefined ? { problemSetScore: mod.problemSetScore } : {}),
+		} : {}),
+		...(chapter ? {
+			chapterId: chapter.level,
+			chapterExamUnlocked: Boolean(chapter.examUnlocked),
+			chapterExamPassed: Boolean(chapter.examPassed),
+			...(chapter.examScore !== undefined ? { chapterExamScore: chapter.examScore } : {}),
+		} : course ? {
+			chapterId: course.chapterLevel,
+		} : {}),
+		...(today?.dueReviewsCount !== undefined ? { dueReviewCount: today.dueReviewsCount } : {}),
+		optionalPractice,
+		...(prepHref ? { prepHref } : {}),
+	};
+}
+
 export function lessonCompletionState(domainId: string, sessionId: string) {
 	const events = readStudyEvents(domainId);
 	const state = completionState(events, sessionId);
@@ -461,12 +548,14 @@ export function lessonCompletionState(domainId: string, sessionId: string) {
 	let next: StudyToday["next"] = null;
 	let resume: string | null = null;
 	let retry: { nodeId: string; brief: StudyNodeBrief; estMinutes: number; feedback: string } | null = null;
+	let continuity: LessonContinuityMeta = {};
 	if (cur) {
 		const at = new Date().toISOString();
 		const snap = learnerSnapshotOf(domainId, cur.view, events, at);
 		const signals = computeSignals(snap, cur.view, DEFAULT_LEARNER_PARAMS, at);
 		const campaign = studyCampaign(cur.snapshot, cur.view, signals.structure.known);
 		course = lessonCourseContext(cur.snapshot, cur.view, campaign, signals.structure.known, state.exposure.nodeId);
+		let today: StudyToday | null = null;
 		if (reinforcement?.kind === "lesson-finished") {
 			const brief = nodeBrief(cur.snapshot, state.exposure.nodeId);
 			if (brief) {
@@ -478,7 +567,7 @@ export function lessonCompletionState(domainId: string, sessionId: string) {
 				};
 			}
 		} else if (state.completed && activeDomainId() === domainId) {
-			const today = studyToday();
+			today = studyToday();
 			next = today.next?.nodeId !== state.exposure.nodeId ? today.next : null;
 			const finished = finishedExposures(events);
 			const domainChatsDir = chatsDir(PATHS.data, domainId);
@@ -489,6 +578,22 @@ export function lessonCompletionState(domainId: string, sessionId: string) {
 				Date.now() - Date.parse(prior.at) <= 3 * 86_400_000);
 			resume = pending?.exposure.sessionId ?? null;
 		}
+		if (!today && activeDomainId() === domainId) {
+			try { today = studyToday(); } catch { today = null; }
+		}
+		continuity = buildLessonContinuityMeta({
+			domainId,
+			cur,
+			snap,
+			known: signals.structure.known,
+			available: new Set(signals.structure.frontier),
+			campaign,
+			course,
+			dailyBudgetMin: profile?.dailyBudgetMin ?? 180,
+			at,
+			today,
+			next,
+		});
 	}
 	return {
 		domainId,
@@ -500,6 +605,7 @@ export function lessonCompletionState(domainId: string, sessionId: string) {
 		...(resume && { resume }),
 		...(retry && { retry }),
 		...(reinforcement?.kind === "lesson-finished" && { reinforcement: reinforcement.feedback ?? "Retome este nó para praticar os objetivos pendentes." }),
+		...continuity,
 	};
 }
 
@@ -575,9 +681,12 @@ export function finishStudyLesson(domainId: string, sessionId: string, grade: Gr
 		Date.now() - Date.parse(prior.at) <= 3 * 86_400_000);
 	let course: LessonCourseProgress | null = null;
 	let retry: { nodeId: string; brief: StudyNodeBrief; estMinutes: number; feedback: string } | null = null;
+	let continuity: LessonContinuityMeta = {};
 	if (cur && knownBefore && campaignBefore) {
-		const snapAfter = learnerSnapshotOf(id, cur.view, freshEvents, new Date().toISOString());
-		const knownAfter = structuralState(snapAfter, cur.view).known;
+		const afterAt = new Date().toISOString();
+		const snapAfter = learnerSnapshotOf(id, cur.view, freshEvents, afterAt);
+		const structAfter = structuralState(snapAfter, cur.view);
+		const knownAfter = structAfter.known;
 		const campaignAfter = studyCampaign(cur.snapshot, cur.view, knownAfter);
 		course = campaignCompletionProgress(cur.snapshot, cur.view, campaignBefore, campaignAfter, knownBefore, knownAfter, exposure.nodeId);
 		if (reinforcement) {
@@ -591,6 +700,22 @@ export function finishStudyLesson(domainId: string, sessionId: string, grade: Gr
 				};
 			}
 		}
+		continuity = buildLessonContinuityMeta({
+			domainId: id,
+			cur,
+			snap: snapAfter,
+			known: knownAfter,
+			available: new Set(structAfter.frontier),
+			campaign: campaignAfter,
+			course,
+			dailyBudgetMin: profile?.dailyBudgetMin ?? 180,
+			at: afterAt,
+			today,
+			next,
+		});
+	}
+	if (!completed) {
+		emit("curriculum-expanded", { domainId: id, nodeId: exposure.nodeId });
 	}
 	return {
 		before,
@@ -600,6 +725,7 @@ export function finishStudyLesson(domainId: string, sessionId: string, grade: Gr
 		next,
 		course,
 		...(retry && { retry }),
+		...continuity,
 	};
 }
 
@@ -790,6 +916,91 @@ export function studyToday(): StudyToday {
 		? { nodeId: next.nodeId, title: next.brief.title, feedback: reinforceNote }
 		: undefined;
 
+	const moduleScores = readModuleScoreMap(id);
+	const problemSetScores = readProblemSetScoreMap(id);
+	const activity = studyActivitySummary(id, at);
+	const syllabus = buildStudySyllabus({
+		snapshot: cur.snapshot,
+		graph: cur.view,
+		learner: snap,
+		campaign,
+		known: signals.structure.known,
+		available,
+		at,
+		recentMinutes14d: activity.minutes14d,
+		activeDays14d: activity.activeDays14d,
+		totalStudiedMinutes: activity.totalStudiedMinutes,
+		dailyBudgetMin: budgetMin,
+		moduleScores,
+		problemSetScores,
+		...(focusNodeId ? { focusNodeId } : {}),
+	});
+
+	const enrichedNext: StudyToday["next"] = next
+		? (() => {
+			const prepNote = readPrepNote(id, next.nodeId);
+			const nextModuleId = syllabus.chapters
+				.flatMap((c) => c.modules)
+				.find((m) => m.lessons.some((l) => l.id === next.nodeId))?.id ?? currentModule?.id;
+			const prepHref = nextModuleId
+				? `/ementa?dominio=${encodeURIComponent(id)}&modulo=${encodeURIComponent(nextModuleId)}`
+				: `/ementa?dominio=${encodeURIComponent(id)}`;
+			return {
+				...next,
+				hasPrepNote: hasSavedPrepNote(prepNote),
+				prepHref,
+			};
+		})()
+		: null;
+
+	const dueSignals = [...signals.signals.values()].filter(
+		(s) => s.reviewDue && cur.view.nodes.get(s.nodeId)?.isLeaf !== false,
+	);
+	const dueReviewsCount = dueSignals.length;
+	let urgentReview: StudyTodayUrgentReview | null = null;
+	if (dueSignals.length > 0) {
+		const mandatoryMargin = LEARNER_CONSTANTS.planner.mandatoryMargin;
+		const sortedDue = [...dueSignals].sort((a, b) => {
+			const aMand = a.R < a.retention - mandatoryMargin ? 1 : 0;
+			const bMand = b.R < b.retention - mandatoryMargin ? 1 : 0;
+			if (aMand !== bMand) return bMand - aMand;
+			return a.R - b.R || b.importance - a.importance || (a.nodeId < b.nodeId ? -1 : 1);
+		});
+		const topDue = sortedDue[0]!;
+		const plannedReview = plan.items.find((item) => item.nodeId === topDue.nodeId && (item.kind === "review" || item.kind === "vehicle"));
+		const pct = Math.round(Math.max(0, Math.min(1, topDue.R)) * 100);
+		const defaultReason = topDue.R < topDue.retention - mandatoryMargin
+			? `Revisão urgente — retenção caiu para ${pct}%`
+			: `Revisão vencida — retenção estimada ${pct}%`;
+		urgentReview = {
+			nodeId: topDue.nodeId,
+			title: cur.view.nodes.get(topDue.nodeId)?.title ?? cur.snapshot.items[topDue.nodeId]?.title.pt ?? topDue.nodeId,
+			retrievability: Math.round(topDue.R * 10_000) / 10_000,
+			reason: plannedReview?.reason ?? defaultReason,
+		};
+	}
+
+	const pacing: StudyTodayPacing = {
+		plannedWeeklyHours: syllabus.schedule.weeklyHoursPlanned,
+		effectiveWeeklyHours: syllabus.schedule.effectiveWeeklyHours,
+		activeChapterWeeks: syllabus.activeChapterIndex !== null ? syllabus.schedule.activeChapterWeeks : null,
+		realisticTotalWeeks: syllabus.totalLessons > 0 ? syllabus.schedule.weeksToFinish : null,
+	};
+
+	const activeSyllabusMod = currentModule
+		? syllabus.chapters.flatMap((c) => c.modules).find((m) => m.id === currentModule.id)
+		: undefined;
+	const moduleAssessment: StudyTodayModuleAssessment | undefined = activeSyllabusMod
+		? {
+			moduleId: activeSyllabusMod.id,
+			examUnlocked: activeSyllabusMod.examUnlocked,
+			examPassed: Boolean(activeSyllabusMod.examPassed),
+			...(activeSyllabusMod.examScore !== undefined ? { examScore: activeSyllabusMod.examScore } : {}),
+			problemSetPassed: Boolean(activeSyllabusMod.problemSetPassed),
+			...(activeSyllabusMod.problemSetScore !== undefined ? { problemSetScore: activeSyllabusMod.problemSetScore } : {}),
+		}
+		: undefined;
+
 	const support = new Map(Object.values(cur.snapshot.items).filter(n => n.reinforcementFor && n.status !== "deprecated" &&
 		!snap.nodes[n.id]?.attainedAt && !snap.nodes[n.id]?.placedAt).map(n => [n.reinforcementFor, n]));
 	const suggestion = support.size ? failedChecks(events).sort((a,b) => b.checks[0]!.seq - a.checks[0]!.seq)
@@ -797,23 +1008,41 @@ export function studyToday(): StudyToday {
 	let leaves = 0;
 	let attained = 0;
 	let mastered = 0;
-	let totalHours = 0;
+	let rawTotalHours = 0;
 	let plannedPracticeHours = 0;
-	let attainedHours = 0;
+	let rawAttainedHours = 0;
+	let coolingAlert: StudyTodayCoolingAlert | null = null;
 	for (const nodeId of cur.view.ids) {
 		const node = cur.view.nodes.get(nodeId);
 		if (!node?.isLeaf || cur.snapshot.items[nodeId]?.reinforcementFor) continue;
 		leaves++;
 		const h = hoursMid(cur.snapshot.items[nodeId]?.hours ?? { lo: 0, hi: 0 });
-		totalHours += h;
+		rawTotalHours += h;
 		plannedPracticeHours += cur.snapshot.items[nodeId]?.practice?.targetHours ?? 0;
 		const st = snap.nodes[nodeId];
 		if (st?.lessonCompletedAt || st?.attainedAt || st?.placedAt) {
 			attained++;
-			attainedHours += h;
+			rawAttainedHours += h;
 		}
 		if (st?.masteredAt) mastered++;
+		if (st?.fsrs && st.fsrs.state !== FSRS_STATE.new && st.fsrs.lastReviewAt) {
+			const r = retrievability(st.fsrs, at, DEFAULT_LEARNER_PARAMS);
+			if (r < 0.85 && (!coolingAlert || r < coolingAlert.retrievability)) {
+				coolingAlert = {
+					nodeId,
+					title: node.title ?? cur.snapshot.items[nodeId]?.title.pt ?? nodeId,
+					retrievability: Math.round(r * 10_000) / 10_000,
+				};
+			}
+		}
 	}
+	const alignedTotalHours = syllabus.totalHours > 0
+		? Math.round(syllabus.totalHours * 10) / 10
+		: Math.round(rawTotalHours * 10) / 10;
+	const alignedAttainedHours = syllabus.totalHours > 0
+		? Math.round(syllabus.completedLessonHours * 10) / 10
+		: Math.round(rawAttainedHours * 10) / 10;
+
 	return {
 		domain,
 		ready: true,
@@ -824,11 +1053,22 @@ export function studyToday(): StudyToday {
 		...(customGoal && { campaignGoal: profile?.goal.text || "Meta personalizada" }),
 		...(review && { review: { id: review.id, prompt: review.prompt, title: cur.view.nodes.get(review.nodeId)!.title } }),
 		...(suggestion && { optionalPractice: { id: suggestion.id, title: suggestion.title.pt } }),
-		next,
+		next: enrichedNext,
 		pendingCheck,
 		plan: { budgetMin, reviewMinutes: plan.reviewMinutes, newMinutes: plan.newMinutes, items: plan.items.length },
-		progress: { leaves, attained, mastered, totalHours: Math.round(totalHours), attainedHours: Math.round(attainedHours),
-			...(plannedPracticeHours > 0 && { plannedPracticeHours: Math.round(plannedPracticeHours) }) },
+		progress: {
+			leaves,
+			attained,
+			mastered,
+			totalHours: alignedTotalHours,
+			attainedHours: alignedAttainedHours,
+			...(plannedPracticeHours > 0 && { plannedPracticeHours: Math.round(plannedPracticeHours) }),
+		},
+		dueReviewsCount,
+		urgentReview,
+		pacing,
+		...(moduleAssessment && { moduleAssessment }),
+		coolingAlert,
 	};
 }
 
@@ -955,23 +1195,6 @@ export function studyAccountSummary(domains: StudyDomainList["domains"]) {
 	return { xp, level: levelProgress(xp).level };
 }
 
-function readSavedModuleScores(domainId: string): Map<string, { score: number; passed: boolean; at: string }> {
-	const scores = new Map<string, { score: number; passed: boolean; at: string }>();
-	const file = path.join(learnerDir(PATHS.data, domainId), "module-exams.jsonl");
-	let raw: string;
-	try { raw = fs.readFileSync(file, "utf8"); } catch { return scores; }
-	for (const line of raw.split("\n")) {
-		if (!line.trim()) continue;
-		try {
-			const row = JSON.parse(line) as { targetId?: string; score10?: number; passed?: boolean; at?: string };
-			if (typeof row.targetId === "string" && typeof row.score10 === "number" && typeof row.at === "string") {
-				scores.set(row.targetId, { score: row.score10, passed: Boolean(row.passed), at: row.at });
-			}
-		} catch { /* ignore partial line */ }
-	}
-	return scores;
-}
-
 export function studyProfile(): StudyProfile {
 	const store = studyDomains();
 	const at = new Date().toISOString();
@@ -1020,7 +1243,7 @@ export function studyProfile(): StudyProfile {
 				campaign,
 				known,
 				at,
-				moduleScores: readSavedModuleScores(summary.id),
+				moduleScores: readModuleScoreMap(summary.id),
 			});
 		}
 		domains.push({

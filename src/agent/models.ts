@@ -20,6 +20,8 @@ import { chatGPTStream } from "./chatgpt-stream.ts";
 import type { ChatGPTDispatchLifecycle } from "./chatgpt-request-cycle.ts";
 import { createClaudeCodeProvider } from "./claude-code/provider.ts";
 import { streamClaudeCode } from "./claude-code/stream.ts";
+import { GOOGLE_VERTEX_PROVIDER, type GoogleVertexSettings } from "../core/contracts/google-vertex.ts";
+import { patchGoogleVertexProvider } from "./google-vertex-auth.ts";
 import { nativeSubscriptionId, nativeSubscriptionModel } from "./subscription-bridge.ts";
 import { nativeSubscriptionStream } from "./subscription-stream.ts";
 
@@ -59,6 +61,10 @@ interface ProviderSource {
 	isCustom(id: string): boolean;
 }
 let providerSource: ProviderSource | undefined;
+let googleVertexSettingsSource: (() => GoogleVertexSettings | undefined) | undefined;
+let googleModelsOverlaySource: ((providerId: "google-vertex" | "google") => readonly Model<Api>[]) | undefined;
+const googleBaseProviders = new Map<"google-vertex" | "google", ReturnType<typeof builtinProviders>[number]>();
+const googleOverlaySignatures = new Map<"google-vertex" | "google", string>();
 
 /** Configuration IO is injected by the server; the agent never imports stores. */
 export function configureProviderSource(source: ProviderSource): void {
@@ -70,6 +76,41 @@ export function configureProviderSource(source: ProviderSource): void {
 		}
 	}
 	providerSource = source;
+}
+
+/** Inject server-backed Google Vertex AI ADC settings without crossing layer boundaries. */
+export function configureGoogleVertexRuntime(source: () => GoogleVertexSettings | undefined): void {
+	googleVertexSettingsSource = source;
+}
+
+/** Inject dynamically discovered Google / Vertex models (e.g. models.dev cache) into piModels(). */
+export function configureGoogleModelsOverlay(source: (providerId: "google-vertex" | "google") => readonly Model<Api>[]): void {
+	googleModelsOverlaySource = source;
+	googleOverlaySignatures.clear();
+}
+
+function syncGoogleOverlay(modelsCollection: MutableModels): void {
+	if (!googleModelsOverlaySource) return;
+	for (const pid of [GOOGLE_VERTEX_PROVIDER, "google"] as const) {
+		const base = googleBaseProviders.get(pid);
+		if (!base) continue;
+		const extra = googleModelsOverlaySource(pid);
+		const signature = extra.map((m) => m.id).join("\0");
+		if (googleOverlaySignatures.get(pid) === signature) continue;
+		googleOverlaySignatures.set(pid, signature);
+		const baseModels = base.getModels();
+		const seen = new Set(baseModels.map((m) => m.id));
+		const additions = extra.filter((m) => !seen.has(m.id));
+		const merged = [...baseModels, ...additions];
+		const baseAll = base.getAllModels ? base.getAllModels() : baseModels;
+		const seenAll = new Set(baseAll.map((m) => m.id));
+		const mergedAll = [...baseAll, ...extra.filter((m) => !seenAll.has(m.id))];
+		modelsCollection.setProvider({
+			...base,
+			getModels: () => merged,
+			...(base.getAllModels ? { getAllModels: () => mergedAll } : {}),
+		});
+	}
 }
 
 /** The process-wide pi-ai Models collection — EVERY builtin provider's
@@ -84,15 +125,22 @@ export function piModels() {
 	if (!collection) {
 		collection = createModels({ identity: APP_IDENTITY });
 		for (const provider of builtinProviders()) {
-			// Keep the native Bedrock implementation reachable by standalone tracing.
-			// Pi's default Node-only loader hides this import from bundlers. Only
-			// replace its lazy forwarding; preserve the native factory's auth/catalog.
-			collection.setProvider(provider.id === "amazon-bedrock"
+			// Keep the native Bedrock and Vertex implementations reachable by standalone tracing.
+			// Pi's default Node-only loader hides these imports from bundlers. Vertex also patches
+			// Windows gcloud ADC resolution and settings-backed project/location defaults.
+			const registered = provider.id === "amazon-bedrock"
 				? { ...provider, ...lazyApi(() => import("@earendil-works/pi-ai/api/bedrock-converse-stream")) }
-				: provider);
+				: provider.id === GOOGLE_VERTEX_PROVIDER
+					? patchGoogleVertexProvider(provider, () => googleVertexSettingsSource?.())
+					: provider;
+			if (registered.id === GOOGLE_VERTEX_PROVIDER || registered.id === "google") {
+				googleBaseProviders.set(registered.id, registered);
+			}
+			collection.setProvider(registered);
 		}
 		collection.setProvider(createClaudeCodeProvider(streamClaudeCode));
 	}
+	syncGoogleOverlay(collection);
 	providerSource?.sync(collection);
 	return collection;
 }

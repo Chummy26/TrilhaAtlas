@@ -51,5 +51,12 @@ test("domain authoring uses the selected account and fresh model, and charges th
 	assert.equal(leaseModel, "beta");
 	const usage = createStatsStore(root).readUsage({ from: new Date(Date.now() - 60000).toISOString(), to: new Date(Date.now() + 60000).toISOString() }, { domain: "geologia" }).events;
 	assert.deepEqual(usage.map(e => [e.model, e.op, e.billing, e.background]), [["beta", "curriculum.generate", "subscription", false]]);
-	await assert.rejects(domainAuthoringEngine("geologia", { provider: "chatgpt", id: "removed" }));
+	// Concurrent catalog refreshes (e.g. /api/models + domain authoring) must coalesce cleanly instead of dropping models.
+	const [concurrentA, concurrentB] = await Promise.all([
+		domainAuthoringEngine("geologia", { provider: "chatgpt", id: "alpha" }),
+		domainAuthoringEngine("geologia", { provider: "chatgpt", id: "beta" }),
+	]);
+	assert.equal(concurrentA.model.id, "alpha");
+	assert.equal(concurrentB.model.id, "beta");
+	await assert.rejects(domainAuthoringEngine("geologia", { provider: "chatgpt", id: "removed" }), /não está disponível no catálogo atual/i);
 });

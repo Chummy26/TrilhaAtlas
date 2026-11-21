@@ -25,21 +25,25 @@ import { chatGPTConnected, chatGPTModel, chatGPTModels, chatGPTReportedLimits, r
 import { NATIVE_SUBSCRIPTIONS } from "../core/contracts/subscriptions.ts";
 import { nativeSubscriptionId, nativeSubscriptionConnected, nativeSubscriptionModel, nativeSubscriptionModels, refreshSubscriptionModels } from "../agent/subscription-bridge.ts";
 
-// The home picker and the first tutor turn often mount together. Both must
-// await the same discovery before resolving their selected engine.
-let chatCatalogRequest: Promise<void> | undefined;
+// The home picker and the first tutor turn (or separate Next.js route chunks
+// like /api/models and /api/domains/create) often mount together. Share the
+// in-flight discovery on globalThis so concurrent callers never race or return empty.
+const chatCatalogKey = Symbol.for("lh.chatgpt.catalogRequest");
 function refreshTutorCatalog() {
-	return chatCatalogRequest ??= refreshChatGPTModels(piModels().getModels("openai").filter((m): m is Model<"openai-responses"> => m.api === "openai-responses"))
-		.finally(() => { chatCatalogRequest = undefined; });
+	const shared = globalThis as typeof globalThis & { [chatCatalogKey]?: Promise<void> };
+	return shared[chatCatalogKey] ??= refreshChatGPTModels(piModels().getModels("openai").filter((m): m is Model<"openai-responses"> => m.api === "openai-responses"))
+		.finally(() => { shared[chatCatalogKey] = undefined; });
 }
 export async function refreshConnectionCatalog(provider?: string): Promise<void> {
 	await Promise.all([
 		!provider || provider === "chatgpt" ? refreshTutorCatalog() : Promise.resolve(),
 		!provider || nativeSubscriptionId(provider) ? refreshSubscriptionModels() : Promise.resolve(),
+		!provider || provider === GOOGLE_VERTEX_PROVIDER || provider === "google" ? refreshModelsDevCatalog() : Promise.resolve(),
 	]);
 }
 function connectionModel(provider: string, id: string): Model<Api> | undefined {
 	if (provider === CLAUDE_CODE_PROVIDER && !claudeCodeAvailable()) return undefined;
+	if (provider === GOOGLE_VERTEX_PROVIDER && !googleVertexAvailable()) return undefined;
 	return provider === "chatgpt" ? chatGPTModel(id) : nativeSubscriptionId(provider) ? nativeSubscriptionModel(provider, id) : piModels().getModel(provider, id);
 }
 function connectionProviderIds(): string[] { return [...piModels().getProviders().map((p) => p.id), "chatgpt", ...NATIVE_SUBSCRIPTIONS.map((p) => p.logicalId)]; }
@@ -59,6 +63,10 @@ import type { EffectiveModelSpec, EffectiveSlot } from "../core/settings-resolut
 import { AUTH_PROVIDER_KEYS, CUSTOM_PROVIDER } from "../core/auth-keys.ts";
 import { claudeCodeAvailable } from "./claude-code-config.ts";
 import { CLAUDE_CODE_PROVIDER } from "../agent/claude-code/constants.ts";
+import { GOOGLE_VERTEX_PROVIDER } from "../core/contracts/google-vertex.ts";
+import { compareModelsByRecency } from "../core/models/recency.ts";
+import { googleVertexAvailable } from "./google-vertex.ts";
+import { modelReleaseDate, refreshModelsDevCatalog } from "./google-vertex-catalog.ts";
 import {
 	BACKGROUND_MODEL_ROLES,
 	MODEL_SLOTS,
@@ -162,6 +170,7 @@ export function catalogProviders(settings = effectiveSettings()): CatalogProvide
 	})).concat([
 		{ id: "chatgpt", envVar: "", keyPresent: chatGPTConnected() },
 		{ id: CLAUDE_CODE_PROVIDER, envVar: "", keyPresent: claudeCodeAvailable() },
+		{ id: GOOGLE_VERTEX_PROVIDER, envVar: "", keyPresent: googleVertexAvailable() },
 		...NATIVE_SUBSCRIPTIONS.map((p) => ({ id: p.logicalId, envVar: "", keyPresent: nativeSubscriptionConnected(p.providerId) })),
 		// The custom endpoint: a row only when usable (base URL set). keyPresent
 		// reflects usability, not key presence (keyless local servers are allowed).
@@ -180,6 +189,7 @@ function keyedProviderIds(providers = catalogProviders()): Set<string> {
 
 /** Project one catalog model to the client DTO. */
 export function toModelDto(model: Model<Api>): ModelDto {
+	const releaseDate = modelReleaseDate(model.provider, model.id);
 	return {
 		id: model.id,
 		name: model.name,
@@ -195,6 +205,7 @@ export function toModelDto(model: Model<Api>): ModelDto {
 		},
 		contextWindow: model.provider === CLAUDE_CODE_PROVIDER ? null : model.contextWindow,
 		maxTokens: model.provider === CLAUDE_CODE_PROVIDER ? null : model.maxTokens,
+		...(releaseDate ? { releaseDate } : {}),
 		...(model.provider === "chatgpt" && chatGPTReportedLimits(model)),
 	};
 }
@@ -236,7 +247,7 @@ export function modelCatalog(): ModelCatalogResponse {
 		.filter((p) => keyed.has(p.id))
 		.flatMap((p) => piModels().getModels(p.id))
 		.map(toModelDto)
-		.sort((a, b) => (a.provider === b.provider ? a.id.localeCompare(b.id) : a.provider.localeCompare(b.provider)))
+		.sort((a, b) => (a.provider === b.provider ? compareModelsByRecency(a, b) : a.provider.localeCompare(b.provider)))
 		.concat([...chatGPTModels(), ...nativeSubscriptionModels()].map(toModelDto));
 	return {
 		models,

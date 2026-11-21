@@ -109,6 +109,14 @@ export function mountLibraryTree({ ctx, container, signal, button, onReview, onP
           if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); void commit(); }
         }, { signal: mountSignal });
         labelSlot.append(error);
+        const pills = el('span', 'fc-deck-counts');
+        pills.setAttribute('aria-hidden', 'true');
+        const pillNew = el('span', 'fc-count-pill is-new', '0');
+        const pillLearn = el('span', 'fc-count-pill is-learn', '0');
+        const pillReview = el('span', 'fc-count-pill is-review', '0');
+        pills.append(pillNew, pillLearn, pillReview);
+        root.append(pills);
+        record._pills = { pillNew, pillLearn, pillReview };
         button(root, 'Review', run(() => onReview({ deckIds: [record.deck.id] })), mountSignal, { size: 'xs', variant: 'outline' });
       } else if (record.kind === 'cue') {
         label.addEventListener('click', event => { event.stopPropagation(); onPreview(record.p, record.cue, record.archive); }, { signal: mountSignal });
@@ -126,7 +134,20 @@ export function mountLibraryTree({ ctx, container, signal, button, onReview, onP
         const title = record.kind === 'deck' ? record.deck.name : record.kind === 'proposition' ? record.p.name : record.kind === 'cue' ? record.cue.question.replace(/\s+/g, ' ').trim() || 'Cue' : 'Archive';
         label.textContent = title;
         label.title = record.kind === 'proposition' ? record.p.statement || title : record.kind === 'deck' ? 'Rename deck' : title;
-        metadata.textContent = record.kind === 'proposition' ? `${record.p.cues.filter(c => !c.deleted).length} cues` : '';
+        const activeCues = record.kind === 'proposition' ? record.p.cues.filter(c => !c.deleted).length : 0;
+        metadata.textContent = record.kind === 'proposition' ? `${activeCues} ${activeCues === 1 ? 'cue' : 'cues'}` : '';
+        if (record.kind === 'deck' && record._pills && record.counts) {
+          const { newCount, learnCount, reviewCount } = record.counts;
+          const setPill = (node, value, titleText) => {
+            node.textContent = String(value);
+            node.classList.toggle('is-zero', value === 0);
+            node.dataset.zero = value === 0 ? 'true' : 'false';
+            node.title = `${value} ${titleText}`;
+          };
+          setPill(record._pills.pillNew, newCount, 'new');
+          setPill(record._pills.pillLearn, learnCount, 'learning');
+          setPill(record._pills.pillReview, reviewCount, 'review due');
+        }
         if (draft) {
           label.hidden = draft.editing;
           if (draft.editing) { if (input.parentElement !== labelSlot) labelSlot.prepend(input); if (input.value !== draft.value) input.value = draft.value; }
@@ -173,7 +194,12 @@ export function mountLibraryTree({ ctx, container, signal, button, onReview, onP
       const matching = all.filter(p => deckMatches || includes(p));
       if (query && !deckMatches && !matching.length) continue;
       const key = `deck:${deck.id}`, tokens = all.length ? [...new Set(all.flatMap(leaves))] : [`deck:${deck.id}`];
-      const r = row(key, { kind: 'deck', deck, archive: false }, deck.name, tokens, matching.map(p => proposition(p, deck, false)));
+      const activeWithCues = all.filter(p => p.cues.some(c => !c.deleted));
+      const newAllowance = Math.max(0, (deck.newLimit ?? 0) - (deck.newToday ?? 0));
+      const newCount = Math.min(newAllowance, activeWithCues.filter(p => p.schedule?.state === 0).length);
+      const learnCount = activeWithCues.filter(p => p.schedule?.state === 1 || p.schedule?.state === 3).length;
+      const reviewCount = Math.max(0, Number(deck.due || 0) - Math.min(learnCount, Number(deck.due || 0)));
+      const r = row(key, { kind: 'deck', deck, counts: { newCount, learnCount, reviewCount }, archive: false }, deck.name, tokens, matching.map(p => proposition(p, deck, false)));
       r.cells = { propositions: String(all.length), due: String(deck.due), new: `${deck.newToday} / ${deck.newLimit}` }; rows.push(r);
     }
     const archived = state.propositions.filter(p => p.archived && includes(p));

@@ -68,6 +68,14 @@ export { createPluginDocumentRoute } from "./plugin-transport.ts";
 export { pluginProblemAvailabilityOf, type ProblemTypeResolver } from "./plugin-problems.ts";
 export { pluginQuestionAvailabilityOf, reconcilePluginQuestionCompatibility, preparePluginQuestionDismissal, type QuestionTypeResolver } from "./plugin-questions.ts";
 export { claudeCodeInstallationResponse } from "./claude-code.ts";
+export {
+	googleVertexAvailable,
+	googleVertexEnabled,
+	googleVertexSettings,
+	googleVertexStatus,
+	googleVertexStatusResponse,
+	installGoogleVertexRuntime,
+} from "./google-vertex.ts";
 // The custom endpoint module (registers into piModels() + probes for models).
 // No import side effects; the boot sync lives in stores.ts.
 export * from "./custom-provider.ts";
@@ -76,6 +84,9 @@ export { regionalBookUnit, regionalBookImage, prepareReadingScreenshot } from ".
 export { answerCampaignReview } from "./study.ts";
 export {
 	readModuleScoreMap,
+	readProblemSetScoreMap,
+	readPrepNote,
+	readFormattedPrepNote,
 	studySyllabus,
 	studyTranscript,
 	studyNotebook,
@@ -92,6 +103,7 @@ export {
 	type PublicModuleExam,
 	type ModuleExamDelivery,
 	type ModuleExamSubmissionResult,
+	type ProblemSetSubmissionResult,
 	type FlippedGuideResponse,
 	type FlashcardExportMode,
 	type FlashcardExportResult,

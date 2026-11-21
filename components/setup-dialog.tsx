@@ -534,7 +534,7 @@ function OpenSetupDialog({ onClose, onDone }: SetupDialogProps) {
 													onClose={() => { setOpenMenu(null); return "closed"; }}
 													preferredSide="down"
 													align="left"
-													menuClass="flex w-[22rem] flex-col rounded-xl border border-border bg-card p-2 text-xs shadow-xl"
+													menuClass="flex w-[26rem] max-w-[calc(100vw-2rem)] flex-col rounded-xl border border-border bg-card p-2 text-xs shadow-xl"
 												>
 													<ModelMenuList
 														models={slotCatalog}

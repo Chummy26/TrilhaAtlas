@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ChatActionsContext } from "../components/chat.tsx";
+import { I18nProvider } from "../components/i18n.tsx";
 import { LessonExamCard } from "../components/study/lesson-exam-card.tsx";
 import { PronunciationPractice } from "../components/study/pronunciation-practice.tsx";
 import { AgentSection, composeLessonVoicePractice } from "../components/settings/agent-section.tsx";
@@ -64,16 +65,18 @@ describe("structured multi-part exam submission form", () => {
 			submitExam: async () => true,
 		};
 		const structuredHtml = renderToStaticMarkup(
-			<ChatActionsContext.Provider value={actions}>
-				<LessonExamCard
-					part={{
-						type: "tool-present_lesson_exam",
-						toolCallId: "exam-1",
-						state: "output-available",
-						output: { task: THREE_PART_TASK, attempt: 1, total: 2, objectives: ["Entender perguntas pessoais simples."] },
-					}}
-				/>
-			</ChatActionsContext.Provider>,
+			<I18nProvider initialLocale="pt-BR">
+				<ChatActionsContext.Provider value={actions}>
+					<LessonExamCard
+						part={{
+							type: "tool-present_lesson_exam",
+							toolCallId: "exam-1",
+							state: "output-available",
+							output: { task: THREE_PART_TASK, attempt: 1, total: 2, objectives: ["Entender perguntas pessoais simples."] },
+						}}
+					/>
+				</ChatActionsContext.Provider>
+			</I18nProvider>,
 		);
 		assert.match(structuredHtml, /data-exam-form="structured"/);
 		assert.match(structuredHtml, /Sua resposta à prova · por partes/);
@@ -82,6 +85,21 @@ describe("structured multi-part exam submission form", () => {
 		assert.match(structuredHtml, /data-testid="exam-part-2"/);
 		assert.match(structuredHtml, /data-testid="exam-part-3"/);
 		assert.match(structuredHtml, /Usar campo único/);
+
+		const structuredEnHtml = renderToStaticMarkup(
+			<ChatActionsContext.Provider value={actions}>
+				<LessonExamCard
+					part={{
+						type: "tool-present_lesson_exam",
+						toolCallId: "exam-1",
+						state: "output-available",
+						output: { task: THREE_PART_TASK, attempt: 1, total: 2 },
+					}}
+				/>
+			</ChatActionsContext.Provider>,
+		);
+		assert.match(structuredEnHtml, /data-exam-form="structured"/);
+		assert.match(structuredEnHtml, /0 of 3/);
 
 		const singleHtml = renderToStaticMarkup(
 			<ChatActionsContext.Provider value={actions}>
@@ -118,30 +136,38 @@ describe("optional lesson voice recording setting (OFF by default)", () => {
 
 	it("renders the setting OFF by default in AgentSection and toggles voice recording in PronunciationPractice", () => {
 		const offSettingsHtml = renderToStaticMarkup(
-			<InteractionLayersProvider>
-				<AgentSection agent={undefined} models={undefined} graph={undefined} compaction={undefined} onSectionChange={() => true} onModelsChange={() => {}} onCompactionChange={() => true} />
-			</InteractionLayersProvider>,
+			<I18nProvider initialLocale="pt-BR">
+				<InteractionLayersProvider>
+					<AgentSection agent={undefined} models={undefined} graph={undefined} compaction={undefined} onSectionChange={() => true} onModelsChange={() => {}} onCompactionChange={() => true} />
+				</InteractionLayersProvider>
+			</I18nProvider>,
 		);
 		const rowOff = offSettingsHtml.split('data-testid="lesson-voice-practice-row"')[1] ?? "";
 		assert.ok(rowOff.includes("Gravação de voz nas aulas"));
 		assert.ok(rowOff.includes('aria-checked="false"'), "defaults OFF");
 
 		const onSettingsHtml = renderToStaticMarkup(
-			<InteractionLayersProvider>
-				<AgentSection agent={{ lessonVoicePractice: true }} models={undefined} graph={undefined} compaction={undefined} onSectionChange={() => true} onModelsChange={() => {}} onCompactionChange={() => true} />
-			</InteractionLayersProvider>,
+			<I18nProvider initialLocale="pt-BR">
+				<InteractionLayersProvider>
+					<AgentSection agent={{ lessonVoicePractice: true }} models={undefined} graph={undefined} compaction={undefined} onSectionChange={() => true} onModelsChange={() => {}} onCompactionChange={() => true} />
+				</InteractionLayersProvider>
+			</I18nProvider>,
 		);
 		const rowOn = onSettingsHtml.split('data-testid="lesson-voice-practice-row"')[1] ?? "";
 		assert.ok(rowOn.includes('aria-checked="true"'), "reflects opt-in ON");
 
 		const defaultCard = renderToStaticMarkup(
-			<PronunciationPractice voice={{ language: "en-US", sample: "Nice to meet you!", mode: "phrase" }} />,
+			<I18nProvider initialLocale="pt-BR">
+				<PronunciationPractice voice={{ language: "en-US", sample: "Nice to meet you!", mode: "phrase" }} />
+			</I18nProvider>,
 		);
 		assert.ok(!defaultCard.includes("Gravar minha voz"), "hides voice recording button by default");
 		assert.ok(!defaultCard.includes("transcrição não mede pronúncia"), "hides transcription note by default");
 
 		const enabledCard = renderToStaticMarkup(
-			<PronunciationPractice voice={{ language: "en-US", sample: "Nice to meet you!", mode: "phrase" }} voicePracticeEnabled />,
+			<I18nProvider initialLocale="pt-BR">
+				<PronunciationPractice voice={{ language: "en-US", sample: "Nice to meet you!", mode: "phrase" }} voicePracticeEnabled />
+			</I18nProvider>,
 		);
 		assert.ok(enabledCard.includes("Gravar minha voz"), "shows recording button when explicitly enabled");
 		assert.ok(enabledCard.includes("grave até 30 segundos"));

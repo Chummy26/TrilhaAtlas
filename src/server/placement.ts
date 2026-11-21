@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { activeDomainId, PATHS } from "../../config.ts";
 import { learnerDir } from "../core/domains/paths.ts";
+import { emit } from "../core/events.ts";
 import { graphIndex, type LearnerGraphView } from "../core/learner/graph-view.ts";
 import { particleMarginal, type DiagnosticState } from "../core/learner/kst.ts";
 import { LEARNER_CONSTANTS } from "../core/learner/params.ts";
@@ -24,7 +25,7 @@ import {
 } from "../core/study/placement.ts";
 import { removeLeftoverTemps, writeFileAtomicSync } from "../store/atomic-write.ts";
 import { appendStudyEvent, nextStudySeq, readStudyEvents } from "./study-log.ts";
-import { loadCurriculum, studyDomains, StudyError } from "./study.ts";
+import { learnerSnapshotOf, loadCurriculum, studyDomains, StudyError } from "./study.ts";
 
 const MAX_PLACEMENT_QUESTIONS = 15;
 const MIN_EARLY_FINISH_QUESTIONS = 4;
@@ -134,13 +135,14 @@ function finalizeState(
 	const events = readStudyEvents(domainId);
 	const seq = nextStudySeq(events);
 	const at = new Date().toISOString();
+	const existingSnap = learnerSnapshotOf(domainId, graph, events, at);
 	const eventId = `placement-${seq}-${Math.random().toString(36).slice(2, 8)}`;
 	const { summary, event } = summarizePlacement(snapshot, graph, state, {
 		id: eventId,
 		seq,
 		at,
 		domainId,
-	});
+	}, existingSnap);
 	appendStudyEvent(domainId, event);
 	writeStoredPlacement(domainId, {
 		version: 1,
@@ -150,6 +152,7 @@ function finalizeState(
 		lastSummary: summary,
 		finishedAt: at,
 	});
+	emit("curriculum-expanded", { domainId, nodeId: summary.recommendedNodeId ?? domainId });
 	return summary;
 }
 
@@ -185,7 +188,7 @@ export function startDomainPlacement(seed?: string): DomainPlacementStatus {
 	const effectiveSeed = seed && seed.trim()
 		? seed.trim()
 		: `${id}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
-	const state = startPlacement(cur.view, effectiveSeed);
+	const state = startPlacement(cur.view, effectiveSeed, cur.snapshot);
 	const previous = readStoredPlacement(id);
 	writeStoredPlacement(id, {
 		version: 1,

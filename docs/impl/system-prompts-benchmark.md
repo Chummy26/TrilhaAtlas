@@ -6,18 +6,18 @@
 
 - **Auditoria formal dos 4 agentes conversacionais (`teacher`, `prober`, `practice`, `side-chat`):** 4/4 com **Score 100/100** (**0 ferramentas fantasma**, **0 contradições**, **0 comentários vazados**, **0 frases duplicadas**).
 - **Auditoria de paridade de schema (`lesson/*` e `memory/*`):** 8/8 templates aprovados.
-- **Matriz de estresse pedagógico em escala:** **540/540** trajetórias multi-turno aprovadas (**100%** de acerto em 8.23 ms — 6 perfis de curso × 5 personas × 18 cenários adversariais/realistas).
+- **Matriz de estresse pedagógico em escala:** **540/540** trajetórias multi-turno aprovadas (**100%** de acerto em 11.72 ms — 6 perfis de curso × 5 personas × 18 cenários adversariais/realistas).
 - **SLAs de performance em escala (1.000 iterações):** 4/4 dentro do orçamento.
-- **Tempo total da suíte:** 2606.9 ms.
+- **Tempo total da suíte:** 4084.85 ms.
 
 ## 1. Auditoria Formal & Eficiência de Tokens por Agente
 
 | Agente | Chars | ~Tokens | Baseline | Delta Tokens | Ferramentas Fantasma | Contradições | Duplicações | Score | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| `teacher` | 40622 | 10156 | 12050 | -1894 (-15.7%) | 0 | 0 | 0 | **100/100** | PASS |
-| `prober` | 16173 | 4044 | 4280 | -236 (-5.5%) | 0 | 0 | 0 | **100/100** | PASS |
-| `practice` | 21116 | 5279 | 6782 | -1503 (-22.2%) | 0 | 0 | 0 | **100/100** | PASS |
-| `side-chat` | 6555 | 1639 | 1621 | +18 (+1.1%) | 0 | 0 | 0 | **100/100** | PASS |
+| `teacher` | 41906 | 10477 | 12050 | -1573 (-13.1%) | 0 | 0 | 0 | **100/100** | PASS |
+| `prober` | 16528 | 4132 | 4280 | -148 (-3.5%) | 0 | 0 | 0 | **100/100** | PASS |
+| `practice` | 21630 | 5408 | 6782 | -1374 (-20.3%) | 0 | 0 | 0 | **100/100** | PASS |
+| `side-chat` | 6854 | 1714 | 1621 | +93 (+5.7%) | 0 | 0 | 0 | **100/100** | PASS |
 
 ## 2. Paridade de Schema nos Prompts Estruturados (`lesson/*` e `memory/*`)
 
@@ -59,7 +59,7 @@
 
 | Operação | Iterações | p50 (ms) | p95 (ms) | p99 (ms) | Orçamento p95 (ms) | Status |
 |---|---:|---:|---:|---:|---:|---|
-| `composeInstructions('teacher')` | 1000 | 1.667 | 2.323 | 3.108 | 8 | PASS |
-| `composeInstructions('practice')` | 1000 | 0.715 | 0.917 | 1.167 | 4 | PASS |
-| `composeSideChatInstructions()` | 200 | 0.153 | 0.19 | 0.218 | 8 | PASS |
-| `buildMissionPedagogyDirective(3 turns)` | 1000 | 0.002 | 0.003 | 0.005 | 0.5 | PASS |
+| `composeInstructions('teacher')` | 1000 | 2.609 | 3.641 | 5.715 | 8 | PASS |
+| `composeInstructions('practice')` | 1000 | 1.174 | 1.583 | 1.775 | 4 | PASS |
+| `composeSideChatInstructions()` | 200 | 0.266 | 0.418 | 0.498 | 8 | PASS |
+| `buildMissionPedagogyDirective(3 turns)` | 1000 | 0.004 | 0.006 | 0.014 | 0.5 | PASS |

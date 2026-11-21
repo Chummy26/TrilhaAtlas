@@ -1,8 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { DumbbellIcon } from "lucide-react";
 import { Icon } from "@/components/icons/icon";
+import { useI18n, useT } from "@/components/i18n";
 import { DomainSwitcher } from "./domain-switcher.tsx";
 import type { StudyDomainList } from "@/src/core";
 
@@ -12,30 +14,47 @@ export interface StudyNavigationProps {
 }
 
 export function StudyNavigation({ domains, account }: StudyNavigationProps) {
-	return <>
-		<div className="pointer-events-auto">
-			<DomainSwitcher initialList={domains} />
-		</div>
-		<Link
-			href="/profile"
-			aria-label="Perfil e experiência"
-			className="cel-chip lh-no-drag pointer-events-auto h-9 gap-2 px-3 text-sm font-semibold hover:bg-accent"
-			data-testid="profile-link"
-		>
-			<Icon name="profile" size={19} />
-			<span>Perfil</span>
-			{account && (
-				<span className="border-l border-border/60 pl-2 text-xs font-medium text-muted-foreground tabular-nums">
-					Nv. {account.level} · {account.xp.toLocaleString("pt-BR")} XP
-				</span>
-			)}
-		</Link>
-	</>;
+	const { t, intl } = useI18n();
+	const intFmt = useMemo(() => new Intl.NumberFormat(intl), [intl]);
+	return (
+		<>
+			<div className="pointer-events-auto">
+				<DomainSwitcher initialList={domains} />
+			</div>
+			<Link
+				href="/profile"
+				aria-label={t("pages.nav.profileAria")}
+				className="cel-chip lh-no-drag pointer-events-auto h-9 gap-2 px-3 text-sm font-semibold hover:bg-accent"
+				data-testid="profile-link"
+			>
+				<Icon name="profile" size={19} />
+				<span>{t("pages.nav.profile")}</span>
+				{account && (
+					<span className="border-l border-border/60 pl-2 text-xs font-medium text-muted-foreground tabular-nums">
+						{t("pages.nav.levelShort", {
+							level: account.level,
+							xp: intFmt.format(account.xp),
+						})}
+					</span>
+				)}
+			</Link>
+		</>
+	);
 }
 
-export function SessionModeSwitch({ mode, onChange }: { mode: "teach" | "practice"; onChange: (mode: "teach" | "practice") => void }) {
+export function SessionModeSwitch({
+	mode,
+	onChange,
+}: {
+	mode: "teach" | "practice";
+	onChange: (mode: "teach" | "practice") => void;
+}) {
+	const t = useT();
 	return (
-		<div className="flex items-center gap-0.5 rounded-lg border border-border/60 bg-background p-0.5" data-testid="home-mode-switch">
+		<div
+			className="flex items-center gap-0.5 rounded-lg border border-border/60 bg-background p-0.5"
+			data-testid="home-mode-switch"
+		>
 			{(["teach", "practice"] as const).map((m) => (
 				<button
 					key={m}
@@ -51,7 +70,7 @@ export function SessionModeSwitch({ mode, onChange }: { mode: "teach" | "practic
 					}
 				>
 					{m === "practice" ? <DumbbellIcon aria-hidden="true" className="size-3" /> : null}
-					{m === "teach" ? "Teach" : "Practice"}
+					{m === "teach" ? t("pages.nav.modeTeach") : t("pages.nav.modePractice")}
 				</button>
 			))}
 		</div>

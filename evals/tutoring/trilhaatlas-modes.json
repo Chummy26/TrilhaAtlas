@@ -193,6 +193,132 @@
 				{ "id": "appropriate_rigor", "weight": 2, "criterion": "Identifica que o aluno chegou à resposta certa ('much') por uma regra defeituosa (terminar sem 's') e desafia essa generalização com contraexemplo contável irregular (ex.: 'people', 'children') ou distinção contável vs. incontável." },
 				{ "id": "avoids_over_scaffolding", "weight": 2, "criterion": "Pede ao aluno para testar sua regra no contraexemplo em vez de simplesmente encerrar aprovando o acerto." }
 			]
+		},
+		{
+			"id": "mode-teach-missing-diagram-elec",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "teacher",
+			"metricTag": "appropriate_hint_level",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Vamos verificar como você montou a resistência equivalente desse circuito do seu caderno." }
+			],
+			"learnerTurn": "Olhando o diagrama da Figura 3 aqui da minha lista, eu vi que R3 está encostado em R2 então somei R2 + R3 direto em série e dividi 12 V por tudo. Tá certo fazer assim?",
+			"rubric": [
+				{ "id": "asks_missing_diagram_detail", "weight": 2, "criterion": "Pede ao aluno os detalhes estruturais decisivos do diagrama ausente (quais nós/conexões R2 e R3 compartilham e se há derivação/ramificação entre eles) sem assumir a topologia não vista." },
+				{ "id": "diagnoses_stated_flaw_socratically", "weight": 2, "criterion": "Diagnostica a falha conceitual declarada ('estar encostado' não garante série; série exige a mesma corrente sem ramificação) e orienta a estratégia socraticamente terminando com uma checagem focada." }
+			]
+		},
+		{
+			"id": "mode-teach-missing-diagram-math",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "teacher",
+			"metricTag": "appropriate_hint_level",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Let's check your setup on the geometry problem from your worksheet before computing the side length." }
+			],
+			"learnerTurn": "In Figure 2 on my sheet, triangle ABC has AB = 6 and BC = 8. Angle B looks pretty square in the drawing so I used Pythagoras right away and got AC = 10. Can I just move on?",
+			"rubric": [
+				{ "id": "no_assumed_unseen_geometry", "weight": 2, "criterion": "Does NOT assume angle B is 90 degrees without seeing Figure 2; asks the learner to confirm the decisive missing diagram detail (explicit right-angle marking or given angle/parallel labels)." },
+				{ "id": "coaches_governing_strategy", "weight": 2, "criterion": "Diagnoses the flaw of relying on visual appearance ('looks square') and ends with one focused check on the governing theorem/condition needed before applying Pythagoras." }
+			]
+		},
+		{
+			"id": "tm-ptbr-fade-uptake-elec",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_rigor",
+			"dimension": "rigor",
+			"contextMessages": [
+				{ "role": "assistant", "content": "No circuito RC com R = 1 kΩ e C = 100 µF carregando a partir de 0 V com fonte de 5 V, quanto vale a constante de tempo τ?" },
+				{ "role": "user", "content": "Converti 1 kΩ para 1000 Ω e 100 µF para 100 × 10^-6 F, então τ = 1000 × 10^-4 = 0,1 s (100 ms)." }
+			],
+			"learnerTurn": "Beleza, fechou τ = 0,1 s certinho. Qual é o próximo passo?",
+			"rubric": [
+				{ "id": "concise_fade_on_uptake", "weight": 2, "criterion": "Confirma o acerto em 1–2 frases curtas e passa diretamente para o próximo passo aberto ('como/por quê') — SEM pré-resolver um exemplo trabalhado extra nem despejar dicas não solicitadas." },
+				{ "id": "open_question_no_yesno_funnel", "weight": 2, "criterion": "Formula uma pergunta aberta exigindo raciocínio do aluno (ex.: como determinar a tensão no capacitor em t = τ ou qual fração de 5 V ela atinge) em vez de reduzir a uma pergunta sim/não." }
+			]
+		},
+		{
+			"id": "tm-ptbr-fade-uptake-eng",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_rigor",
+			"dimension": "rigor",
+			"contextMessages": [
+				{ "role": "assistant", "content": "Compare 'since' e 'for' no Present Perfect: qual você usaria com '2019' e qual com 'five years'?" },
+				{ "role": "user", "content": "Eu uso 'since 2019' porque é o ponto de partida no tempo, e 'for five years' porque é a duração inteira." }
+			],
+			"learnerTurn": "Peguei essa diferença bem claro. Podemos ir pro próximo passo?",
+			"rubric": [
+				{ "id": "concise_fade_on_uptake", "weight": 2, "criterion": "Confirma em 1–2 frases e reduz o andaime imediatamente — não repete explicação nem apresenta exemplo resolvido extra desnecessário." },
+				{ "id": "direct_open_transfer_move", "weight": 2, "criterion": "Lança diretamente um desafio aberto de transferência ou justificativa (como produzir uma frase própria ou contrastar caso limítrofe) sem funil sim/não." }
+			]
+		},
+		{
+			"id": "mode-defense-banca-elec",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_rigor",
+			"dimension": "rigor",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Modo Banca Examinadora / Arguição — Graduação · Tentativa 1 submetida]\nTarefa de defesa: Projete a compensação por polo dominante de um amplificador operacional de dois estágios para margem de fase >= 60° e defenda as hipóteses e casos-limite de carga capacitiva." }
+			],
+			"learnerTurn": "Minha defesa da tentativa 1: posicionei o polo dominante com capacitor de Miller Cm de modo que o ganho unitário fique abaixo do segundo polo nominal, garantindo margem de fase de 65° na carga nominal de 10 pF. Acho que já cobri tudo, posso passar?",
+			"rubric": [
+				{ "id": "no_premature_rubber_stamp", "weight": 2, "criterion": "NÃO aprova prematuramente na rodada 1 quando faltam defesa de casos-limite, premissas ocultas e compromissos (ex.: aumento de carga capacitiva, zero do semiplano direito RHP ou perda de slew-rate/largura de banda)." },
+				{ "id": "panel_counter_questions", "weight": 2, "criterion": "Reconhece o que se sustentou na trajetória principal e conduz arguição crítica com contra-perguntas incisivas mirando caso-limite, premissa oculta ou compromisso de projeto." }
+			]
+		},
+		{
+			"id": "mode-defense-banca-eng",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "teacher",
+			"metricTag": "internal_adaptation_ptbr_rigor",
+			"dimension": "rigor",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Modo Banca Examinadora / Arguição — C1 Academic Debate · Attempt 1 submitted]\nDefense task: Defend a thesis on AI-assisted peer review in academic publishing, explicitly delimiting scope boundaries and addressing the strongest counter-argument." }
+			],
+			"learnerTurn": "Attempt 1 submission: AI-assisted peer review accelerates manuscript screening and catches statistical inconsistencies faster than human reviewers alone, which clearly raises scientific rigor across journals. I believe my thesis is well written — is it ready to pass?",
+			"rubric": [
+				{ "id": "no_premature_rubber_stamp", "weight": 2, "criterion": "Does NOT rubber-stamp approval on attempt 1 while scope boundaries, hidden premises (e.g., bias/hallucination/confidentiality), and the strongest counter-argument remain undefended." },
+				{ "id": "panel_counter_questions", "weight": 2, "criterion": "Acknowledges the clarity of the main claim and poses sharp panel cross-examination questions challenging unexamined premises and demanding a disciplined counter-argument/scope defense." }
+			]
+		},
+		{
+			"id": "mode-reading-advanced-vs-beginner",
+			"split": "dev",
+			"domain": "electronics",
+			"mode": "teacher",
+			"metricTag": "appropriate_hint_level",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Diretiva da missão — Nível Pesquisa / Avançado · MANDATORY ADVANCED READING ativo]\nNó: Ruído térmico e figura de ruído em LNA RF (Band 3 / Pesquisa). Leitura obrigatória designada: Razavi, RF Microelectronics, Cap. 2 (seção de Noise Figure e impedância ótima de fonte) antes da defesa formal." }
+			],
+			"learnerTurn": "Não precisa dessa leitura de capítulo de livro técnico não, me manda logo uma lista rápida de 3 fórmulas prontas de figura de ruído e já aplica a prova final.",
+			"rubric": [
+				{ "id": "upholds_advanced_reading_checkpoint", "weight": 2, "criterion": "Mantém com firmeza a exigência de leitura crítica do capítulo/seção de referência (Razavi, Cap. 2) por se tratar de um nó avançado/de pesquisa, recusando pular direto para fórmulas soltas e prova." },
+				{ "id": "constructive_reading_check", "weight": 2, "criterion": "Explica brevemente o valor conceitual da leitura (ex.: por que casamento de mínimo ruído difere de máximo ganho) e propõe 1–2 pontos objetivos de verificação da leitura sem despejar a resposta pronta." }
+			]
+		},
+		{
+			"id": "mode-flipped-prereading-eng",
+			"split": "heldout",
+			"domain": "english",
+			"mode": "teacher",
+			"metricTag": "appropriate_hint_level",
+			"contextMessages": [
+				{ "role": "assistant", "content": "[Aula invertida / nível A2–B1 — leitura prévia concluída, sem leitura acadêmica obrigatória]\nNó: Second Conditional para situações hipotéticas no presente." }
+			],
+			"learnerTurn": "Eu já li o resumo pré-aula de Second Conditional e entendi a forma 'If + Past Simple, would + verbo base' para situações imaginárias no presente. Podemos pular a revisão longa do resumo e ir direto para um caso prático?",
+			"rubric": [
+				{ "id": "respects_flipped_prereading", "weight": 2, "criterion": "Honra a leitura pré-aula sem repetir uma aula expositiva longa nem impor leitura burocrática adicional (nível introdutório/intermediário tem leitura opcional)." },
+				{ "id": "direct_active_application", "weight": 2, "criterion": "Move-se diretamente para um caso curto e verificável de transferência ativa do Second Conditional (ex.: envolvendo escolha de forma verbal ou contraste com situação real), mantendo o passo decisivo com o aluno." }
+			]
 		}
 	]
 }

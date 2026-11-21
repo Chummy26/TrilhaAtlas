@@ -21,6 +21,7 @@ interface Pending { op: string; resolve: (v: unknown) => void; reject: (e: Error
 interface BridgeState {
  status: ChatGPTStatus; stamp: Stamp; models: Model<"openai-responses">[]; catalogAccount: string | null;
  pending: Map<string, Pending>; controllers: Map<AbortController, boolean>; listeners: Set<() => void>; counter: number; catalogRequest: number;
+ inFlightCatalog?: { epoch: number; activeId: string | null; promise: Promise<void> };
 }
 const key = Symbol.for("lh.chatgpt.bridge");
 const unavailable = (): ChatGPTStatus => ({ available: false, pending: false, allowBackgroundUse: true, activeId: null, accounts: [], error: null });
@@ -160,15 +161,29 @@ export function chatGPTReportedLimits(model: { contextWindow: number; maxTokens:
 export async function refreshChatGPTModels(supported: Model<"openai-responses">[]): Promise<void> {
  const state = bridge();
  if (!runtimeConnected()) { clearCatalog(state); return; }
+ const startEpoch = state.stamp.epoch;
+ const startAccount = state.status.activeId;
+ if (state.inFlightCatalog && state.inFlightCatalog.epoch === startEpoch && state.inFlightCatalog.activeId === startAccount) {
+  return state.inFlightCatalog.promise;
+ }
  const sequence = ++state.catalogRequest;
+ const run = (async () => {
+  try {
+   const value = await chatGPTRequest<ModelsValue>("models");
+   if (sequence !== state.catalogRequest || !validStamp(value)) return;
+   acceptStatus(state, value);
+   if (value.epoch !== state.stamp.epoch || value.authorityRevision !== state.stamp.authorityRevision || value.accountId !== state.status.activeId || !chatGPTConnected()) return;
+   state.catalogAccount = value.accountId;
+   state.models = value.models.map(entry => accountModel(entry, supported.find(m => m.id === entry.id)));
+  } catch { if (sequence === state.catalogRequest) clearCatalog(state); }
+ })();
+ const entry = { epoch: startEpoch, activeId: startAccount, promise: run };
+ state.inFlightCatalog = entry;
  try {
-  const value = await chatGPTRequest<ModelsValue>("models");
-  if (sequence !== state.catalogRequest || !validStamp(value)) return;
-  acceptStatus(state, value);
-  if (value.epoch !== state.stamp.epoch || value.authorityRevision !== state.stamp.authorityRevision || value.accountId !== state.status.activeId || !chatGPTConnected()) return;
-  state.catalogAccount = value.accountId;
-		state.models = value.models.map(entry => accountModel(entry, supported.find(m => m.id === entry.id)));
- } catch { if (sequence === state.catalogRequest) clearCatalog(state); }
+  await run;
+ } finally {
+  if (state.inFlightCatalog === entry) state.inFlightCatalog = undefined;
+ }
 }
 export function chatGPTAbortController(background = true): { controller: AbortController; release: () => void } {
  const state = bridge(); const controller = new AbortController(); state.controllers.set(controller, background);

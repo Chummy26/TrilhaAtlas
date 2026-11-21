@@ -34,6 +34,11 @@ import { isSearchEngineId, SEARCH_ENGINES } from "../core/search.ts";
 import { isDictationLanguage } from "../core/dictation.ts";
 import { isLocale } from "../core/i18n/locales.ts";
 import { parseFileAccessSettings } from "../core/file-access.ts";
+import {
+	isValidGcpLocation,
+	isValidGcpProjectId,
+	type GoogleVertexSettings,
+} from "../core/contracts/google-vertex.ts";
 
 /** Parsed-or-rejected — `ok: false` carries the 400's error message. */
 export type SettingsBodyResult<T> =
@@ -109,6 +114,34 @@ export function parseClaudeCodeSettingsBody(body: unknown): SettingsBodyResult<{
 	if (raw.enabled === undefined) return { ok: true, settings: {} };
 	if (typeof raw.enabled !== "boolean") return { ok: false, error: "enabled must be a boolean" };
 	return { ok: true, settings: { enabled: raw.enabled } };
+}
+
+/** googleVertex: opt-in Google Vertex AI via local gcloud ADC (no API key). */
+export function parseGoogleVertexSettingsBody(body: unknown): SettingsBodyResult<GoogleVertexSettings> {
+	const raw = asRecord(body);
+	if (!raw) return { ok: false, error: "Invalid JSON body" };
+	const settings: GoogleVertexSettings = {};
+	if (raw.enabled !== undefined) {
+		if (typeof raw.enabled !== "boolean") return { ok: false, error: "enabled must be a boolean" };
+		settings.enabled = raw.enabled;
+	}
+	if (raw.project !== undefined) {
+		if (typeof raw.project !== "string") return { ok: false, error: "project must be a string" };
+		const trimmed = raw.project.trim();
+		if (trimmed) {
+			if (!isValidGcpProjectId(trimmed)) return { ok: false, error: "project must be a valid Google Cloud project ID" };
+			settings.project = trimmed;
+		}
+	}
+	if (raw.location !== undefined) {
+		if (typeof raw.location !== "string") return { ok: false, error: "location must be a string" };
+		const trimmed = raw.location.trim();
+		if (trimmed) {
+			if (!isValidGcpLocation(trimmed)) return { ok: false, error: "location must be a valid Vertex AI location (e.g. global or us-central1)" };
+			settings.location = trimmed;
+		}
+	}
+	return { ok: true, settings };
 }
 
 /** agent.models: only the six known background roles; each override's
@@ -510,6 +543,7 @@ export const SETTINGS_SECTIONS = {
 	models: parseModelsSettingsBody,
 	dictation: parseDictationSettingsBody,
 	claudeCode: parseClaudeCodeSettingsBody,
+	googleVertex: parseGoogleVertexSettingsBody,
 } as const;
 
 export type SettingsSectionName = keyof typeof SETTINGS_SECTIONS;

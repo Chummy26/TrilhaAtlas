@@ -5,19 +5,12 @@
  * §2.10–2.11). Client-rendered so i18n locale switching stays reactive.
  */
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
-import { useT } from "@/components/i18n";
+import { useI18n } from "@/components/i18n";
 import type { IconName } from "@/components/icons/generated";
-import type { StudyProfile, TranscriptChapterRow, TranscriptGradeLabel } from "@/src/core";
-
-const fmt = new Intl.NumberFormat("pt-BR");
-
-function compact(n: number): string {
-	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(".", ",")} M`;
-	if (n >= 10_000) return `${Math.round(n / 1000)} mil`;
-	return fmt.format(n);
-}
+import type { StudyProfile, TranscriptChapterRow, TranscriptGradeLabel, Translator } from "@/src/core";
 
 function hours(minutes: number): string {
 	const min = Math.round(minutes);
@@ -32,13 +25,13 @@ function gradePillClass(grade: TranscriptGradeLabel): string {
 	return "study-pill";
 }
 
-function chapterAvgExamScore(chapter: TranscriptChapterRow): string {
+function chapterAvgExamScore(chapter: TranscriptChapterRow, scoreFmt: Intl.NumberFormat): string {
 	const scores = chapter.modules
 		.map((m) => m.examScore)
 		.filter((s): s is number => typeof s === "number");
 	if (scores.length === 0) return "—";
 	const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
-	return avg.toFixed(1).replace(".", ",");
+	return scoreFmt.format(avg);
 }
 
 function computeStudyStreak(days: readonly { minutes: number }[]): number {
@@ -53,8 +46,25 @@ function computeStudyStreak(days: readonly { minutes: number }[]): number {
 	return streak;
 }
 
+function formatCompact(
+	n: number,
+	t: Translator,
+	intFmt: Intl.NumberFormat,
+	decFmt: Intl.NumberFormat,
+): string {
+	if (n >= 1_000_000) return t("pages.profile.compactMillion", { value: decFmt.format(n / 1_000_000) });
+	if (n >= 10_000) return t("pages.profile.compactThousand", { value: intFmt.format(Math.round(n / 1000)) });
+	return intFmt.format(n);
+}
+
 export function ProfileView({ profile }: { profile: StudyProfile }) {
-	const t = useT();
+	const { t, intl } = useI18n();
+	const intFmt = useMemo(() => new Intl.NumberFormat(intl), [intl]);
+	const decFmt = useMemo(
+		() => new Intl.NumberFormat(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+		[intl],
+	);
+
 	const { account, domains, usage, days } = profile;
 	const maxDay = Math.max(60, ...days.map((d) => d.minutes));
 	const weekMin = days.slice(-7).reduce((a, d) => a + d.minutes, 0);
@@ -65,12 +75,18 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 	const ringCircumference = 2 * Math.PI * ringRadius;
 	const ringOffset = ringCircumference * (1 - Math.max(0, Math.min(1, account.fraction)));
 	const maxModelTokens = Math.max(1, ...usage.byModel.map((m) => m.tokens));
-	const transcriptDomains = domains.filter((d): d is typeof d & { transcript: NonNullable<typeof d.transcript> } => Boolean(d.transcript));
+	const transcriptDomains = domains.filter(
+		(d): d is typeof d & { transcript: NonNullable<typeof d.transcript> } => Boolean(d.transcript),
+	);
 
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-12">
 			<div className="mb-6 flex items-center gap-3">
-				<Link href="/" aria-label={t("pages.profile.back")} className="cel-button cel-button-ghost lh-no-drag min-h-9 px-2.5 text-sm">
+				<Link
+					href="/"
+					aria-label={t("pages.profile.back")}
+					className="cel-button cel-button-ghost lh-no-drag min-h-9 px-2.5 text-sm"
+				>
 					<Icon name="chevron-left" size={18} tone={false} />
 					{t("shell.sidebar.home")}
 				</Link>
@@ -81,7 +97,14 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 				{/* Onigiri ring-profile inspired level dial */}
 				<div className="relative flex size-20 shrink-0 items-center justify-center">
 					<svg viewBox="0 0 76 76" className="absolute inset-0 size-full -rotate-90" aria-hidden="true">
-						<circle cx="38" cy="38" r={ringRadius} fill="none" stroke="color-mix(in srgb, var(--border) 55%, transparent)" strokeWidth="5" />
+						<circle
+							cx="38"
+							cy="38"
+							r={ringRadius}
+							fill="none"
+							stroke="color-mix(in srgb, var(--border) 55%, transparent)"
+							strokeWidth="5"
+						/>
 						<circle
 							cx="38"
 							cy="38"
@@ -96,7 +119,9 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 						/>
 					</svg>
 					<div className="cel-display relative z-10 flex size-[58px] flex-col items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--cel-xp,var(--primary))_10%,var(--background))]">
-						<span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("pages.profile.level")}</span>
+						<span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+							{t("pages.profile.level")}
+						</span>
 						<span className="text-2xl leading-none tabular-nums">{account.level}</span>
 					</div>
 				</div>
@@ -104,14 +129,20 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 					<div className="flex flex-wrap items-baseline gap-2 text-sm">
 						<span className="inline-flex items-center gap-1.5">
 							<Icon name="xp" size={18} />
-							<span className="cel-display text-lg tabular-nums">{fmt.format(account.xp)} XP</span>
+							<span className="cel-display text-lg tabular-nums">{intFmt.format(account.xp)} XP</span>
 						</span>
 						<span className="ml-auto text-xs text-muted-foreground tabular-nums">
-							{levelPct}% · faltam {fmt.format(account.xpToNext)} XP
+							{t("pages.profile.xpToNext", {
+								pct: levelPct,
+								xp: intFmt.format(account.xpToNext),
+							})}
 						</span>
 					</div>
 					<div className="h-2.5 overflow-hidden rounded-full border border-border/60 bg-background/80">
-						<div className="h-full rounded-full bg-[var(--cel-xp,var(--primary))] transition-all duration-300" style={{ width: `${levelPct}%` }} />
+						<div
+							className="h-full rounded-full bg-[var(--cel-xp,var(--primary))] transition-all duration-300"
+							style={{ width: `${levelPct}%` }}
+						/>
 					</div>
 				</div>
 			</section>
@@ -125,40 +156,61 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 								<Icon name={d.icon as IconName} size={26} />
 								<div className="min-w-0 flex-1">
 									<h2 className="cel-display truncate text-lg leading-tight">{d.title}</h2>
-									<p className="text-xs text-muted-foreground tabular-nums">{d.attained > 0 && pct === 0 ? "<1%" : `${pct}%`} do percurso</p>
+									<p className="text-xs text-muted-foreground tabular-nums">
+										{t("pages.profile.pathPct", {
+											pct: d.attained > 0 && pct === 0 ? "<1" : String(pct),
+										})}
+									</p>
 								</div>
-								<span className="cel-chip shrink-0 text-xs" title={`${d.tier.pm} pontos de maestria`}>
+								<span
+									className="cel-chip shrink-0 text-xs"
+									title={t("pages.profile.masteryPointsTitle", { pm: d.tier.pm })}
+								>
 									<Icon name="trophy" size={14} />
 									{d.tier.label}
 								</span>
 							</div>
 							<div>
 								<div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-									<span>Estágios retidos</span>
-									<span className="tabular-nums">{d.tier.pm} PM</span>
+									<span>{t("pages.profile.retainedStages")}</span>
+									<span className="tabular-nums">
+										{t("pages.profile.masteryPointsShort", { pm: d.tier.pm })}
+									</span>
 								</div>
-								<div className="flex gap-1" aria-label="Estágios retidos">
+								<div className="flex gap-1" aria-label={t("pages.profile.retainedStages")}>
 									{d.tier.fractions.map((f, i) => (
-										<div key={i} className="h-2.5 flex-1 overflow-hidden rounded-full border border-border/50 bg-background/80" title={`Estágio ${i + 1}: ${Math.round(f * 100)}%`}>
-											<div className="h-full bg-[var(--cel-accent,var(--primary))]" style={{ width: `${Math.round(f * 100)}%` }} />
+										<div
+											key={i}
+											className="h-2.5 flex-1 overflow-hidden rounded-full border border-border/50 bg-background/80"
+											title={t("pages.profile.stageTooltip", {
+												index: i + 1,
+												pct: Math.round(f * 100),
+											})}
+										>
+											<div
+												className="h-full bg-[var(--cel-accent,var(--primary))]"
+												style={{ width: `${Math.round(f * 100)}%` }}
+											/>
 										</div>
 									))}
 								</div>
 							</div>
 							<dl className="grid grid-cols-3 divide-x divide-border/50 rounded-xl border border-border/45 bg-background/55 py-2 text-center text-xs text-muted-foreground">
 								<div className="px-1">
-									<dt>tópicos</dt>
+									<dt>{t("pages.profile.topics")}</dt>
 									<dd className="cel-display mt-0.5 text-base text-foreground tabular-nums">
 										{d.attained}/{d.leaves}
 									</dd>
 								</div>
 								<div className="px-1">
-									<dt>domínio</dt>
+									<dt>{t("pages.profile.domain")}</dt>
 									<dd className="cel-display mt-0.5 text-base text-foreground tabular-nums">{d.mastered}</dd>
 								</div>
 								<div className="px-1">
-									<dt>XP</dt>
-									<dd className="cel-display mt-0.5 text-base text-foreground tabular-nums">{fmt.format(d.xp)}</dd>
+									<dt>{t("pages.profile.xp")}</dt>
+									<dd className="cel-display mt-0.5 text-base text-foreground tabular-nums">
+										{intFmt.format(d.xp)}
+									</dd>
 								</div>
 							</dl>
 						</section>
@@ -167,24 +219,30 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 			</div>
 
 			{transcriptDomains.length > 0 && (
-				<section className="cel-card mb-5 p-5" aria-label="Boletim de Retenção Real (Histórico Escolar)">
+				<section className="cel-card mb-5 p-5" aria-label={t("pages.profile.transcriptTitle")}>
 					<div className="mb-4 flex flex-wrap items-center gap-2">
 						<Icon name="stats" size={18} />
-						<h2 className="cel-display text-lg">Boletim de Retenção Real (Histórico Escolar)</h2>
+						<h2 className="cel-display text-lg">{t("pages.profile.transcriptTitle")}</h2>
 					</div>
 					<div className="space-y-6">
 						{transcriptDomains.map((d) => {
 							const { transcript } = d;
 							const alerts = transcript.coolingAlerts.slice(0, 4);
 							return (
-								<div key={d.id} data-domain={d.id} className="space-y-3 border-t border-border/50 pt-4 first:border-t-0 first:pt-0">
+								<div
+									key={d.id}
+									data-domain={d.id}
+									className="space-y-3 border-t border-border/50 pt-4 first:border-t-0 first:pt-0"
+								>
 									<div className="flex flex-wrap items-center gap-2">
 										<Icon name={d.icon as IconName} size={20} />
 										<h3 className="cel-display text-base leading-tight">{d.title}</h3>
 										<span className={gradePillClass(transcript.gradeLabel)}>{transcript.gradeLabel}</span>
 										{transcript.avgRetention !== null && (
 											<span className="text-xs text-muted-foreground tabular-nums">
-												Retenção {Math.round(transcript.avgRetention * 100)}%
+												{t("pages.profile.retentionPct", {
+													pct: Math.round(transcript.avgRetention * 100),
+												})}
 											</span>
 										)}
 										<Link
@@ -192,7 +250,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 											className="cel-button cel-button-ghost ml-auto min-h-7 px-2.5 py-0.5 text-xs"
 										>
 											<Icon name="book" size={13} tone={false} />
-											Abrir ementa
+											{t("pages.profile.openSyllabus")}
 										</Link>
 									</div>
 
@@ -215,7 +273,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 															href={`/mapa?dominio=${encodeURIComponent(d.id)}&no=${encodeURIComponent(alert.topNodeId)}`}
 															className="ml-auto font-medium text-[var(--cel-link,var(--lh-accent))] underline underline-offset-2 hover:text-foreground"
 														>
-															Revisar {alert.topNodeTitle}
+															{t("pages.profile.reviewNode", { title: alert.topNodeTitle })}
 														</Link>
 													</li>
 												))}
@@ -238,7 +296,10 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 											</thead>
 											<tbody>
 												{transcript.chapters.map((ch) => (
-													<tr key={`${ch.index}-${ch.level}`} className="border-t border-border/50 transition-colors hover:bg-accent/40">
+													<tr
+														key={`${ch.index}-${ch.level}`}
+														className="border-t border-border/50 transition-colors hover:bg-accent/40"
+													>
 														<td className="min-w-40 py-2 pr-3">
 															<span className="font-semibold text-foreground">{ch.level}</span>
 															<span className="block text-xs text-muted-foreground">{ch.title}</span>
@@ -246,17 +307,13 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 														<td className="px-2 py-2 text-right text-muted-foreground">
 															{ch.attained}/{ch.total}
 														</td>
-														<td className="px-2 py-2 text-right font-semibold text-foreground">
-															{ch.durable}
-														</td>
-														<td className="px-2 py-2 text-right text-muted-foreground">
-															{ch.mastered}
-														</td>
+														<td className="px-2 py-2 text-right font-semibold text-foreground">{ch.durable}</td>
+														<td className="px-2 py-2 text-right text-muted-foreground">{ch.mastered}</td>
 														<td className="px-2 py-2 text-right text-muted-foreground">
 															{ch.avgRetention !== null ? `${Math.round(ch.avgRetention * 100)}%` : "—"}
 														</td>
 														<td className="px-2 py-2 text-right text-muted-foreground">
-															{chapterAvgExamScore(ch)}
+															{chapterAvgExamScore(ch, decFmt)}
 														</td>
 														<td className="py-2 pl-2 text-right">
 															<span className={gradePillClass(ch.gradeLabel)}>{ch.gradeLabel}</span>
@@ -283,7 +340,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 						{t("pages.profile.streak", { days: String(streakDays) })}
 					</span>
 					<span className="ml-auto text-xs text-muted-foreground tabular-nums">
-						7 dias: <strong className="font-semibold text-foreground">{hours(weekMin)}</strong> · 14 dias: <strong className="font-semibold text-foreground">{hours(periodMin)}</strong>
+						{t("pages.profile.days7And14", { week: hours(weekMin), period: hours(periodMin) })}
 					</span>
 				</div>
 				<div className="flex h-32 items-end gap-1.5 border-b border-dashed border-border/60 pb-2">
@@ -291,7 +348,11 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 						const isToday = index === days.length - 1;
 						const barHeight = d.minutes > 0 ? Math.max(6, Math.round((d.minutes / maxDay) * 86)) : 3;
 						return (
-							<div key={d.day} className="group flex flex-1 flex-col items-center gap-1" title={`${d.day}: ${hours(d.minutes)}`}>
+							<div
+								key={d.day}
+								className="group flex flex-1 flex-col items-center gap-1"
+								title={`${d.day}: ${hours(d.minutes)}`}
+							>
 								<span className="text-[10px] font-semibold tabular-nums text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
 									{d.minutes > 0 ? `${Math.round(d.minutes)}m` : ""}
 								</span>
@@ -299,7 +360,12 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 									className="w-full rounded-t-md bg-[var(--cel-accent,var(--primary))] transition-all duration-150 group-hover:brightness-110"
 									style={{ height: `${barHeight}px`, opacity: d.minutes > 0 ? (isToday ? 1 : 0.78) : 0.2 }}
 								/>
-								<span className={"text-[11px] tabular-nums " + (isToday ? "font-bold text-foreground" : "text-muted-foreground")}>
+								<span
+									className={
+										"text-[11px] tabular-nums " +
+										(isToday ? "font-bold text-foreground" : "text-muted-foreground")
+									}
+								>
 									{d.day.slice(8)}
 								</span>
 							</div>
@@ -312,39 +378,59 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 				<div className="mb-3 flex flex-wrap items-baseline gap-2">
 					<div className="flex items-center gap-2">
 						<Icon name="tokens" size={18} />
-						<h2 className="cel-display text-lg">Tokens</h2>
+						<h2 className="cel-display text-lg">{t("pages.profile.tokens")}</h2>
 					</div>
 					<span className="ml-auto text-xs text-muted-foreground tabular-nums">
-						<strong className="font-semibold text-foreground">{compact(usage.totalTokens)}</strong> em {fmt.format(usage.calls)} {usage.calls === 1 ? "chamada" : "chamadas"}
+						{t("pages.profile.tokensSummary", {
+							tokens: formatCompact(usage.totalTokens, t, intFmt, decFmt),
+							count: usage.calls,
+						})}
 					</span>
 				</div>
 				{usage.byModel.length === 0 ? (
-					<p className="text-sm text-muted-foreground">Nenhum uso registrado ainda.</p>
+					<p className="text-sm text-muted-foreground">{t("pages.profile.noUsage")}</p>
 				) : (
 					<div className="overflow-x-auto">
 						<table className="w-full text-sm tabular-nums">
 							<thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
 								<tr>
-									<th className="pb-2 pr-3 font-medium">Modelo</th>
-									<th className="pb-2 px-2 text-right font-medium">Entrada</th>
-									<th className="pb-2 px-2 text-right font-medium">Saída</th>
-									<th className="pb-2 px-2 text-right font-medium">Cache</th>
-									<th className="pb-2 pl-2 text-right font-medium">Total</th>
+									<th className="pb-2 pr-3 font-medium">{t("pages.profile.colModel")}</th>
+									<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colInput")}</th>
+									<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colOutput")}</th>
+									<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colCache")}</th>
+									<th className="pb-2 pl-2 text-right font-medium">{t("pages.profile.colTotal")}</th>
 								</tr>
 							</thead>
 							<tbody>
 								{usage.byModel.map((m) => (
-									<tr key={m.model} className="border-t border-border/50 transition-colors hover:bg-accent/40">
+									<tr
+										key={m.model}
+										className="border-t border-border/50 transition-colors hover:bg-accent/40"
+									>
 										<td className="max-w-52 py-2 pr-3">
 											<span className="block truncate font-mono text-xs">{m.model}</span>
-											<span className="mt-1 block h-1 w-full overflow-hidden rounded-full bg-border/35" aria-hidden="true">
-												<span className="block h-full rounded-full bg-[var(--cel-accent,var(--primary))]" style={{ width: `${Math.max(4, Math.round((m.tokens / maxModelTokens) * 100))}%` }} />
+											<span
+												className="mt-1 block h-1 w-full overflow-hidden rounded-full bg-border/35"
+												aria-hidden="true"
+											>
+												<span
+													className="block h-full rounded-full bg-[var(--cel-accent,var(--primary))]"
+													style={{ width: `${Math.max(4, Math.round((m.tokens / maxModelTokens) * 100))}%` }}
+												/>
 											</span>
 										</td>
-										<td className="px-2 py-2 text-right text-muted-foreground">{compact(m.input)}</td>
-										<td className="px-2 py-2 text-right text-muted-foreground">{compact(m.output)}</td>
-										<td className="px-2 py-2 text-right text-muted-foreground">{compact(m.cached)}</td>
-										<td className="cel-display py-2 pl-2 text-right">{compact(m.tokens)}</td>
+										<td className="px-2 py-2 text-right text-muted-foreground">
+											{formatCompact(m.input, t, intFmt, decFmt)}
+										</td>
+										<td className="px-2 py-2 text-right text-muted-foreground">
+											{formatCompact(m.output, t, intFmt, decFmt)}
+										</td>
+										<td className="px-2 py-2 text-right text-muted-foreground">
+											{formatCompact(m.cached, t, intFmt, decFmt)}
+										</td>
+										<td className="cel-display py-2 pl-2 text-right">
+											{formatCompact(m.tokens, t, intFmt, decFmt)}
+										</td>
 									</tr>
 								))}
 							</tbody>

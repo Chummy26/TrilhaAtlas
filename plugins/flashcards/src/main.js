@@ -252,39 +252,46 @@ export function activate(ctx) {
     generationButton = button(toolbar, 'Generate', () => confirmGeneration(generationIds, signal, showError), signal, { disabled: true, variant: 'default' });
     fileButton = button(toolbar, 'Generate from file…', () => fileInput.click(), signal, { disabled: !canConvertFiles, title: canConvertFiles ? undefined : 'Update LearnHarness to generate flashcards from files.' });
     toolbar.append(fileInput);
-    const hero = el('section', 'fc-hero');
-    hero.setAttribute('aria-label', 'Study overview');
-    const heroPrimary = el('div', 'fc-hero-primary');
-    const heroEyebrow = el('span', 'fc-hero-eyebrow', 'Due today');
-    const heroFigure = el('div', 'fc-hero-figure');
-    const heroDueNum = el('strong', 'fc-hero-num', '0');
-    const heroDueUnit = el('span', 'fc-hero-unit', 'cards');
-    const heroStatusPill = el('span', 'fc-hero-pill', 'All caught up');
-    heroFigure.append(heroDueNum, heroDueUnit, heroStatusPill);
-    heroPrimary.append(heroEyebrow, heroFigure);
+    const homeBar = el('header', 'fc-home-bar');
+    const homeSub = el('p', 'fc-home-sub', 'All caught up');
+    homeBar.append(homeSub, toolbar);
 
-    const heroMetrics = el('div', 'fc-hero-metrics');
-    const heroStatDefs = [['new', 'New'], ['learning', 'Learning'], ['review', 'Review'], ['relearning', 'Relearning']];
-    const heroStatValues = new Map();
-    for (const [key, label] of heroStatDefs) {
-      const chip = el('div', 'fc-hero-stat');
-      chip.dataset.state = key;
-      const dot = el('span', 'fc-hero-dot');
-      dot.setAttribute('aria-hidden', 'true');
-      const val = el('strong', 'fc-hero-stat-val', '0');
-      const lbl = el('span', 'fc-hero-stat-label', label);
-      chip.append(dot, val, lbl);
-      heroMetrics.append(chip);
-      heroStatValues.set(key, val);
-    }
-    const heroMetaStrip = el('div', 'fc-hero-meta');
-    const heroDecksMeta = el('span', 'fc-hero-meta-item', '0 decks');
-    const heroCuesMeta = el('span', 'fc-hero-meta-item', '0 cues');
-    const heroStreakMeta = el('span', 'fc-hero-meta-item fc-hero-streak', '0d streak');
-    heroMetaStrip.append(heroDecksMeta, heroCuesMeta, heroStreakMeta);
-    const heroRight = el('div', 'fc-hero-right');
-    heroRight.append(heroMetrics, heroMetaStrip);
-    hero.append(heroPrimary, heroRight);
+    // Exact Onigiri 4-card minimalist KPI row (Studied / Due / Streak / Retention).
+    const kpiGrid = el('section', 'fc-kpi-grid');
+    kpiGrid.setAttribute('aria-label', 'Study overview');
+    const makeKpiCard = (label, unit, hasMeter = false) => {
+      const card = el('div', 'fc-kpi-card');
+      const title = el('h3', 'fc-kpi-label', label);
+      const body = el('div', 'fc-kpi-body');
+      const valRow = el('div', 'fc-kpi-value');
+      const num = el('strong', 'fc-kpi-num', '0');
+      const unitEl = el('span', 'fc-kpi-unit', unit);
+      valRow.append(num, unitEl);
+      const meter = el('div', `fc-kpi-meter${hasMeter ? '' : ' is-placeholder'}`);
+      meter.setAttribute('aria-hidden', 'true');
+      const dots = [];
+      if (hasMeter) {
+        for (let i = 0; i < 5; i++) {
+          const d = el('span', 'fc-kpi-star');
+          meter.append(d);
+          dots.push(d);
+        }
+      }
+      body.append(valRow, meter);
+      card.append(title, body);
+      kpiGrid.append(card);
+      return { card, num, unitEl, dots };
+    };
+    const kpiDue = makeKpiCard('Due today', 'cards');
+    const kpiStudied = makeKpiCard('Studied', 'today');
+    const kpiStreak = makeKpiCard('Streak', 'days');
+    const kpiRetention = makeKpiCard('Retention', '%', true);
+    kpiRetention.unitEl.classList.add('is-inline');
+
+    const sidebarHeader = el('div', 'fc-sidebar-header');
+    const sidebarEyebrow = el('span', 'fc-sidebar-eyebrow', 'Decks');
+    const sidebarCount = el('span', 'fc-sidebar-count', '0');
+    sidebarHeader.append(sidebarEyebrow, sidebarCount);
 
     const updateHero = state => {
       const dueList = Array.isArray(state?.statistics?.due) ? state.statistics.due : [];
@@ -306,19 +313,25 @@ export function activate(ctx) {
         }
       }
       const readyNow = overdue + dueToday + newReady;
-      heroDueNum.textContent = String(readyNow);
-      heroDueUnit.textContent = readyNow === 1 ? 'card' : 'cards';
-      heroStatusPill.textContent = readyNow > 0 ? 'Ready now' : 'All caught up';
-      heroStatusPill.dataset.ready = readyNow > 0 ? 'true' : 'false';
-      for (const [key, node] of heroStatValues) {
-        const val = state?.statistics?.states?.[key];
-        node.textContent = String(Number.isFinite(val) && val > 0 ? val : 0);
-      }
       const deckCount = Array.isArray(state?.decks) ? state.decks.length : 0;
       const cueCount = (state?.propositions ?? []).reduce((n, p) => n + (p.archived ? 0 : p.cues.filter(c => !c.deleted).length), 0);
-      heroDecksMeta.textContent = `${deckCount} ${deckCount === 1 ? 'deck' : 'decks'}`;
-      heroCuesMeta.textContent = `${cueCount} ${cueCount === 1 ? 'cue' : 'cues'}`;
+      sidebarCount.textContent = String(deckCount);
+      homeSub.textContent = readyNow > 0
+        ? `${readyNow} ${readyNow === 1 ? 'card' : 'cards'} ready · ${cueCount} ${cueCount === 1 ? 'cue' : 'cues'} across ${deckCount} ${deckCount === 1 ? 'deck' : 'decks'}`
+        : `All caught up · ${cueCount} ${cueCount === 1 ? 'cue' : 'cues'} across ${deckCount} ${deckCount === 1 ? 'deck' : 'decks'}`;
+      homeSub.dataset.ready = readyNow > 0 ? 'true' : 'false';
+
+      kpiDue.num.textContent = String(readyNow);
+      kpiDue.unitEl.textContent = readyNow === 1 ? 'card' : 'cards';
+      kpiDue.card.dataset.ready = readyNow > 0 ? 'true' : 'false';
+
       const act = Array.isArray(state?.statistics?.activity) ? state.statistics.activity : [];
+      const studiedToday = act.length && Number.isFinite(act[act.length - 1]?.count) ? act[act.length - 1].count : 0;
+      const studied14d = act.reduce((sum, row) => sum + (Number.isFinite(row?.count) && row.count > 0 ? row.count : 0), 0);
+      kpiStudied.num.textContent = String(studiedToday);
+      kpiStudied.unitEl.textContent = studiedToday === 1 ? 'card' : 'cards';
+      kpiStudied.card.title = `${studied14d} reviews in the last 14 days`;
+
       let streak = 0;
       let idx = act.length - 1;
       if (idx >= 0 && !(act[idx]?.count > 0)) idx--;
@@ -326,16 +339,23 @@ export function activate(ctx) {
         if (act[idx]?.count > 0) streak++;
         else break;
       }
-      heroStreakMeta.textContent = `${streak}d streak`;
-      heroStreakMeta.dataset.active = streak > 0 ? 'true' : 'false';
+      kpiStreak.num.textContent = String(streak);
+      kpiStreak.unitEl.textContent = streak === 1 ? 'day' : 'days';
+      kpiStreak.card.dataset.active = streak > 0 ? 'true' : 'false';
+
+      // Target retention from FSRS settings (e.g., 90%) + Onigiri 5-star threshold meter.
+      const retentionPct = Math.round((Number.isFinite(state?.settings?.retention) ? state.settings.retention : 0.9) * 100);
+      kpiRetention.num.textContent = String(retentionPct);
+      const stars = retentionPct >= 90 ? 5 : retentionPct >= 70 ? 4 : retentionPct >= 50 ? 3 : retentionPct >= 30 ? 2 : retentionPct > 0 ? 1 : 0;
+      kpiRetention.dots.forEach((dot, i) => dot.classList.toggle('is-filled', i < stars));
     };
 
     const deckPanel = el('section', 'fc-deck-panel'), deckToolbar = el('div', 'fc-deck-toolbar');
     deckPanel.setAttribute('aria-label', 'Decks');
     const searchLabel = el('label', 'fc-search'), search = el('input', 'fc-input');
     searchLabel.insertAdjacentHTML('afterbegin', searchIconMarkup);
-    search.type = 'search'; search.placeholder = 'Search decks, propositions, and cues'; search.setAttribute('aria-label', 'Search flashcards'); searchLabel.append(search);
-    const batchArea = el('div'), selectionActions = el('div', 'fc-actions fc-selection-actions'), selectionCount = el('span', 'fc-muted'), treeSlot = el('div', 'fc-tree');
+    search.type = 'search'; search.placeholder = 'Search decks & cards…'; search.setAttribute('aria-label', 'Search flashcards'); searchLabel.append(search);
+    const batchArea = el('div', 'fc-batch-area'), selectionActions = el('div', 'fc-actions fc-selection-actions'), selectionCount = el('span', 'fc-muted'), treeSlot = el('div', 'fc-tree');
     const scopeActions = el('div', 'fc-actions fc-scope-actions'), selectionSummary = el('div', 'fc-selection-summary');
     selectionSummary.append(selectionCount); selectionActions.append(scopeActions, selectionSummary);
     let selection = { cueIds: [], propositionIds: [], count: 0 }, tree, hasPracticeCards = false;
@@ -359,9 +379,13 @@ export function activate(ctx) {
     updateSelection();
     deckToolbar.append(searchLabel);
     button(deckToolbar, 'Create deck', () => editDeck(null, signal), signal);
-    deckPanel.append(deckToolbar, selectionActions, treeSlot);
+    deckPanel.append(sidebarHeader, deckToolbar, selectionActions, treeSlot);
+
     const dashboardSlot = el('div', 'fc-dashboard-slot');
-    root.append(hero, toolbar, fileStatus, error, batchArea, deckPanel, dashboardSlot); container.append(root);
+    // Keep the main alert first in DOM order (hidden when empty) so [role=alert] queries find it ahead of inline rename alerts,
+    // and keep deckPanel before dashboardSlot so document-position invariants hold in the vertical editorial flow.
+    root.append(error, homeBar, fileStatus, batchArea, kpiGrid, deckPanel, dashboardSlot);
+    container.append(root);
     const dashboard = mountDashboard({ container: dashboardSlot, signal });
     tree = mountLibraryTree({ ctx, container: treeSlot, signal, button,
       onReview: scope => review.open(scope), onPreview: (p, cue, archive) => previewCue(p, cue, archive, signal),

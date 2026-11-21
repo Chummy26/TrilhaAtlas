@@ -18,7 +18,7 @@ function parseAction(raw: string | undefined): "prova" | "lista" | undefined {
 export default async function SyllabusPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ dominio?: string; aba?: string; modulo?: string; acao?: string }>;
+	searchParams: Promise<{ dominio?: string; aba?: string; modulo?: string; capitulo?: string; acao?: string }>;
 }) {
 	const query = await searchParams;
 	const domain = activeDomainId();
@@ -36,6 +36,15 @@ export default async function SyllabusPage({
 
 	const domainInfo = listStudyDomains().domains.find((d) => d.id === domain);
 	const domainTitle = domainInfo?.title.pt ?? domain;
+	const initialAction = parseAction(query.acao);
+	const requestedChapter = query.capitulo?.trim() || undefined;
+	const matchedChapter = requestedChapter
+		? syllabus.chapters.find((c) => c.level === requestedChapter || String(c.index) === requestedChapter)
+		: undefined;
+	const initialChapterId = matchedChapter?.level ?? requestedChapter;
+	// When deep-linked with ?capitulo=... (without an explicit module or action), open that chapter's first module.
+	const initialModule =
+		query.modulo ?? (matchedChapter && !initialAction ? matchedChapter.modules[0]?.id : undefined);
 
 	return (
 		<>
@@ -46,8 +55,9 @@ export default async function SyllabusPage({
 				initialNotebook={notebook}
 				domainTitle={domainTitle}
 				initialTab={parseTab(query.aba)}
-				initialModule={query.modulo}
-				initialAction={parseAction(query.acao)}
+				initialModule={initialModule}
+				initialChapterId={initialChapterId}
+				initialAction={initialAction}
 			/>
 		</>
 	);

@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
+import { useI18n } from "@/components/i18n";
 import type {
 	LabPreset,
 	ModuleProblemSet,
 	ProblemSetItem,
 	ProblemSetResult,
 	ProblemSetTier,
-	ProblemSetTierLabel,
+	Translator,
 } from "@/src/core";
 
 export interface ProblemSetPanelProps {
@@ -32,35 +33,34 @@ interface ProblemSetPostPayload {
 }
 
 const FALSTAD_URL = "https://www.falstad.com/circuit/circuitjs.html";
-
-const TIER_META: Record<ProblemSetTier, { label: ProblemSetTierLabel; pill: string; description: string }> = {
-	1: {
-		label: "Aplicação direta",
-		pill: "study-pill study-pill-info",
-		description: "Execução guiada dos procedimentos e conceitos fundamentais do módulo.",
-	},
-	2: {
-		label: "Diagnóstico e contraste",
-		pill: "study-pill study-pill-warning",
-		description: "Identificação de erros comuns, comparação de cenários e correção fundamentada.",
-	},
-	3: {
-		label: "Síntese",
-		pill: "study-pill study-pill-accent",
-		description: "Integração de múltiplos tópicos, trade-offs e condições-limite.",
-	},
-};
-
 const CIRCUIT_PRESETS = new Set<LabPreset>(["divider", "rc-filter", "rlc", "rectifier", "circuit"]);
+
+function tierMeta(t: Translator, tier: ProblemSetTier): { label: string; pill: string; description: string } {
+	if (tier === 1) {
+		return {
+			label: t("course.problemSet.tier1Label"),
+			pill: "study-pill study-pill-info",
+			description: t("course.problemSet.tier1Desc"),
+		};
+	}
+	if (tier === 2) {
+		return {
+			label: t("course.problemSet.tier2Label"),
+			pill: "study-pill study-pill-warning",
+			description: t("course.problemSet.tier2Desc"),
+		};
+	}
+	return {
+		label: t("course.problemSet.tier3Label"),
+		pill: "study-pill study-pill-accent",
+		description: t("course.problemSet.tier3Desc"),
+	};
+}
 
 function countWords(text: string): number {
 	const trimmed = text.trim();
 	if (!trimmed) return 0;
 	return trimmed.split(/\s+/u).filter(Boolean).length;
-}
-
-function formatScore(score: number): string {
-	return score.toFixed(1).replace(".", ",");
 }
 
 export function ProblemSetPanel({
@@ -70,6 +70,7 @@ export function ProblemSetPanel({
 	onClose,
 	onGraded,
 }: ProblemSetPanelProps) {
+	const { t, intl } = useI18n();
 	const formId = useId();
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
@@ -80,31 +81,40 @@ export function ProblemSetPanel({
 	const [result, setResult] = useState<ProblemSetResult | null>(null);
 	const [attemptKey, setAttemptKey] = useState(0);
 
-	const loadSet = useCallback((seedOverride?: string, signal?: AbortSignal) => {
-		setLoading(true);
-		setError("");
-		const params = new URLSearchParams({ module: moduleId });
-		if (seedOverride) params.set("seed", seedOverride);
-		fetch(`/api/study/problem-set?${params.toString()}`, { signal })
-			.then(async (res) => {
-				const data = (await res.json().catch(() => null)) as (ProblemSetGetPayload & Partial<ModuleProblemSet>) | null;
-				if (!res.ok) throw new Error(data?.error ?? "Não foi possível carregar a lista de exercícios.");
-				const loaded = data?.problemSet ?? data?.set ?? (Array.isArray(data?.items) ? (data as ModuleProblemSet) : null);
-				if (!loaded) throw new Error("Formato inválido de lista retornado pelo servidor.");
-				if (signal?.aborted) return;
-				setProblemSet(loaded);
-				setAnswers({});
-				setLabNotes({});
-				setResult(null);
-			})
-			.catch((err: unknown) => {
-				if (signal?.aborted) return;
-				setError(err instanceof Error ? err.message : "Não foi possível carregar a lista de exercícios.");
-			})
-			.finally(() => {
-				if (!signal?.aborted) setLoading(false);
-			});
-	}, [moduleId]);
+	const scoreFmt = useMemo(
+		() => new Intl.NumberFormat(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+		[intl],
+	);
+
+	const loadSet = useCallback(
+		(seedOverride?: string, signal?: AbortSignal) => {
+			setLoading(true);
+			setError("");
+			const params = new URLSearchParams({ module: moduleId });
+			if (seedOverride) params.set("seed", seedOverride);
+			fetch(`/api/study/problem-set?${params.toString()}`, { signal })
+				.then(async (res) => {
+					const data = (await res.json().catch(() => null)) as (ProblemSetGetPayload & Partial<ModuleProblemSet>) | null;
+					if (!res.ok) throw new Error(data?.error ?? t("course.problemSet.errLoad"));
+					const loaded =
+						data?.problemSet ?? data?.set ?? (Array.isArray(data?.items) ? (data as ModuleProblemSet) : null);
+					if (!loaded) throw new Error(t("course.problemSet.errFormat"));
+					if (signal?.aborted) return;
+					setProblemSet(loaded);
+					setAnswers({});
+					setLabNotes({});
+					setResult(null);
+				})
+				.catch((err: unknown) => {
+					if (signal?.aborted) return;
+					setError(err instanceof Error ? err.message : t("course.problemSet.errLoad"));
+				})
+				.finally(() => {
+					if (!signal?.aborted) setLoading(false);
+				});
+		},
+		[moduleId, t],
+	);
 
 	useEffect(() => {
 		const ctrl = new AbortController();
@@ -139,7 +149,7 @@ export function ProblemSetPanel({
 		const hasAnyExercise = problemSet.items.some((item) => Boolean((answers[item.id] ?? "").trim()));
 		const hasAnyLab = problemSet.lab?.steps.some((step) => Boolean((labNotes[step.id] ?? "").trim())) ?? false;
 		if (!hasAnyExercise && !hasAnyLab) {
-			setError("Preencha pelo menos uma resposta antes de entregar a lista.");
+			setError(t("course.problemSet.errEmpty"));
 			return;
 		}
 		setSubmitting(true);
@@ -156,13 +166,13 @@ export function ProblemSetPanel({
 				}),
 			});
 			const data = (await res.json().catch(() => null)) as (ProblemSetPostPayload & Partial<ProblemSetResult>) | null;
-			if (!res.ok) throw new Error(data?.error ?? "Não foi possível corrigir a lista de exercícios.");
+			if (!res.ok) throw new Error(data?.error ?? t("course.problemSet.errGrade"));
 			const graded = data?.result ?? (typeof data?.score10 === "number" ? (data as ProblemSetResult) : null);
-			if (!graded) throw new Error("Resposta de correção inválida.");
+			if (!graded) throw new Error(t("course.problemSet.errGradeResponse"));
 			setResult(graded);
 			onGraded?.(graded);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Falha ao entregar a lista de exercícios.");
+			setError(err instanceof Error ? err.message : t("course.problemSet.errSubmit"));
 		} finally {
 			setSubmitting(false);
 		}
@@ -177,7 +187,7 @@ export function ProblemSetPanel({
 
 	return (
 		<section
-			aria-label={`Lista de exercícios · ${moduleTitle}`}
+			aria-label={t("course.problemSet.aria", { title: moduleTitle })}
 			data-testid="problem-set-panel"
 			className="cel-card space-y-4 p-4 md:p-5"
 		>
@@ -185,23 +195,25 @@ export function ProblemSetPanel({
 				<div className="min-w-0 flex-1 space-y-0.5">
 					<div className="flex flex-wrap items-center gap-2">
 						<Icon name="activity" size={18} />
-						<h3 className="cel-display text-lg leading-tight">Lista de Exercícios{problemSet?.lab ? " & Laboratório" : ""}</h3>
-						<span className="study-pill">3 níveis</span>
-						{problemSet?.lab && <span className="study-pill study-pill-info">Lab 4 etapas</span>}
+						<h3 className="cel-display text-lg leading-tight">
+							{problemSet?.lab ? t("course.problemSet.titleWithLab") : t("course.problemSet.title")}
+						</h3>
+						<span className="study-pill">{t("course.problemSet.tiersBadge")}</span>
+						{problemSet?.lab && <span className="study-pill study-pill-info">{t("course.problemSet.labBadge")}</span>}
 					</div>
 					<p className="text-xs text-muted-foreground">
-						{moduleTitle} · Resolva tudo em lote sem interrupções e receba correção detalhada por nível.
+						{t("course.problemSet.subtitle", { title: moduleTitle })}
 					</p>
 				</div>
 				{onClose && (
 					<button
 						type="button"
-						aria-label="Fechar lista de exercícios"
+						aria-label={t("course.problemSet.closeAria")}
 						className="cel-button cel-button-ghost min-h-8 px-2 py-1 text-xs"
 						onClick={onClose}
 					>
 						<Icon name="close" size={14} tone={false} />
-						Fechar
+						{t("common.action.close")}
 					</button>
 				)}
 			</div>
@@ -209,7 +221,7 @@ export function ProblemSetPanel({
 			{loading && (
 				<p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
 					<Icon name="loader" size={16} live />
-					Preparando lista gradual de exercícios…
+					{t("course.problemSet.loading")}
 				</p>
 			)}
 
@@ -221,7 +233,7 @@ export function ProblemSetPanel({
 						className="cel-button min-h-9 px-3.5 py-1.5 text-xs"
 						onClick={() => setAttemptKey((k) => k + 1)}
 					>
-						Tentar novamente
+						{t("common.action.retry")}
 					</button>
 				</div>
 			)}
@@ -229,11 +241,13 @@ export function ProblemSetPanel({
 			{!loading && problemSet && !result && (
 				<form className="space-y-5" onSubmit={handleSubmit}>
 					{groupedItems.map((group) => {
-						const meta = TIER_META[group.tier];
+						const meta = tierMeta(t, group.tier);
 						return (
 							<div key={group.tier} className="space-y-3">
 								<div className="flex flex-wrap items-center gap-2">
-									<span className={meta.pill}>Nível {group.tier} · {meta.label}</span>
+									<span className={meta.pill}>
+										{t("course.problemSet.tierHeading", { tier: group.tier, label: meta.label })}
+									</span>
 									<span className="text-xs text-muted-foreground">{meta.description}</span>
 								</div>
 								<ol className="space-y-3">
@@ -252,7 +266,7 @@ export function ProblemSetPanel({
 														{idx + 1}. {item.nodeTitle}
 													</label>
 													<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
-														{words}/{item.minWords} palavras mín.
+														{t("course.problemSet.minWords", { words, min: item.minWords })}
 													</span>
 												</div>
 												<p className="max-w-[65ch] text-[15px] leading-relaxed text-foreground/95">
@@ -260,7 +274,7 @@ export function ProblemSetPanel({
 												</p>
 												{item.hint && (
 													<details className="study-disclosure text-xs">
-														<summary>Dica de atenção</summary>
+														<summary>{t("course.problemSet.hintSummary")}</summary>
 														<div className="study-disclosure-body text-muted-foreground">
 															{item.hint}
 														</div>
@@ -270,7 +284,7 @@ export function ProblemSetPanel({
 													id={fieldId}
 													name={item.id}
 													className="cel-input min-h-24 w-full resize-y p-3 text-sm leading-relaxed"
-													placeholder="Desenvolva sua resolução e justificativa…"
+													placeholder={t("course.problemSet.answerPlaceholder")}
 													maxLength={10000}
 													disabled={submitting}
 													value={value}
@@ -294,7 +308,7 @@ export function ProblemSetPanel({
 								<div className="min-w-0 flex-1 space-y-1">
 									<div className="flex flex-wrap items-center gap-2">
 										<Icon name="resistor" size={18} />
-										<h4 className="cel-display text-base leading-tight">Roteiro de Laboratório</h4>
+										<h4 className="cel-display text-base leading-tight">{t("course.problemSet.labTitle")}</h4>
 										<span className="study-pill study-pill-info">{problemSet.lab.preset}</span>
 									</div>
 									<p className="max-w-[65ch] text-xs leading-relaxed text-muted-foreground">
@@ -309,7 +323,7 @@ export function ProblemSetPanel({
 										className="cel-button min-h-8 shrink-0 px-3 py-1 text-xs"
 									>
 										<Icon name="arrow-up-right" size={13} tone={false} />
-										Abrir simulador Falstad
+										{t("course.problemSet.openFalstad")}
 									</a>
 								)}
 							</div>
@@ -330,7 +344,7 @@ export function ProblemSetPanel({
 													{idx + 1}/4 · {step.phase}
 												</label>
 												<span className={`text-xs tabular-nums ${metMin ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-muted-foreground"}`}>
-													{words}/{step.minWords} palavras
+													{t("course.problemSet.wordsCount", { words, min: step.minWords })}
 												</span>
 											</div>
 											<p className="text-xs leading-relaxed text-muted-foreground">
@@ -340,7 +354,7 @@ export function ProblemSetPanel({
 												id={stepFieldId}
 												name={`lab:${step.id}`}
 												className="cel-input mt-auto min-h-24 w-full resize-y p-2.5 text-sm leading-relaxed"
-												placeholder={`Registre a etapa "${step.phase}"…`}
+												placeholder={t("course.problemSet.labStepPlaceholder", { phase: step.phase })}
 												maxLength={6000}
 												disabled={submitting}
 												value={note}
@@ -361,7 +375,9 @@ export function ProblemSetPanel({
 
 					<div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-3">
 						<p className="text-xs text-muted-foreground">
-							{problemSet.items.length} exercícios{problemSet.lab ? " + 4 etapas de laboratório" : ""} enviados em lote.
+							{problemSet.lab
+								? t("course.problemSet.batchSummaryWithLab", { count: problemSet.items.length })
+								: t("course.problemSet.batchSummary", { count: problemSet.items.length })}
 						</p>
 						<button
 							type="submit"
@@ -370,7 +386,11 @@ export function ProblemSetPanel({
 							disabled={submitting}
 						>
 							<Icon name="check" size={15} />
-							{submitting ? "Corrigindo lista…" : problemSet.lab ? "Entregar lista e laboratório" : "Entregar lista de exercícios"}
+							{submitting
+								? t("course.problemSet.submitting")
+								: problemSet.lab
+									? t("course.problemSet.submitWithLab")
+									: t("course.problemSet.submit")}
 						</button>
 					</div>
 				</form>
@@ -381,12 +401,15 @@ export function ProblemSetPanel({
 					<div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/75 p-4">
 						<div className="space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
-								<span className="cel-display text-2xl tabular-nums">{formatScore(result.score10)}/10</span>
+								<span className="cel-display text-2xl tabular-nums">{scoreFmt.format(result.score10)}/10</span>
 								<span className={result.passed ? "study-pill study-pill-success" : "study-pill study-pill-warning"}>
-									{result.passed ? "Lista concluída" : "Revisar itens"}
+									{result.passed ? t("course.problemSet.passed") : t("course.problemSet.reviewItems")}
 								</span>
 								<span className="text-xs text-muted-foreground tabular-nums">
-									{result.correctCount}/{result.totalCount} acertos
+									{t("course.problemSet.correctCount", {
+										correct: result.correctCount,
+										total: result.totalCount,
+									})}
 								</span>
 							</div>
 							<p className="max-w-[65ch] text-sm leading-relaxed text-foreground/90">{result.summary}</p>
@@ -396,13 +419,15 @@ export function ProblemSetPanel({
 					<dl className="grid gap-2.5 sm:grid-cols-3">
 						{([1, 2, 3] as const).map((tier) => {
 							const stats = result.byTier[tier];
-							const meta = TIER_META[tier];
+							const meta = tierMeta(t, tier);
 							return (
 								<div key={tier} className="rounded-xl border border-border/50 bg-background/60 p-3">
 									<dt className="text-xs text-muted-foreground">{meta.label}</dt>
 									<dd className="cel-display mt-1 text-lg tabular-nums">
 										{stats.correct}/{stats.total}
-										<span className="ml-1.5 text-xs font-normal text-muted-foreground">acertos</span>
+										<span className="ml-1.5 text-xs font-normal text-muted-foreground">
+											{t("course.problemSet.correctLabel")}
+										</span>
 									</dd>
 								</div>
 							);
@@ -414,10 +439,13 @@ export function ProblemSetPanel({
 							<div className="flex flex-wrap items-center justify-between gap-2">
 								<div className="flex items-center gap-2">
 									<Icon name="resistor" size={16} />
-									<strong className="cel-display text-sm">Avaliação do Laboratório</strong>
+									<strong className="cel-display text-sm">{t("course.problemSet.labEvaluation")}</strong>
 								</div>
 								<span className={result.labResult.passed ? "study-pill study-pill-success tabular-nums" : "study-pill study-pill-warning tabular-nums"}>
-									{result.labResult.completedSteps}/{result.labResult.totalSteps} etapas válidas
+									{t("course.problemSet.labValidSteps", {
+										completed: result.labResult.completedSteps,
+										total: result.labResult.totalSteps,
+									})}
 								</span>
 							</div>
 							<p className="text-xs leading-relaxed text-foreground/90">{result.labResult.feedback}</p>
@@ -427,7 +455,7 @@ export function ProblemSetPanel({
 										<div className="flex items-center justify-between gap-2">
 											<strong className="font-semibold text-foreground">{step.phase}</strong>
 											<span className={step.passed ? "text-[var(--cel-success-text,var(--lh-success))]" : "text-[var(--cel-warning-text,var(--lh-warning))]"}>
-												{step.passed ? "✓ Válida" : "Pendente"}
+												{step.passed ? t("course.problemSet.labStepValid") : t("course.problemSet.labStepPending")}
 											</span>
 										</div>
 										<p className="mt-1 leading-relaxed text-muted-foreground">{step.feedback}</p>
@@ -439,8 +467,8 @@ export function ProblemSetPanel({
 
 					<ol className="space-y-2.5">
 						{result.itemResults.map((item, idx) => {
-							const meta = TIER_META[item.tier];
-							const title = itemTitleById.get(item.itemId) ?? `Exercício ${idx + 1}`;
+							const meta = tierMeta(t, item.tier);
+							const title = itemTitleById.get(item.itemId) ?? t("course.problemSet.exerciseFallback", { index: idx + 1 });
 							return (
 								<li
 									key={item.itemId}
@@ -451,7 +479,7 @@ export function ProblemSetPanel({
 											<strong className="font-semibold">{idx + 1}. {title}</strong>
 											<span className={meta.pill}>{meta.label}</span>
 											<span className={item.passed ? "study-pill study-pill-success tabular-nums" : "study-pill study-pill-warning tabular-nums"}>
-												Nota {item.grade}/3
+												{t("course.exam.gradeOutOf3", { grade: item.grade })}
 											</span>
 										</div>
 										{!item.passed && (
@@ -460,7 +488,7 @@ export function ProblemSetPanel({
 												className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--cel-link,var(--lh-accent))] underline underline-offset-2"
 											>
 												<Icon name="map" size={13} tone={false} />
-												Revisar no mapa
+												{t("course.exam.reviewOnMap")}
 											</Link>
 										)}
 									</div>
@@ -476,7 +504,7 @@ export function ProblemSetPanel({
 							className="cel-button min-h-9 px-3.5 py-1.5 text-xs"
 							onClick={() => setAttemptKey((k) => k + 1)}
 						>
-							Nova lista de exercícios
+							{t("course.problemSet.newSet")}
 						</button>
 						{onClose && (
 							<button
@@ -484,7 +512,7 @@ export function ProblemSetPanel({
 								className="cel-button cel-button-ghost min-h-9 px-3 py-1.5 text-xs"
 								onClick={onClose}
 							>
-								Voltar à ementa
+								{t("course.exam.backToSyllabus")}
 							</button>
 						)}
 					</div>

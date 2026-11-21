@@ -22,6 +22,7 @@ import {
 	parseTeachArenaStage1,
 	parseTutorBenchRows,
 	parseTutorMomentsRows,
+	partitionDevHeldout,
 	renderOfficialBenchmarkMarkdown,
 	renderOfficialReadmeSection,
 	repairJsonLaTeXEscapes,
@@ -246,9 +247,97 @@ describe("Official Public AI-Tutor & Memory Benchmark Loaders & Scorers", () => 
 			assert.doesNotThrow(() => JSON.parse(fs.readFileSync(path.resolve(rel), "utf8")), `Invalid JSON in ${rel}`);
 		}
 		const goldCases = (JSON.parse(fs.readFileSync(path.resolve("evals/grading/gold-rubric-cases.json"), "utf8")) as { cases: GoldGradingCase[] }).cases;
-		assert.equal(goldCases.length, 14);
+		assert.equal(goldCases.length, 18);
 		const detRes = evaluateDeterministicModuleExamGrader(goldCases);
-		assert.equal(detRes.summary.n, 14);
+		assert.equal(detRes.summary.n, 18);
 		assert.ok(detRes.summary.mae0to3 >= 0 && detRes.summary.mae0to3 <= 3);
+
+		// 5. Verify exact balanced dev/heldout splits and unique IDs across all expanded curated corpora
+		const expectedSplits: { file: string; total: number; dev: number; heldout: number }[] = [
+			{ file: "evals/tutoring/trilhaatlas-modes.json", total: 20, dev: 10, heldout: 10 },
+			{ file: "evals/grounding-tools/sources-and-activities.json", total: 10, dev: 5, heldout: 5 },
+			{ file: "evals/grading/gold-rubric-cases.json", total: 18, dev: 9, heldout: 9 },
+			{ file: "evals/memory/evalmem-cases.json", total: 10, dev: 5, heldout: 5 },
+		];
+		for (const spec of expectedSplits) {
+			const parsed = JSON.parse(fs.readFileSync(path.resolve(spec.file), "utf8")) as { cases: { id: string; split: string }[] };
+			assert.equal(parsed.cases.length, spec.total, `${spec.file} total mismatch`);
+			assert.equal(parsed.cases.filter(c => c.split === "dev").length, spec.dev, `${spec.file} dev count mismatch`);
+			assert.equal(parsed.cases.filter(c => c.split === "heldout").length, spec.heldout, `${spec.file} heldout count mismatch`);
+			const uniq = new Set(parsed.cases.map(c => c.id));
+			assert.equal(uniq.size, spec.total, `${spec.file} has duplicate case IDs`);
+		}
+	});
+
+	it("evaluates TeachArena Stage 1 response checks accurately (not_contains, contains, contains_all, contains_number)", () => {
+		// not_contains & not_contains_any: pass when absent, fail when present
+		const ncPass = evaluateTeachArenaResponseChecks("Focus on Maya's impasse first.", [
+			{ type: "not_contains", value: "caveat" },
+			{ type: "not_contains_any", values: ["error", "flawed"] },
+		]);
+		assert.equal(ncPass.passed, 2);
+		assert.equal(ncPass.score01, 1);
+
+		const ncFail = evaluateTeachArenaResponseChecks("There is a caveat with this item.", [
+			{ type: "not_contains", value: "caveat" },
+			{ type: "not_contains_any", values: ["caveat", "flawed"] },
+		]);
+		assert.equal(ncFail.passed, 0);
+		assert.equal(ncFail.score01, 0);
+
+		// contains & contains_any
+		const cMix = evaluateTeachArenaResponseChecks("Give Leo harder tasks and revise distractor B.", [
+			{ type: "contains", value: "distractor b" },
+			{ type: "contains_any", values: ["scaffolding", "harder"] },
+			{ type: "contains", value: "missing-token" },
+		]);
+		assert.equal(cMix.passed, 2);
+		assert.equal(cMix.total, 3);
+
+		// contains_all
+		const allPass = evaluateTeachArenaResponseChecks("Compare 42% engagement against 85% raw score.", [
+			{ type: "contains_all", values: ["42%", "85%", "raw score"] },
+		]);
+		assert.equal(allPass.score01, 1);
+		const allFail = evaluateTeachArenaResponseChecks("Only 42% engagement mentioned.", [
+			{ type: "contains_all", values: ["42%", "85%"] },
+		]);
+		assert.equal(allFail.score01, 0);
+
+		// contains_number: default tolerance (0.01), custom tolerance, values array, negative, thousands comma, zero
+		const numPass = evaluateTeachArenaResponseChecks("The slope is -3.14, sample size is 1,200, residual is 0, and accuracy is 72.505%.", [
+			{ type: "contains_number", value: -3.14 },
+			{ type: "contains_number", value: 1200 },
+			{ type: "contains_number", value: 0 },
+			{ type: "contains_number", value: 72.5, tolerance: 0.01 },
+			{ type: "contains_number", values: [99.9, 72.51], tolerance: 0.01 },
+		]);
+		assert.equal(numPass.passed, 5);
+		assert.equal(numPass.score01, 1);
+
+		const numFail = evaluateTeachArenaResponseChecks("The answer is 12.50.", [
+			{ type: "contains_number", value: 12.55, tolerance: 0.01 },
+			{ type: "contains_number", value: -12.5 },
+		]);
+		assert.equal(numFail.passed, 0);
+		assert.equal(numFail.score01, 0);
+	});
+
+	it("partitions datasets deterministically into strictly disjoint dev and heldout splits", () => {
+		const items = Array.from({ length: 40 }, (_, i) => ({ id: `task-${i + 1}` }));
+		const all = partitionDevHeldout(items, "all", x => x.id);
+		const dev = partitionDevHeldout(items, "dev", x => x.id);
+		const heldout = partitionDevHeldout(items, "heldout", x => x.id);
+
+		assert.equal(all.length, items.length);
+		assert.equal(dev.length + heldout.length, items.length);
+		assert.ok(dev.length > 0 && heldout.length > 0, "both splits must be non-empty");
+		const devSet = new Set(dev.map(x => x.id));
+		for (const h of heldout) {
+			assert.ok(!devSet.has(h.id), `overlap detected on ${h.id}`);
+		}
+		// Order-independent determinism
+		const reversedDev = new Set(partitionDevHeldout([...items].reverse(), "dev", x => x.id).map(x => x.id));
+		assert.deepEqual(reversedDev, devSet);
 	});
 });

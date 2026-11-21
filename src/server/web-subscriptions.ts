@@ -53,7 +53,7 @@ export function createWebSubscriptionOwner(options: {
 		captured.push(target);
 	};
 	const chatgpt = createChatGPT({
-		store: options.chatgptStore ?? fileStore(path.join(options.directory, "chatgpt-credentials.json")),
+		store: options.chatgptStore ?? fileStore(path.join(/* turbopackIgnore: true */ options.directory, "chatgpt-credentials.json")),
 		openExternal,
 		onChange: (packet?: Packet) => { if (packet) notify("lh:chatgpt", packet); },
 	});

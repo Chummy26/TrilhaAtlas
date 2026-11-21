@@ -15,6 +15,57 @@ export interface StudyDomainList {
 	active: string | null;
 }
 
+export interface StudyTodayUrgentReview {
+	nodeId: string;
+	title: string;
+	retrievability: number;
+	reason: string;
+}
+
+export interface StudyTodayPacing {
+	plannedWeeklyHours: number;
+	effectiveWeeklyHours: number;
+	activeChapterWeeks: number | null;
+	realisticTotalWeeks: number | null;
+}
+
+export interface StudyTodayModuleAssessment {
+	moduleId: string;
+	examUnlocked: boolean;
+	examPassed: boolean;
+	examScore?: number;
+	problemSetPassed: boolean;
+	problemSetScore?: number;
+}
+
+export interface StudyTodayCoolingAlert {
+	nodeId: string;
+	title: string;
+	retrievability: number;
+}
+
+export interface LessonOptionalPractice {
+	id: string;
+	nodeId: string;
+	domain: string;
+	title: string;
+}
+
+export interface LessonContinuityMeta {
+	moduleExamUnlocked?: boolean;
+	moduleExamPassed?: boolean;
+	moduleExamScore?: number;
+	chapterId?: string;
+	chapterExamUnlocked?: boolean;
+	chapterExamPassed?: boolean;
+	chapterExamScore?: number;
+	problemSetPassed?: boolean;
+	problemSetScore?: number;
+	dueReviewCount?: number;
+	optionalPractice?: LessonOptionalPractice | null;
+	prepHref?: string;
+}
+
 export interface StudyToday {
 	domain: { id: string; title: string; accent: string; icon: string };
 	/** False when the domain has no curriculum yet. */
@@ -29,11 +80,21 @@ export interface StudyToday {
 	campaignGoal?: string;
 	optionalPractice?: { id: string; title: string };
 	review?: { id: string; title: string; prompt: string };
-	next: (PlanItem & { brief: StudyNodeBrief }) | null;
+	next: (PlanItem & { brief: StudyNodeBrief; hasPrepNote?: boolean; prepHref?: string }) | null;
 	/** A lesson was started and not yet self-checked (≤ 3 days). */
 	pendingCheck: { sessionId: string; exposureId: string; nodeId: string; title: string; at: string } | null;
 	plan: { budgetMin: number; reviewMinutes: number; newMinutes: number; items: number };
 	progress: { leaves: number; attained: number; mastered: number; totalHours: number; attainedHours: number; plannedPracticeHours?: number };
+	/** Overdue FSRS due/mandatory skills available for review today. */
+	dueReviewsCount?: number;
+	/** Highest-urgency FSRS review item, if any. */
+	urgentReview?: StudyTodayUrgentReview | null;
+	/** Realistic weekly pace and week-to-completion projections (with 33% FSRS reserve). */
+	pacing?: StudyTodayPacing;
+	/** Active module integrative exam and problem-set readiness/scores. */
+	moduleAssessment?: StudyTodayModuleAssessment;
+	/** Most urgent cooling skill when FSRS retrievability falls below 85%. */
+	coolingAlert?: StudyTodayCoolingAlert | null;
 }
 
 /** GET /profile — light, honest numbers (estudos-sota §2.10–2.11). */

@@ -25,9 +25,11 @@ const interval = ms => {
   return `${Math.round(ms / 86400000)}d`;
 };
 const formatDuration = ms => {
-  const totalSec = Math.max(1, Math.round(ms / 1000));
-  const min = Math.floor(totalSec / 60);
+  const totalSec = Math.max(1, Math.round((Number.isFinite(ms) && ms > 0 ? ms : 0) / 1000));
+  const hrs = Math.floor(totalSec / 3600);
+  const min = Math.floor((totalSec % 3600) / 60);
   const sec = totalSec % 60;
+  if (hrs > 0) return min === 0 ? `${hrs}h` : `${hrs}h ${min}m`;
   if (min === 0) return `${sec}s`;
   return sec === 0 ? `${min}m` : `${min}m ${sec}s`;
 };
@@ -152,16 +154,18 @@ export function createReviewController({ ctx, signal, button, markdown, onRated 
       }
       function renderDebrief(statusText) {
         const debrief = el("div", "fc-debrief");
-        const eyebrow = el("p", "fc-debrief-eyebrow", "Session summary");
+        const eyebrow = el("p", "fc-debrief-eyebrow", "Session complete");
+        const duration = formatDuration(Date.now() - sessionStartedAt);
         const hero = el("div", "fc-debrief-hero");
         hero.append(
           el("span", "fc-debrief-num", String(sessionReviewed)),
-          el("span", "fc-debrief-unit", sessionReviewed === 1 ? "card" : "cards"),
+          el("span", "fc-debrief-unit", sessionReviewed === 1 ? "card reviewed" : "cards reviewed"),
           el("span", "fc-debrief-sep", "·"),
-          el("span", "fc-debrief-num", formatDuration(Date.now() - sessionStartedAt)),
+          el("span", "fc-debrief-num", duration),
         );
         const bar = el("div", "fc-debrief-bar");
-        bar.setAttribute("aria-hidden", "true");
+        bar.setAttribute("role", "img");
+        bar.setAttribute("aria-label", `Rating breakdown: ${ratings.map((label, index) => `${label} ${sessionRatings[index]}`).join(", ")}`);
         const grid = el("div", "fc-debrief-grid");
         ratings.forEach((label, index) => {
           const count = sessionRatings[index];

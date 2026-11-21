@@ -9,20 +9,18 @@
  *   - prep-notes.json     Record<nodeId, FlippedPrepNote>
  */
 
-import fs from "node:fs";
 import path from "node:path";
 import { activeDomainId, PATHS } from "../../config.ts";
 import sections from "../../content/resources/sections.json" with { type: "json" };
 import type { CurriculumItem, CurriculumSnapshot } from "../core/curriculum/types.ts";
-import { isUsableDomainId, learnerDir } from "../core/domains/paths.ts";
+import { isUsableDomainId } from "../core/domains/paths.ts";
+import { emit } from "../core/events.ts";
 import { ingestEvent } from "../core/learner/fold.ts";
 import type { LearnerGraphView } from "../core/learner/graph-view.ts";
 import { structuralState } from "../core/learner/kst.ts";
 import { DEFAULT_LEARNER_PARAMS } from "../core/learner/params.ts";
 import type { LearnerEvent } from "../core/learner/types.ts";
 import { booksForDomain } from "../core/resources/catalog.ts";
-import { aggregateActivity } from "../core/stats/aggregate.ts";
-import { STUDY_HEARTBEAT_SEC } from "../core/stats/types.ts";
 import { studyCampaign } from "../core/study/campaign.ts";
 import {
 	buildFlippedGuide,
@@ -52,8 +50,20 @@ import {
 	type SyllabusMaterialRef,
 } from "../core/study/syllabus.ts";
 import { buildDomainTranscript, type DomainTranscript } from "../core/study/transcript.ts";
-import { writeFileAtomicSync } from "../store/atomic-write.ts";
-import { createStatsStore } from "../store/stats-store.ts";
+import {
+	appendJsonlAtomic,
+	hasSavedPrepNote,
+	moduleExamsFile,
+	problemSetsFile,
+	readModuleScoreMap,
+	readPrepNote,
+	readPrepNotes,
+	readProblemSetScoreMap,
+	studyActivitySummary,
+	writePrepNotes,
+	type ModuleExamReceipt,
+	type ProblemSetReceipt,
+} from "./course-store.ts";
 import { englishMissionMaterials } from "./english-mission-materials.ts";
 import { getPluginHost } from "./plugins.ts";
 import { readManualMaterials } from "./resources/manual-materials.ts";
@@ -68,21 +78,7 @@ import {
 	studyToday,
 } from "./study.ts";
 
-export interface ModuleExamReceipt {
-	at: string;
-	scope: "module" | "chapter";
-	targetId: string;
-	score10: number;
-	passed: boolean;
-	weakNodeIds: string[];
-}
-
-export interface ProblemSetReceipt {
-	at: string;
-	moduleId: string;
-	scorePct: number;
-	passed: boolean;
-}
+export { readModuleScoreMap, readProblemSetScoreMap, readPrepNote, type ModuleExamReceipt, type ProblemSetReceipt };
 
 export type PublicModuleExamQuestion = Omit<ModuleExamQuestion, "nodeId" | "expectedTerms">;
 
@@ -96,6 +92,10 @@ export interface ModuleExamDelivery {
 }
 
 export interface ModuleExamSubmissionResult extends ModuleExamResult {
+	fireCreditsCount: number;
+}
+
+export interface ProblemSetSubmissionResult extends ProblemSetResult {
 	fireCreditsCount: number;
 }
 
@@ -149,55 +149,7 @@ const CURATED_VIDEOS: readonly { title: string; part: string; url: string; nodes
 	},
 ];
 
-// ─── domain & persistence helpers ────────────────────────────────────────────
-
-function moduleExamsFile(domainId: string): string {
-	return path.join(learnerDir(PATHS.data, domainId), "module-exams.jsonl");
-}
-
-function problemSetsFile(domainId: string): string {
-	return path.join(learnerDir(PATHS.data, domainId), "problem-sets.jsonl");
-}
-
-function prepNotesFile(domainId: string): string {
-	return path.join(learnerDir(PATHS.data, domainId), "prep-notes.json");
-}
-
-function readOptionalText(file: string): string | null {
-	try {
-		return fs.readFileSync(file, "utf8");
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
-		throw error;
-	}
-}
-
-function appendJsonlAtomic(file: string, record: unknown): void {
-	fs.mkdirSync(path.dirname(file), { recursive: true });
-	const current = readOptionalText(file) ?? "";
-	const prefix = current === "" || current.endsWith("\n") ? current : `${current}\n`;
-	writeFileAtomicSync(file, `${prefix}${JSON.stringify(record)}\n`, { allowInPlaceFallback: true });
-}
-
-function readPrepNotes(domainId: string): Record<string, FlippedPrepNote> {
-	const raw = readOptionalText(prepNotesFile(domainId));
-	if (!raw) return {};
-	try {
-		const parsed = JSON.parse(raw) as unknown;
-		if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-			return parsed as Record<string, FlippedPrepNote>;
-		}
-	} catch {
-		// Corrupted prep-notes file falls back to empty map.
-	}
-	return {};
-}
-
-function writePrepNotes(domainId: string, notes: Record<string, FlippedPrepNote>): void {
-	const file = prepNotesFile(domainId);
-	fs.mkdirSync(path.dirname(file), { recursive: true });
-	writeFileAtomicSync(file, JSON.stringify(notes, null, "\t"), { allowInPlaceFallback: true });
-}
+// ─── domain resolution ───────────────────────────────────────────────────────
 
 function resolveDomain(domainId?: string) {
 	const id = domainId ?? activeDomainId();
@@ -387,60 +339,9 @@ function curatedMaterialsForNode(
 	return direct;
 }
 
-function studyActivitySummary(domainId: string, at: string): { minutes14d: number; activeDays14d: number; totalStudiedMinutes: number } {
-	const stats = createStatsStore(PATHS.data);
-	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-	const endMs = Date.parse(at);
-	const safeEnd = Number.isFinite(endMs) ? endMs : Date.now();
-	const start = new Date(safeEnd);
-	start.setDate(start.getDate() - 13);
-	start.setHours(0, 0, 0, 0);
-	const range14d = { from: start.toISOString(), to: new Date(safeEnd + 1).toISOString() };
-	const events14d = stats.readActivity(range14d, { domain: domainId }).events;
-	const daily14d = aggregateActivity(events14d, { range: range14d, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId });
-	const sec14d = daily14d.reduce((sum, day) => sum + day.activeSec, 0);
-	const activeDays14d = daily14d.filter((day) => day.activeSec >= 60).length;
+// ─── public reads: syllabus, transcript, notebook ────────────────────────────
 
-	const allTimeRange = { from: "2020-01-01T00:00:00.000Z", to: new Date(safeEnd + 1).toISOString() };
-	const allEvents = stats.readActivity(allTimeRange, { domain: domainId }).events;
-	const allDaily = aggregateActivity(allEvents, { range: allTimeRange, timeZone, windowSec: STUDY_HEARTBEAT_SEC, domain: domainId });
-	const totalSec = allDaily.reduce((sum, day) => sum + day.activeSec, 0);
-	return {
-		minutes14d: sec14d / 60,
-		activeDays14d,
-		totalStudiedMinutes: Math.max(sec14d, totalSec) / 60,
-	};
-}
-
-// ─── public reads: scores, syllabus, transcript, notebook ────────────────────
-
-/** Read the latest integrative exam score per targetId from module-exams.jsonl. */
-export function readModuleScoreMap(domainId: string): Map<string, { score: number; passed: boolean; at: string }> {
-	const map = new Map<string, { score: number; passed: boolean; at: string }>();
-	const raw = readOptionalText(moduleExamsFile(domainId));
-	if (!raw) return map;
-	for (const line of raw.split("\n")) {
-		const trimmed = line.trim();
-		if (!trimmed) continue;
-		try {
-			const rec = JSON.parse(trimmed) as Partial<ModuleExamReceipt>;
-			if (
-				typeof rec.targetId === "string"
-				&& typeof rec.score10 === "number"
-				&& Number.isFinite(rec.score10)
-				&& typeof rec.passed === "boolean"
-				&& typeof rec.at === "string"
-			) {
-				map.set(rec.targetId, { score: rec.score10, passed: rec.passed, at: rec.at });
-			}
-		} catch {
-			// Skip malformed lines so one bad entry never blocks reads.
-		}
-	}
-	return map;
-}
-
-/** Full domain course syllabus with observed pace, FSRS retention, exam scores, and curated materials. */
+/** Full domain course syllabus with observed pace, FSRS retention, exam & problem-set scores, and curated materials. */
 export function studySyllabus(domainId?: string): StudySyllabus {
 	const { id, profile, cur } = resolveDomain(domainId);
 	const at = new Date().toISOString();
@@ -450,6 +351,7 @@ export function studySyllabus(domainId?: string): StudySyllabus {
 	const campaign = studyCampaign(cur.snapshot, cur.view, struct.known);
 	const materialsByUnit = readCuratedMaterialsByUnit(id, cur.snapshot, cur.view);
 	const moduleScores = readModuleScoreMap(id);
+	const problemSetScores = readProblemSetScoreMap(id);
 	const activity = studyActivitySummary(id, at);
 
 	let focusNodeId: string | undefined;
@@ -475,6 +377,7 @@ export function studySyllabus(domainId?: string): StudySyllabus {
 		totalStudiedMinutes: activity.totalStudiedMinutes,
 		dailyBudgetMin: profile?.dailyBudgetMin ?? 180,
 		moduleScores,
+		problemSetScores,
 		materialsByUnit,
 		...(focusNodeId ? { focusNodeId } : {}),
 	});
@@ -631,6 +534,7 @@ export function submitModuleExam(
 		weakNodeIds: result.weakNodeIds,
 	} satisfies ModuleExamReceipt);
 
+	emit("curriculum-expanded", { domainId: id, nodeId: exam.targetId });
 	return { ...result, fireCreditsCount };
 }
 
@@ -661,14 +565,14 @@ export function getModuleProblemSet(moduleId: string, seed?: string): ModuleProb
 	return resolveProblemSetSpec(moduleId, seed).set;
 }
 
-/** Grade a submitted problem set and lab notes, persist Evidence events, and save receipt. */
+/** Grade a submitted problem set and lab notes, persist Evidence + FIRe implicit credits, and save receipt. */
 export function submitModuleProblemSet(
 	moduleId: string,
 	answers: Record<string, string>,
 	labNotes?: Record<string, string>,
 	seed?: string,
-): ProblemSetResult {
-	const { id, set } = resolveProblemSetSpec(moduleId, seed);
+): ProblemSetSubmissionResult {
+	const { id, cur, set } = resolveProblemSetSpec(moduleId, seed);
 	const existingEvents = readStudyEvents(id);
 	const at = new Date().toISOString();
 	const startSeq = nextStudySeq(existingEvents);
@@ -678,18 +582,34 @@ export function submitModuleProblemSet(
 		startSeq,
 	});
 
-	for (const ev of gradedEvents) {
+	let snap = learnerSnapshotOf(id, cur.view, existingEvents, at);
+	let seq = Math.max(startSeq, snap.seq + 1);
+	let fireCreditsCount = 0;
+
+	for (const rawEvent of gradedEvents) {
+		const ev: LearnerEvent = rawEvent.kind === "evidence"
+			? { kind: "evidence", evidence: { ...rawEvent.evidence, seq } }
+			: ({ ...rawEvent, seq } as LearnerEvent);
+		const ingested = ingestEvent(snap, ev, cur.view, DEFAULT_LEARNER_PARAMS);
 		appendStudyEvent(id, ev);
+		for (const derived of ingested.derived) {
+			appendStudyEvent(id, derived);
+			fireCreditsCount++;
+		}
+		snap = ingested.snapshot;
+		seq = Math.max(seq + 1, snap.seq + 1);
 	}
 
 	appendJsonlAtomic(problemSetsFile(id), {
 		at,
 		moduleId: set.moduleId,
 		scorePct: Math.round(result.score10 * 10),
+		score10: result.score10,
 		passed: result.passed,
 	} satisfies ProblemSetReceipt);
 
-	return result;
+	emit("curriculum-expanded", { domainId: id, nodeId: set.moduleId });
+	return { ...result, fireCreditsCount };
 }
 
 // ─── flipped-classroom pre-reading guides ────────────────────────────────────
@@ -741,6 +661,22 @@ export function saveFlippedPrepNote(nodeId: string, note: FlippedPrepNote): { ok
 	const materials = curatedMaterialsForNode(id, cur.snapshot, cur.view, nodeId);
 	const guide = buildFlippedGuide(brief, materials);
 	return { ok: true, formatted: formatFlippedPrepForLesson(guide, cleanNote) };
+}
+
+/** Format any saved flipped pre-reading note for a node so POST /api/chats can auto-attach it. */
+export function readFormattedPrepNote(domainId: string, nodeId: string): string {
+	const note = readPrepNote(domainId, nodeId);
+	if (!hasSavedPrepNote(note)) return "";
+	try {
+		const { id, cur } = resolveDomain(domainId);
+		const brief = nodeBrief(cur.snapshot, nodeId);
+		if (!brief) return "";
+		const materials = curatedMaterialsForNode(id, cur.snapshot, cur.view, nodeId);
+		const guide = buildFlippedGuide(brief, materials);
+		return formatFlippedPrepForLesson(guide, note!);
+	} catch {
+		return "";
+	}
 }
 
 // ─── domain flashcards export (Obsidian / Anki / .apkg) ──────────────────────

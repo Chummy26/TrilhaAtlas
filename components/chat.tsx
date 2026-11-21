@@ -36,6 +36,7 @@ import { Separator } from "@/components/ui/separator";
 import { AnsweredCard } from "@/components/answered-card";
 import { MalformedQuestion } from "@/components/malformed-question";
 import { SubagentSteerCard } from "@/components/artifacts/steer-card";
+import { LessonCourseBar } from "@/components/study/lesson-course-bar";
 import { LessonFinish, type LessonFinishState, type LessonReceipt } from "@/components/study/lesson-finish";
 import { ChatSessionComposer } from "@/components/composer";
 import { useEnterSubmits } from "@/components/enter-submits";
@@ -1616,6 +1617,23 @@ export function Chat({
 
 	usePluginShortcutPage(`/chat/${encodeURIComponent(chatId)}`, captureActionContext);
 
+	const lessonReceipt = useMemo(
+		() =>
+			messages
+				.flatMap((m) => m.parts)
+				.find((p) => p.type === "tool-conclude_lesson" && p.state === "output-available")
+				?.output as LessonReceipt | undefined,
+		[messages],
+	);
+	const liveCourse = lessonReceipt?.course ?? lessonCompletion?.course ?? null;
+	const liveCompleted = Boolean(lessonCompletion?.completed || lessonReceipt);
+	const liveReinforcement =
+		lessonReceipt?.outcome === "reinforce"
+			? (lessonReceipt.assessment || lessonCompletion?.reinforcement || "reinforce")
+			: lessonReceipt
+				? undefined
+				: lessonCompletion?.reinforcement;
+
 	return (
 		<ChatActionsContext.Provider
 			value={{
@@ -1623,7 +1641,7 @@ export function Chat({
 				syncFromServer,
 				sendText: (t: string) => { void prepareText(t); },
 				askActivity: t => prepareText(t),
-				activeExamId: lessonCompletion && !lessonCompletion.completed ? pendingLessonExam(messages) : undefined,
+				activeExamId: lessonCompletion && !liveCompleted ? pendingLessonExam(messages) : undefined,
 				examBusy: busy || compacting,
 				submitExam: (examCallId, text, onAccepted) => send({ type: "text", text, examCallId }, onAccepted),
 				openSetup: () => setSetupOpen(true),
@@ -1644,7 +1662,17 @@ export function Chat({
 		    chip) spans from the left sidebar's edge to the panel's edge. The
 		    dock overlays the column bottom (outside the scroller); a spacer in
 		    the transcript reserves its height. */}
-		<div className="flex h-full min-h-0 overflow-hidden">
+		<div className="flex h-full min-h-0 flex-col overflow-hidden">
+		{lessonCompletion && liveCourse && (
+			<LessonCourseBar
+				domainId={lessonCompletion.domainId}
+				nodeId={lessonCompletion.nodeId}
+				course={liveCourse}
+				completed={liveCompleted}
+				reinforcement={liveReinforcement}
+			/>
+		)}
+		<div className="flex min-h-0 flex-1 overflow-hidden">
 			<div className="flex min-h-0 min-w-0 flex-1 flex-col">
 				{/* The top bar is its own block (owner, top-fade round 4): in flow
 				    above the scroller on the plain page background — no gradient. Its
@@ -2035,7 +2063,7 @@ export function Chat({
 							{(status === "submitted" || turnInFlight) && (
 								<PendingTurnIndicator evaluating={evaluating} />
 							)}
-							{lessonCompletion && messages.some(m => m.role === "assistant") && <LessonFinish state={lessonCompletion} busy={busy || compacting} receipt={messages.flatMap(m => m.parts).find(p => p.type === "tool-conclude_lesson" && p.state === "output-available")?.output as LessonReceipt | undefined} />}
+							{lessonCompletion && messages.some(m => m.role === "assistant") && <LessonFinish state={lessonCompletion} busy={busy || compacting} receipt={lessonReceipt} />}
 							{openingError && <p role="alert" className="text-sm text-destructive">{OPENING_PROMPT_FAILURE}</p>}
 							{error && (
 								<div className="flex items-center justify-between gap-3 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm">
@@ -2251,6 +2279,7 @@ export function Chat({
 				<AbortTurnDialog mode={abortAsk} onClose={closeAbortAsk} onConfirm={confirmAbort} busy={busy} />
 				</div>
 			</div>
+		</div>
 		</div>
 		</CitationActionsContext.Provider>
 		</JobsContext.Provider>

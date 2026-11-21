@@ -138,15 +138,15 @@ See the [Development guide](docs/development.md), [Desktop release guide](docs/d
 
 | Model | TutorMoments: Support | TutorMoments: Rigor | TutorMoments: Avoids Over-Scaffolding | TeachArena S0 (Tutoring) | TeachArena S1 (Judgment NL) | Own Modes (Exam 0-Leak) | Planning (JSON+Conv) | LLM Grader MAE (0–3) / False-Pass | Sources & PDFs |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `chatgpt:gpt-6.2-sol` | **100.0%** (+66.7 pp) | **100.0%** (+33.3 pp) | **66.7%** (+33.3 pp) | **65.8%** (+20.8 pp) | **83.3%** (+0.0 pp) | **100.0%** (+100.0 pp) | **100.0%** (+37.7 pp) | **0.14** / **0.0%** | **91.7%** (+16.7 pp) |
+| `chatgpt:gpt-6.2-sol` | **100.0%** (+60.0 pp) | **100.0%** (+40.0 pp) | **90.0%** (+70.0 pp) | **76.0%** (+34.0 pp) | **92.0%** (+2.0 pp) | **100.0%** (+100.0 pp) | **100.0%** (+37.7 pp) | **0.00** / **0.0%** | **95.0%** (+30.0 pp) |
 
 #### Separate Scoreboard — Memory & Personalization (EvalMem 3-Stage + LongMemEval-S) & Complementary Diagnostic (MathTutorBench)
 
 | Model | EvalMem Stage 1 (Record) | EvalMem Stage 2 (Retrieval) | EvalMem Stage 3 (Tutor Use) | LongMemEval-S | MathTutorBench (Corr · Loc · Socr · No-Spoiler) |
 |---|---:|---:|---:|---:|---|
-| `chatgpt:gpt-6.2-sol` | **100.0%** (+0.0 pp) | **100.0%** (n=6) | **100.0%** (+0.0 pp) | **83.3%** (+0.0 pp) | 100% · 100% · 100% · 100% |
+| `chatgpt:gpt-6.2-sol` | **100.0%** (+0.0 pp) | **100.0%** (n=10) | **100.0%** (+0.0 pp) | **90.0%** (+0.0 pp) | 100% · 100% · 100% · 100% |
 
-- **Separate deterministic grader (`module-exam.ts` on 14 specialist-labeled cases):** exact agreement **21.4%**, MAE **1.36**, false-pass rate **87.5%** (demonstrating quantitatively why open-ended grading uses `lesson/grader.md` rather than lexical overlap).
+- **Separate deterministic grader (`module-exam.ts` on 18 specialist-labeled cases):** exact agreement **16.7%**, MAE **1.33**, false-pass rate **83.3%** (demonstrating quantitatively why open-ended grading uses `lesson/grader.md` rather than lexical overlap).
 - **Transparency note:** TeachArena scores are reported individually for Stage 0 (Situated Tutoring) and Stage 1 (Pedagogical Judgment) and are not a global TeachArena score; PT-BR and Planning suites are internal TrilhaAtlas adaptations in `evals/`. Reproduce with `npm run verify:formal`, `npm run benchmark:harness`, `npm run benchmark:prompts`, and `npm run benchmark:sota`.
 <!-- END:BENCHMARK_RESULTS -->
 

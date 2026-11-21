@@ -10,7 +10,7 @@ export function lessonStatement(brief: StudyNodeBrief, minutes: number, priorGap
 		brief.regionExit ? "Fechamento de região. Ofereça um exemplo resolvido ou um trecho das fontes antes do desafio; permita seguir direto. Peça uma aplicação independente em situação nova." : "",
 		brief.misconceptions.length > 0 ? `Confusões comuns: ${brief.misconceptions.join("; ")}.` : "",
 		priorGap ? `Retomada após reforço: ataque diretamente esta lacuna da tentativa anterior — ${priorGap}` : "",
-		`Aula de ~${minutes} min do currículo do domínio; ensine em pt-BR.`,
+		`Aula de ~${minutes} min do currículo do domínio.`,
 	];
 	return parts.filter(Boolean).join(" ");
 }

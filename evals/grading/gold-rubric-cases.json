@@ -64,7 +64,7 @@
 			"misconceptions": [
 				{ "id": "m-swap-r1-r2", "diagnosticSignal": "Coloca R1 no numerador em vez de R2" }
 			],
-			"learnerAnswer": "Usando a relação do divisor de tensão, Vout = 10 V × 8 kΩ / (2 kΩ + 8 kΩ) = 8 V. Não cheguei a analisar o segundo caso com R2 dobrado.",
+			"learnerAnswer": "Usando o divisor de tensão, Vout = 10 V × 8 kΩ / (2 kΩ + 8 kΩ) = 8 V. Se R2 dobrar para 16 kΩ, Vout aumenta porque R2 concentra uma parcela maior da tensão total, ficando perto de 9 V.",
 			"goldGrade": 2,
 			"goldCorrect": true,
 			"goldMisconceptionId": null
@@ -310,6 +310,94 @@
 			"goldGrade": 0,
 			"goldCorrect": false,
 			"goldMisconceptionId": "m-false-friend-actually"
+		},
+		{
+			"id": "grade-elec-half-missing-criterion",
+			"split": "heldout",
+			"domain": "electronics",
+			"responseClass": "half_missing_criterion",
+			"nodeId": "elec.dc.voltage-divider",
+			"prompt": "Com Vin = 10 V, R1 = 2 kΩ (superior) e R2 = 8 kΩ (inferior), calcule Vout sobre R2 e diga o que acontece com Vout se R2 dobrar.",
+			"reference": "Vout = 10 · 8 / (2 + 8) = 8 V. Se R2 dobrar para 16 kΩ, Vout sobe para 10 · 16 / 18 ≈ 8,89 V, pois R2 passa a concentrar uma fração maior da resistência total.",
+			"rubricCriteria": [
+				"Calcula Vout = 8 V corretamente",
+				"Explica que Vout aumenta quando R2 dobra porque a fração R2/(R1+R2) cresce"
+			],
+			"expectedTerms": ["8 V", "divisor", "R2", "aumenta", "fração"],
+			"minWords": 12,
+			"misconceptions": [
+				{ "id": "m-swap-r1-r2", "diagnosticSignal": "Coloca R1 no numerador em vez de R2" }
+			],
+			"learnerAnswer": "Usando a relação do divisor de tensão, Vout = 10 V × 8 kΩ / (2 kΩ + 8 kΩ) = 8 V. Não cheguei a analisar o segundo caso com R2 dobrado.",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-eng-half-missing-criterion",
+			"split": "heldout",
+			"domain": "english",
+			"responseClass": "half_missing_criterion",
+			"nodeId": "en.grammar.b1.passive-voice",
+			"prompt": "Passe para a voz passiva as duas frases ('The engineer tested the board' e 'The team builds prototypes') e explique como o verbo 'to be' acompanha o tempo verbal.",
+			"reference": "'The board was tested by the engineer' (Past Simple -> was + particípio) e 'Prototypes are built by the team' (Present Simple -> are + particípio); o auxiliar 'to be' assume o tempo e número da frase original.",
+			"rubricCriteria": [
+				"Reescreve ambas as frases corretamente na voz passiva ('The board was tested...' e 'Prototypes are built...')",
+				"Explica que o auxiliar 'to be' carrega o tempo verbal da frase original enquanto o verbo principal fica no particípio"
+			],
+			"expectedTerms": ["was tested", "are built", "to be", "particípio", "tempo verbal"],
+			"minWords": 14,
+			"misconceptions": [
+				{ "id": "m-passive-wrong-tense", "diagnosticSignal": "Mantém o verbo 'to be' sempre no presente ignorando o tempo passado" }
+			],
+			"learnerAnswer": "A primeira frase na voz passiva fica 'The board was tested by the engineer'. Não fiz a segunda frase nem a explicação do verbo to be.",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": null
+		},
+		{
+			"id": "grade-elec-defense-partial-tradeoff",
+			"split": "dev",
+			"domain": "electronics",
+			"responseClass": "defense_partial_tradeoff",
+			"nodeId": "elec.analog.opamp-compensation",
+			"prompt": "Em um amplificador de dois estágios compensado por polo dominante (Miller), explique como obter margem de fase >= 60° e defenda o compromisso com largura de banda, slew rate e carga capacitiva.",
+			"reference": "A compensação de Miller desloca o polo dominante para baixa frequência (pole splitting) para que o ganho unitário ocorra antes do segundo polo, elevando a margem de fase >= 60°; o compromisso é redução da largura de banda/slew rate (SR = I_tail / Cm) e perda de margem de fase se a carga capacitiva aumentar e puxar o segundo polo para baixo.",
+			"rubricCriteria": [
+				"Explica corretamente o deslocamento do polo dominante (pole splitting) para posicionar o ganho unitário abaixo do segundo polo (margem de fase >= 60°)",
+				"Defende explicitamente o compromisso técnico (redução de largura de banda/slew rate e degradação da margem de fase sob carga capacitiva elevada)"
+			],
+			"expectedTerms": ["polo dominante", "margem de fase", "largura de banda", "slew rate", "carga capacitiva"],
+			"minWords": 18,
+			"misconceptions": [
+				{ "id": "m-unexamined-tradeoff", "diagnosticSignal": "Afirma que a compensação por polo dominante estabiliza o amplificador sem penalidade de largura de banda/slew rate ou ignora o efeito da carga capacitiva" }
+			],
+			"learnerAnswer": "Inserindo o capacitor de Miller entre a entrada e a saída do segundo estágio, o polo dominante é empurrado para uma frequência mais baixa, fazendo o ganho cair para 0 dB antes do segundo polo e garantindo margem de fase acima de 60°. Essa compensação resolve a estabilidade sem impacto relevante na velocidade ou na carga da saída.",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-unexamined-tradeoff"
+		},
+		{
+			"id": "grade-eng-defense-partial-tradeoff",
+			"split": "heldout",
+			"domain": "english",
+			"responseClass": "defense_partial_tradeoff",
+			"nodeId": "en.writing.c1.academic-defense",
+			"prompt": "Defend a position on whether asynchronous code reviews outperform live pair programming for distributed teams, explicitly stating scope boundaries and substantively addressing the strongest counter-argument.",
+			"reference": "A C1 defense states a clear scoped thesis (e.g., asynchronous reviews excel for well-specified changes across time zones), sets explicit boundary conditions (not ideal for high-uncertainty architectural spikes), and substantively addresses the strongest counter-argument (slower feedback loops and weaker tacit knowledge transfer for junior engineers) with a concrete mitigation.",
+			"rubricCriteria": [
+				"Presents a clear thesis in formal academic register with explicit scope boundaries",
+				"Substantively engages with and defends against the strongest counter-argument/trade-off (e.g., feedback latency or junior onboarding)"
+			],
+			"expectedTerms": ["asynchronous", "trade-off", "scope", "counter-argument", "latency"],
+			"minWords": 20,
+			"misconceptions": [
+				{ "id": "m-missing-counterargument", "diagnosticSignal": "Presents a one-sided thesis without scope limits or substantive defense against the key trade-off" }
+			],
+			"learnerAnswer": "Asynchronous code reviews clearly outperform live pair programming in distributed software teams because written comments create an auditable history and let engineers review pull requests during uninterrupted deep-work blocks. Although some people prefer pairing occasionally, asynchronous reviews are simply more efficient in practice.",
+			"goldGrade": 1,
+			"goldCorrect": false,
+			"goldMisconceptionId": "m-missing-counterargument"
 		}
 	]
 }

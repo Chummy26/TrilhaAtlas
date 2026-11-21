@@ -54,7 +54,7 @@ export function PluginModelPicker({ value, onChange, disabled, onError, commandR
 		<ModelPickerPill disabled={disabled} aria-label="Model selector" aria-expanded={open} onClick={() => { if (open) close(); else invoke(); }}>
 			{value ? prettyModel(value.id) : "—"}
 		</ModelPickerPill>
-		{open && !disabled && <MenuShell anchorRef={root} preferredSide="up" testid="plugin-model-menu" onClose={() => { close(); return "closed"; }} menuClass="flex w-[22rem] flex-col rounded-xl border bg-card p-2 text-xs shadow-xl">
+		{open && !disabled && <MenuShell anchorRef={root} preferredSide="up" testid="plugin-model-menu" onClose={() => { close(); return "closed"; }} menuClass="flex w-[26rem] max-w-[calc(100vw-2rem)] flex-col rounded-xl border bg-card p-2 text-xs shadow-xl">
 			{error && <div role="alert" className="text-destructive">{error}</div>}
 			<ModelMenuList models={catalog?.models} effectiveId={value?.id} effectiveProvider={value?.provider} onPick={(model) => {
 				setError(undefined);

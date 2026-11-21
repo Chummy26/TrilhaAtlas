@@ -21,6 +21,33 @@ import {
 	type OfficialTurn,
 } from "./official-datasets.ts";
 
+// ─── Deterministic Dev / Held-Out Split Partitioning ─────────────────────────
+
+export type EvalSplit = "dev" | "heldout" | "all";
+
+/**
+ * Deterministically partition any dataset into strictly disjoint `dev` and
+ * `heldout` splits using FNV-1a 32-bit hash parity on `getKey(item)`.
+ * Pure and browser-safe (no Node crypto dependency).
+ */
+export function partitionDevHeldout<T>(
+	items: readonly T[],
+	split: EvalSplit,
+	getKey: (x: T) => string,
+): T[] {
+	if (split === "all") return [...items];
+	return items.filter(item => {
+		const key = getKey(item);
+		let h = 0x811c9dc5;
+		for (let i = 0; i < key.length; i++) {
+			h ^= key.charCodeAt(i);
+			h = Math.imul(h, 0x01000193);
+		}
+		const isHeldout = ((h >>> 0) & 1) === 1;
+		return split === "heldout" ? isHeldout : !isHeldout;
+	});
+}
+
 // ─── Paired A/B Statistics (Exact Student-t 95% CI) ──────────────────────────
 
 /** Two-tailed t critical values for 95% confidence (alpha = 0.05) by df. */
@@ -202,6 +229,13 @@ export function parseTutorMomentsRows(rows: readonly RawTutorMomentRow[], maxTai
 
 // ─── Official TeachArena Parsers (Stage 0 Tutoring + Stage 1 Judgment) ───────
 
+export interface TeachArenaResponseCheck {
+	type: string;
+	values?: (string | number)[];
+	value?: string | number;
+	tolerance?: number;
+}
+
 export interface RawTeachArenaTask {
 	id: string;
 	task_type?: string;
@@ -219,7 +253,7 @@ export interface RawTeachArenaTask {
 	};
 	evaluation_criteria?: {
 		nl_assertions?: string[];
-		response_checks?: { type: string; values?: string[]; value?: string }[];
+		response_checks?: TeachArenaResponseCheck[];
 	};
 }
 
@@ -237,7 +271,7 @@ export interface TeachArenaStage1Item {
 	id: string;
 	persona: string;
 	taskPrompt: string;
-	responseChecks: { type: string; values?: string[]; value?: string }[];
+	responseChecks: TeachArenaResponseCheck[];
 	nlAssertions: string[];
 }
 
@@ -288,22 +322,50 @@ export function parseTeachArenaStage1(rows: readonly RawTeachArenaTask[]): Teach
 	return out;
 }
 
+function extractNumericValues(text: string): number[] {
+	const nums: number[] = [];
+	const re = /-?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|\.\d+)/g;
+	let m: RegExpExecArray | null;
+	while ((m = re.exec(text)) !== null) {
+		const raw = m[0];
+		const parsed = Number(raw.replace(/,/g, ""));
+		if (!Number.isFinite(parsed)) continue;
+		nums.push(parsed);
+		// If a leading '-' is attached to a preceding digit/letter (e.g. range "10-12" or "item-2"), also expose the unsigned value.
+		if (raw.startsWith("-") && m.index > 0 && /[0-9a-zA-Z]/.test(text[m.index - 1]!)) {
+			nums.push(Math.abs(parsed));
+		}
+	}
+	return nums;
+}
+
 /** Deterministic evaluator for TeachArena Stage 1 `response_checks`. */
 export function evaluateTeachArenaResponseChecks(
 	reply: string,
-	checks: readonly { type: string; values?: string[]; value?: string }[],
+	checks: readonly TeachArenaResponseCheck[],
 ): { passed: number; total: number; score01: number } {
 	if (!checks.length) return { passed: 0, total: 0, score01: 1 };
 	const lower = reply.toLowerCase();
+	let cachedNumbers: number[] | null = null;
 	let passed = 0;
 	for (const chk of checks) {
-		const vals = (chk.values ?? (chk.value ? [chk.value] : [])).map(v => v.toLowerCase());
-		if (chk.type === "contains_any") {
+		const rawVals = chk.values ?? (chk.value !== undefined && chk.value !== null ? [chk.value] : []);
+		const vals = rawVals.map(v => String(v).toLowerCase());
+		if (chk.type === "not_contains" || chk.type === "not_contains_any") {
+			if (vals.every(v => !lower.includes(v))) passed++;
+		} else if (chk.type === "contains" || chk.type === "contains_any") {
 			if (vals.some(v => lower.includes(v))) passed++;
 		} else if (chk.type === "contains_all") {
 			if (vals.every(v => lower.includes(v))) passed++;
-		} else if (chk.type === "not_contains_any") {
-			if (vals.every(v => !lower.includes(v))) passed++;
+		} else if (chk.type === "contains_number") {
+			if (cachedNumbers === null) cachedNumbers = extractNumericValues(reply);
+			const tol = typeof chk.tolerance === "number" && Number.isFinite(chk.tolerance) && chk.tolerance >= 0
+				? chk.tolerance
+				: 0.01;
+			const targets = rawVals.map(v => Number(v)).filter(Number.isFinite);
+			if (targets.length > 0 && targets.some(t => cachedNumbers!.some(n => Math.abs(n - t) <= tol))) {
+				passed++;
+			}
 		} else {
 			// Unknown check type: pass conservatively only if value appears
 			if (vals.some(v => lower.includes(v))) passed++;
@@ -606,7 +668,7 @@ export function renderSixFrontMarkdown(bundle: SixFrontEvalBundle): string {
 			fmtRow("Planejamento conversacional (`teacher/10-planning.md`)", r.planning.conversationalPlanning),
 			fmtRow("Plano estruturado JSON (`lesson/lesson-plan.md`)", r.planning.lessonPlanTemplateJson),
 			"",
-			"### Frente 3 — Correção e Feedback (Corretores Separados · 14 casos rotulados)",
+			`### Frente 3 — Correção e Feedback (Corretores Separados · ${bundle.deterministicModuleExamGrader.n} casos rotulados)`,
 			"",
 			"| Corretor | Concordância exata | ±1 nota | MAE (0–3) | Aprovação indevida (false-pass) | Reprovação indevida (false-fail) | Diagnóstico de erro | Erros de formato |",
 			"|---|---:|---:|---:|---:|---:|---:|---:|",
@@ -684,7 +746,7 @@ export function renderSixFrontReadmeBlock(bundle: SixFrontEvalBundle): string {
 
 	lines.push(
 		"",
-		`- **Separate deterministic grader (\`module-exam.ts\` on 14 specialist-labeled cases):** exact agreement **${bundle.deterministicModuleExamGrader.exactAgreementPct.toFixed(1)}%**, MAE **${bundle.deterministicModuleExamGrader.mae0to3.toFixed(2)}**, false-pass rate **${bundle.deterministicModuleExamGrader.falsePassRatePct.toFixed(1)}%** (demonstrating quantitatively why open-ended grading uses \`lesson/grader.md\` rather than lexical overlap).`,
+		`- **Separate deterministic grader (\`module-exam.ts\` on ${bundle.deterministicModuleExamGrader.n} specialist-labeled cases):** exact agreement **${bundle.deterministicModuleExamGrader.exactAgreementPct.toFixed(1)}%**, MAE **${bundle.deterministicModuleExamGrader.mae0to3.toFixed(2)}**, false-pass rate **${bundle.deterministicModuleExamGrader.falsePassRatePct.toFixed(1)}%** (demonstrating quantitatively why open-ended grading uses \`lesson/grader.md\` rather than lexical overlap).`,
 		`- **Transparency note:** TeachArena scores are reported individually for Stage 0 (Situated Tutoring) and Stage 1 (Pedagogical Judgment) and are not a global TeachArena score; PT-BR and Planning suites are internal TrilhaAtlas adaptations in \`evals/\`. Reproduce with \`npm run verify:formal\`, \`npm run benchmark:harness\`, \`npm run benchmark:prompts\`, and \`npm run benchmark:sota\`.`,
 		README_OFFICIAL_BENCH_END,
 	);

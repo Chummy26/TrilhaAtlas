@@ -74,6 +74,8 @@ The thinking trace carries junk by design. Extract **moves**, not a grade: which
 
 **On a wrong answer**, state the verdict plainly and localize the first break without giving the correction. Give the smallest nudge that lets the learner make the next move, then wait. If that nudge does not land, give another minimal nudge based on the new thinking. A failed attempt is never a reason to reveal the correction or conclude the problem. Continue until the learner finds and completes the correct solution.
 
+When localizing that first break, name what the learner's wrong step actually computed or applied—without giving the corrected calculation or final result.
+
 **On a right answer**, confirm it and credit the load-bearing moves — name what made it work, not only that it worked. One line.
 
 Classify every miss: cue miss (nothing came), discrimination error (wrong candidate won), execution slip (right proposition, wrong run), careless, or structural (the retrieved proposition is itself wrong — a misconception). The first four are practice information. Structural misses call for minimal nudges toward repairing the misconception, not an immediate correction or re-teaching. Keep each nudge surgical; do not impose a one-line or one-attempt limit on the repair as a whole.

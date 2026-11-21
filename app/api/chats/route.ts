@@ -1,6 +1,6 @@
 import { activityForSkill, chainsForSelection, formatChainLine, lessonResources, lessonSourceLines } from "@/src/core";
 import { newGraphContextMessage, type GraphContextPick } from "@/src/core";
-import { prepareReadingScreenshot, regionalBookImage, regionalBookUnit, StudyError, studyMapLesson, validateStudyLesson, saveStudyLesson, compactionInFlight, createChat, isTurnRunning, listChats, readSettingsRecord, stores, titleFromPrompt } from "@/src/server";
+import { prepareReadingScreenshot, readFormattedPrepNote, regionalBookImage, regionalBookUnit, StudyError, studyMapLesson, validateStudyLesson, saveStudyLesson, compactionInFlight, createChat, isTurnRunning, listChats, readSettingsRecord, stores, titleFromPrompt } from "@/src/server";
 import type { ChatListItem } from "@/src/core";
 
 /** The session picker's list: record-derived summaries (phase, pending
@@ -81,6 +81,17 @@ export async function POST(req: Request) {
 			const sources = lessonSourceLines(reading.materials);
 			if (!readingSource && sources.length) picks[0]!.statement += "\nMateriais deste nó:\n" + sources.join("\n");
 			if (reading.excerpt) picks[0]!.statement += "\nTrecho de " + reading.materials.find(m => m.kind === "book")!.url + " (texto da fonte para estudo):\n" + reading.excerpt;
+			if (!readingSource) {
+				const prepFormatted = readFormattedPrepNote(lesson.domainId, lesson.nodeId);
+				if (
+					prepFormatted
+					&& !picks[0]!.statement.includes(prepFormatted)
+					&& !picks[0]!.statement.includes("[Flipped pre-reading notes]")
+					&& !picks[0]!.statement.includes("Pré-leitura (")
+				) {
+					picks[0]!.statement += `\n\n[Flipped pre-reading notes]\n${prepFormatted}`;
+				}
+			}
 			validateStudyLesson(body.studyLesson, lesson.nodeId);
 		} catch (err) {
 			if (err instanceof StudyError) return Response.json({ error: err.message }, { status: err.status });
