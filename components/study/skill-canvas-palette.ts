@@ -10,6 +10,113 @@ export const MINIMAP_H = 104;
 export const MINIMAP_PAD = 12;
 export const MINIMAP_SHADOW_PAD = 4;
 
+// Precomputed unit polygon tables (eliminates ~15,000 Math.cos/Math.sin calls per frame)
+export const HEX_COS = new Float64Array(6);
+export const HEX_ISO_SIN = new Float64Array(6);
+export const NOTABLE_HEX_COS = new Float64Array(6);
+export const NOTABLE_HEX_SIN = new Float64Array(6);
+const OCT_X = new Float64Array(8);
+const OCT_Y = new Float64Array(8);
+const STAR_X = new Float64Array(8);
+const STAR_Y = new Float64Array(8);
+
+for (let i = 0; i < 6; i++) {
+	const aHex = (i / 6) * TAU + Math.PI / 6;
+	HEX_COS[i] = Math.cos(aHex);
+	HEX_ISO_SIN[i] = Math.sin(aHex) * 0.72;
+	const aNot = (i / 6) * TAU - Math.PI / 6;
+	NOTABLE_HEX_COS[i] = Math.cos(aNot);
+	NOTABLE_HEX_SIN[i] = Math.sin(aNot);
+}
+for (let i = 0; i < 8; i++) {
+	const aOct = (i / 8) * TAU + Math.PI / 8;
+	const rOct = i % 2 === 0 ? 1.16 : 0.94;
+	OCT_X[i] = Math.cos(aOct) * rOct;
+	OCT_Y[i] = Math.sin(aOct) * rOct;
+	const aStar = (i / 8) * TAU - Math.PI / 2;
+	const rStar = i % 2 === 0 ? 0.58 : 0.24;
+	STAR_X[i] = Math.cos(aStar) * rStar;
+	STAR_Y[i] = Math.sin(aStar) * rStar;
+}
+
+const unitGearCache = new Map<string, { teethPath: Path2D; spokesPath: Path2D }>();
+
+function getUnitGearPaths(teeth: number, rot: number): { teethPath: Path2D; spokesPath: Path2D } {
+	const key = `${teeth}:${Math.round(rot * 1000)}`;
+	const cached = unitGearCache.get(key);
+	if (cached) return cached;
+	const teethPath = new Path2D();
+	const step = TAU / teeth;
+	const outerR = 1.07;
+	const innerR = 0.96;
+	for (let i = 0; i < teeth; i++) {
+		const a0 = rot + i * step;
+		const a1 = a0 + step * 0.22;
+		const a2 = a0 + step * 0.48;
+		const a3 = a0 + step * 0.7;
+		const p0x = Math.cos(a0) * innerR;
+		const p0y = Math.sin(a0) * innerR;
+		if (i === 0) teethPath.moveTo(p0x, p0y);
+		else teethPath.lineTo(p0x, p0y);
+		teethPath.lineTo(Math.cos(a1) * outerR, Math.sin(a1) * outerR);
+		teethPath.lineTo(Math.cos(a2) * outerR, Math.sin(a2) * outerR);
+		teethPath.lineTo(Math.cos(a3) * innerR, Math.sin(a3) * innerR);
+	}
+	teethPath.closePath();
+
+	const spokesPath = new Path2D();
+	for (let k = 0; k < 6; k++) {
+		const a = rot + (k / 6) * TAU;
+		const c = Math.cos(a);
+		const s = Math.sin(a);
+		spokesPath.moveTo(c * 0.16, s * 0.16);
+		spokesPath.lineTo(c * 0.83, s * 0.83);
+	}
+	if (unitGearCache.size > 128) unitGearCache.clear();
+	const entry = { teethPath, spokesPath };
+	unitGearCache.set(key, entry);
+	return entry;
+}
+
+const glowSpriteCache = new Map<string, HTMLCanvasElement>();
+
+/** Cached 64x64 offscreen radial glow sprite (50x faster than createRadialGradient per frame). */
+export function getRadialGlowSprite(baseHex: string, dark: boolean): HTMLCanvasElement | null {
+	if (typeof document === "undefined") return null;
+	const key = `${baseHex}:${dark ? 1 : 0}`;
+	const cached = glowSpriteCache.get(key);
+	if (cached) return cached;
+	const size = 64;
+	const c = document.createElement("canvas");
+	c.width = size;
+	c.height = size;
+	const gctx = c.getContext("2d");
+	if (!gctx) return null;
+	const half = size / 2;
+	const grad = gctx.createRadialGradient(half, half, 3, half, half, half);
+	grad.addColorStop(0, baseHex + (dark ? "24" : "1a"));
+	grad.addColorStop(1, baseHex + "00");
+	gctx.fillStyle = grad;
+	gctx.fillRect(0, 0, size, size);
+	if (glowSpriteCache.size > 64) glowSpriteCache.clear();
+	glowSpriteCache.set(key, c);
+	return c;
+}
+
+export interface StaticLayerCache {
+	canvas: HTMLCanvasElement;
+	/** Backing pixels per world unit. */
+	scale: number;
+	/** Device pixel ratio baked into the static canvas. */
+	ratio: number;
+	/** World-space origin offset baked into the static canvas. */
+	originX: number;
+	originY: number;
+	worldW: number;
+	worldH: number;
+	depthKey: number;
+}
+
 export type Pixel = { x: number; y: number };
 export type Viewport = { width: number; height: number; ratio: number };
 export type Camera = Pixel & { zoom: number };
@@ -369,10 +476,9 @@ export function buildMinimapCache(
 	return { canvas, ratio, ms, ox, oy };
 }
 
-// ─── Crisp Vector Glyphs & RPG Sockets ──────────────────────────────────────
+// ─── Crisp Vector Glyphs & RPG Sockets (zero save/restore, precomputed trig) ─
 
 export function drawCheckGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, stroke: string) {
-	ctx.save();
 	ctx.beginPath();
 	ctx.moveTo(x - r * 0.42, y + r * 0.04);
 	ctx.lineTo(x - r * 0.1, y + r * 0.36);
@@ -382,11 +488,9 @@ export function drawCheckGlyph(ctx: CanvasRenderingContext2D, x: number, y: numb
 	ctx.lineCap = "round";
 	ctx.lineJoin = "round";
 	ctx.stroke();
-	ctx.restore();
 }
 
 export function drawPlayGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string) {
-	ctx.save();
 	ctx.beginPath();
 	ctx.moveTo(x - r * 0.26, y - r * 0.38);
 	ctx.lineTo(x + r * 0.44, y);
@@ -394,11 +498,9 @@ export function drawPlayGlyph(ctx: CanvasRenderingContext2D, x: number, y: numbe
 	ctx.closePath();
 	ctx.fillStyle = fill;
 	ctx.fill();
-	ctx.restore();
 }
 
 export function drawLockGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string) {
-	ctx.save();
 	ctx.strokeStyle = color;
 	ctx.fillStyle = color;
 	ctx.lineWidth = Math.max(1.1, r * 0.16);
@@ -410,24 +512,17 @@ export function drawLockGlyph(ctx: CanvasRenderingContext2D, x: number, y: numbe
 	ctx.beginPath();
 	ctx.roundRect(x - bw / 2, y - bh * 0.32, bw, bh, 1.8);
 	ctx.fill();
-	ctx.restore();
 }
 
 export function drawStarGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string) {
-	ctx.save();
 	ctx.beginPath();
-	for (let i = 0; i < 8; i++) {
-		const a = (i / 8) * TAU - Math.PI / 2;
-		const rad = i % 2 === 0 ? r * 0.58 : r * 0.24;
-		const px = x + Math.cos(a) * rad;
-		const py = y + Math.sin(a) * rad;
-		if (i === 0) ctx.moveTo(px, py);
-		else ctx.lineTo(px, py);
+	ctx.moveTo(x + STAR_X[0]! * r, y + STAR_Y[0]! * r);
+	for (let i = 1; i < 8; i++) {
+		ctx.lineTo(x + STAR_X[i]! * r, y + STAR_Y[i]! * r);
 	}
 	ctx.closePath();
 	ctx.fillStyle = fill;
 	ctx.fill();
-	ctx.restore();
 }
 
 export function drawKeystoneSocket(
@@ -453,28 +548,16 @@ export function drawKeystoneSocket(
 
 	// Hard offset shadow
 	ctx.beginPath();
-	for (let i = 0; i < 8; i++) {
-		const a = (i / 8) * TAU + Math.PI / 8;
-		const rad = i % 2 === 0 ? r * 1.16 : r * 0.94;
-		const px = x + 1.8 + Math.cos(a) * rad;
-		const py = y + 2.2 + Math.sin(a) * rad;
-		if (i === 0) ctx.moveTo(px, py);
-		else ctx.lineTo(px, py);
-	}
+	ctx.moveTo(x + 1.8 + OCT_X[0]! * r, y + 2.2 + OCT_Y[0]! * r);
+	for (let i = 1; i < 8; i++) ctx.lineTo(x + 1.8 + OCT_X[i]! * r, y + 2.2 + OCT_Y[i]! * r);
 	ctx.closePath();
 	ctx.fillStyle = palette.fgShadow;
 	ctx.fill();
 
 	// Ornate octagonal brass bezel
 	ctx.beginPath();
-	for (let i = 0; i < 8; i++) {
-		const a = (i / 8) * TAU + Math.PI / 8;
-		const rad = i % 2 === 0 ? r * 1.16 : r * 0.94;
-		const px = x + Math.cos(a) * rad;
-		const py = y + Math.sin(a) * rad;
-		if (i === 0) ctx.moveTo(px, py);
-		else ctx.lineTo(px, py);
-	}
+	ctx.moveTo(x + OCT_X[0]! * r, y + OCT_Y[0]! * r);
+	for (let i = 1; i < 8; i++) ctx.lineTo(x + OCT_X[i]! * r, y + OCT_Y[i]! * r);
 	ctx.closePath();
 	ctx.fillStyle = palette.brassBase;
 	ctx.fill();
@@ -536,14 +619,10 @@ export function drawNotableSocket(
 	}
 
 	// Hexagonal RPG frame
+	const outer = r * 1.08;
 	ctx.beginPath();
-	for (let i = 0; i < 6; i++) {
-		const a = (i / 6) * TAU - Math.PI / 6;
-		const px = x + Math.cos(a) * r * 1.08;
-		const py = y + Math.sin(a) * r * 1.08;
-		if (i === 0) ctx.moveTo(px, py);
-		else ctx.lineTo(px, py);
-	}
+	ctx.moveTo(x + NOTABLE_HEX_COS[0]! * outer, y + NOTABLE_HEX_SIN[0]! * outer);
+	for (let i = 1; i < 6; i++) ctx.lineTo(x + NOTABLE_HEX_COS[i]! * outer, y + NOTABLE_HEX_SIN[i]! * outer);
 	ctx.closePath();
 	ctx.fillStyle = active ? palette.brassBase : palette.metalShade;
 	ctx.fill();
@@ -552,14 +631,10 @@ export function drawNotableSocket(
 	ctx.stroke();
 
 	// Inner hex gem
+	const inner = r * 0.72;
 	ctx.beginPath();
-	for (let i = 0; i < 6; i++) {
-		const a = (i / 6) * TAU - Math.PI / 6;
-		const px = x + Math.cos(a) * r * 0.72;
-		const py = y + Math.sin(a) * r * 0.72;
-		if (i === 0) ctx.moveTo(px, py);
-		else ctx.lineTo(px, py);
-	}
+	ctx.moveTo(x + NOTABLE_HEX_COS[0]! * inner, y + NOTABLE_HEX_SIN[0]! * inner);
+	for (let i = 1; i < 6; i++) ctx.lineTo(x + NOTABLE_HEX_COS[i]! * inner, y + NOTABLE_HEX_SIN[i]! * inner);
 	ctx.closePath();
 	ctx.fillStyle = fill;
 	ctx.fill();
@@ -621,43 +696,30 @@ export function drawGearWheel(
 	palette: AtlasPalette,
 	depthPx: number,
 ) {
-	const outerR = r * 1.07;
-	const innerR = r * 0.96;
-
-	const traceGear = (ox: number, oy: number) => {
-		ctx.beginPath();
-		const step = TAU / teeth;
-		for (let i = 0; i < teeth; i++) {
-			const a0 = rot + i * step;
-			const a1 = a0 + step * 0.22;
-			const a2 = a0 + step * 0.48;
-			const a3 = a0 + step * 0.7;
-			const p0x = ox + Math.cos(a0) * innerR;
-			const p0y = oy + Math.sin(a0) * innerR;
-			if (i === 0) ctx.moveTo(p0x, p0y);
-			else ctx.lineTo(p0x, p0y);
-			ctx.lineTo(ox + Math.cos(a1) * outerR, oy + Math.sin(a1) * outerR);
-			ctx.lineTo(ox + Math.cos(a2) * outerR, oy + Math.sin(a2) * outerR);
-			ctx.lineTo(ox + Math.cos(a3) * innerR, oy + Math.sin(a3) * innerR);
-		}
-		ctx.closePath();
-	};
+	const { teethPath, spokesPath } = getUnitGearPaths(teeth, rot);
+	const invR = 1 / Math.max(1e-3, r);
 
 	if (depthPx > 1) {
-		traceGear(sx, sy + depthPx);
+		ctx.save();
+		ctx.translate(sx, sy + depthPx);
+		ctx.scale(r, r);
 		ctx.fillStyle = palette.metalShade;
-		ctx.fill();
+		ctx.fill(teethPath);
 		ctx.strokeStyle = palette.ink;
-		ctx.lineWidth = 1.1;
-		ctx.stroke();
+		ctx.lineWidth = 1.1 * invR;
+		ctx.stroke(teethPath);
+		ctx.restore();
 	}
 
-	traceGear(sx, sy);
+	ctx.save();
+	ctx.translate(sx, sy);
+	ctx.scale(r, r);
 	ctx.fillStyle = palette.metalBase;
-	ctx.fill();
+	ctx.fill(teethPath);
 	ctx.strokeStyle = active ? palette.brassHl : palette.ink;
-	ctx.lineWidth = active ? 1.6 : 1.2;
-	ctx.stroke();
+	ctx.lineWidth = (active ? 1.6 : 1.2) * invR;
+	ctx.stroke(teethPath);
+	ctx.restore();
 
 	ctx.beginPath();
 	ctx.arc(sx, sy, r * 0.85, 0, TAU);
@@ -669,15 +731,11 @@ export function drawGearWheel(
 
 	if (r >= 24) {
 		ctx.save();
+		ctx.translate(sx, sy);
+		ctx.scale(r, r);
 		ctx.strokeStyle = palette.brassShade + "7a";
-		ctx.lineWidth = Math.max(1.1, r * 0.04);
-		for (let k = 0; k < 6; k++) {
-			const a = rot + (k / 6) * TAU;
-			ctx.beginPath();
-			ctx.moveTo(sx + Math.cos(a) * r * 0.16, sy + Math.sin(a) * r * 0.16);
-			ctx.lineTo(sx + Math.cos(a) * r * 0.83, sy + Math.sin(a) * r * 0.83);
-			ctx.stroke();
-		}
+		ctx.lineWidth = Math.max(1.1 * invR, 0.04);
+		ctx.stroke(spokesPath);
 		ctx.restore();
 
 		ctx.beginPath();
@@ -686,6 +744,16 @@ export function drawGearWheel(
 		ctx.lineWidth = 2;
 		ctx.stroke();
 	}
+}
+
+export function traceHexTopPath(path: Path2D, sx: number, sy: number, r: number) {
+	path.moveTo(sx + HEX_COS[0]! * r, sy + HEX_ISO_SIN[0]! * r);
+	path.lineTo(sx + HEX_COS[1]! * r, sy + HEX_ISO_SIN[1]! * r);
+	path.lineTo(sx + HEX_COS[2]! * r, sy + HEX_ISO_SIN[2]! * r);
+	path.lineTo(sx + HEX_COS[3]! * r, sy + HEX_ISO_SIN[3]! * r);
+	path.lineTo(sx + HEX_COS[4]! * r, sy + HEX_ISO_SIN[4]! * r);
+	path.lineTo(sx + HEX_COS[5]! * r, sy + HEX_ISO_SIN[5]! * r);
+	path.closePath();
 }
 
 export function drawHexPrism(
@@ -700,63 +768,67 @@ export function drawHexPrism(
 	ink: string,
 	highlight: boolean,
 ) {
-	const squash = 0.72;
-	const px: number[] = [];
-	const py: number[] = [];
-	for (let i = 0; i < 6; i++) {
-		const a = (i / 6) * TAU + Math.PI / 6;
-		px.push(sx + Math.cos(a) * r);
-		py.push(sy + Math.sin(a) * r * squash);
-	}
+	const x0 = sx + HEX_COS[0]! * r;
+	const y0 = sy + HEX_ISO_SIN[0]! * r;
+	const x1 = sx + HEX_COS[1]! * r;
+	const y1 = sy + HEX_ISO_SIN[1]! * r;
+	const x2 = sx + HEX_COS[2]! * r;
+	const y2 = sy + HEX_ISO_SIN[2]! * r;
+	const x3 = sx + HEX_COS[3]! * r;
+	const y3 = sy + HEX_ISO_SIN[3]! * r;
+	const x4 = sx + HEX_COS[4]! * r;
+	const y4 = sy + HEX_ISO_SIN[4]! * r;
+	const x5 = sx + HEX_COS[5]! * r;
+	const y5 = sy + HEX_ISO_SIN[5]! * r;
+	const strokeWalls = r >= 7 && extrudeH >= 2.2;
 
 	if (extrudeH > 1.2) {
-		// Left-front wall (1 -> 2)
+		// Combined left-front + far-left wall (1 -> 2 -> 3) in one draw call
 		ctx.beginPath();
-		ctx.moveTo(px[1]!, py[1]!);
-		ctx.lineTo(px[2]!, py[2]!);
-		ctx.lineTo(px[2]!, py[2]! + extrudeH);
-		ctx.lineTo(px[1]!, py[1]! + extrudeH);
+		ctx.moveTo(x1, y1);
+		ctx.lineTo(x2, y2);
+		ctx.lineTo(x3, y3);
+		ctx.lineTo(x3, y3 + extrudeH);
+		ctx.lineTo(x2, y2 + extrudeH);
+		ctx.lineTo(x1, y1 + extrudeH);
 		ctx.closePath();
 		ctx.fillStyle = leftColor;
 		ctx.fill();
-		ctx.strokeStyle = ink;
-		ctx.lineWidth = 0.8;
-		ctx.stroke();
+		if (strokeWalls) {
+			ctx.strokeStyle = ink;
+			ctx.lineWidth = 0.8;
+			ctx.stroke();
+		}
 
 		// Right-front wall (0 -> 1)
 		ctx.beginPath();
-		ctx.moveTo(px[0]!, py[0]!);
-		ctx.lineTo(px[1]!, py[1]!);
-		ctx.lineTo(px[1]!, py[1]! + extrudeH);
-		ctx.lineTo(px[0]!, py[0]! + extrudeH);
+		ctx.moveTo(x0, y0);
+		ctx.lineTo(x1, y1);
+		ctx.lineTo(x1, y1 + extrudeH);
+		ctx.lineTo(x0, y0 + extrudeH);
 		ctx.closePath();
 		ctx.fillStyle = rightColor;
 		ctx.fill();
-		ctx.strokeStyle = ink;
-		ctx.lineWidth = 0.8;
-		ctx.stroke();
-
-		// Far-left side wall (2 -> 3)
-		ctx.beginPath();
-		ctx.moveTo(px[2]!, py[2]!);
-		ctx.lineTo(px[3]!, py[3]!);
-		ctx.lineTo(px[3]!, py[3]! + extrudeH);
-		ctx.lineTo(px[2]!, py[2]! + extrudeH);
-		ctx.closePath();
-		ctx.fillStyle = leftColor;
-		ctx.fill();
-		ctx.strokeStyle = ink;
-		ctx.lineWidth = 0.8;
-		ctx.stroke();
+		if (strokeWalls) {
+			ctx.strokeStyle = ink;
+			ctx.lineWidth = 0.8;
+			ctx.stroke();
+		}
 	}
 
 	ctx.beginPath();
-	ctx.moveTo(px[0]!, py[0]!);
-	for (let i = 1; i < 6; i++) ctx.lineTo(px[i]!, py[i]!);
+	ctx.moveTo(x0, y0);
+	ctx.lineTo(x1, y1);
+	ctx.lineTo(x2, y2);
+	ctx.lineTo(x3, y3);
+	ctx.lineTo(x4, y4);
+	ctx.lineTo(x5, y5);
 	ctx.closePath();
 	ctx.fillStyle = topColor;
 	ctx.fill();
-	ctx.strokeStyle = highlight ? CEL_RAMPS.volt.base : ink;
-	ctx.lineWidth = highlight ? 2 : 0.95;
-	ctx.stroke();
+	if (highlight || r >= 4.2) {
+		ctx.strokeStyle = highlight ? CEL_RAMPS.volt.base : ink;
+		ctx.lineWidth = highlight ? 2 : 0.95;
+		ctx.stroke();
+	}
 }

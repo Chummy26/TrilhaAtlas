@@ -188,7 +188,11 @@ interface ParsedCurriculum {
 	layers: ParsedArea[][];
 }
 
+const parsedCurriculumCache = new WeakMap<readonly SkillNode[], ParsedCurriculum>();
+
 function parseCurriculum(input: readonly SkillNode[]): ParsedCurriculum {
+	const cached = parsedCurriculumCache.get(input);
+	if (cached) return cached;
 	const nodes = [...input].sort(compareNodes);
 	const byId = new Map(nodes.map(node => [node.id, node]));
 	const prerequisites = new Map<string, string[]>();
@@ -330,7 +334,9 @@ function parseCurriculum(input: readonly SkillNode[]): ParsedCurriculum {
 		cursor += size;
 	}
 
-	return { nodes, byId, prerequisites, rank, roots, areaByNode, groups, progression, layers };
+	const result: ParsedCurriculum = { nodes, byId, prerequisites, rank, roots, areaByNode, groups, progression, layers };
+	parsedCurriculumCache.set(input, result);
+	return result;
 }
 
 function radiusForKind(kind: SkillNode["kind"]): number {
@@ -1019,7 +1025,7 @@ function buildClarityLayout(parsed: ParsedCurriculum) {
 
 // ─── Unified Entry Point ────────────────────────────────────────────────────
 
-export function layoutSkillMap(input: readonly SkillNode[], style: SkillMapStyle = "atlas") {
+function computeSkillMapLayout(input: readonly SkillNode[], style: SkillMapStyle) {
 	const parsed = parseCurriculum(input);
 	const { nodes, byId, prerequisites, roots, areaByNode, layers } = parsed;
 
@@ -1175,7 +1181,11 @@ export function layoutSkillMap(input: readonly SkillNode[], style: SkillMapStyle
 
 	const cellSize = 80;
 	const cells = new Map<string, string[]>();
+	const pointsSortedByY: SkillPoint[] = [];
+	const landmarks: SkillPoint[] = [];
 	for (const point of points.values()) {
+		pointsSortedByY.push(point);
+		if (point.kind !== "atom") landmarks.push(point);
 		const key = `${Math.floor(point.x / cellSize)},${Math.floor(point.y / cellSize)}`;
 		let bucket = cells.get(key);
 		if (!bucket) {
@@ -1184,11 +1194,14 @@ export function layoutSkillMap(input: readonly SkillNode[], style: SkillMapStyle
 		}
 		bucket.push(point.id);
 	}
+	pointsSortedByY.sort((a, b) => a.y - b.y || (a.z ?? 0) - (b.z ?? 0));
 	const spatialGrid = { cellSize, cells };
 
-	return {
+	const builtLayout = {
 		style,
 		points,
+		pointsSortedByY,
+		landmarks,
 		edges,
 		edgesByKind,
 		edgesByNode,
@@ -1205,6 +1218,22 @@ export function layoutSkillMap(input: readonly SkillNode[], style: SkillMapStyle
 		width,
 		height,
 	};
+	return builtLayout;
 }
 
-export type SkillLayout = ReturnType<typeof layoutSkillMap>;
+export type SkillLayout = ReturnType<typeof computeSkillMapLayout>;
+
+const layoutCache = new WeakMap<readonly SkillNode[], Map<SkillMapStyle, SkillLayout>>();
+
+export function layoutSkillMap(input: readonly SkillNode[], style: SkillMapStyle = "atlas"): SkillLayout {
+	let mapForInput = layoutCache.get(input);
+	const cached = mapForInput?.get(style);
+	if (cached) return cached;
+	const builtLayout = computeSkillMapLayout(input, style);
+	if (!mapForInput) {
+		mapForInput = new Map();
+		layoutCache.set(input, mapForInput);
+	}
+	mapForInput.set(style, builtLayout);
+	return builtLayout;
+}

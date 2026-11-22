@@ -52,7 +52,7 @@ import {
 import type { Evidence, Grade, LearnerEvent, LearnerSnapshot, PlanItem } from "../core/learner/types.ts";
 import { learnerViewOf, lessonBranchNodes, nodeBrief, type StudyNodeBrief } from "../core/study/projection.ts";
 import { buildStudySyllabus } from "../core/study/syllabus.ts";
-import { isSkillMapStyle, pickRandomSkillMapStyle, type SkillMapStyle } from "../core/study/map-style.ts";
+import { DEFAULT_SKILL_MAP_STYLE, isSkillMapStyle, type SkillMapStyle } from "../core/study/map-style.ts";
 import type {
 	LessonContinuityMeta,
 	StudyDomainList,
@@ -1102,16 +1102,7 @@ export function studyMap() {
 	if (!cur) throw new StudyError(404, "Currículo indisponível.");
 	const todayPlan = computeTodayPlan({ id, manifest, profile, cur, at: new Date().toISOString(), runReinforcementQueue: true });
 	const map = skillMap(cur.snapshot, cur.view, todayPlan.snap, manifest.title.pt);
-	let mapStyle = manifest.mapStyle;
-	if (!mapStyle) {
-		mapStyle = pickRandomSkillMapStyle();
-		try {
-			studyDomains().updateManifest(id, (current) => (current.mapStyle ? current : { ...current, mapStyle }));
-		} catch {
-			// Ignore read-only workspace edge cases and keep the resolved style in memory.
-		}
-	}
-	map.mapStyle = mapStyle;
+	map.mapStyle = manifest.mapStyle ?? DEFAULT_SKILL_MAP_STYLE;
 	map.next = todayPlan.next?.nodeId;
 	if (todayPlan.next?.kind === "remediate") map.reinforcement = todayPlan.next.reason;
 	const latest = todayPlan.events.findLast((e): e is Exposure => e.kind === "exposure" && !e.exploratory && e.source === "ai_lesson" && cur.view.nodes.has(e.nodeId));

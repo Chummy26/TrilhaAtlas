@@ -1,12 +1,15 @@
 "use client";
 
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import { useAppearance } from "@/components/settings/appearance";
 import { useI18n } from "@/components/i18n";
 import { Icon } from "@/components/icons/icon";
+import { INTERACTION_LAYER_Z_BASE } from "@/components/host-dialog";
+import { usePopoverDismiss } from "@/components/popover-dismiss";
 import {
+	DEFAULT_SKILL_MAP_STYLE,
 	SKILL_MAP_STYLES,
-	defaultSkillMapStyleForDomain,
 	isSkillMapStyle,
 	layoutSkillMap,
 	type SkillMap,
@@ -14,7 +17,7 @@ import {
 	type SkillPoint,
 } from "@/src/core";
 import { MapStyleIcon } from "./map-style-icons.tsx";
-import { drawSkillMap } from "./skill-canvas-draw.ts";
+import { buildStaticLayerCache, drawSkillMap } from "./skill-canvas-draw.ts";
 import {
 	BOTTOM_GUTTER,
 	MINIMAP_H,
@@ -32,10 +35,16 @@ import {
 	type CanvasStrings,
 	type MinimapCache,
 	type Pixel,
+	type StaticLayerCache,
 	type Viewport,
 } from "./skill-canvas-palette.ts";
 
-type MapControls = { scale: (factor: number) => void; reset: () => void; reveal: (id: string, focus?: boolean) => void };
+type MapControls = {
+	scale: (factor: number) => void;
+	reset: () => void;
+	reveal: (id: string, focus?: boolean) => void;
+	setDepthLive: (next: number) => void;
+};
 
 interface AnchorZoomAnim {
 	startLog: number;
@@ -89,14 +98,21 @@ export const SkillCanvas = memo(function SkillCanvas({
 }) {
 	const { colors, resolvedMode } = useAppearance();
 	const { t } = useI18n();
-	const initialStyle: SkillMapStyle = map.mapStyle ?? defaultSkillMapStyleForDomain(map.domain);
+	const initialStyle: SkillMapStyle = map.mapStyle ?? DEFAULT_SKILL_MAP_STYLE;
 	const [style, setStyle] = useState<SkillMapStyle>(initialStyle);
+	const [themeMenuOpen, setThemeMenuOpen] = useState(false);
 	const [depth, setDepth] = useState(0.62);
 	const depthRef = useRef(depth);
 	depthRef.current = depth;
 
+	const themeMenuRef = useRef<HTMLDivElement>(null);
+	const themePanelRef = useRef<HTMLDivElement>(null);
+	const closeThemeMenu = useCallback(() => setThemeMenuOpen(false), []);
+	const themeLayer = usePopoverDismiss(themeMenuRef, themeMenuOpen, closeThemeMenu, { layerRootRef: themePanelRef });
+
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const zoomLabelRef = useRef<HTMLSpanElement>(null);
+	const depthInputRef = useRef<HTMLInputElement>(null);
 	const controls = useRef<MapControls>(null);
 	const camera = useRef<Camera | undefined>(undefined);
 	const atOverview = useRef(true);
@@ -121,7 +137,7 @@ export const SkillCanvas = memo(function SkillCanvas({
 		} catch {
 			// Ignore storage errors in private contexts.
 		}
-		setStyle(defaultSkillMapStyleForDomain(map.domain));
+		setStyle(DEFAULT_SKILL_MAP_STYLE);
 	}, [map.domain, map.mapStyle]);
 
 	const handleSelectStyle = useCallback(
@@ -174,11 +190,14 @@ export const SkillCanvas = memo(function SkillCanvas({
 		const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 		const textCache = new TextMetricsCache();
 		let minimapCache: MinimapCache | null = null;
+		let staticLayerCache: StaticLayerCache | null = null;
 		let canvasRect: DOMRect | null = null;
 		let lastZoomPct = 100;
 		let view: Viewport = { width: 0, height: 0, ratio: 1 };
 		let frame = 0;
 		let animFrame = 0;
+		let settleTimer = 0;
+		let interacting = false;
 		let zoomAnim: AnchorZoomAnim | null = null;
 		let flyAnim: FlyAnim | null = null;
 		let hovered: string | undefined;
@@ -198,6 +217,25 @@ export const SkillCanvas = memo(function SkillCanvas({
 				minimapCache = buildMinimapCache(layout, nodes, palette, anchorId, view.ratio);
 			}
 			return minimapCache;
+		}
+
+		function getStaticLayer(): StaticLayerCache | null {
+			const wantedDepthKey = is25DStyle(style) ? Math.round(depthRef.current * 20) : 0;
+			if (!staticLayerCache || staticLayerCache.depthKey !== wantedDepthKey || staticLayerCache.ratio !== view.ratio) {
+				staticLayerCache = buildStaticLayerCache(layout, nodes, zoneStats, palette, depthRef.current, view.ratio);
+			}
+			return staticLayerCache;
+		}
+
+		function scheduleSettle() {
+			interacting = true;
+			if (settleTimer) window.clearTimeout(settleTimer);
+			settleTimer = window.setTimeout(() => {
+				settleTimer = 0;
+				interacting = false;
+				draggingDepth = false;
+				redraw();
+			}, 110);
 		}
 
 		function cancelAnim() {
@@ -229,28 +267,34 @@ export const SkillCanvas = memo(function SkillCanvas({
 
 		function renderNow() {
 			if (!camera.current) return;
-			const visible = String(
-				drawSkillMap({
-					ctx: ctx!,
-					layout,
-					nodes,
-					zoneStats,
-					view,
-					camera: camera.current,
-					depth: depthRef.current,
-					selected: active.current,
-					hovered,
-					current: anchorId,
-					palette,
-					strings,
-					fontFamily,
-					textCache,
-					getMinimap,
-				}),
-			);
-			if (surface!.dataset.visibleNodeCount !== visible) surface!.dataset.visibleNodeCount = visible;
-			const mode = atOverview.current ? "overview" : "explore";
-			if (surface!.dataset.cameraMode !== mode) surface!.dataset.cameraMode = mode;
+			const activeInteraction = interacting || draggingMinimap || pointers.size > 0 || Boolean(zoomAnim || flyAnim);
+			const visibleCount = drawSkillMap({
+				ctx: ctx!,
+				layout,
+				nodes,
+				zoneStats,
+				view,
+				camera: camera.current,
+				depth: depthRef.current,
+				selected: active.current,
+				hovered,
+				current: anchorId,
+				palette,
+				strings,
+				fontFamily,
+				textCache,
+				getMinimap,
+				getStaticLayer,
+				isInteracting: activeInteraction,
+				isDraggingDepth: draggingDepth,
+			});
+			// Avoid mutating DOM dataset attributes every 16ms during active pan/zoom frames
+			if (!activeInteraction) {
+				const visible = String(visibleCount);
+				if (surface!.dataset.visibleNodeCount !== visible) surface!.dataset.visibleNodeCount = visible;
+				const mode = atOverview.current ? "overview" : "explore";
+				if (surface!.dataset.cameraMode !== mode) surface!.dataset.cameraMode = mode;
+			}
 			syncZoomLabel();
 		}
 
@@ -303,6 +347,8 @@ export const SkillCanvas = memo(function SkillCanvas({
 				renderNow();
 				if (zoomAnim || flyAnim) {
 					animFrame = requestAnimationFrame(tick);
+				} else {
+					scheduleSettle();
 				}
 			};
 			animFrame = requestAnimationFrame(tick);
@@ -400,6 +446,7 @@ export const SkillCanvas = memo(function SkillCanvas({
 					y: anchor.y - anchorWY * nextZoom,
 					zoom: nextZoom,
 				};
+				scheduleSettle();
 				redraw();
 				return;
 			}
@@ -423,6 +470,7 @@ export const SkillCanvas = memo(function SkillCanvas({
 			camera.current.x += dx;
 			camera.current.y += dy;
 			atOverview.current = false;
+			scheduleSettle();
 			redraw();
 		}
 
@@ -461,6 +509,12 @@ export const SkillCanvas = memo(function SkillCanvas({
 		controls.current = {
 			reset: () => overview(true),
 			scale,
+			setDepthLive(next) {
+				depthRef.current = next;
+				draggingDepth = true;
+				scheduleSettle();
+				redraw();
+			},
 			reveal(id, focus) {
 				const point = layout.points.get(id);
 				const current = camera.current;
@@ -585,7 +639,7 @@ export const SkillCanvas = memo(function SkillCanvas({
 				down = point;
 				const next = Math.max(0, Math.min(1, depthRef.current - dy * 0.004));
 				depthRef.current = next;
-				setDepth(next);
+				if (depthInputRef.current) depthInputRef.current.value = String(next);
 				redraw();
 				return;
 			}
@@ -635,10 +689,13 @@ export const SkillCanvas = memo(function SkillCanvas({
 				draggingDepth = false;
 				down = undefined;
 				surface!.style.cursor = hovered ? "pointer" : "grab";
+				setDepth(depthRef.current);
+				scheduleSettle();
 				return;
 			}
 			if (draggingMinimap) {
 				draggingMinimap = false;
+				scheduleSettle();
 				return;
 			}
 			if (!pointers.delete(event.pointerId)) return;
@@ -646,6 +703,8 @@ export const SkillCanvas = memo(function SkillCanvas({
 			if (event.type === "pointerup" && !dragged) {
 				const target = hit(location(event), event.pointerType === "touch");
 				if (target) pick.current(target);
+			} else if (dragged) {
+				scheduleSettle();
 			}
 			down = undefined;
 			surface!.style.cursor = hovered ? "pointer" : "grab";
@@ -677,7 +736,9 @@ export const SkillCanvas = memo(function SkillCanvas({
 			else if (event.deltaMode === 2) dy *= view.height;
 			dy = Math.max(-180, Math.min(180, dy));
 			const sensitivity = event.ctrlKey ? 0.0085 : 0.0022;
-			scaleAt(location(event), Math.exp(-dy * sensitivity), !event.ctrlKey);
+			// Precision trackpads send smooth continuous micro-deltas; ease only discrete mousewheel notches
+			const discreteNotch = !event.ctrlKey && (event.deltaMode === 1 || Math.abs(event.deltaY) >= 48);
+			scaleAt(location(event), Math.exp(-dy * sensitivity), discreteNotch);
 		}
 
 		function keyboard(event: KeyboardEvent) {
@@ -748,15 +809,20 @@ export const SkillCanvas = memo(function SkillCanvas({
 			surface.removeEventListener("keydown", keyboard);
 			cancelAnimationFrame(frame);
 			cancelAnim();
+			if (settleTimer) window.clearTimeout(settleTimer);
+			staticLayerCache = null;
+			minimapCache = null;
 			controls.current = null;
 			textCache.clear();
 		};
 	}, [layout, nodes, zoneStats, map.domain, anchorId, palette, strings, style]);
 
-	// Redraw smoothly when the 2.5D relief slider moves without resetting camera
-	useEffect(() => {
-		controls.current?.reveal(active.current, false);
-	}, [depth]);
+	// Redraw smoothly when the 2.5D relief slider moves without resetting camera or rebuilding cache per tick
+	const handleDepthInput = useCallback((next: number) => {
+		depthRef.current = next;
+		setDepth(next);
+		controls.current?.setDepthLive(next);
+	}, []);
 
 	useEffect(() => {
 		active.current = selected;
@@ -765,36 +831,64 @@ export const SkillCanvas = memo(function SkillCanvas({
 	}, [selected, locate]);
 
 	return (
-		<div className="cel-card overflow-hidden">
-			{/* Dedicated top toolbar: 5 visual styles with hand-drawn SVGs + camera & 2.5D controls */}
-			<div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/65 bg-card/95 px-3 py-2">
-				<div
-					role="group"
-					aria-label={t("map.canvas.styleSelectorAria")}
-					className="flex flex-wrap items-center gap-1"
-				>
-					{SKILL_MAP_STYLES.map((item) => {
-						const activeStyle = item === style;
-						const label = t(STYLE_LABEL_KEY[item]);
-						return (
-							<button
-								key={item}
-								type="button"
-								aria-pressed={activeStyle}
-								title={label}
-								onClick={() => handleSelectStyle(item)}
-								className={
-									"inline-flex items-center gap-1.5 rounded-[9px] border px-2.5 py-1 text-xs font-semibold transition-colors " +
-									(activeStyle
-										? "border-transparent bg-[var(--cel-accent,var(--lh-accent))] text-[var(--cel-on-fill,#07070b)] shadow-xs"
-										: "border-transparent text-muted-foreground hover:border-border/70 hover:bg-accent/70 hover:text-foreground")
-								}
-							>
-								<MapStyleIcon style={item} size={15} className="shrink-0" />
-								<span>{label}</span>
-							</button>
-						);
-					})}
+		<div className="cel-card">
+			{/* Dedicated top toolbar: tree theme picker button + camera & 2.5D controls */}
+			<div className="flex flex-wrap items-center justify-between gap-2 rounded-t-[inherit] border-b border-border/65 bg-card/95 px-3 py-2">
+				<div ref={themeMenuRef} className="relative">
+					<button
+						type="button"
+						aria-haspopup="menu"
+						aria-expanded={themeMenuOpen}
+						aria-label={`${t("map.canvas.styleButton")}: ${t(STYLE_LABEL_KEY[style])}`}
+						onClick={() => setThemeMenuOpen((open) => !open)}
+						className="cel-button min-h-8 gap-1.5 px-2.5 py-1 text-xs"
+					>
+						<MapStyleIcon style={style} size={15} className="shrink-0" />
+						<span className="font-semibold">{t("map.canvas.styleButton")}</span>
+						<span className="text-muted-foreground">· {t(STYLE_LABEL_KEY[style])}</span>
+						<ChevronDownIcon
+							aria-hidden="true"
+							className={`size-3.5 text-muted-foreground transition-transform ${themeMenuOpen ? "rotate-180" : ""}`}
+						/>
+					</button>
+					{themeMenuOpen && (
+						<div
+							ref={themePanelRef}
+							role="menu"
+							aria-label={t("map.canvas.styleSelectorAria")}
+							style={{ zIndex: INTERACTION_LAYER_Z_BASE + themeLayer.order }}
+							className="absolute left-0 top-full mt-1.5 min-w-56 rounded-xl border border-border/80 bg-card p-1.5 shadow-xl"
+						>
+							{SKILL_MAP_STYLES.map((item) => {
+								const activeStyle = item === style;
+								const label = t(STYLE_LABEL_KEY[item]);
+								return (
+									<button
+										key={item}
+										type="button"
+										role="menuitemradio"
+										aria-checked={activeStyle}
+										onClick={() => {
+											handleSelectStyle(item);
+											setThemeMenuOpen(false);
+										}}
+										className={
+											"flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-semibold transition-colors " +
+											(activeStyle
+												? "bg-[var(--cel-accent,var(--lh-accent))] text-[var(--cel-on-fill,#07070b)]"
+												: "text-foreground hover:bg-accent/80")
+										}
+									>
+										<span className="inline-flex items-center gap-2">
+											<MapStyleIcon style={item} size={16} className="shrink-0" />
+											<span>{label}</span>
+										</span>
+										{activeStyle && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0" />}
+									</button>
+								);
+							})}
+						</div>
+					)}
 				</div>
 
 				<div className="flex flex-wrap items-center justify-end gap-1.5">
@@ -805,13 +899,14 @@ export const SkillCanvas = memo(function SkillCanvas({
 						>
 							<span>{t("map.canvas.depthShort")}</span>
 							<input
+								ref={depthInputRef}
 								type="range"
 								min={0}
 								max={1}
 								step={0.05}
 								value={depth}
 								aria-label={t("map.canvas.depthAria")}
-								onChange={(e) => setDepth(Number(e.target.value))}
+								onChange={(e) => handleDepthInput(Number(e.target.value))}
 								className="w-14 accent-[var(--cel-accent,var(--lh-accent))]"
 							/>
 						</label>
@@ -869,7 +964,7 @@ export const SkillCanvas = memo(function SkillCanvas({
 
 			{/* Canvas stage */}
 			<div
-				className="relative overflow-hidden"
+				className="relative overflow-hidden rounded-b-[inherit]"
 				style={{
 					backgroundImage: "radial-gradient(color-mix(in srgb, var(--border) 22%, transparent) 1px, transparent 1px)",
 					backgroundSize: "16px 16px",

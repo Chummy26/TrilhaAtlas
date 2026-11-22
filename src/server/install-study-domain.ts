@@ -4,7 +4,7 @@ import { PATHS } from "../../config.ts";
 import { applySeedFiles } from "../core/curriculum/ledger.ts";
 import type { CurriculumSeedFile } from "../core/curriculum/types.ts";
 import { builtinManifests, customManifest } from "../core/domains/defaults.ts";
-import { pickRandomSkillMapStyle } from "../core/study/map-style.ts";
+import { DEFAULT_SKILL_MAP_STYLE } from "../core/study/map-style.ts";
 import { curriculumDir, domainDir, domainsDir } from "../core/domains/paths.ts";
 import { withCurriculumLock } from "./curriculum-migration.ts";
 import { createDomainsStore } from "../store/domains-store.ts";
@@ -19,7 +19,7 @@ export function installStudyDomain(files: CurriculumSeedFile[], authoring?: { to
 	if (!result.ok) throw new Error(result.errors.map(error => error.message).slice(0, 6).join("\n"));
 	const { snapshot, envelope } = result;
 	const root = Object.values(snapshot.items).find(item => item.parentId === null)!;
-	const manifest = customManifest({ id: snapshot.domainId, nodePrefix: root.id, title: root.title, createdAt, mapStyle: pickRandomSkillMapStyle() });
+	const manifest = customManifest({ id: snapshot.domainId, nodePrefix: root.id, title: root.title, createdAt, mapStyle: DEFAULT_SKILL_MAP_STYLE });
 	const sources = new Map<string, (typeof files)[number]["sources"][number]>();
 	for (const source of files.flatMap(file => file.sources)) {
 		const previous = sources.get(source.id);

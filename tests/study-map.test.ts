@@ -84,11 +84,12 @@ it("keeps the whole domain in the atlas as real evidence changes the learner's p
 	assert.ok(english.nodes.every(n => !n.completed && !n.inProgress));
 });
 
-it("lays out all 5 tree styles cleanly without overlaps and persists random/custom style per domain", () => {
+it("lays out all 5 tree styles cleanly without overlaps and defaults new domains to atlas", () => {
 	switchStudyDomain("english");
 	const english = studyMap();
+	assert.equal(english.mapStyle, "atlas", "new domain defaults to atlas map style");
 	assert.ok(isSkillMapStyle(english.mapStyle), "new domain receives a valid default map style");
-	assert.equal(studyMap().mapStyle, english.mapStyle, "persisted style stays stable across reads");
+	assert.equal(studyMap().mapStyle, english.mapStyle, "default style stays stable across reads");
 
 	for (const style of SKILL_MAP_STYLES) {
 		const layout = layoutSkillMap(english.nodes, style);
@@ -122,6 +123,7 @@ it("lays out all 5 tree styles cleanly without overlaps and persists random/cust
 
 	switchStudyDomain("electronics");
 	const electronics = studyMap();
+	assert.equal(electronics.mapStyle, "atlas");
 	assert.ok(isSkillMapStyle(electronics.mapStyle));
 	for (const style of SKILL_MAP_STYLES) {
 		const layout = layoutSkillMap(electronics.nodes, style);
