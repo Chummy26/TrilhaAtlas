@@ -149,7 +149,7 @@ registerHooks({resolve(specifier,context,next){ const result=next(specifier,cont
 	};
 
 	console.log(`[smoke-server] runtime: ${ELECTRON_MODE ? "Electron bundled Node" : "host Node"}`);
-	const child = spawn(RUNTIME, [...imports, server], {
+	const child = spawn(RUNTIME, [...(ELECTRON_MODE ? ["--use-system-ca"] : []), ...imports, server], {
 		cwd: standalone,
 		env: {
 			...probeEnv(process.env, home),

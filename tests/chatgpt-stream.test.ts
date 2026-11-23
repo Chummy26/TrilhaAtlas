@@ -223,6 +223,20 @@ test("case-insensitive Authorization overrides including null are refused before
 	assert.equal(requests.length, before);
 });
 
+test("TLS chain errors surface an actionable redacted message without leaking internal cause text", async () => {
+	const engine = piEngineForSpec({ provider: "chatgpt", id: model.id }, false);
+	const result = await engine.streamFn(engine.model, context(), {
+		fetch: async () => {
+			const cause = Object.assign(new Error("private tls detail"), { code: "SELF_SIGNED_CERT_IN_CHAIN" });
+			throw new TypeError("fetch failed", { cause });
+		},
+	}).result();
+	assert.equal(result.stopReason, "error");
+	assert.match(result.errorMessage ?? "", /TLS certificate verification failed/i);
+	assert.match(result.errorMessage ?? "", /No API-key fallback was used/);
+	assert(!result.errorMessage?.includes("private tls detail"));
+});
+
 test("full credential-storage invalidation aborts foreground and background controllers and clears capabilities", () => {
 	const foreground = chatGPTAbortController(false), background = chatGPTAbortController(true);
 	ipc({ channel: "lh:chatgpt", kind: "state", stamp: { epoch: 2, authorityRevision: 2, revision: 3 }, status: { ...status, available: false }, invalidate: "all" });

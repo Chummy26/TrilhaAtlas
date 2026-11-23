@@ -17,7 +17,19 @@ export function chatGPTStreamError(message: string): string {
 	if (/cancel|abort|closed|disconnect/i.test(message)) return "ChatGPT request cancelled or connection closed. No API-key fallback was used.";
 	if (/catalog|model/.test(message)) return "The selected model is unavailable for this ChatGPT account. Refresh Providers and explicitly choose an available model. No API-key fallback was used.";
 	if (/incomplete|terminal|interrupted|stop reason/.test(message)) return "ChatGPT returned an incomplete response. Retry when ready; no API-key fallback was used.";
+	if (/SELF_SIGNED_CERT_IN_CHAIN|UNABLE_TO_VERIFY_LEAF_SIGNATURE|DEPTH_ZERO_SELF_SIGNED_CERT|ERR_TLS_CERT/i.test(message)) {
+		return "ChatGPT TLS certificate verification failed (system CA store required). Restart the app or check your proxy/antivirus certificate. No API-key fallback was used.";
+	}
 	return "ChatGPT request failed. Check your connection and ChatGPT usage, then retry. No API-key fallback was used.";
+}
+
+function errorDetail(err: unknown): string {
+	if (!(err instanceof Error)) return "";
+	const cause = (err as Error & { cause?: { code?: unknown; message?: unknown } }).cause;
+	const parts = [err.message];
+	if (typeof cause?.code === "string" && cause.code) parts.push(cause.code);
+	else if (typeof cause?.message === "string" && cause.message) parts.push(cause.message);
+	return parts.filter(Boolean).join(" · ");
 }
 
 /** Restrict the body at the final payload seam, even if caller samplingParams add fields. */
@@ -56,6 +68,7 @@ export function chatGPTStream(background: () => boolean, lifecycle?: ChatGPTDisp
 			let partial = empty(logicalModel);
 			let completed = false;
 			let failure = "";
+			let transportError = "";
 			let scope: AdmissionScope | undefined;
 			let committed = false;
 			let terminal = false;
@@ -76,12 +89,17 @@ export function chatGPTStream(background: () => boolean, lifecycle?: ChatGPTDisp
 					signal,
 					maxRetries: 0,
 					headers: { "OpenAI-Beta": null, ...options?.headers },
-					fetch: (input, init) => {
+					fetch: async (input, init) => {
 						check();
 						if (committed) throw new Error("ChatGPT does not retry admitted requests");
 						lifecycle?.beforeDispatch(scope!);
 						committed = true;
-						return delegate(input, init);
+						try {
+							return await delegate(input, init);
+						} catch (fetchErr) {
+							transportError = errorDetail(fetchErr);
+							throw fetchErr;
+						}
 					},
 					onPayload: async (raw, model) => {
 						const replacement = await options?.onPayload?.(raw, model);
@@ -115,7 +133,11 @@ export function chatGPTStream(background: () => boolean, lifecycle?: ChatGPTDisp
 					markUnadmittedUsage(partial.usage);
 					lifecycle?.noDispatch(await chatGPTDenial(scope, controller, options?.signal?.aborted === true, purpose));
 				}
-				partial = { ...partial, stopReason: signal.aborted ? "aborted" : "error", errorMessage: chatGPTStreamError(err instanceof Error ? err.message : "") };
+				const detail = [transportError, errorDetail(err)].filter(Boolean).join(" · ");
+				if (!signal.aborted && process.env.NODE_ENV !== "test") {
+					console.error(`[chatgpt-stream] request failed (model=${logicalModel.id}, committed=${committed}): ${detail}`);
+				}
+				partial = { ...partial, stopReason: signal.aborted ? "aborted" : "error", errorMessage: chatGPTStreamError(detail) };
 				output.push({ type: "error", reason: partial.stopReason as "error" | "aborted", error: partial });
 			} finally { release(); output.end(); }
 		})();

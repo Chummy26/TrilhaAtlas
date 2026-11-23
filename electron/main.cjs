@@ -260,13 +260,16 @@ function log(line, { sync = false } = {}) {
 
 function startServer(port) {
 	return new Promise((resolve, reject) => {
+		const serverArgs = ["--use-system-ca"];
+		// Only the macOS backend needs this: Next's native title setter
+		// otherwise checks this Node-mode process in as a foreground app.
+		if (process.platform === "darwin") {
+			serverArgs.push("--require", path.join(process.resourcesPath, "server-title-guard.cjs"));
+		}
+		serverArgs.push(serverEntry());
 		const child = spawn(
 			process.execPath,
-			// Only the macOS backend needs this: Next's native title setter
-			// otherwise checks this Node-mode process in as a foreground app.
-			process.platform === "darwin"
-				? ["--require", path.join(process.resourcesPath, "server-title-guard.cjs"), serverEntry()]
-				: [serverEntry()],
+			serverArgs,
 			{
 				cwd: path.dirname(serverEntry()),
 				env: {
