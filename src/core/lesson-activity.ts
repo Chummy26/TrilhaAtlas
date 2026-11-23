@@ -14,11 +14,13 @@ export type ComicScene = (typeof comicScenes)[number];
 export const comicMoods = ["friendly", "curious", "surprised", "thinking", "happy", "confused"] as const;
 export type ComicMood = (typeof comicMoods)[number];
 
+const comicSceneSchema = Type.Union([
+	Type.Literal("reception"), Type.Literal("cafe"), Type.Literal("classroom"), Type.Literal("home"),
+	Type.Literal("work"), Type.Literal("street"), Type.Literal("lab"), Type.Literal("park"),
+], { description: "Illustrated background setting." });
+
 const comicPanelSchema = Type.Object({
-	scene: Type.Optional(Type.Union([
-		Type.Literal("reception"), Type.Literal("cafe"), Type.Literal("classroom"), Type.Literal("home"),
-		Type.Literal("work"), Type.Literal("street"), Type.Literal("lab"), Type.Literal("park"),
-	], { description: "Illustrated background setting for this comic panel." })),
+	scene: Type.Optional(comicSceneSchema),
 	speaker: Type.String({ minLength: 1, maxLength: 40, description: "Short name or role of the main character speaking." }),
 	mood: Type.Optional(Type.Union([
 		Type.Literal("friendly"), Type.Literal("curious"), Type.Literal("surprised"),
@@ -32,6 +34,19 @@ const comicPanelSchema = Type.Object({
 });
 export type ComicPanel = Static<typeof comicPanelSchema>;
 
+export const roleplaySchema = Type.Object({
+	persona: Type.String({ description: "Name and role of the interlocutor (e.g., Senior Engineer, Client, Hotel Receptionist)" }),
+	learnerRole: Type.String({ description: "Role the learner plays in the scenario" }),
+	scenario: Type.String({ description: "Concise 1-3 sentence situation and realistic dilemma" }),
+	openingLine: Type.String({ description: "First in-character line spoken by the persona to kick off the exchange" }),
+	goal: Type.String({ description: "Observable objective the learner should accomplish in 2-4 turns" }),
+	criteria: Type.Array(Type.String(), { minItems: 2, maxItems: 4, description: "2-4 rubric criteria used to evaluate the learner at the end" }),
+	minutes: Type.Optional(Type.Number({ minimum: 2, maximum: 15, description: "Estimated scenario duration in minutes (default 5)" })),
+	scene: Type.Optional(comicSceneSchema),
+	suggestedMoves: Type.Optional(Type.Array(Type.String(), { minItems: 2, maxItems: 3, description: "Optional 2-3 starter moves/approaches to lower friction" })),
+});
+export type RoleplaySpec = Static<typeof roleplaySchema>;
+
 const comicPanels = Type.Array(comicPanelSchema, { minItems: 2, maxItems: 6 });
 const speechLanguage = Type.Optional(Type.String({
 	pattern: "^[a-z]{2,3}(-[A-Za-z]{2,8}){0,2}$",
@@ -43,10 +58,11 @@ const presentation = Type.Optional(Type.Union([Type.Literal("inline"), Type.Lite
 }));
 
 export const bookActivitySchema = Type.Object({
-	kind: Type.Union([Type.Literal("comic"), Type.Literal("sequence"), Type.Literal("comparison"), Type.Literal("diagram")]),
+	kind: Type.Union([Type.Literal("comic"), Type.Literal("roleplay"), Type.Literal("sequence"), Type.Literal("comparison"), Type.Literal("diagram")]),
 	title: lessonTitle,
 	steps: Type.Optional(lessonSteps),
 	panels: Type.Optional(comicPanels),
+	roleplay: Type.Optional(roleplaySchema),
 	language: speechLanguage,
 	source: lessonSource,
 	presentation,
@@ -54,13 +70,14 @@ export const bookActivitySchema = Type.Object({
 
 export const activitySchema = Type.Object({
 	kind: Type.Union([
-		Type.Literal("comic"),
+		Type.Literal("comic"), Type.Literal("roleplay"),
 		Type.Literal("circuit"), Type.Literal("divider"), Type.Literal("falstad"), Type.Literal("pronunciation"), Type.Literal("notation"), Type.Literal("timeline"),
 		Type.Literal("sequence"), Type.Literal("comparison"), Type.Literal("diagram"),
 	]),
 	title: Type.Optional(lessonTitle),
 	steps: Type.Optional(lessonSteps),
 	panels: Type.Optional(comicPanels),
+	roleplay: Type.Optional(roleplaySchema),
 	language: speechLanguage,
 	source: Type.Optional(lessonSource),
 	presentation,
@@ -81,6 +98,41 @@ export const falstadExperiments = {
 	rectifier: { file: "fullrectf.txt", title: "Ponte retificadora com filtro", task: "Observe a tensão sobre a carga durante dois ciclos. Dobre a capacitância e compare a diferença entre a tensão máxima e a mínima." },
 } as const;
 
+function dedupeTrimmed(items: readonly string[]): string[] {
+	const seen = new Set<string>();
+	const out: string[] = [];
+	for (const item of items) {
+		const trimmed = item.trim();
+		if (!trimmed) continue;
+		const key = trimmed.toLowerCase();
+		if (seen.has(key)) continue;
+		seen.add(key);
+		out.push(trimmed);
+	}
+	return out;
+}
+
+/** Build a structured in-character learner move prompt for the live tutor chat. */
+export function formatRoleplayMovePrompt(activityTitle: string, move: string, persona?: string): string {
+	const cleanTitle = activityTitle.trim();
+	const cleanMove = move.trim();
+	const roleHint = persona?.trim()
+		? `Responda em personagem como ${persona.trim()} em 1 turno conciso, sem revelar a resposta ideal.`
+		: "Responda em personagem em 1 turno conciso, sem revelar a resposta ideal.";
+	return `[Role play: ${cleanTitle}]\nMinha resposta em personagem: "${cleanMove}"\n\n(${roleHint})`;
+}
+
+/** Build a structured prompt requesting closure and rubric evaluation for a roleplay scenario. */
+export function formatRoleplayClosePrompt(activityTitle: string, criteria: readonly string[]): string {
+	const cleanTitle = activityTitle.trim();
+	const rubricLines = criteria
+		.map((c) => c.trim())
+		.filter(Boolean)
+		.map((c, i) => `${i + 1}. ${c}`)
+		.join("\n");
+	return `[Role play: ${cleanTitle} — encerrar e avaliar]\nPor favor, encerre o role play agora e avalie minhas respostas critério por critério segundo a rubrica:\n${rubricLines}`;
+}
+
 export type LessonActivity = Static<typeof activitySchema>;
 export function parseLessonActivity(raw: unknown): LessonActivity | undefined {
 	if (!Value.Check(activitySchema, raw)) return;
@@ -97,6 +149,46 @@ export function parseLessonActivity(raw: unknown): LessonActivity | undefined {
 	if (raw.kind === "comic") {
 		if (!raw.title?.trim() || !raw.source?.trim() || !raw.panels?.length) return;
 		if (!raw.panels.every(panel => panel.speaker.trim() && panel.speech.trim() && panel.caption.trim())) return;
+	}
+	if (raw.kind === "roleplay") {
+		const title = raw.title?.trim();
+		const source = raw.source?.trim();
+		const rp = raw.roleplay;
+		if (!title || !source || !rp) return;
+		const persona = rp.persona.trim();
+		const learnerRole = rp.learnerRole.trim();
+		const scenario = rp.scenario.trim();
+		const openingLine = rp.openingLine.trim();
+		const goal = rp.goal.trim();
+		if (!persona || !learnerRole || !scenario || !openingLine || !goal) return;
+		const criteria = dedupeTrimmed(rp.criteria);
+		if (criteria.length < 2 || criteria.length > 4) return;
+		let minutes = 5;
+		if (rp.minutes !== undefined) {
+			if (!Number.isFinite(rp.minutes) || rp.minutes < 2 || rp.minutes > 15) return;
+			minutes = rp.minutes;
+		}
+		let suggestedMoves: string[] | undefined;
+		if (rp.suggestedMoves !== undefined) {
+			suggestedMoves = dedupeTrimmed(rp.suggestedMoves);
+			if (suggestedMoves.length < 2 || suggestedMoves.length > 3) return;
+		}
+		return {
+			...raw,
+			title,
+			source,
+			roleplay: {
+				persona,
+				learnerRole,
+				scenario,
+				openingLine,
+				goal,
+				criteria,
+				minutes,
+				...(rp.scene ? { scene: rp.scene } : {}),
+				...(suggestedMoves ? { suggestedMoves } : {}),
+			},
+		};
 	}
 	if (["sequence", "comparison", "diagram"].includes(raw.kind)) {
 		if (!raw.title?.trim() || !raw.source?.trim() || !raw.steps?.length) return;

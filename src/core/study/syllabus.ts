@@ -24,6 +24,8 @@ export interface SyllabusMaterialRef {
 export interface SyllabusLesson {
 	id: string;
 	title: string;
+	topicId?: string;
+	topicTitle?: string;
 	status: "done" | "in-progress" | "available" | "locked";
 	minutes: number;
 	hours: number;
@@ -183,6 +185,9 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 
 			const lessons: SyllabusLesson[] = mod.leafIds.map((id) => {
 				const item = snapshot.items[id];
+				const parent = item?.parentId ? snapshot.items[item.parentId] : undefined;
+				const topicParent = parent?.kind === "topic" ? parent : undefined;
+				const topicTitle = topicParent ? (topicParent.title.pt || topicParent.title.en) : undefined;
 				const graphNode = graph.nodes.get(id);
 				const st = learner.nodes[id];
 				const isDone = known.has(id);
@@ -226,6 +231,7 @@ export function buildStudySyllabus(input: BuildStudySyllabusInput): StudySyllabu
 				return {
 					id,
 					title: graphNode?.title ?? item?.title.pt ?? id,
+					...(topicParent ? { topicId: topicParent.id, ...(topicTitle ? { topicTitle } : {}) } : {}),
 					status,
 					minutes,
 					hours,

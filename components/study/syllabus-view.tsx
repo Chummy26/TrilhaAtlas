@@ -9,9 +9,12 @@ import { useServerEvent } from "@/components/server-events";
 import { useI18n } from "@/components/i18n";
 import {
 	formatFlippedPrepForLesson,
+	formatJobAidMarkdown,
 	type DomainNotebook,
 	type FlippedPrepNote,
 	type FlippedReadingGuide,
+	type NotebookModuleEntry,
+	type NotebookNoteSource,
 	type StudyNodeBrief,
 	type StudySyllabus,
 	type SyllabusChapter,
@@ -1110,6 +1113,646 @@ const SyllabusChapterCard = memo(function SyllabusChapterCard({
 	);
 });
 
+function noteSourceLabel(t: Translator, source: NotebookNoteSource): string {
+	switch (source) {
+		case "tutor":
+			return t("course.syllabus.noteSourceTutor");
+		case "pdf":
+			return t("course.syllabus.noteSourcePdf");
+		case "video":
+			return t("course.syllabus.noteSourceVideo");
+		case "manual":
+			return t("course.syllabus.noteSourceManual");
+	}
+}
+
+interface NotebookModuleCardProps {
+	domainId: string;
+	mod: NotebookModuleEntry;
+	dateFmt: Intl.DateTimeFormat;
+	t: Translator;
+	mapNodeHref: (nodeId: string) => string;
+	onNotebookChanged: () => Promise<void>;
+}
+
+const NotebookModuleCard = memo(function NotebookModuleCard({
+	domainId,
+	mod,
+	dateFmt,
+	t,
+	mapNodeHref,
+	onNotebookChanged,
+}: NotebookModuleCardProps) {
+	const [copiedAid, setCopiedAid] = useState(false);
+	const [noteFormOpen, setNoteFormOpen] = useState(false);
+	const [noteExcerpt, setNoteExcerpt] = useState("");
+	const [noteComment, setNoteComment] = useState("");
+	const [noteBusy, setNoteBusy] = useState(false);
+	const [noteError, setNoteError] = useState("");
+
+	const [artifactFormOpen, setArtifactFormOpen] = useState(false);
+	const [artifactTitle, setArtifactTitle] = useState("");
+	const [artifactSummary, setArtifactSummary] = useState("");
+	const [artifactContent, setArtifactContent] = useState("");
+	const [artifactBusy, setArtifactBusy] = useState(false);
+	const [artifactError, setArtifactError] = useState("");
+
+	const [deletingId, setDeletingId] = useState<string | null>(null);
+
+	const handleCopyJobAid = async () => {
+		if (!mod.jobAid) return;
+		const md = formatJobAidMarkdown(mod.jobAid);
+		try {
+			await navigator.clipboard.writeText(md);
+			setCopiedAid(true);
+			window.setTimeout(() => setCopiedAid(false), 2000);
+		} catch {
+			// Clipboard API may be unavailable in restricted contexts.
+		}
+	};
+
+	const handleCreateNote = async (event: React.FormEvent) => {
+		event.preventDefault();
+		const trimmedExcerpt = noteExcerpt.trim();
+		if (!trimmedExcerpt || noteBusy) return;
+		setNoteBusy(true);
+		setNoteError("");
+		try {
+			const res = await fetch("/api/study/notebook", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					action: "save-note",
+					domain: domainId,
+					moduleId: mod.moduleId,
+					source: "manual",
+					excerpt: trimmedExcerpt,
+					...(noteComment.trim() ? { comment: noteComment.trim() } : {}),
+				}),
+			});
+			const data = (await res.json().catch(() => null)) as { error?: string } | null;
+			if (!res.ok) throw new Error(data?.error ?? t("course.syllabus.deleteNote"));
+			setNoteExcerpt("");
+			setNoteComment("");
+			setNoteFormOpen(false);
+			await onNotebookChanged();
+		} catch (err) {
+			setNoteError(err instanceof Error ? err.message : "");
+		} finally {
+			setNoteBusy(false);
+		}
+	};
+
+	const handleCreateArtifact = async (event: React.FormEvent) => {
+		event.preventDefault();
+		const trimmedTitle = artifactTitle.trim();
+		const trimmedContent = artifactContent.trim();
+		if (!trimmedTitle || !trimmedContent || artifactBusy) return;
+		setArtifactBusy(true);
+		setArtifactError("");
+		try {
+			const res = await fetch("/api/study/notebook", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					action: "save-artifact",
+					domain: domainId,
+					moduleId: mod.moduleId,
+					title: trimmedTitle,
+					summary: artifactSummary.trim(),
+					content: trimmedContent,
+				}),
+			});
+			const data = (await res.json().catch(() => null)) as { error?: string } | null;
+			if (!res.ok) throw new Error(data?.error ?? "");
+			setArtifactTitle("");
+			setArtifactSummary("");
+			setArtifactContent("");
+			setArtifactFormOpen(false);
+			await onNotebookChanged();
+		} catch (err) {
+			setArtifactError(err instanceof Error ? err.message : "");
+		} finally {
+			setArtifactBusy(false);
+		}
+	};
+
+	const handleDeleteEntry = async (kind: "note" | "artifact", id: string) => {
+		if (deletingId) return;
+		setDeletingId(id);
+		try {
+			const params = new URLSearchParams({ domain: domainId, kind, id });
+			const res = await fetch(`/api/study/notebook?${params.toString()}`, { method: "DELETE" });
+			if (res.ok) await onNotebookChanged();
+		} finally {
+			setDeletingId(null);
+		}
+	};
+
+	return (
+		<section
+			data-testid={`notebook-module-${mod.moduleId}`}
+			className="study-cv-block cel-card space-y-4 p-4 sm:p-5"
+		>
+			<div className="border-b border-border/50 pb-2.5">
+				{mod.areaTitle && (
+					<p className="text-xs font-medium text-muted-foreground">{mod.areaTitle}</p>
+				)}
+				<h3 className="cel-display text-lg leading-snug">{mod.moduleTitle}</h3>
+			</div>
+
+			{mod.jobAid && (
+				<details
+					data-testid={`notebook-job-aid-${mod.moduleId}`}
+					className="rounded-xl border border-border/55 bg-background/60 p-3 text-xs"
+				>
+					<summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 list-none font-semibold text-foreground">
+						<span className="flex items-center gap-1.5">
+							<Icon name="file-text" size={14} />
+							{t("course.syllabus.jobAidHeading")}
+						</span>
+						<button
+							type="button"
+							data-testid={`copy-job-aid-${mod.moduleId}`}
+							className="cel-button cel-button-ghost min-h-7 px-2 py-0.5 text-[11px]"
+							onClick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								void handleCopyJobAid();
+							}}
+						>
+							<Icon name={copiedAid ? "check" : "copy"} size={12} tone={false} />
+							{copiedAid ? t("course.syllabus.jobAidCopied") : t("course.syllabus.jobAidCopy")}
+						</button>
+					</summary>
+					<div className="mt-3 space-y-3 border-t border-border/40 pt-2.5">
+						{mod.jobAid.keyTakeaways.length > 0 && (
+							<div className="space-y-1">
+								<h5 className="font-semibold text-foreground">{t("course.syllabus.jobAidTakeaways")}</h5>
+								<ul className="list-disc space-y-1 pl-4 leading-relaxed text-muted-foreground">
+									{mod.jobAid.keyTakeaways.map((item, idx) => (
+										<li key={idx}>{item}</li>
+									))}
+								</ul>
+							</div>
+						)}
+						{mod.jobAid.watchOutFor.length > 0 && (
+							<div className="space-y-1">
+								<h5 className="font-semibold text-foreground">{t("course.syllabus.jobAidWatchOut")}</h5>
+								<ul className="list-disc space-y-1 pl-4 leading-relaxed text-muted-foreground">
+									{mod.jobAid.watchOutFor.map((item, idx) => (
+										<li key={idx}>{item}</li>
+									))}
+								</ul>
+							</div>
+						)}
+						{mod.jobAid.referenceLinks.length > 0 && (
+							<div className="space-y-1.5">
+								<h5 className="font-semibold text-foreground">{t("course.syllabus.jobAidReferences")}</h5>
+								<div className="flex flex-wrap gap-1.5">
+									{mod.jobAid.referenceLinks.map((ref) => (
+										<a
+											key={`${ref.kind}-${ref.url}-${ref.part}`}
+											href={ref.url}
+											target="_blank"
+											rel="noreferrer"
+											className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-card/70 px-2 py-1 hover:bg-accent"
+										>
+											<Icon name={ref.kind === "video" ? "video" : "book"} size={12} tone={false} />
+											<span className="font-medium text-foreground">{ref.title}</span>
+											{ref.part && <span className="text-muted-foreground">· {ref.part}</span>}
+										</a>
+									))}
+								</div>
+							</div>
+						)}
+					</div>
+				</details>
+			)}
+
+			<div className="space-y-2">
+				<div className="flex flex-wrap items-center justify-between gap-2">
+					<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+						<Icon name="pin" size={14} />
+						{t("course.syllabus.savedNotesHeading", { count: mod.savedNotes.length })}
+					</h4>
+					<button
+						type="button"
+						data-testid={`toggle-add-note-${mod.moduleId}`}
+						aria-expanded={noteFormOpen}
+						className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
+						onClick={() => {
+							setNoteFormOpen((open) => !open);
+							setNoteError("");
+						}}
+					>
+						<Icon name="plus" size={12} tone={false} />
+						{t("course.syllabus.addNoteToggle")}
+					</button>
+				</div>
+
+				{noteFormOpen && (
+					<form
+						onSubmit={(e) => void handleCreateNote(e)}
+						className="space-y-2 rounded-xl border border-border/60 bg-background/75 p-3 text-xs"
+					>
+						<textarea
+							className="cel-input min-h-16 w-full resize-y px-2.5 py-2 text-xs leading-relaxed"
+							placeholder={t("course.syllabus.addNotePlaceholder")}
+							maxLength={2000}
+							required
+							value={noteExcerpt}
+							onChange={(e) => setNoteExcerpt(e.target.value)}
+						/>
+						<input
+							type="text"
+							className="cel-input w-full px-2.5 py-1.5 text-xs"
+							placeholder={t("course.syllabus.addNoteCommentPlaceholder")}
+							maxLength={1000}
+							value={noteComment}
+							onChange={(e) => setNoteComment(e.target.value)}
+						/>
+						{noteError && <p role="alert" className="text-xs text-destructive">{noteError}</p>}
+						<div className="flex flex-wrap items-center gap-2">
+							<button
+								type="submit"
+								className="cel-button cel-button-primary min-h-8 px-3 py-1 text-xs"
+								disabled={noteBusy || !noteExcerpt.trim()}
+							>
+								{noteBusy ? t("course.syllabus.saving") : t("course.syllabus.addNoteSubmit")}
+							</button>
+							<button
+								type="button"
+								className="cel-button cel-button-ghost min-h-8 px-2.5 py-1 text-xs"
+								disabled={noteBusy}
+								onClick={() => {
+									setNoteFormOpen(false);
+									setNoteError("");
+								}}
+							>
+								{t("course.syllabus.cancel")}
+							</button>
+						</div>
+					</form>
+				)}
+
+				{mod.savedNotes.length > 0 && (
+					<ul className="space-y-2">
+						{mod.savedNotes.map((note) => {
+							const isLocalUrl = Boolean(note.sourceUrl && note.sourceUrl.startsWith("/"));
+							return (
+								<li
+									key={note.id}
+									data-testid={`saved-note-${note.id}`}
+									className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+								>
+									<div className="flex flex-wrap items-center justify-between gap-2">
+										<div className="flex flex-wrap items-center gap-1.5">
+											<span className="study-pill study-pill-info">{noteSourceLabel(t, note.source)}</span>
+											{note.nodeId && (
+												<Link
+													href={mapNodeHref(note.nodeId)}
+													className="font-semibold text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
+												>
+													{note.nodeTitle ?? note.nodeId}
+												</Link>
+											)}
+											{note.sourceUrl ? (
+												isLocalUrl ? (
+													<Link
+														href={note.sourceUrl}
+														className="text-muted-foreground underline decoration-border underline-offset-2 hover:text-foreground"
+													>
+														{note.sourceTitle ?? note.locator ?? note.sourceUrl}
+														{note.sourceTitle && note.locator ? ` · ${note.locator}` : ""}
+													</Link>
+												) : (
+													<a
+														href={note.sourceUrl}
+														target="_blank"
+														rel="noreferrer"
+														className="text-muted-foreground underline decoration-border underline-offset-2 hover:text-foreground"
+													>
+														{note.sourceTitle ?? note.locator ?? note.sourceUrl}
+														{note.sourceTitle && note.locator ? ` · ${note.locator}` : ""}
+													</a>
+												)
+											) : (note.sourceTitle || note.locator) ? (
+												<span className="text-muted-foreground">
+													{[note.sourceTitle, note.locator].filter(Boolean).join(" · ")}
+												</span>
+											) : null}
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-[11px] tabular-nums text-muted-foreground">
+												{formatIsoDate(note.createdAt, dateFmt)}
+											</span>
+											<button
+												type="button"
+												aria-label={t("course.syllabus.deleteNote")}
+												title={t("course.syllabus.deleteNote")}
+												disabled={deletingId === note.id}
+												onClick={() => void handleDeleteEntry("note", note.id)}
+												className="cel-button cel-button-ghost min-h-7 px-1.5 py-0.5 text-[11px] text-muted-foreground hover:text-destructive"
+											>
+												<Icon name="trash" size={12} tone={false} />
+												<span className="sr-only">{t("course.syllabus.deleteNote")}</span>
+											</button>
+										</div>
+									</div>
+									<p className="whitespace-pre-wrap leading-relaxed text-foreground/90">{note.excerpt}</p>
+									{note.comment && (
+										<p className="border-l-2 border-border pl-2.5 italic leading-relaxed text-muted-foreground">
+											{note.comment}
+										</p>
+									)}
+								</li>
+							);
+						})}
+					</ul>
+				)}
+			</div>
+
+			<div className="space-y-2">
+				<div className="flex flex-wrap items-center justify-between gap-2">
+					<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+						<Icon name="file-text" size={14} />
+						{t("course.syllabus.artifactsHeading", { count: mod.artifacts.length })}
+					</h4>
+					<button
+						type="button"
+						data-testid={`toggle-add-artifact-${mod.moduleId}`}
+						aria-expanded={artifactFormOpen}
+						className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
+						onClick={() => {
+							setArtifactFormOpen((open) => !open);
+							setArtifactError("");
+						}}
+					>
+						<Icon name="plus" size={12} tone={false} />
+						{t("course.syllabus.addArtifactToggle")}
+					</button>
+				</div>
+
+				{artifactFormOpen && (
+					<form
+						onSubmit={(e) => void handleCreateArtifact(e)}
+						className="space-y-2 rounded-xl border border-border/60 bg-background/75 p-3 text-xs"
+					>
+						<input
+							type="text"
+							className="cel-input w-full px-2.5 py-1.5 text-xs"
+							placeholder={t("course.syllabus.artifactTitlePlaceholder")}
+							maxLength={160}
+							required
+							value={artifactTitle}
+							onChange={(e) => setArtifactTitle(e.target.value)}
+						/>
+						<input
+							type="text"
+							className="cel-input w-full px-2.5 py-1.5 text-xs"
+							placeholder={t("course.syllabus.artifactSummaryPlaceholder")}
+							maxLength={300}
+							value={artifactSummary}
+							onChange={(e) => setArtifactSummary(e.target.value)}
+						/>
+						<textarea
+							className="cel-input min-h-24 w-full resize-y px-2.5 py-2 text-xs leading-relaxed"
+							placeholder={t("course.syllabus.artifactContentPlaceholder")}
+							maxLength={8000}
+							required
+							value={artifactContent}
+							onChange={(e) => setArtifactContent(e.target.value)}
+						/>
+						{artifactError && <p role="alert" className="text-xs text-destructive">{artifactError}</p>}
+						<div className="flex flex-wrap items-center gap-2">
+							<button
+								type="submit"
+								className="cel-button cel-button-primary min-h-8 px-3 py-1 text-xs"
+								disabled={artifactBusy || !artifactTitle.trim() || !artifactContent.trim()}
+							>
+								{artifactBusy ? t("course.syllabus.saving") : t("course.syllabus.artifactSubmit")}
+							</button>
+							<button
+								type="button"
+								className="cel-button cel-button-ghost min-h-8 px-2.5 py-1 text-xs"
+								disabled={artifactBusy}
+								onClick={() => {
+									setArtifactFormOpen(false);
+									setArtifactError("");
+								}}
+							>
+								{t("course.syllabus.cancel")}
+							</button>
+						</div>
+					</form>
+				)}
+
+				{mod.artifacts.length > 0 && (
+					<ul className="space-y-2">
+						{mod.artifacts.map((artifact) => (
+							<li
+								key={artifact.id}
+								data-testid={`module-artifact-${artifact.id}`}
+								className="rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+							>
+								<details>
+									<summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 list-none">
+										<div className="min-w-0 flex-1 space-y-0.5">
+											<span className="font-semibold text-foreground">{artifact.title}</span>
+											{artifact.summary && (
+												<p className="text-muted-foreground">{artifact.summary}</p>
+											)}
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-[11px] tabular-nums text-muted-foreground">
+												{formatIsoDate(artifact.updatedAt || artifact.createdAt, dateFmt)}
+											</span>
+											<button
+												type="button"
+												aria-label={t("course.syllabus.deleteNote")}
+												title={t("course.syllabus.deleteNote")}
+												disabled={deletingId === artifact.id}
+												onClick={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													void handleDeleteEntry("artifact", artifact.id);
+												}}
+												className="cel-button cel-button-ghost min-h-7 px-1.5 py-0.5 text-[11px] text-muted-foreground hover:text-destructive"
+											>
+												<Icon name="trash" size={12} tone={false} />
+												<span className="sr-only">{t("course.syllabus.deleteNote")}</span>
+											</button>
+										</div>
+									</summary>
+									<div className="mt-2.5 border-t border-border/40 pt-2.5 whitespace-pre-wrap leading-relaxed text-foreground/90">
+										{artifact.content}
+									</div>
+								</details>
+							</li>
+						))}
+					</ul>
+				)}
+			</div>
+
+			{mod.mistakes.length > 0 && (
+				<div className="space-y-2">
+					<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+						<Icon name="warning" size={14} />
+						{t("course.syllabus.recurringMistakes", { count: mod.mistakes.length })}
+					</h4>
+					<ul className="space-y-2">
+						{mod.mistakes.map((mistake) => (
+							<li
+								key={mistake.id}
+								className="space-y-1 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+							>
+								<div className="flex flex-wrap items-center justify-between gap-2">
+									<div className="flex flex-wrap items-center gap-2">
+										<Link
+											href={mapNodeHref(mistake.nodeId)}
+											className="font-semibold text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
+										>
+											{mistake.nodeTitle}
+										</Link>
+										<span className="study-pill study-pill-warning">
+											{mistake.kind === "reinforce"
+												? t("course.syllabus.statusReinforce")
+												: t("course.syllabus.gradeOutOf3", { grade: mistake.grade ?? 0 })}
+										</span>
+									</div>
+									<span className="text-[11px] tabular-nums text-muted-foreground">
+										{formatIsoDate(mistake.at, dateFmt)}
+									</span>
+								</div>
+								{mistake.quizContext && (
+									<div className="space-y-1 text-muted-foreground">
+										<p>
+											<strong className="text-foreground/90">{t("course.syllabus.question")}</strong>{" "}
+											{mistake.quizContext.question}
+										</p>
+										<p>
+											<strong className="text-foreground/90">{t("course.syllabus.yourAnswer")}</strong>{" "}
+											{mistake.quizContext.answer}
+										</p>
+										{mistake.quizContext.expected && (
+											<p>
+												<strong className="text-foreground/90">{t("course.syllabus.expected")}</strong>{" "}
+												{mistake.quizContext.expected}
+											</p>
+										)}
+									</div>
+								)}
+								{mistake.feedback && (
+									<p className="leading-relaxed text-muted-foreground">{mistake.feedback}</p>
+								)}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+
+			{mod.misconceptions.length > 0 && (
+				<div className="space-y-2">
+					<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+						<Icon name="weak-spot" size={14} />
+						{t("course.syllabus.misconceptionsHeading", { count: mod.misconceptions.length })}
+					</h4>
+					<ul className="space-y-2">
+						{mod.misconceptions.map((m) => {
+							const pct = Math.round(m.probability * 100);
+							return (
+								<li
+									key={`${m.nodeId}-${m.id}`}
+									className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+								>
+									<div className="flex flex-wrap items-center justify-between gap-2">
+										<div className="flex flex-wrap items-center gap-2">
+											<span
+												className={
+													m.status === "active"
+														? "study-pill study-pill-warning"
+														: "study-pill study-pill-success"
+												}
+											>
+												{m.status === "active"
+													? t("course.syllabus.misconceptionActive")
+													: t("course.syllabus.misconceptionResolved")}
+											</span>
+											<Link
+												href={mapNodeHref(m.nodeId)}
+												className="font-semibold text-foreground underline decoration-border underline-offset-2"
+											>
+												{m.nodeTitle}
+											</Link>
+										</div>
+										<span className="font-semibold tabular-nums text-foreground">
+											{t("course.syllabus.misconceptionBeta", { pct })}
+										</span>
+									</div>
+									<p className="leading-relaxed text-foreground/90">{m.text}</p>
+									<progress
+										className="study-progress block w-full"
+										max={100}
+										value={pct}
+										aria-label={t("course.syllabus.misconceptionBetaAria", { pct })}
+									/>
+								</li>
+							);
+						})}
+					</ul>
+				</div>
+			)}
+
+			{mod.masteredConcepts.length > 0 && (
+				<div className="space-y-2">
+					<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+						<Icon name="check" size={14} />
+						{t("course.syllabus.masteredConcepts", { count: mod.masteredConcepts.length })}
+					</h4>
+					<ul className="grid gap-2.5 sm:grid-cols-2">
+						{mod.masteredConcepts.map((concept) => (
+							<li
+								key={concept.nodeId}
+								className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
+							>
+								<div className="flex flex-wrap items-center gap-1.5">
+									<Link
+										href={mapNodeHref(concept.nodeId)}
+										className="font-semibold text-foreground underline decoration-border underline-offset-2"
+									>
+										{concept.title}
+									</Link>
+									{concept.mastered && (
+										<span className="study-pill study-pill-success">
+											{t("course.syllabus.mastered")}
+										</span>
+									)}
+									{concept.durable && (
+										<span className="study-pill study-pill-info">
+											{t("course.syllabus.pillDurable")}
+										</span>
+									)}
+								</div>
+								{concept.summary && (
+									<p className="leading-relaxed text-muted-foreground">{concept.summary}</p>
+								)}
+								{concept.objectives.length > 0 && (
+									<ul className="list-disc space-y-0.5 pl-4 text-muted-foreground">
+										{concept.objectives.slice(0, 3).map((obj, idx) => (
+											<li key={idx}>{obj}</li>
+										))}
+									</ul>
+								)}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+		</section>
+	);
+});
+
 export function SyllabusView({
 	initialSyllabus,
 	initialNotebook,
@@ -1130,6 +1773,17 @@ export function SyllabusView({
 	const [notebookError, setNotebookError] = useState("");
 
 	const handleRefresh = useCallback(() => router.refresh(), [router]);
+
+	const refreshNotebook = useCallback(async () => {
+		try {
+			const res = await fetch(`/api/study/notebook?domain=${encodeURIComponent(syllabus.domainId)}`);
+			const data = (await res.json().catch(() => null)) as (DomainNotebook & { error?: string }) | null;
+			if (res.ok && data) setNotebook(data);
+		} catch {
+			// Best-effort live sync; SSR refresh still runs below.
+		}
+		router.refresh();
+	}, [router, syllabus.domainId]);
 
 	const decFmt = useMemo(
 		() => new Intl.NumberFormat(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
@@ -1173,7 +1827,12 @@ export function SyllabusView({
 
 	useServerEvent("domain-changed", () => router.replace("/"));
 	useServerEvent("curriculum-expanded", (event) => {
-		if (event.domainId === syllabus.domainId) handleRefresh();
+		if (event.domainId !== syllabus.domainId) return;
+		if (tab === "caderno") {
+			void refreshNotebook();
+		} else {
+			handleRefresh();
+		}
 	});
 
 	const matchedInitialChapter = useMemo(() => {
@@ -1423,8 +2082,10 @@ export function SyllabusView({
 	}, [filter, syllabus.chapters]);
 
 	const mapDomainHref = `/mapa?dominio=${encodeURIComponent(syllabus.domainId)}`;
-	const mapNodeHref = (nodeId: string) =>
-		`/mapa?dominio=${encodeURIComponent(syllabus.domainId)}&no=${encodeURIComponent(nodeId)}`;
+	const mapNodeHref = useCallback(
+		(nodeId: string) => `/mapa?dominio=${encodeURIComponent(syllabus.domainId)}&no=${encodeURIComponent(nodeId)}`,
+		[syllabus.domainId],
+	);
 
 	return (
 		<main className="h-dvh overflow-y-auto px-4 pb-16 pt-6 md:px-8" data-domain={syllabus.domainId}>
@@ -1769,7 +2430,7 @@ export function SyllabusView({
 										</p>
 									)}
 
-									<dl className="grid grid-cols-2 gap-2.5 border-t border-border/45 pt-3 sm:grid-cols-4">
+									<dl className="grid grid-cols-2 gap-2.5 border-t border-border/45 pt-3 sm:grid-cols-3 lg:grid-cols-6">
 										<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
 											<dt className="text-[11px] text-muted-foreground">
 												{t("course.syllabus.recordedMistakes")}
@@ -1798,6 +2459,22 @@ export function SyllabusView({
 												{notebook.totalMasteredConcepts}
 											</dd>
 										</div>
+										<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
+											<dt className="text-[11px] text-muted-foreground">
+												{t("course.syllabus.savedNotesKpi")}
+											</dt>
+											<dd className="cel-display mt-0.5 text-lg tabular-nums">
+												{notebook.totalSavedNotes}
+											</dd>
+										</div>
+										<div className="rounded-xl border border-border/45 bg-background/60 p-2.5">
+											<dt className="text-[11px] text-muted-foreground">
+												{t("course.syllabus.artifactsKpi")}
+											</dt>
+											<dd className="cel-display mt-0.5 text-lg tabular-nums">
+												{notebook.totalArtifacts}
+											</dd>
+										</div>
 									</dl>
 								</section>
 
@@ -1808,169 +2485,15 @@ export function SyllabusView({
 								) : (
 									<div className="space-y-4">
 										{notebook.modules.map((mod) => (
-											<section key={mod.moduleId} className="study-cv-block cel-card space-y-4 p-4 sm:p-5">
-												<div className="border-b border-border/50 pb-2.5">
-													{mod.areaTitle && (
-														<p className="text-xs font-medium text-muted-foreground">{mod.areaTitle}</p>
-													)}
-													<h3 className="cel-display text-lg leading-snug">{mod.moduleTitle}</h3>
-												</div>
-
-												{mod.mistakes.length > 0 && (
-													<div className="space-y-2">
-														<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-															<Icon name="warning" size={14} />
-															{t("course.syllabus.recurringMistakes", { count: mod.mistakes.length })}
-														</h4>
-														<ul className="space-y-2">
-															{mod.mistakes.map((mistake) => (
-																<li
-																	key={mistake.id}
-																	className="space-y-1 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
-																>
-																	<div className="flex flex-wrap items-center justify-between gap-2">
-																		<div className="flex flex-wrap items-center gap-2">
-																			<Link
-																				href={mapNodeHref(mistake.nodeId)}
-																				className="font-semibold text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
-																			>
-																				{mistake.nodeTitle}
-																			</Link>
-																			<span className="study-pill study-pill-warning">
-																				{mistake.kind === "reinforce"
-																					? t("course.syllabus.statusReinforce")
-																					: t("course.syllabus.gradeOutOf3", { grade: mistake.grade ?? 0 })}
-																			</span>
-																		</div>
-																		<span className="text-[11px] tabular-nums text-muted-foreground">
-																			{formatIsoDate(mistake.at, dateFmt)}
-																		</span>
-																	</div>
-																	{mistake.quizContext && (
-																		<div className="space-y-1 text-muted-foreground">
-																			<p>
-																				<strong className="text-foreground/90">{t("course.syllabus.question")}</strong>{" "}
-																				{mistake.quizContext.question}
-																			</p>
-																			<p>
-																				<strong className="text-foreground/90">{t("course.syllabus.yourAnswer")}</strong>{" "}
-																				{mistake.quizContext.answer}
-																			</p>
-																			{mistake.quizContext.expected && (
-																				<p>
-																					<strong className="text-foreground/90">{t("course.syllabus.expected")}</strong>{" "}
-																					{mistake.quizContext.expected}
-																				</p>
-																			)}
-																		</div>
-																	)}
-																	{mistake.feedback && (
-																		<p className="leading-relaxed text-muted-foreground">{mistake.feedback}</p>
-																	)}
-																</li>
-															))}
-														</ul>
-													</div>
-												)}
-
-												{mod.misconceptions.length > 0 && (
-													<div className="space-y-2">
-														<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-															<Icon name="weak-spot" size={14} />
-															{t("course.syllabus.misconceptionsHeading", { count: mod.misconceptions.length })}
-														</h4>
-														<ul className="space-y-2">
-															{mod.misconceptions.map((m) => {
-																const pct = Math.round(m.probability * 100);
-																return (
-																	<li
-																		key={`${m.nodeId}-${m.id}`}
-																		className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
-																	>
-																		<div className="flex flex-wrap items-center justify-between gap-2">
-																			<div className="flex flex-wrap items-center gap-2">
-																				<span
-																					className={
-																						m.status === "active"
-																							? "study-pill study-pill-warning"
-																							: "study-pill study-pill-success"
-																					}
-																				>
-																					{m.status === "active"
-																						? t("course.syllabus.misconceptionActive")
-																						: t("course.syllabus.misconceptionResolved")}
-																				</span>
-																				<Link
-																					href={mapNodeHref(m.nodeId)}
-																					className="font-semibold text-foreground underline decoration-border underline-offset-2"
-																				>
-																					{m.nodeTitle}
-																				</Link>
-																			</div>
-																			<span className="font-semibold tabular-nums text-foreground">
-																				{t("course.syllabus.misconceptionBeta", { pct })}
-																			</span>
-																		</div>
-																		<p className="leading-relaxed text-foreground/90">{m.text}</p>
-																		<progress
-																			className="study-progress block w-full"
-																			max={100}
-																			value={pct}
-																			aria-label={t("course.syllabus.misconceptionBetaAria", { pct })}
-																		/>
-																	</li>
-																);
-															})}
-														</ul>
-													</div>
-												)}
-
-												{mod.masteredConcepts.length > 0 && (
-													<div className="space-y-2">
-														<h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-															<Icon name="check" size={14} />
-															{t("course.syllabus.masteredConcepts", { count: mod.masteredConcepts.length })}
-														</h4>
-														<ul className="grid gap-2.5 sm:grid-cols-2">
-															{mod.masteredConcepts.map((concept) => (
-																<li
-																	key={concept.nodeId}
-																	className="space-y-1.5 rounded-xl border border-border/50 bg-background/60 p-3 text-xs"
-																>
-																	<div className="flex flex-wrap items-center gap-1.5">
-																		<Link
-																			href={mapNodeHref(concept.nodeId)}
-																			className="font-semibold text-foreground underline decoration-border underline-offset-2"
-																		>
-																			{concept.title}
-																		</Link>
-																		{concept.mastered && (
-																			<span className="study-pill study-pill-success">
-																				{t("course.syllabus.mastered")}
-																			</span>
-																		)}
-																		{concept.durable && (
-																			<span className="study-pill study-pill-info">
-																				{t("course.syllabus.pillDurable")}
-																			</span>
-																		)}
-																	</div>
-																	{concept.summary && (
-																		<p className="leading-relaxed text-muted-foreground">{concept.summary}</p>
-																	)}
-																	{concept.objectives.length > 0 && (
-																		<ul className="list-disc space-y-0.5 pl-4 text-muted-foreground">
-																			{concept.objectives.slice(0, 3).map((obj, idx) => (
-																				<li key={idx}>{obj}</li>
-																			))}
-																		</ul>
-																	)}
-																</li>
-															))}
-														</ul>
-													</div>
-												)}
-											</section>
+											<NotebookModuleCard
+												key={mod.moduleId}
+												domainId={syllabus.domainId}
+												mod={mod}
+												dateFmt={dateFmt}
+												t={t}
+												mapNodeHref={mapNodeHref}
+												onNotebookChanged={refreshNotebook}
+											/>
 										))}
 									</div>
 								)}

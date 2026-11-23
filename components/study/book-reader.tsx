@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useT } from "@/components/i18n";
 import { captureFile, PdfSheet, type PdfLayout } from "./pdf-sheet.tsx";
 import { SessionStarter } from "../start-session.ts";
 
@@ -28,6 +29,7 @@ const EPUB_COMPONENTS = {
  *  so typing, text selection, or screenshot pasting never re-renders PdfSheet's SVG text layer. */
 const ReadingActionsPanel = memo(function ReadingActionsPanel({
 	domain,
+	region,
 	node,
 	book,
 	page,
@@ -43,6 +45,7 @@ const ReadingActionsPanel = memo(function ReadingActionsPanel({
 	clearSelectionSignal,
 }: {
 	domain: string;
+	region: string;
 	node: string;
 	book: string;
 	page: BookPage;
@@ -57,6 +60,7 @@ const ReadingActionsPanel = memo(function ReadingActionsPanel({
 	pasteFileRef: RefObject<((file: File) => void) | null>;
 	clearSelectionSignal: number;
 }) {
+	const t = useT();
 	const router = useRouter();
 	const starter = useRef<SessionStarter | null>(null);
 	const [selection, setSelection] = useState("");
@@ -64,6 +68,7 @@ const ReadingActionsPanel = memo(function ReadingActionsPanel({
 	const [error, setError] = useState("");
 	const [instruction, setInstruction] = useState("");
 	const [capture, setCapture] = useState("");
+	const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
 	const acceptCapture = useCallback((src: string) => {
 		setCapture(src);
@@ -100,6 +105,50 @@ const ReadingActionsPanel = memo(function ReadingActionsPanel({
 		document.addEventListener("selectionchange", readSelection);
 		return () => document.removeEventListener("selectionchange", readSelection);
 	}, [articleRef]);
+
+	useEffect(() => {
+		setSaveState("idle");
+	}, [page.unit, selection]);
+
+	async function saveToNotebook() {
+		if (saveState === "saving") return;
+		setSaveState("saving");
+		const trimmedSelection = selection.trim();
+		let excerpt: string;
+		if (trimmedSelection) {
+			excerpt = trimmedSelection.slice(0, 1800);
+		} else {
+			const header = `${page.title} — ${page.heading || `p. ${page.unit}`}`;
+			const snippet = page.text.trim().replace(/\s+/g, " ").slice(0, 500);
+			excerpt = snippet ? `${header}\n${snippet}` : header;
+		}
+		const sourceUrl = `/ler/${encodeURIComponent(book)}?dominio=${encodeURIComponent(domain)}&p=${page.unit}`;
+		try {
+			const res = await fetch("/api/study/notebook", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					action: "save-note",
+					domain,
+					...(node ? { nodeId: node } : {}),
+					...(region ? { moduleId: region } : {}),
+					source: "pdf",
+					excerpt,
+					...(instruction.trim() ? { comment: instruction.trim().slice(0, 1000) } : {}),
+					locator: `p. ${page.unit}`,
+					sourceTitle: page.title,
+					sourceUrl,
+				}),
+			});
+			if (!res.ok) {
+				setSaveState("error");
+				return;
+			}
+			setSaveState("saved");
+		} catch {
+			setSaveState("error");
+		}
+	}
 
 	async function interact(focus: "trecho" | "print" | "página") {
 		if (pending) return;
@@ -148,6 +197,32 @@ const ReadingActionsPanel = memo(function ReadingActionsPanel({
 			{capture && <button className="cel-button cel-button-primary text-sm" disabled={pending} onClick={() => void interact("print")}>Criar aula com print</button>}
 			{selection && <button className="reader-selection-action cel-button cel-button-primary text-sm" disabled={pending} onClick={() => void interact("trecho")}>Criar aula com trecho</button>}
 			<button className={"cel-button text-sm" + (selection || capture ? "" : " cel-button-primary")} disabled={pending || (original && imageFailed) || (!original && !page.text)} onClick={() => void interact("página")}>Criar aula com {label.toLowerCase()} {page.unit}</button>
+			<div className="space-y-1 border-t border-border/50 pt-2">
+				<button
+					type="button"
+					data-testid="reader-save-notebook"
+					className="cel-button w-full text-sm"
+					title={t("lesson.notebook.savePageHint")}
+					disabled={saveState === "saving"}
+					onClick={() => void saveToNotebook()}
+				>
+					{saveState === "saving"
+						? t("lesson.notebook.saving")
+						: saveState === "saved"
+							? t("lesson.notebook.savedBadge")
+							: t("lesson.notebook.savePageAction")}
+				</button>
+				{saveState === "error" && (
+					<p role="alert" className="text-xs text-destructive">
+						{t("lesson.notebook.saveError")}
+					</p>
+				)}
+				{saveState === "saved" && (
+					<p role="status" className="text-xs text-[var(--cel-success-text,var(--lh-success))]">
+						{t("lesson.notebook.savedBadge")}
+					</p>
+				)}
+			</div>
 			{pending && <p role="status">Abrindo atividade…</p>}
 			{error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 		</aside>
@@ -239,6 +314,7 @@ export function BookReader({ domain, region, node, book, page }: {
 			</article>
 			<ReadingActionsPanel
 				domain={domain}
+				region={region}
 				node={node}
 				book={book}
 				page={page}

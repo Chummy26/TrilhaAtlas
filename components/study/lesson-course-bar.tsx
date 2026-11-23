@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import { PanelRightIcon } from "lucide-react";
 import { useT } from "@/components/i18n";
 import type { LessonCourseContext } from "@/src/core";
 
@@ -11,12 +12,16 @@ export const LessonCourseBar = memo(function LessonCourseBar({
 	course,
 	completed,
 	reinforcement,
+	outlineOpen,
+	onToggleOutline,
 }: {
 	domainId: string;
 	nodeId: string;
 	course: LessonCourseContext;
 	completed: boolean;
 	reinforcement?: string;
+	outlineOpen?: boolean;
+	onToggleOutline?: () => void;
 }) {
 	const t = useT();
 	const mapHref = "/mapa?" + new URLSearchParams({ dominio: domainId, no: nodeId });
@@ -86,6 +91,24 @@ export const LessonCourseBar = memo(function LessonCourseBar({
 				<span className="cel-chip px-1.5 py-0.5 text-[11px] font-medium">
 					{t("lesson.courseBar.reinforcementBadge")}
 				</span>
+			)}
+			{onToggleOutline && (
+				<button
+					type="button"
+					data-testid="lesson-course-outline-toggle"
+					aria-expanded={Boolean(outlineOpen)}
+					aria-label={t("lesson.courseBar.outlineToggleAria")}
+					onClick={onToggleOutline}
+					className={
+						"ml-auto inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors " +
+						(outlineOpen
+							? "border-foreground/50 bg-accent text-foreground"
+							: "border-border/80 bg-background text-foreground hover:bg-accent")
+					}
+				>
+					<PanelRightIcon aria-hidden="true" className="size-3.5" />
+					<span>{t("lesson.courseBar.outlineToggle")}</span>
+				</button>
 			)}
 		</nav>
 	);

@@ -25,6 +25,7 @@ export {
 	type ScaffoldLevel,
 } from "./tutor-pedagogy.ts";
 export * from "./syllabus.ts";
+export * from "./course-outline.ts";
 export * from "./transcript.ts";
 export * from "./notebook.ts";
 export * from "./flipped-reading.ts";

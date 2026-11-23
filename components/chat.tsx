@@ -37,6 +37,7 @@ import { AnsweredCard } from "@/components/answered-card";
 import { MalformedQuestion } from "@/components/malformed-question";
 import { SubagentSteerCard } from "@/components/artifacts/steer-card";
 import { LessonCourseBar } from "@/components/study/lesson-course-bar";
+import { useT } from "@/components/i18n";
 import type { LessonFinishState, LessonReceipt } from "@/components/study/lesson-finish";
 import { ChatSessionComposer } from "@/components/composer";
 import { useEnterSubmits } from "@/components/enter-submits";
@@ -71,7 +72,7 @@ import { PlanBlock, latestTree } from "@/components/plan-block";
 import { PlanMarginalia } from "@/components/plan-window";
 import { SessionMermaidContext, type SessionImage } from "@/components/session-overlay";
 import type { AbortMode } from "@/components/abort-turn-dialog";
-import { ArrowRightIcon, DumbbellIcon, MessageCircleQuestionIcon, WaypointsIcon } from "lucide-react";
+import { ArrowRightIcon, BookmarkPlusIcon, DumbbellIcon, MessageCircleQuestionIcon, WaypointsIcon } from "lucide-react";
 import type { PlanBlockData } from "@/src/core";
 import { QuestionDock } from "@/components/question-dock";
 import { PluginQuestionDock } from "./plugin-question-dock";
@@ -133,6 +134,7 @@ const SetupDialog = dynamic(() => import("@/components/setup-dialog").then((m) =
 const MermaidOverlay = dynamic(() => import("@/components/session-overlay").then((m) => m.MermaidOverlay), { ssr: false });
 const PlanPopup = dynamic(() => import("@/components/plan-block").then((m) => m.PlanPopup), { ssr: false });
 const SideThreadBody = dynamic(() => import("@/components/side-thread").then((m) => m.SideThreadBody), { ssr: false });
+const LessonCourseDrawer = dynamic(() => import("@/components/study/lesson-course-drawer").then((m) => m.LessonCourseDrawer), { ssr: false });
 const SideThreadPanel = dynamic(() => import("@/components/side-thread").then((m) => m.SideThreadPanel), { ssr: false });
 const SideThreadPopover = dynamic(() => import("@/components/side-thread").then((m) => m.SideThreadPopover), { ssr: false });
 const SessionFind = dynamic(() => import("@/components/session-find").then((m) => m.SessionFind), { ssr: false });
@@ -1457,26 +1459,82 @@ export function Chat({
 		return () => window.removeEventListener(kbdEventForChat("toggle-question-thread"), toggleQuestionThread);
 	}, [toggleQuestionThread]);
 	// Advancing the lesson does not close or disable an old conversation.
+	const t = useT();
+	const [courseOutlineOpen, setCourseOutlineOpen] = useState(false);
+	const toggleCourseOutline = useCallback(() => setCourseOutlineOpen((open) => !open), []);
+	const closeCourseOutline = useCallback(() => setCourseOutlineOpen(false), []);
+	const [notebookNotice, setNotebookNotice] = useState<"saving" | "saved" | "error" | null>(null);
+	const notebookNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	useEffect(() => () => {
+		if (notebookNoticeTimerRef.current) clearTimeout(notebookNoticeTimerRef.current);
+	}, []);
+	const saveSelectionToNotebook = useCallback(
+		(excerpt: string) => {
+			if (!lessonCompletion) return;
+			const trimmed = excerpt.trim();
+			if (!trimmed) return;
+			if (notebookNoticeTimerRef.current) clearTimeout(notebookNoticeTimerRef.current);
+			setNotebookNotice("saving");
+			void fetch("/api/study/notebook", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					action: "save-note",
+					domain: lessonCompletion.domainId,
+					nodeId: lessonCompletion.nodeId,
+					moduleId: lessonCompletion.course?.moduleId,
+					source: "tutor",
+					excerpt: trimmed.slice(0, 2000),
+					locator: titleRef.current || undefined,
+					sourceTitle: titleRef.current || undefined,
+					sourceUrl: `/chat/${encodeURIComponent(chatId)}`,
+				}),
+			})
+				.then((res) => setNotebookNotice(res.ok ? "saved" : "error"))
+				.catch(() => setNotebookNotice("error"))
+				.finally(() => {
+					notebookNoticeTimerRef.current = setTimeout(() => setNotebookNotice(null), 2600);
+				});
+		},
+		[chatId, lessonCompletion],
+	);
 	const sideActions = useMemo<SelectionAction[]>(
-		() => [
-			{
-				id: "side-ask",
-				label: "Ask",
-				ariaLabel: "Ask a side question about this selection",
-				icon: MessageCircleQuestionIcon,
-				visible: () => true,
-				disabledLabel: (capture) => (capture.selector.text.length > SIDE_QUOTE_MAX_CHARS ? "Shorten selection" : null),
-				onSelect: (capture) => {
-					const { text, start, end, prefix, suffix } = capture.selector;
-					openSideThreadRef.current({
-						anchor: { kind: "range", range: capture.range.cloneRange() },
-						passage: { text, sourceMessageId: capture.messageId, selector: { start, end, prefix, suffix } },
-					});
-					return true;
+		() => {
+			const items: SelectionAction[] = [
+				{
+					id: "side-ask",
+					label: "Ask",
+					ariaLabel: "Ask a side question about this selection",
+					icon: MessageCircleQuestionIcon,
+					visible: () => true,
+					disabledLabel: (capture) => (capture.selector.text.length > SIDE_QUOTE_MAX_CHARS ? "Shorten selection" : null),
+					onSelect: (capture) => {
+						const { text, start, end, prefix, suffix } = capture.selector;
+						openSideThreadRef.current({
+							anchor: { kind: "range", range: capture.range.cloneRange() },
+							passage: { text, sourceMessageId: capture.messageId, selector: { start, end, prefix, suffix } },
+						});
+						return true;
+					},
 				},
-			},
-		],
-		[],
+			];
+			if (lessonCompletion) {
+				items.push({
+					id: "save-note",
+					label: t("lesson.notebook.saveSelection"),
+					ariaLabel: t("lesson.notebook.saveSelection"),
+					icon: BookmarkPlusIcon,
+					visible: () => true,
+					disabledLabel: (capture) => (capture.selector.text.trim().length === 0 ? "" : null),
+					onSelect: (capture) => {
+						saveSelectionToNotebook(capture.selector.text);
+						return true;
+					},
+				});
+			}
+			return items;
+		},
+		[lessonCompletion, saveSelectionToNotebook, t],
 	);
 	const selectionActions = useMemo(() => [citeAction, ...sideActions], [citeAction, sideActions]);
 	const router = useRouter();
@@ -2374,7 +2432,23 @@ export function Chat({
 				course={liveCourse}
 				completed={liveCompleted}
 				reinforcement={liveReinforcement}
+				outlineOpen={courseOutlineOpen}
+				onToggleOutline={toggleCourseOutline}
 			/>
+		)}
+		{notebookNotice && (
+			<div
+				role="status"
+				aria-live="polite"
+				data-testid="chat-notebook-notice"
+				className="pointer-events-none fixed right-5 bottom-5 z-50 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-sm"
+			>
+				{notebookNotice === "saving"
+					? t("lesson.notebook.saving")
+					: notebookNotice === "saved"
+						? t("lesson.notebook.savedBadge")
+						: t("lesson.notebook.saveError")}
+			</div>
 		)}
 		<div className="flex min-h-0 flex-1 overflow-hidden">
 			<div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -2684,6 +2758,14 @@ export function Chat({
 				)}
 				</div>
 			</div>
+			{lessonCompletion && liveCourse && courseOutlineOpen && (
+				<LessonCourseDrawer
+					domainId={lessonCompletion.domainId}
+					activeNodeId={lessonCompletion.nodeId}
+					open={courseOutlineOpen}
+					onClose={closeCourseOutline}
+				/>
+			)}
 		</div>
 		</div>
 		</CitationActionsContext.Provider>

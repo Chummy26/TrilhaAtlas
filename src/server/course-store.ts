@@ -3,9 +3,11 @@
  * and placement.ts without circular imports.
  *
  * Files under `<data>/domains/<id>/learner/`:
- *   - module-exams.jsonl  append-only module & chapter integrative exam receipts
- *   - problem-sets.jsonl  append-only gradual problem-set receipts
- *   - prep-notes.json     Record<nodeId, FlippedPrepNote>
+ *   - module-exams.jsonl       append-only module & chapter integrative exam receipts
+ *   - problem-sets.jsonl       append-only gradual problem-set receipts
+ *   - prep-notes.json          Record<nodeId, FlippedPrepNote>
+ *   - notebook-notes.jsonl     saved academic notebook notes (tutor/pdf/video/manual)
+ *   - notebook-artifacts.jsonl saved module deliverables / artifacts
  */
 
 import fs from "node:fs";
@@ -15,6 +17,7 @@ import { learnerDir } from "../core/domains/paths.ts";
 import { aggregateActivity } from "../core/stats/aggregate.ts";
 import { STUDY_HEARTBEAT_SEC } from "../core/stats/types.ts";
 import type { FlippedPrepNote } from "../core/study/flipped-reading.ts";
+import type { NotebookModuleArtifact, NotebookNoteSource, NotebookSavedNote } from "../core/study/notebook.ts";
 import { writeFileAtomicSync } from "../store/atomic-write.ts";
 import { createStatsStore } from "../store/stats-store.ts";
 
@@ -57,6 +60,14 @@ export function prepNotesFile(domainId: string): string {
 	return path.join(learnerDir(PATHS.data, domainId), "prep-notes.json");
 }
 
+export function notebookNotesFile(domainId: string): string {
+	return path.join(learnerDir(PATHS.data, domainId), "notebook-notes.jsonl");
+}
+
+export function notebookArtifactsFile(domainId: string): string {
+	return path.join(learnerDir(PATHS.data, domainId), "notebook-artifacts.jsonl");
+}
+
 export function readOptionalText(file: string): string | null {
 	try {
 		return fs.readFileSync(file, "utf8");
@@ -70,6 +81,8 @@ type CourseStoreCache = {
 	moduleScores: Map<string, { stamp: string; map: Map<string, ScoreRecord> }>;
 	problemSetScores: Map<string, { stamp: string; map: Map<string, ProblemSetScoreRecord> }>;
 	prepNotes: Map<string, { stamp: string; notes: Record<string, FlippedPrepNote> }>;
+	notebookNotes?: Map<string, { stamp: string; items: NotebookSavedNote[] }>;
+	notebookArtifacts?: Map<string, { stamp: string; items: NotebookModuleArtifact[] }>;
 };
 
 const COURSE_STORE_CACHE_KEY = Symbol.for("learnharness.server.courseStore");
@@ -77,11 +90,16 @@ const MAX_COURSE_CACHE_ENTRIES = 64;
 
 function courseStoreCache(): CourseStoreCache {
 	const g = globalThis as typeof globalThis & { [COURSE_STORE_CACHE_KEY]?: CourseStoreCache };
-	return (g[COURSE_STORE_CACHE_KEY] ??= {
+	const cache = (g[COURSE_STORE_CACHE_KEY] ??= {
 		moduleScores: new Map(),
 		problemSetScores: new Map(),
 		prepNotes: new Map(),
+		notebookNotes: new Map(),
+		notebookArtifacts: new Map(),
 	});
+	cache.notebookNotes ??= new Map();
+	cache.notebookArtifacts ??= new Map();
+	return cache;
 }
 
 function fileStatStamp(file: string): string | null {
@@ -107,6 +125,8 @@ export function appendJsonlAtomic(file: string, record: unknown): void {
 	const cache = courseStoreCache();
 	cache.moduleScores.delete(resolved);
 	cache.problemSetScores.delete(resolved);
+	cache.notebookNotes?.delete(resolved);
+	cache.notebookArtifacts?.delete(resolved);
 }
 
 /** Read the latest integrative exam score per targetId (moduleId or chapter level) from module-exams.jsonl. */
@@ -250,6 +270,147 @@ export function writePrepNotes(domainId: string, notes: Record<string, FlippedPr
 	fs.mkdirSync(path.dirname(file), { recursive: true });
 	writeFileAtomicSync(file, JSON.stringify(notes, null, "\t"), { allowInPlaceFallback: true });
 	courseStoreCache().prepNotes.delete(path.resolve(file));
+}
+
+const VALID_NOTE_SOURCES: ReadonlySet<string> = new Set<NotebookNoteSource>(["tutor", "pdf", "video", "manual"]);
+
+/** Read all saved notebook notes for a domain from notebook-notes.jsonl. */
+export function readNotebookNotes(domainId: string): NotebookSavedNote[] {
+	const file = path.resolve(notebookNotesFile(domainId));
+	const cache = courseStoreCache().notebookNotes!;
+	const stamp = fileStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return [];
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return structuredClone(cached.items);
+	const raw = readOptionalText(file);
+	if (!raw) return [];
+
+	const byId = new Map<string, NotebookSavedNote>();
+	for (const line of raw.split("\n")) {
+		const trimmed = line.trim();
+		if (!trimmed) continue;
+		try {
+			const rec = JSON.parse(trimmed) as Partial<NotebookSavedNote>;
+			if (
+				typeof rec.id === "string"
+				&& typeof rec.domainId === "string"
+				&& typeof rec.moduleId === "string"
+				&& typeof rec.source === "string"
+				&& VALID_NOTE_SOURCES.has(rec.source)
+				&& typeof rec.excerpt === "string"
+				&& typeof rec.createdAt === "string"
+			) {
+				byId.set(rec.id, {
+					id: rec.id,
+					domainId: rec.domainId,
+					moduleId: rec.moduleId,
+					...(typeof rec.nodeId === "string" ? { nodeId: rec.nodeId } : {}),
+					...(typeof rec.nodeTitle === "string" ? { nodeTitle: rec.nodeTitle } : {}),
+					source: rec.source as NotebookNoteSource,
+					excerpt: rec.excerpt,
+					...(typeof rec.comment === "string" ? { comment: rec.comment } : {}),
+					...(typeof rec.locator === "string" ? { locator: rec.locator } : {}),
+					...(typeof rec.sourceUrl === "string" ? { sourceUrl: rec.sourceUrl } : {}),
+					...(typeof rec.sourceTitle === "string" ? { sourceTitle: rec.sourceTitle } : {}),
+					createdAt: rec.createdAt,
+				});
+			}
+		} catch {
+			// Skip malformed lines so one corrupted entry never blocks reads.
+		}
+	}
+	const items = [...byId.values()];
+	setBounded(cache, file, { stamp, items });
+	return structuredClone(items);
+}
+
+/** Append a saved notebook note atomically to notebook-notes.jsonl. */
+export function appendNotebookNote(domainId: string, note: NotebookSavedNote): void {
+	appendJsonlAtomic(notebookNotesFile(domainId), note);
+}
+
+/** Atomically delete a saved notebook note by ID. Returns true when an entry was removed. */
+export function deleteNotebookNote(domainId: string, noteId: string): boolean {
+	const existing = readNotebookNotes(domainId);
+	const remaining = existing.filter((item) => item.id !== noteId);
+	if (remaining.length === existing.length) return false;
+	const file = notebookNotesFile(domainId);
+	fs.mkdirSync(path.dirname(file), { recursive: true });
+	const body = remaining.length > 0 ? `${remaining.map((item) => JSON.stringify(item)).join("\n")}\n` : "";
+	writeFileAtomicSync(file, body, { allowInPlaceFallback: true });
+	courseStoreCache().notebookNotes!.delete(path.resolve(file));
+	return true;
+}
+
+/** Read all saved module deliverables / artifacts for a domain from notebook-artifacts.jsonl. */
+export function readModuleArtifacts(domainId: string): NotebookModuleArtifact[] {
+	const file = path.resolve(notebookArtifactsFile(domainId));
+	const cache = courseStoreCache().notebookArtifacts!;
+	const stamp = fileStatStamp(file);
+	if (!stamp) {
+		cache.delete(file);
+		return [];
+	}
+	const cached = cache.get(file);
+	if (cached && cached.stamp === stamp) return structuredClone(cached.items);
+	const raw = readOptionalText(file);
+	if (!raw) return [];
+
+	const byId = new Map<string, NotebookModuleArtifact>();
+	for (const line of raw.split("\n")) {
+		const trimmed = line.trim();
+		if (!trimmed) continue;
+		try {
+			const rec = JSON.parse(trimmed) as Partial<NotebookModuleArtifact>;
+			if (
+				typeof rec.id === "string"
+				&& typeof rec.domainId === "string"
+				&& typeof rec.moduleId === "string"
+				&& typeof rec.title === "string"
+				&& typeof rec.content === "string"
+				&& typeof rec.createdAt === "string"
+				&& typeof rec.updatedAt === "string"
+			) {
+				byId.set(rec.id, {
+					id: rec.id,
+					domainId: rec.domainId,
+					moduleId: rec.moduleId,
+					title: rec.title,
+					summary: typeof rec.summary === "string" ? rec.summary : "",
+					content: rec.content,
+					...(typeof rec.nodeId === "string" ? { nodeId: rec.nodeId } : {}),
+					createdAt: rec.createdAt,
+					updatedAt: rec.updatedAt,
+				});
+			}
+		} catch {
+			// Skip malformed lines so one corrupted entry never blocks reads.
+		}
+	}
+	const items = [...byId.values()];
+	setBounded(cache, file, { stamp, items });
+	return structuredClone(items);
+}
+
+/** Append a saved module artifact atomically to notebook-artifacts.jsonl. */
+export function appendModuleArtifact(domainId: string, artifact: NotebookModuleArtifact): void {
+	appendJsonlAtomic(notebookArtifactsFile(domainId), artifact);
+}
+
+/** Atomically delete a saved module artifact by ID. Returns true when an entry was removed. */
+export function deleteModuleArtifact(domainId: string, artifactId: string): boolean {
+	const existing = readModuleArtifacts(domainId);
+	const remaining = existing.filter((item) => item.id !== artifactId);
+	if (remaining.length === existing.length) return false;
+	const file = notebookArtifactsFile(domainId);
+	fs.mkdirSync(path.dirname(file), { recursive: true });
+	const body = remaining.length > 0 ? `${remaining.map((item) => JSON.stringify(item)).join("\n")}\n` : "";
+	writeFileAtomicSync(file, body, { allowInPlaceFallback: true });
+	courseStoreCache().notebookArtifacts!.delete(path.resolve(file));
+	return true;
 }
 
 export function studyActivitySummary(domainId: string, at: string): { minutes14d: number; activeDays14d: number; totalStudiedMinutes: number } {

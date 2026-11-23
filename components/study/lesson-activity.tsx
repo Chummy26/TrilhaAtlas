@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { ChatActionsContext } from "@/components/chat-actions-context";
 import { PronunciationPractice } from "./pronunciation-practice.tsx";
 import { ComicStrip } from "./comic-strip.tsx";
+import { RoleplayActivity } from "./roleplay-activity.tsx";
 import { pickStoryMotif, StoryBadge } from "./comic-art.tsx";
 import { CircuitFigure } from "@/components/study/circuit-figure";
 import { currentReadings, dividerLab, falstadExperiments, parseLessonActivity, type ArtifactPartProps, type LessonActivity } from "@/src/core";
@@ -35,6 +36,7 @@ export function ActivityArtifact({ part }: ArtifactPartProps) {
 export function ActivityPanel({ activity }: { activity: LessonActivity }) {
 	if (activity.kind === "pronunciation" && activity.voice) return <PronunciationPractice key={JSON.stringify(activity.voice)} voice={activity.voice} title={activity.title} />;
 	if (activity.kind === "divider") return <DividerPanel key={JSON.stringify(activity.divider)} initial={activity.divider} />;
+	if (activity.kind === "roleplay" && activity.roleplay) return <RoleplayActivity activity={activity} />;
 	if (activity.kind === "falstad" && activity.experiment) {
 		const lab = falstadExperiments[activity.experiment];
 		return <section className="study-lab" aria-label={lab.title}><header><h2>{lab.title}</h2><p>{lab.task}</p></header>
@@ -146,7 +148,7 @@ function LessonPanel({ activity }: { activity: LessonActivity }) {
 					: "Use I = V/R. Compare 10 V ÷ 5 kΩ com 10 V ÷ 10 kΩ e tente de novo."}</p>}</div>
 			</div>}
 			{source && <details><summary>Fonte da aula</summary>{/^https:\/\/[^\s]+$/i.test(source) ? <a href={source} target="_blank" rel="noreferrer">{preset?.source ?? source}</a> : <p>{source}</p>}</details>}
-			{actions?.askActivity && <form onSubmit={async e => {
+			{kind !== "roleplay" && actions?.askActivity && <form onSubmit={async e => {
 				e.preventDefault();
 				const sent = await actions.askActivity?.(`${question.trim() || "Como explico este resultado?"}\n\nAtividade «${title}». ${context}`);
 				setNotice(sent ? "" : "Sua pergunta ficou aqui. Tente enviá-la quando o chat estiver disponível.");

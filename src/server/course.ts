@@ -4,11 +4,14 @@
  * sets + lab scripts, flipped-classroom prep guides, and domain flashcard sync.
  *
  * Domain-scoped persistence under `<data>/domains/<id>/learner/`:
- *   - module-exams.jsonl  append-only exam receipts
- *   - problem-sets.jsonl  append-only problem-set receipts
- *   - prep-notes.json     Record<nodeId, FlippedPrepNote>
+ *   - module-exams.jsonl       append-only exam receipts
+ *   - problem-sets.jsonl       append-only problem-set receipts
+ *   - prep-notes.json          Record<nodeId, FlippedPrepNote>
+ *   - notebook-notes.jsonl     saved academic notebook notes
+ *   - notebook-artifacts.jsonl saved module deliverables / artifacts
  */
 
+import crypto from "node:crypto";
 import path from "node:path";
 import { activeDomainId, PATHS } from "../../config.ts";
 import sections from "../../content/resources/sections.json" with { type: "json" };
@@ -36,7 +39,14 @@ import {
 	type ModuleExamQuestion,
 	type ModuleExamResult,
 } from "../core/study/module-exam.ts";
-import { buildDomainNotebook, type DomainNotebook } from "../core/study/notebook.ts";
+import {
+	buildDomainNotebook,
+	sanitizeModuleArtifactInput,
+	sanitizeSavedNoteInput,
+	type DomainNotebook,
+	type NotebookModuleArtifact,
+	type NotebookSavedNote,
+} from "../core/study/notebook.ts";
 import {
 	buildProblemSet,
 	gradeProblemSet,
@@ -52,10 +62,16 @@ import {
 import { buildDomainTranscript, type DomainTranscript } from "../core/study/transcript.ts";
 import {
 	appendJsonlAtomic,
+	appendModuleArtifact,
+	appendNotebookNote,
+	deleteModuleArtifact,
+	deleteNotebookNote,
 	hasSavedPrepNote,
 	moduleExamsFile,
 	problemSetsFile,
+	readModuleArtifacts,
 	readModuleScoreMap,
+	readNotebookNotes,
 	readPrepNote,
 	readPrepNotes,
 	readProblemSetScoreMap,
@@ -463,7 +479,7 @@ function buildSyllabusAndState(domainId?: string) {
 		...(focusNodeId ? { focusNodeId } : {}),
 	});
 
-	return { id, manifest, cur, events, snap, at, syllabus };
+	return { id, manifest, cur, events, snap, at, syllabus, materialsByUnit };
 }
 
 /** Full domain course syllabus with observed pace, FSRS retention, exam & problem-set scores, and curated materials. */
@@ -478,7 +494,7 @@ export function studyCoursePageData(domainId?: string): {
 	syllabus: StudySyllabus;
 	notebook: DomainNotebook;
 } {
-	const { id, manifest, cur, events, snap, at, syllabus } = buildSyllabusAndState(domainId);
+	const { id, manifest, cur, events, snap, at, syllabus, materialsByUnit } = buildSyllabusAndState(domainId);
 	const notebook = buildDomainNotebook({
 		domainId: id,
 		snapshot: cur.snapshot,
@@ -486,6 +502,9 @@ export function studyCoursePageData(domainId?: string): {
 		learner: snap,
 		events,
 		at,
+		savedNotes: readNotebookNotes(id),
+		artifacts: readModuleArtifacts(id),
+		materialsByUnit,
 	});
 	return {
 		domainId: id,
@@ -517,11 +536,14 @@ export function studyTranscript(domainId?: string): DomainTranscript {
 	});
 }
 
-/** Domain study notebook grouping mistakes, misconception beliefs, and completed concept notes by module. */
+/** Domain study notebook grouping mistakes, misconception beliefs, completed concept notes, saved notes, job aids, and module artifacts. */
 export function studyNotebook(domainId?: string): DomainNotebook {
 	const { id, cur } = resolveDomain(domainId);
 	const at = new Date().toISOString();
 	const { events, snap } = readLearnerHistory(id, cur.snapshot, cur.view, at);
+	const savedNotes = readNotebookNotes(id);
+	const artifacts = readModuleArtifacts(id);
+	const materialsByUnit = readCuratedMaterialsByUnit(id, cur.snapshot, cur.view);
 
 	return buildDomainNotebook({
 		domainId: id,
@@ -530,7 +552,114 @@ export function studyNotebook(domainId?: string): DomainNotebook {
 		learner: snap,
 		events,
 		at,
+		savedNotes,
+		artifacts,
+		materialsByUnit,
 	});
+}
+
+function firstCurriculumUnitId(snapshot: CurriculumSnapshot, graph: LearnerGraphView): string {
+	for (const id of graph.ids) {
+		if (!graph.nodes.get(id)?.isLeaf) continue;
+		const unitId = unitIdOf(snapshot, id);
+		if (unitId) return unitId;
+	}
+	for (const item of Object.values(snapshot.items)) {
+		if (item.kind === "unit") return item.id;
+	}
+	return "general";
+}
+
+function resolveNotebookModuleId(
+	snapshot: CurriculumSnapshot,
+	graph: LearnerGraphView,
+	moduleId?: string,
+	nodeId?: string,
+): string {
+	if (moduleId) {
+		if (snapshot.items[moduleId]) {
+			return unitIdOf(snapshot, moduleId) ?? moduleId;
+		}
+		return moduleId;
+	}
+	if (nodeId) {
+		const fromNode = unitIdOf(snapshot, nodeId);
+		if (fromNode) return fromNode;
+	}
+	return firstCurriculumUnitId(snapshot, graph);
+}
+
+/** Save a quick note or 1-click excerpt (from tutor, PDF reader, video, or manual entry) into the domain notebook. */
+export async function saveStudyNotebookNote(input: unknown, domainId?: string): Promise<NotebookSavedNote> {
+	const sanitized = sanitizeSavedNoteInput(input);
+	if (!sanitized.ok) throw new StudyError(400, sanitized.error);
+	const { id, cur } = resolveDomain(domainId);
+	const val = sanitized.value;
+	const resolvedModuleId = resolveNotebookModuleId(cur.snapshot, cur.view, val.moduleId, val.nodeId);
+	const nodeTitle = val.nodeId
+		? (cur.view.nodes.get(val.nodeId)?.title ?? cur.snapshot.items[val.nodeId]?.title.pt)
+		: undefined;
+	const note: NotebookSavedNote = {
+		id: `note_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`,
+		domainId: id,
+		moduleId: resolvedModuleId,
+		...(val.nodeId ? { nodeId: val.nodeId } : {}),
+		...(nodeTitle ? { nodeTitle } : {}),
+		source: val.source,
+		excerpt: val.excerpt,
+		...(val.comment ? { comment: val.comment } : {}),
+		...(val.locator ? { locator: val.locator } : {}),
+		...(val.sourceUrl ? { sourceUrl: val.sourceUrl } : {}),
+		...(val.sourceTitle ? { sourceTitle: val.sourceTitle } : {}),
+		createdAt: new Date().toISOString(),
+	};
+	appendNotebookNote(id, note);
+	emit("curriculum-expanded", { domainId: id, nodeId: note.nodeId ?? note.moduleId });
+	return note;
+}
+
+/** Delete a saved notebook note by ID. */
+export async function deleteStudyNotebookNote(noteId: string, domainId?: string): Promise<{ deleted: boolean }> {
+	const trimmed = typeof noteId === "string" ? noteId.trim() : "";
+	if (!trimmed) throw new StudyError(400, "Identificador da anotação ausente.");
+	const { id } = resolveDomain(domainId);
+	const deleted = deleteNotebookNote(id, trimmed);
+	if (deleted) emit("curriculum-expanded", { domainId: id, nodeId: trimmed });
+	return { deleted };
+}
+
+/** Save a learner deliverable / artifact under a module in the domain notebook. */
+export async function saveStudyModuleArtifact(input: unknown, domainId?: string): Promise<NotebookModuleArtifact> {
+	const sanitized = sanitizeModuleArtifactInput(input);
+	if (!sanitized.ok) throw new StudyError(400, sanitized.error);
+	const { id, cur } = resolveDomain(domainId);
+	const val = sanitized.value;
+	const resolvedModuleId = resolveNotebookModuleId(cur.snapshot, cur.view, val.moduleId, val.nodeId);
+	const now = new Date().toISOString();
+	const artifact: NotebookModuleArtifact = {
+		id: `artifact_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`,
+		domainId: id,
+		moduleId: resolvedModuleId,
+		title: val.title,
+		summary: val.summary,
+		content: val.content,
+		...(val.nodeId ? { nodeId: val.nodeId } : {}),
+		createdAt: now,
+		updatedAt: now,
+	};
+	appendModuleArtifact(id, artifact);
+	emit("curriculum-expanded", { domainId: id, nodeId: artifact.nodeId ?? artifact.moduleId });
+	return artifact;
+}
+
+/** Delete a saved module artifact by ID. */
+export async function deleteStudyModuleArtifact(artifactId: string, domainId?: string): Promise<{ deleted: boolean }> {
+	const trimmed = typeof artifactId === "string" ? artifactId.trim() : "";
+	if (!trimmed) throw new StudyError(400, "Identificador do artefato ausente.");
+	const { id } = resolveDomain(domainId);
+	const deleted = deleteModuleArtifact(id, trimmed);
+	if (deleted) emit("curriculum-expanded", { domainId: id, nodeId: trimmed });
+	return { deleted };
 }
 
 // ─── integrative module / chapter exams ──────────────────────────────────────
