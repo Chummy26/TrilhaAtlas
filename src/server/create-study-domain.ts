@@ -4,6 +4,7 @@ import path from "node:path";
 import { z } from "zod";
 import { PATHS } from "../../config.ts";
 import { curriculumDir } from "../core/domains/paths.ts";
+import { emit } from "../core/events.ts";
 import type { DomainCreationStatus } from "../core/study/creation.ts";
 import { generateDomainCurriculum } from "./domain-generation.ts";
 import { attachRegionalSources } from "./domain-reading-list.ts";
@@ -53,8 +54,25 @@ export function domainCreationStatus(requestId: string) {
 	return status;
 }
 
+export function activeDomainCreationJob(): DomainCreationStatus | null {
+	const prefix = PATHS.data + "/";
+	const now = Date.now();
+	let latestRecent: (Extract<DomainCreationStatus, { state: "ready" | "failed" }>) | null = null;
+	for (const [key, job] of jobs) {
+		if (!key.startsWith(prefix)) continue;
+		const st = job.status;
+		if (st.state === "planning" || st.state === "materials") return { ...st };
+		if (st.finishedAt && now - st.finishedAt < 5 * 60_000) {
+			if (!latestRecent || (st.finishedAt > (latestRecent.finishedAt ?? 0))) latestRecent = { ...st };
+		}
+	}
+	return latestRecent;
+}
+
 export function cancelDomainCreation(requestId: string) {
-	jobs.get(ids(requestId).key)?.controller.abort();
+	const job = jobs.get(ids(requestId).key);
+	job?.controller.abort();
+	emit("activity-changed", {});
 	return domainCreationStatus(requestId);
 }
 
@@ -84,28 +102,64 @@ export function startDomainCreation(body: unknown, schedule: (run: () => Promise
 		if (job.status.state === "planning" || job.status.state === "materials") throw new StudyError(409, "Já há uma árvore em criação. Aguarde o término.");
 		if (jobs.size >= 32) jobs.delete(id);
 	}
-	const job: Job = { fingerprint, status: { state: "planning", done: 0, total: 0 }, controller: new AbortController() };
+	const startedAt = Date.now();
+	const topicSummary = topic.split(/\r?\n/)[0]!.slice(0, 96);
+	const job: Job = {
+		fingerprint,
+		status: { state: "planning", done: 0, total: 0, requestId, topic: topicSummary, startedAt },
+		controller: new AbortController(),
+	};
 	jobs.set(key, job);
+	emit("activity-changed", {});
 	schedule(async () => {
-		const signal = AbortSignal.any([job.controller.signal, AbortSignal.timeout((pace === "extended" ? 120 : 45) * 60_000)]);
+		const timeoutSignal = AbortSignal.timeout((pace === "extended" ? 240 : 120) * 60_000);
+		const signal = AbortSignal.any([job.controller.signal, timeoutSignal]);
 		try {
 			const result = await generateDomainCurriculum({ topic, model, pace, domainId, prefix: availablePrefix(requestId), signal,
-				onProgress: (done, total) => { job.status = { state: "planning", done, total }; } });
-			job.status = { state: "materials", done: 0, total: result.regions.length };
+				onProgress: (done, total, currentLabel) => {
+					job.status = { state: "planning", done, total, requestId, topic: topicSummary, currentLabel, startedAt };
+					emit("activity-changed", {});
+				} });
+			job.status = { state: "materials", done: 0, total: result.regions.length, requestId, topic: topicSummary, currentLabel: result.regions[0]?.title, startedAt };
+			emit("activity-changed", {});
 			await attachRegionalSources(
 				result.seed,
 				result.regions,
 				signal,
-				done => { job.status = { state: "materials", done, total: result.regions.length }; },
+				done => {
+					job.status = { state: "materials", done, total: result.regions.length, requestId, topic: topicSummary, currentLabel: result.regions[done]?.title, startedAt };
+					emit("activity-changed", {});
+				},
 				undefined,
 				initialMaterials,
 			);
 			signal.throwIfAborted();
 			const manifest = installStudyDomain([result.seed], { requestId, fingerprint, topic, model: result.model, reviews: result.reviews, pace });
-			job.status = saved(requestId, fingerprint) ?? { state: "ready", domainId, title: manifest.title.pt };
+			const finishedAt = Date.now();
+			const persisted = saved(requestId, fingerprint);
+			job.status = persisted?.state === "ready"
+				? { ...persisted, requestId, topic: topicSummary, startedAt, finishedAt }
+				: { state: "ready", domainId, title: manifest.title.pt, requestId, topic: topicSummary, startedAt, finishedAt };
+			emit("activity-changed", {});
 		} catch (error) {
-			job.status = { state: "failed", error: signal.aborted ? "Criação interrompida. Você pode tentar novamente." :
-				error instanceof Error ? error.message.slice(0, 480) : "Não foi possível criar o domínio." };
+			const userCancelled = job.controller.signal.aborted;
+			const timedOut = !userCancelled && timeoutSignal.aborted;
+			if (!userCancelled && process.env.NODE_ENV !== "test") {
+				console.error(`[domain-creation ${domainId}] failed (${timedOut ? "timeout" : "error"}):`, error instanceof Error ? error.message : String(error));
+			}
+			job.status = {
+				state: "failed",
+				requestId,
+				topic: topicSummary,
+				startedAt,
+				finishedAt: Date.now(),
+				error: userCancelled
+					? "Criação cancelada. Você pode tentar novamente."
+					: timedOut
+						? "A criação excedeu o tempo limite. Tente novamente ou escolha um ritmo mais curto."
+						: error instanceof Error ? error.message.slice(0, 480) : "Não foi possível criar o domínio.",
+			};
+			emit("activity-changed", {});
 		}
 	});
 	return job.status;

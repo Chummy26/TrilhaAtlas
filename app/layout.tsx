@@ -7,6 +7,7 @@ import { ActivityProvider } from "@/components/activity-dock";
 import { ServerEventsProvider } from "@/components/server-events";
 import { AppearanceProvider } from "@/components/settings/appearance";
 import UpdateBanner from "@/components/update-banner";
+import { BackgroundTasksPill } from "@/components/background-tasks-pill";
 import { PluginsProvider } from "@/components/plugins";
 import { activeDomainId, hasDictationKey, localeDictionary, readThemeBoot } from "@/src/server";
 import { resolveLocale, themeRootAttributes } from "@/src/core";
@@ -52,6 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 						<SidebarProvider>
 							<ActivityProvider>
 								<AppShell initialSettings={settings} domain={domain} hasDictationKey={dictationConfigured}>{children}</AppShell>
+								<BackgroundTasksPill />
 							</ActivityProvider>
 						</SidebarProvider>
 					</AppearanceProvider>

@@ -159,3 +159,68 @@ it("sends a structurally valid but pedagogically rejected region back for repair
 	assert.ok(repaired.calls[5]!.includes(laterGap.issues[0]!.fix));
 	assert.ok(result.seed.items.some(item => item.summary === corrected.skills[3]!.activity));
 });
+
+it("auto-repairs across consecutive distinct reviewer findings without aborting the domain", async () => {
+	const four = structuredClone(outline);
+	four.areas[0]!.regions.push({ ...four.areas[0]!.regions[0]!, title: { pt: "Ler a escala", en: "Read scale" } });
+	four.areas[1]!.regions[0]!.requires = [1, 2];
+	four.areas[2]!.regions[0]!.requires = [3];
+	const skills = lessons(0).skills;
+	const base = {
+		skills: [...skills, {
+			...skills[2],
+			title: { pt: "Comparar trajetos", en: "Compare routes" },
+			requires: [3],
+			practice: { targetHours: 8, sessions: 16, minutesPerSession: 30, variation: "Mude a escala em cada carta.", exitCriterion: "Explicar a escala de cada carta." },
+		}],
+		reviews: [1, 2].map(i => ({ prompt: "Qual o desnível no novo trajeto " + i + "?", answers: ["15"], explanation: "A diferença entre as cotas é 15 m." })),
+	};
+	const finalRepaired = structuredClone(base);
+	finalRepaired.skills[3]!.activity = "Especificar explicitamente se a distração ocorreu na aprendizagem ou no teste ao diagnosticar a falha.";
+	const mkIssue = (skill: number, tag: string) => ({
+		issues: [{ skill, reason: `Defeito distinto ${tag} na habilidade ${skill}.`, fix: `Corrija o ponto ${tag} na habilidade ${skill}.` }],
+	});
+	const pass = { issues: [] };
+	// 3 distinct review findings across rounds 0..2 (previously aborted at round 2);
+	// round 2 triggers final targeted self-repair and succeeds with valid seed.
+	const mock = scripted([
+		four,
+		base,
+		mkIssue(1, "r0"), base,
+		mkIssue(2, "r1"), base,
+		mkIssue(4, "r2"), finalRepaired,
+		base, pass,
+		base, pass,
+		base, pass,
+	]);
+	const result = await generateDomainCurriculum({ ...input, pace: "focused" }, async () => mock.engine);
+	assert.equal(result.regions.length, 4);
+	assert.ok(result.seed.items.some(item => item.summary === finalRepaired.skills[3]!.activity));
+	assert.ok(mock.calls.some(call => call.includes("previouslyFixed")));
+});
+
+it("authors regions in parallel with deterministic seed order when concurrency > 1", async () => {
+	const model = createFauxCore({}).getModel();
+	const engine: PiEngine = {
+		model,
+		streamFn: (_model, context) => {
+			const prompt = JSON.stringify(context.messages);
+			const reply = createAssistantMessageEventStream();
+			if (prompt.includes("Interpretar relevo em mapas")) {
+				reply.end(fauxAssistantMessage(JSON.stringify(outline)));
+			} else if (prompt.includes("Curvas de nível")) {
+				reply.end(fauxAssistantMessage(JSON.stringify(lessons(0))));
+			} else if (prompt.includes("Calcular declividade")) {
+				reply.end(fauxAssistantMessage(JSON.stringify(lessons(1))));
+			} else {
+				reply.end(fauxAssistantMessage(JSON.stringify(lessons(2))));
+			}
+			return reply;
+		},
+	};
+	const result = await generateDomainCurriculum({ ...input, concurrency: 4 }, async () => engine);
+	assert.equal(result.regions.length, 3);
+	assert.equal(result.regions[0]!.id, "to.a1.r1");
+	assert.equal(result.regions[1]!.id, "to.a2.r2");
+	assert.equal(result.regions[2]!.id, "to.a3.r3");
+});

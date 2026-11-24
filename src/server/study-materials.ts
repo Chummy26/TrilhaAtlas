@@ -40,8 +40,8 @@ const videos: StudyMaterial[] = [
 	{ kind: "video", title: "Let’s Learn English · VOA", part: "Lesson 1 · Welcome!", url: "https://www.youtube.com/watch?v=WR9_nsLyaEY", lang: "en", nodes: ["en.speaking.a1.greetings"] },
 ];
 
-function current(domain: string, id: string, overview = false) {
-	if (!domain || domain !== activeDomainId()) throw new StudyError(409, "O domínio ativo mudou.");
+function current(domain: string, id: string, overview = false, allowBackgroundDomain = false) {
+	if (!domain || (!allowBackgroundDomain && domain !== activeDomainId())) throw new StudyError(409, "O domínio ativo mudou.");
 	const manifest = studyDomains().readManifest(domain);
 	const cur = manifest && loadCurriculum(domain, manifest);
 	const item = cur?.view.nodes.has(id) && cur.snapshot.items[id];
@@ -191,8 +191,8 @@ function materialsState(): StudyMaterialsGlobalState {
 	});
 }
 
-export async function readRegionMaterials(domain: string, id: string, search?: Discovery): Promise<RegionMaterials> {
-	const { item, region, snapshot, view, manifest } = current(domain, id);
+export async function readRegionMaterials(domain: string, id: string, search?: Discovery, allowBackgroundDomain = false): Promise<RegionMaterials> {
+	const { item, region, snapshot, view, manifest } = current(domain, id, false, allowBackgroundDomain);
 	const ids = new Set<string>();
 	function collect(key: string) {
 		ids.add(key);
@@ -320,7 +320,7 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 		mat.reputationScore = rep.score;
 		if (rep.badge) mat.reputationBadge = rep.badge;
 	}
-	if (activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
+	if (!allowBackgroundDomain && activeDomainId() !== domain) throw new StudyError(409, "O domínio ativo mudou.");
 	const positions = new Map(members.map((m, i) => [m.id, i]));
 	const firstPos = new Map<StudyMaterial, number>();
 	for (const m of materials) {
@@ -340,16 +340,145 @@ export async function readRegionMaterials(domain: string, id: string, search?: D
 	return { region: region.id, materials, localReadings, regionNodes, libraryBooks, references: readingReferences(domain, members), videoSearch, message };
 }
 
+export const MAX_MATERIALS_PER_NODE = 10;
+export const QUALITY_UPGRADE_THRESHOLD = 0.7;
+
+function qualityRank(mat: Pick<StudyMaterial, "title" | "url" | "part" | "fullBookUrl" | "suggested">): number {
+	const rep = scoreEducationalReputation({ title: mat.title, url: mat.url, part: mat.part, fullBookUrl: mat.fullBookUrl });
+	return rep.score + (mat.suggested ? 0 : 8);
+}
+
+/**
+ * Enforces a hard ceiling of `cap` (default 10) materials per node.
+ * Once a node reaches `upgradeRatio` (default 70% = 7 items), new candidates are
+ * admitted only if they improve quality, replacing lower-ranked enriched entries
+ * when at the cap while never removing manual or fixed curriculum anchors.
+ */
+export function mergeEnrichedMaterialsWithCap(
+	baseFixed: readonly StudyMaterial[],
+	existingCached: readonly StudyMaterial[],
+	candidates: readonly StudyMaterial[],
+	cap = MAX_MATERIALS_PER_NODE,
+	upgradeRatio = QUALITY_UPGRADE_THRESHOLD,
+): { merged: StudyMaterial[]; upgraded: number; atCap: boolean } {
+	const upgradeThreshold = Math.ceil(cap * upgradeRatio);
+	const fixedByNode = new Map<string, number>();
+	const fixedUrls = new Set<string>();
+	for (const mat of baseFixed) {
+		fixedUrls.add(mat.url);
+		for (const nid of mat.nodes) fixedByNode.set(nid, (fixedByNode.get(nid) ?? 0) + 1);
+	}
+
+	const pool: StudyMaterial[] = existingCached
+		.filter(m => !fixedUrls.has(m.url))
+		.map(m => ({ ...m, nodes: [...new Set(m.nodes)] }));
+
+	const countForNode = (nid: string) => {
+		let count = fixedByNode.get(nid) ?? 0;
+		for (const item of pool) if (item.nodes.includes(nid)) count++;
+		return count;
+	};
+
+	const rankedCandidates = [...candidates]
+		.filter(c => !fixedUrls.has(c.url))
+		.sort((a, b) => qualityRank(b) - qualityRank(a));
+
+	let upgraded = 0;
+
+	for (const candidate of rankedCandidates) {
+		const candScore = qualityRank(candidate);
+		const existing = pool.find(m => m.url === candidate.url);
+		const acceptedNodes: string[] = [];
+
+		for (const nid of candidate.nodes) {
+			if (existing?.nodes.includes(nid)) continue;
+			const currentCount = countForNode(nid);
+			if (currentCount < upgradeThreshold) {
+				acceptedNodes.push(nid);
+				continue;
+			}
+			// Quality upgrade mode (>= 70% of cap)
+			const nodeItems = pool.filter(m => m.nodes.includes(nid));
+			let worstItem: StudyMaterial | undefined;
+			let worstScore = Infinity;
+			for (const item of nodeItems) {
+				const s = qualityRank(item);
+				if (s < worstScore) {
+					worstScore = s;
+					worstItem = item;
+				}
+			}
+			if (currentCount < cap) {
+				// Between 70% and 100%: only add if quality is at least as good as the current floor or strong (>= 55)
+				if (candScore >= Math.min(55, worstScore)) {
+					acceptedNodes.push(nid);
+				}
+			} else if (worstItem && candScore > worstScore) {
+				// At cap (10/10): replace the weakest enriched entry on this node with the higher-reputation source
+				worstItem.nodes = worstItem.nodes.filter(k => k !== nid);
+				if (!worstItem.nodes.length) {
+					const idx = pool.indexOf(worstItem);
+					if (idx >= 0) pool.splice(idx, 1);
+				}
+				acceptedNodes.push(nid);
+				upgraded++;
+			}
+		}
+
+		if (!acceptedNodes.length) continue;
+		if (existing) {
+			existing.nodes = [...new Set([...existing.nodes, ...acceptedNodes])];
+		} else {
+			pool.push({ ...candidate, nodes: acceptedNodes });
+		}
+	}
+
+	// Final safety trim: ensure no node exceeds `cap` enriched+fixed items (drop weakest enriched entries first).
+	const touchedNodes = new Set<string>();
+	for (const item of pool) for (const nid of item.nodes) touchedNodes.add(nid);
+	let atCap = false;
+	for (const nid of touchedNodes) {
+		const fixedCount = fixedByNode.get(nid) ?? 0;
+		const allowed = Math.max(0, cap - fixedCount);
+		const nodeItems = pool.filter(m => m.nodes.includes(nid));
+		if (fixedCount + nodeItems.length >= cap) atCap = true;
+		if (nodeItems.length > allowed) {
+			nodeItems.sort((a, b) => qualityRank(b) - qualityRank(a));
+			const toDrop = nodeItems.slice(allowed);
+			for (const drop of toDrop) {
+				drop.nodes = drop.nodes.filter(k => k !== nid);
+			}
+		}
+	}
+	const finalPool = pool.filter(m => m.nodes.length > 0);
+	if (!atCap) {
+		for (const [nid, cnt] of fixedByNode) {
+			if (cnt >= cap) { atCap = true; break; }
+		}
+	}
+	return { merged: finalPool, upgraded, atCap };
+}
+
+export interface EnrichRegionResult extends RegionMaterials {
+	addedBooks: number;
+	addedVideos: number;
+	upgraded: number;
+	atCap: boolean;
+}
+
 /**
  * Expand and upgrade a region/node's materials with higher-reputation academic
  * textbooks, open PDFs, and university lectures, cross-linked to matching skills.
+ * Enforces MAX_MATERIALS_PER_NODE (10) and switches to quality-upgrade mode at >= 70%.
  */
 export async function enrichRegionMaterials(
 	domain: string,
 	id: string,
 	fetchMetadata?: Parameters<typeof enrichRegionalCatalog>[3],
-): Promise<RegionMaterials> {
-	const { item, region, snapshot, view, manifest } = current(domain, id);
+	options?: { allowBackgroundDomain?: boolean; signal?: AbortSignal },
+): Promise<EnrichRegionResult> {
+	const allowBg = Boolean(options?.allowBackgroundDomain);
+	const { item, region, snapshot, view, manifest } = current(domain, id, false, allowBg);
 	const ids = new Set<string>();
 	function collect(key: string) {
 		ids.add(key);
@@ -359,12 +488,22 @@ export async function enrichRegionMaterials(
 	const members = view.ids.map(key => snapshot.items[key]!).filter(n => ids.has(n.id));
 	const childSkills = members.filter(n => n.id !== region.id).map(n => ({ id: n.id, title: n.title.pt, titleEn: n.title.en }));
 
-	const before = await readRegionMaterials(domain, id);
+	const before = await readRegionMaterials(domain, id, undefined, allowBg);
 	const beforeUrls = new Set(before.materials.map(m => m.url));
+
+	const dir = resourcesDir(PATHS.data, domain);
+	const enrichedStore = new FileTtlCache(path.join(dir, "region-enriched-v1"));
+	const prefix = `v${snapshot.version}:`;
+	const cacheKey = prefix + "enriched:" + region.id;
+	const existingCached = (await enrichedStore.get<StudyMaterial[]>(cacheKey, CATALOG_TTL_MS)) ?? [];
+	const existingCachedUrls = new Set(existingCached.map(m => m.url));
+	const baseFixed = before.materials.filter(m => !existingCachedUrls.has(m.url));
 
 	const subject = manifest.title.en + " " + manifest.title.pt;
 	const focusQueryEn = item.id !== region.id ? `${region.title.en} ${item.title.en}` : region.title.en;
 	const focusQueryPt = item.id !== region.id ? `${region.title.pt} ${item.title.pt}` : region.title.pt;
+	const timeoutSignal = AbortSignal.timeout(25000);
+	const fetchSignal = options?.signal ? AbortSignal.any([options.signal, timeoutSignal]) : timeoutSignal;
 
 	const found = await enrichRegionalCatalog(
 		domain,
@@ -377,7 +516,7 @@ export async function enrichRegionMaterials(
 			videoQuery: focusQueryPt,
 			skills: childSkills,
 		},
-		AbortSignal.timeout(25000),
+		fetchSignal,
 		fetchMetadata,
 		subject,
 	).catch(() => []);
@@ -441,27 +580,21 @@ export async function enrichRegionMaterials(
 		});
 	}
 
-	const dir = resourcesDir(PATHS.data, domain);
-	const enrichedStore = new FileTtlCache(path.join(dir, "region-enriched-v1"));
-	const prefix = `v${snapshot.version}:`;
-	const cacheKey = prefix + "enriched:" + region.id;
-	const existingCached = (await enrichedStore.get<StudyMaterial[]>(cacheKey, CATALOG_TTL_MS)) ?? [];
-	const merged = [...existingCached];
-	for (const candidate of nextItems) {
-		const same = merged.find(m => m.url === candidate.url);
-		if (same) same.nodes = [...new Set([...same.nodes, ...candidate.nodes])];
-		else merged.push(candidate);
-	}
+	const { merged, upgraded, atCap } = mergeEnrichedMaterialsWithCap(baseFixed, existingCached, nextItems);
 	if (merged.length) await enrichedStore.set(cacheKey, merged);
 
-	const after = await readRegionMaterials(domain, id);
+	const after = await readRegionMaterials(domain, id, undefined, allowBg);
 	const addedBooks = after.materials.filter(m => m.kind === "book" && !beforeUrls.has(m.url)).length;
 	const addedVideos = after.materials.filter(m => m.kind === "video" && !beforeUrls.has(m.url)).length;
 	const addedTotal = addedBooks + addedVideos;
-	const summary = addedTotal > 0
-		? `Acervo ampliado e qualificado: +${addedBooks} leitura(s) e +${addedVideos} vídeo(s) vinculados.`
-		: "Acervo verificado: as fontes de referência disponíveis já estão vinculadas nesta região.";
-	return { ...after, message: summary };
+	const summary = upgraded > 0
+		? `Acervo qualificado: +${addedBooks} leitura(s) e +${addedVideos} vídeo(s) (${upgraded} substituído(s) por fontes melhores; limite ${MAX_MATERIALS_PER_NODE}/nó).`
+		: addedTotal > 0
+			? `Acervo ampliado e qualificado: +${addedBooks} leitura(s) e +${addedVideos} vídeo(s) vinculados (limite ${MAX_MATERIALS_PER_NODE}/nó).`
+			: atCap
+				? `Acervo no limite de qualidade (${MAX_MATERIALS_PER_NODE}/nó): nenhuma fonte superior encontrada.`
+				: "Acervo verificado: as fontes de referência disponíveis já estão vinculadas nesta região.";
+	return { ...after, message: summary, addedBooks, addedVideos, upgraded, atCap };
 }
 
 export async function updateRegionalReading(domain: string, id: string, request: Request) {

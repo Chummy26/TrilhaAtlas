@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SparklesIcon } from "lucide-react";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
 import { useSettingsSaved } from "@/components/settings-signal";
 import { useI18n } from "@/components/i18n";
-import type { RegionMaterials, SkillMap, SkillNode, StudyNodeBrief, Translator } from "@/src/core";
+import type { RegionMaterials, SkillMap, SkillNode, StudyNodeBrief, Translator, TreeEnrichmentStatus } from "@/src/core";
 import type { LessonStart } from "./today-card.tsx";
 import { lessonStatement } from "./lesson-statement.ts";
 import { SkillCanvas } from "./skill-canvas.tsx";
+import { TreeAssistantPanel } from "./tree-assistant-panel.tsx";
 
 type NodeDetail = {
 	brief: StudyNodeBrief;
@@ -925,9 +927,12 @@ export function SkillTree({
 	const completed = useMemo(() => leaves.reduce((sum, n) => sum + (n.completed ? 1 : 0), 0), [leaves]);
 	const pct = leaves.length > 0 ? Math.round((100 * completed) / leaves.length) : 0;
 	const [locate, setLocate] = useState(0);
-	const [enrichingTree, setEnrichingTree] = useState(false);
-	const [treeEnrichNote, setTreeEnrichNote] = useState("");
+	const [assistantOpen, setAssistantOpen] = useState(false);
+	const [enrichJob, setEnrichJob] = useState<TreeEnrichmentStatus | null>(null);
+	const [enrichDismissedAt, setEnrichDismissedAt] = useState(0);
 	const [materialsNonce, setMaterialsNonce] = useState(0);
+	const lastFinishedEnrichRef = useRef(0);
+	const enrichingTree = enrichJob?.state === "running";
 
 	const trail = useMemo(() => {
 		const path: SkillNode[] = [selected];
@@ -953,38 +958,61 @@ export function SkillTree({
 		setQuery("");
 	}, []);
 
+	const refreshEnrichJob = useCallback(async () => {
+		try {
+			const res = await fetch("/api/study/enrich?" + new URLSearchParams({ domain: map.domain }), { cache: "no-store" });
+			if (!res.ok) return;
+			const data = (await res.json()) as { status?: TreeEnrichmentStatus | null };
+			const next = data.status ?? null;
+			setEnrichJob(next);
+			if (next && next.state === "done" && next.finishedAt && next.finishedAt !== lastFinishedEnrichRef.current) {
+				lastFinishedEnrichRef.current = next.finishedAt;
+				setMaterialsNonce((n) => n + 1);
+			}
+		} catch {
+			// Keep current enrichment state on transient error.
+		}
+	}, [map.domain]);
+
+	useEffect(() => {
+		void refreshEnrichJob();
+	}, [refreshEnrichJob]);
+
+	useServerEvent("activity-changed", () => {
+		void refreshEnrichJob();
+	});
+
 	async function enrichWholeTree() {
 		if (enrichingTree || !regionUnits.length) return;
-		setEnrichingTree(true);
-		let updated = 0;
-		const targets = selected.region
-			? [
-				regionUnits.find((r) => r.id === selected.region),
-				...regionUnits.filter((r) => r.id !== selected.region),
-			].filter((r): r is SkillNode => Boolean(r))
-			: regionUnits;
-		const batch = targets.slice(0, 12);
+		setEnrichDismissedAt(0);
 		try {
-			const concurrency = Math.min(3, batch.length);
-			let nextIdx = 0;
-			let finished = 0;
-			setTreeEnrichNote(t("map.tree.enrichingBatch", { current: 1, total: batch.length }));
-			const runWorker = async () => {
-				while (nextIdx < batch.length) {
-					const unit = batch[nextIdx++]!;
-					const url =
-						"/api/study/materials?" + new URLSearchParams({ domain: map.domain, node: unit.id, enrich: "1" });
-					const res = await fetch(url, { method: "POST" }).catch(() => null);
-					if (res?.ok) updated++;
-					finished++;
-					setTreeEnrichNote(t("map.tree.enrichingBatch", { current: finished, total: batch.length }));
-				}
-			};
-			await Promise.all(Array.from({ length: concurrency }, () => runWorker()));
-			setMaterialsNonce((n) => n + 1);
-			setTreeEnrichNote(t("map.tree.enrichedResult", { count: updated }));
-		} finally {
-			setEnrichingTree(false);
+			const res = await fetch("/api/study/enrich", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					domain: map.domain,
+					...(selected.region ? { focusRegionId: selected.region } : {}),
+					limit: 12,
+				}),
+			});
+			if (res.ok) {
+				const started = (await res.json()) as TreeEnrichmentStatus;
+				setEnrichJob(started);
+			}
+		} catch {
+			// Ignore transient error; user can retry.
+		}
+	}
+
+	async function cancelEnrichTree() {
+		try {
+			const res = await fetch("/api/study/enrich?" + new URLSearchParams({ domain: map.domain }), { method: "DELETE" });
+			if (res.ok) {
+				const data = (await res.json()) as { status?: TreeEnrichmentStatus | null };
+				if (data.status) setEnrichJob(data.status);
+			}
+		} catch {
+			// Ignore transient error.
 		}
 	}
 
@@ -1046,6 +1074,18 @@ export function SkillTree({
 					/>
 				</div>
 				<div className="flex flex-wrap items-center gap-2">
+					<button
+						type="button"
+						aria-expanded={assistantOpen}
+						className={
+							"cel-button min-h-8 px-3 py-1 text-xs " +
+							(assistantOpen ? "cel-button-primary" : "")
+						}
+						onClick={() => setAssistantOpen((open) => !open)}
+					>
+						<SparklesIcon aria-hidden="true" className="size-3.5 shrink-0" />
+						{t("map.tree.assistantButton")}
+					</button>
 					{regionUnits.length > 0 && (
 						<button
 							type="button"
@@ -1079,13 +1119,92 @@ export function SkillTree({
 				</div>
 			</div>
 
-			{treeEnrichNote && (
-				<p
+			{assistantOpen && (
+				<TreeAssistantPanel
+					domain={map.domain}
+					selectedNodeId={selected.id}
+					selectedNodeTitle={selected.title}
+					onClose={() => setAssistantOpen(false)}
+					onMapUpdated={() => router.refresh()}
+					onMaterialsUpdated={() => setMaterialsNonce((n) => n + 1)}
+					onFocusNode={(nodeId) => {
+						pick(nodeId);
+						setLocate((n) => n + 1);
+					}}
+				/>
+			)}
+
+			{enrichJob && (enrichJob.state === "running" || (enrichJob.finishedAt ?? 0) > enrichDismissedAt) && (
+				<div
 					role="status"
-					className="mb-3 rounded-xl border border-border/55 bg-card/80 px-3.5 py-2 text-xs text-muted-foreground"
+					aria-live="polite"
+					className="cel-card mb-3 space-y-2 border-border/70 bg-card/90 px-4 py-3 text-xs"
 				>
-					{treeEnrichNote}
-				</p>
+					<div className="flex flex-wrap items-center justify-between gap-2">
+						<div className="flex min-w-0 items-center gap-2 font-semibold text-foreground">
+							{enrichJob.state === "running" ? (
+								<span aria-hidden="true" className="size-2.5 shrink-0 animate-pulse rounded-full bg-[var(--c-teal,#2ec4b6)]" />
+							) : enrichJob.state === "done" ? (
+								<Icon name="check" size={16} />
+							) : (
+								<span aria-hidden="true" className="size-2.5 shrink-0 rounded-full bg-muted-foreground" />
+							)}
+							<span className="truncate">
+								{enrichJob.state === "running"
+									? t("map.tree.enrichingBatch", { current: Math.min(enrichJob.done + 1, enrichJob.total), total: enrichJob.total })
+									: enrichJob.state === "done"
+										? t("map.tree.enrichedResult", { count: enrichJob.done })
+										: enrichJob.state === "cancelled"
+											? t("map.tree.enrichCancelled", { done: enrichJob.done, total: enrichJob.total })
+											: enrichJob.error ?? t("map.tree.errEnrich")}
+							</span>
+						</div>
+						<div className="flex shrink-0 items-center gap-2.5">
+							{enrichJob.total > 0 && (
+								<span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+									{enrichJob.done}/{enrichJob.total} ({Math.round((enrichJob.done / enrichJob.total) * 100)}%)
+								</span>
+							)}
+							{enrichJob.state === "running" ? (
+								<button
+									type="button"
+									onClick={() => void cancelEnrichTree()}
+									className="font-semibold text-muted-foreground underline hover:text-foreground"
+								>
+									{t("map.tree.enrichCancel")}
+								</button>
+							) : (
+								<button
+									type="button"
+									aria-label={t("map.tree.enrichDismiss")}
+									onClick={() => setEnrichDismissedAt(enrichJob.finishedAt ?? Date.now())}
+									className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+								>
+									<Icon name="close" size={14} tone={false} />
+								</button>
+							)}
+						</div>
+					</div>
+					{enrichJob.state === "running" && (
+						<progress className="study-progress block w-full" value={enrichJob.done} max={Math.max(1, enrichJob.total)} />
+					)}
+					<div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+						<span className="truncate">
+							{enrichJob.state === "running" && enrichJob.currentRegionTitle
+								? t("map.tree.enrichCurrentRegion", { region: enrichJob.currentRegionTitle })
+								: t("map.tree.enrichStats", {
+									books: enrichJob.addedBooks,
+									videos: enrichJob.addedVideos,
+									upgraded: enrichJob.upgraded,
+								})}
+						</span>
+						{enrichJob.state === "running" && (
+							<span className="tabular-nums">
+								{t("map.tree.enrichBackgroundHint", { max: enrichJob.maxPerNode })}
+							</span>
+						)}
+					</div>
+				</div>
 			)}
 
 			<nav aria-label={t("map.tree.breadcrumbAria")} className="mb-3.5 flex flex-wrap items-center gap-1.5 text-sm">

@@ -11,6 +11,47 @@ export function campaignHours(pace: CampaignPace) {
 }
 
 export type DomainCreationStatus =
-	| { state: "planning" | "materials"; done: number; total: number }
-	| { state: "ready"; domainId: string; title: string; workload?: { skills: number; regions: number; lessonHours: number; practiceHours: number } }
-	| { state: "failed"; error: string };
+	| {
+		state: "planning" | "materials";
+		done: number;
+		total: number;
+		requestId?: string;
+		topic?: string;
+		currentLabel?: string;
+		startedAt?: number;
+	}
+	| {
+		state: "ready";
+		domainId: string;
+		title: string;
+		requestId?: string;
+		topic?: string;
+		startedAt?: number;
+		finishedAt?: number;
+		workload?: { skills: number; regions: number; lessonHours: number; practiceHours: number };
+	}
+	| {
+		state: "failed";
+		error: string;
+		requestId?: string;
+		topic?: string;
+		startedAt?: number;
+		finishedAt?: number;
+	};
+
+export interface TreeEnrichmentStatus {
+	state: "running" | "done" | "cancelled" | "failed";
+	domain: string;
+	domainTitle: string;
+	done: number;
+	total: number;
+	currentRegionTitle?: string;
+	addedBooks: number;
+	addedVideos: number;
+	upgraded: number;
+	skippedAtCap: number;
+	maxPerNode: number;
+	startedAt: number;
+	finishedAt?: number;
+	error?: string;
+}

@@ -50,6 +50,7 @@ export function DomainCreator() {
 	const [status, setStatus] = useState<DomainCreationStatus>();
 	const [error, setError] = useState("");
 	const [busy, setBusy] = useState(false);
+	const [now, setNow] = useState(() => Date.now());
 	const [modelMenuOpen, setModelMenuOpen] = useState(false);
 	const modelAnchorRef = useRef<HTMLDivElement>(null);
 	const submitting = useRef(false);
@@ -63,8 +64,35 @@ export function DomainCreator() {
 
 	useEffect(() => {
 		const id = sessionStorage.getItem(lastRequest);
-		if (id) setRequestId(id);
+		if (id) {
+			setRequestId(id);
+			return;
+		}
+		// Reconnect to any active server-side creation job even if the tab or app was closed.
+		let active = true;
+		void fetch(endpoint, { cache: "no-store" })
+			.then(r => (r.ok ? r.json() : null))
+			.then((data: { active?: DomainCreationStatus | null } | null) => {
+				if (!active || !data?.active) return;
+				const job = data.active;
+				if (job.state === "planning" || job.state === "materials" || job.state === "ready") {
+					setStatus(job);
+					if (job.requestId) {
+						sessionStorage.setItem(lastRequest, job.requestId);
+						setRequestId(job.requestId);
+					}
+				}
+			})
+			.catch(() => {});
+		return () => { active = false; };
 	}, []);
+
+	useEffect(() => {
+		if (!working) return;
+		setNow(Date.now());
+		const timer = setInterval(() => setNow(Date.now()), 1000);
+		return () => clearInterval(timer);
+	}, [working]);
 
 	useEffect(() => {
 		if (!requestId) return;
@@ -418,15 +446,51 @@ export function DomainCreator() {
 					)}
 
 					{working ? (
-						<div role="status" aria-live="polite" className="space-y-3 rounded-xl border border-border/60 bg-background/70 p-4">
-							<div className="flex items-center justify-between gap-2 text-sm font-semibold">
-								<span>{status.state === "materials" ? t("pages.creator.findingMaterials") : t("pages.creator.organizingTree")}</span>
-								{status.total > 0 && <span className="font-mono text-xs text-muted-foreground tabular-nums">{status.done}/{status.total}</span>}
+						<div role="status" aria-live="polite" className="space-y-3 rounded-xl border border-border/70 bg-background/80 p-4 shadow-xs">
+							<div className="flex flex-wrap items-center justify-between gap-2">
+								<div className="flex items-center gap-2 text-sm font-semibold">
+									<span aria-hidden="true" className="size-2.5 shrink-0 animate-pulse rounded-full bg-[var(--c-teal,#2ec4b6)]" />
+									<span>{status.state === "materials" ? t("pages.creator.findingMaterials") : t("pages.creator.organizingTree")}</span>
+								</div>
+								<div className="flex items-center gap-2.5 font-mono text-xs text-muted-foreground tabular-nums">
+									{status.total > 0 && (
+										<span>
+											{status.done}/{status.total} ({Math.round((status.done / status.total) * 100)}%)
+										</span>
+									)}
+									{status.startedAt && (
+										<span>
+											{Math.floor(Math.max(0, now - status.startedAt) / 60000)}:
+											{String(Math.floor((Math.max(0, now - status.startedAt) / 1000) % 60)).padStart(2, "0")}
+										</span>
+									)}
+								</div>
 							</div>
+							<div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+								<span className={`rounded-full px-2 py-0.5 font-semibold ${status.state === "planning" && status.total === 0 ? "bg-[var(--cel-accent,var(--primary))]/15 text-foreground" : "bg-muted/70 text-muted-foreground"}`}>
+									1. Estrutura
+								</span>
+								<span className="text-muted-foreground/50">→</span>
+								<span className={`rounded-full px-2 py-0.5 font-semibold ${status.state === "planning" && status.total > 0 ? "bg-[var(--cel-accent,var(--primary))]/15 text-foreground" : "bg-muted/70 text-muted-foreground"}`}>
+									2. Regiões e auto-revisão
+								</span>
+								<span className="text-muted-foreground/50">→</span>
+								<span className={`rounded-full px-2 py-0.5 font-semibold ${status.state === "materials" ? "bg-[var(--cel-accent,var(--primary))]/15 text-foreground" : "bg-muted/70 text-muted-foreground"}`}>
+									3. Livros e vídeos
+								</span>
+							</div>
+							{status.currentLabel && (
+								<p className="truncate text-xs text-foreground/85">
+									{t("map.tree.enrichCurrentRegion", { region: status.currentLabel })}
+								</p>
+							)}
 							<progress className="study-progress block w-full" value={status.total > 0 ? status.done : undefined} max={status.total > 0 ? status.total : undefined} />
-							<button type="button" className="text-xs font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground cursor-pointer" onClick={() => void fetch(endpoint + "?id=" + requestId, { method: "DELETE" }).then(r => { if (!r.ok) throw new Error(); }).catch(() => setError("Não foi possível cancelar."))}>
-								Cancelar criação
-							</button>
+							<div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+								<p className="text-xs text-muted-foreground">{t("map.bg.runsInBackground")}</p>
+								<button type="button" className="text-xs font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground cursor-pointer" onClick={() => void fetch(endpoint + "?id=" + requestId, { method: "DELETE" }).then(r => { if (!r.ok) throw new Error(); }).catch(() => setError("Não foi possível cancelar."))}>
+									Cancelar criação
+								</button>
+							</div>
 						</div>
 					) : (
 						<button className="cel-button cel-button-primary px-5 py-2 text-sm" disabled={busy || selection < 0 || topic.trim().length < 3} type="submit">

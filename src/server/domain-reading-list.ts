@@ -354,52 +354,82 @@ export async function attachRegionalSources(
 ) {
 	if (userMaterials?.length) attachUserSeedMaterials(seed, regions, userMaterials);
 	const domainSubject = seed.items.find(i => i.kind === "domain")?.title.en ?? "";
-	for (const [index, region] of regions.entries()) {
-		signal.throwIfAborted();
-		const unit = seed.items.find(item => item.kind === "unit" && item.id === region.id);
-		if (!unit) throw new Error("Região de materiais ausente no currículo.");
+	for (const region of regions) {
+		if (!seed.items.some(item => item.kind === "unit" && item.id === region.id)) {
+			throw new Error("Região de materiais ausente no currículo.");
+		}
+	}
 
-		const [bookRes, videoRes] = await Promise.allSettled([
-			findRegionalSources(seed.domainId, region, "book", signal, fetchMetadata, domainSubject, 2),
-			findRegionalSources(seed.domainId, region, "video", signal, fetchMetadata, domainSubject, 3),
-		]);
-		signal.throwIfAborted();
-		const anchoredSkills = new Set<string>();
-		for (const res of [bookRes, videoRes]) {
-			if (res.status !== "fulfilled") continue;
-			for (const entry of res.value) {
-				addSeedAnchor(seed, unit, entry.source, entry.ref);
-				for (const link of entry.skillAnchors ?? []) {
-					const skillItem = seed.items.find(item => item.id === link.skillId);
-					if (!skillItem) continue;
-					const targetSource: Source = link.url && link.url !== entry.source.url
-						? { ...entry.source, id: sourceId(entry.source.kind ?? "video", link.url), url: link.url }
-						: entry.source;
-					addSeedAnchor(seed, skillItem, targetSource, link.ref);
-					anchoredSkills.add(link.skillId);
+	type RegionFetchResult = {
+		region: Region;
+		entries: RegionalSource[];
+		targeted: { skillId: string; entries: RegionalSource[] }[];
+	};
+	const results = new Array<RegionFetchResult>(regions.length);
+	const concurrency = Math.max(1, Math.min(4, regions.length));
+	let nextIdx = 0;
+	let completed = 0;
+
+	async function runWorker() {
+		while (nextIdx < regions.length) {
+			signal.throwIfAborted();
+			const idx = nextIdx++;
+			const region = regions[idx]!;
+			const [bookRes, videoRes] = await Promise.allSettled([
+				findRegionalSources(seed.domainId, region, "book", signal, fetchMetadata, domainSubject, 2),
+				findRegionalSources(seed.domainId, region, "video", signal, fetchMetadata, domainSubject, 3),
+			]);
+			signal.throwIfAborted();
+			const entries: RegionalSource[] = [];
+			const anchoredSkills = new Set<string>();
+			for (const res of [bookRes, videoRes]) {
+				if (res.status !== "fulfilled") continue;
+				for (const entry of res.value) {
+					entries.push(entry);
+					for (const link of entry.skillAnchors ?? []) anchoredSkills.add(link.skillId);
 				}
 			}
+			const targeted: { skillId: string; entries: RegionalSource[] }[] = [];
+			const specialized = (region.skills ?? []).filter(s => s.query && !anchoredSkills.has(s.id)).slice(0, 3);
+			for (const skill of specialized) {
+				signal.throwIfAborted();
+				const found = await findRegionalSources(
+					seed.domainId,
+					{ id: skill.id, title: skill.title, titleEn: skill.titleEn, bookQuery: skill.query!, videoQuery: skill.query! },
+					"video",
+					signal,
+					fetchMetadata,
+					domainSubject,
+					1,
+				).catch(() => []);
+				if (found.length) targeted.push({ skillId: skill.id, entries: found });
+			}
+			results[idx] = { region, entries, targeted };
+			completed++;
+			progress?.(completed);
 		}
+	}
 
-		// Targeted skill-level lookup for specialized skills with explicit resourceQuery that still lack direct anchors.
-		const specialized = (region.skills ?? []).filter(s => s.query && !anchoredSkills.has(s.id)).slice(0, 3);
-		for (const skill of specialized) {
-			signal.throwIfAborted();
-			const skillItem = seed.items.find(item => item.id === skill.id);
-			if (!skillItem) continue;
-			const targeted = await findRegionalSources(
-				seed.domainId,
-				{ id: skill.id, title: skill.title, titleEn: skill.titleEn, bookQuery: skill.query!, videoQuery: skill.query! },
-				"video",
-				signal,
-				fetchMetadata,
-				domainSubject,
-				1,
-			).catch(() => []);
-			for (const entry of targeted) {
-				addSeedAnchor(seed, skillItem, entry.source, entry.ref);
+	await Promise.all(Array.from({ length: concurrency }, () => runWorker()));
+	signal.throwIfAborted();
+
+	for (const { region, entries, targeted } of results) {
+		const unit = seed.items.find(item => item.kind === "unit" && item.id === region.id)!;
+		for (const entry of entries) {
+			addSeedAnchor(seed, unit, entry.source, entry.ref);
+			for (const link of entry.skillAnchors ?? []) {
+				const skillItem = seed.items.find(item => item.id === link.skillId);
+				if (!skillItem) continue;
+				const targetSource: Source = link.url && link.url !== entry.source.url
+					? { ...entry.source, id: sourceId(entry.source.kind ?? "video", link.url), url: link.url }
+					: entry.source;
+				addSeedAnchor(seed, skillItem, targetSource, link.ref);
 			}
 		}
-		progress?.(index + 1);
+		for (const item of targeted) {
+			const skillItem = seed.items.find(i => i.id === item.skillId);
+			if (!skillItem) continue;
+			for (const entry of item.entries) addSeedAnchor(seed, skillItem, entry.source, entry.ref);
+		}
 	}
 }

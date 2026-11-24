@@ -1,5 +1,5 @@
 import { after } from "next/server";
-import { cancelDomainCreation, domainCreationStatus, startDomainCreation, StudyError } from "@/src/server";
+import { activeDomainCreationJob, cancelDomainCreation, domainCreationStatus, startDomainCreation, StudyError } from "@/src/server";
 
 function respond(run: () => unknown, status = 200) {
 	try {
@@ -16,7 +16,9 @@ export async function POST(request: Request) {
 }
 
 export function GET(request: Request) {
-	return respond(() => domainCreationStatus(new URL(request.url).searchParams.get("id") ?? ""));
+	const id = new URL(request.url).searchParams.get("id");
+	if (!id) return respond(() => ({ active: activeDomainCreationJob() }));
+	return respond(() => domainCreationStatus(id));
 }
 
 export function DELETE(request: Request) {
