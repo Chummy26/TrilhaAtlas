@@ -254,7 +254,7 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 			if (!response.ok) {
 				const body = await response.json().catch(() => ({}));
 				const oauthCode = typeof body.error === "string" ? body.error : body.error?.code;
-				throw Object.assign(fail(oauthCode === "invalid_grant" || response.status === 401 || response.status === 403 ? "expired" : "network"), { oauthCode });
+				throw Object.assign(fail(oauthCode === "invalid_grant" || response.status === 401 || response.status === 403 ? "expired" : "network"), { oauthCode, status: response.status });
 			}
 			return await response.json();
 		} catch (err) { throw err.code ? err : fail("network"); }
@@ -400,12 +400,12 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 		if (background && !backgroundAllowed()) throw fail("background");
 		return account;
 	}
-	async function credential(background, expected) {
+	async function credential(background, expected, options = {}) {
 		await ready();
 		return serial(async () => {
 			const requestEpoch = epoch;
 			const account = authorized(background, expected);
-			if (account.tokens.expiresAt <= Date.now() + 60000) {
+			if (options.forceRefresh === true || account.tokens.expiresAt <= Date.now() + 60000) {
 				const refreshEpoch = epoch;
 				const signal = AbortSignal.any([transportAbort.signal, ...(background ? [backgroundAbort.signal] : []), AbortSignal.timeout(15000)]);
 				let body;
@@ -464,7 +464,7 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 					signal: AbortSignal.any([transportAbort.signal, AbortSignal.timeout(15000)]),
 				});
 			} catch (err) {
-				if (attempt === 1 || transportAbort.signal.aborted) throw err;
+				if (attempt === 1 || err?.status === 401 || err?.status === 403 || transportAbort.signal.aborted) throw err;
 			}
 		}
 	}
@@ -490,8 +490,18 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 			try {
 				if (!active()) return modelValue();
 				// Discovery is identity/scope authorization, not an invented model lease.
-				const token = await credential(false);
-				const body = await fetchAccountModels(token.accessToken);
+				let token = await credential(false);
+				let body;
+				try {
+					body = await fetchAccountModels(token.accessToken);
+				} catch (err) {
+					if (err?.status === 401 && !transportAbort.signal.aborted) {
+						token = await credential(false, undefined, { forceRefresh: true });
+						body = await fetchAccountModels(token.accessToken);
+					} else {
+						throw err;
+					}
+				}
 				authorized(false, undefined, token.epoch);
 				if (sequence !== catalogSequence || active()?.id !== token.accountId || !Array.isArray(body.models)) throw fail("catalog");
 				const visible = body.models
@@ -509,10 +519,16 @@ function createChatGPT({ store, openExternal, fetch: request = globalThis.fetch,
 				const hadError = catalogError !== null; catalogError = null;
 				if (changed || hadError) notify();
 				return modelValue();
-			} catch {
+			} catch (err) {
 				if (sequence === catalogSequence) {
-					if (catalog.length) { catalog = []; authorityRevision++; }
-					catalogError = publicError(fail("catalog")); notify();
+					// Preserve a previously verified catalog for the same active account/epoch
+					// when /v1/models suffers a transient network/5xx/429 hiccup. Auth/scope/
+					// identity/disconnect failures still fail closed and clear the catalog.
+					const transientWithCatalog = err?.code === "network" && catalog.length > 0 && active()?.id === currentAccount.id && epoch === currentEpoch;
+					if (!transientWithCatalog) {
+						if (catalog.length) { catalog = []; authorityRevision++; }
+						catalogError = publicError(fail("catalog")); notify();
+					}
 				}
 				return modelValue();
 			}

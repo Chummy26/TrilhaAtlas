@@ -37,7 +37,7 @@ import { AnsweredCard } from "@/components/answered-card";
 import { MalformedQuestion } from "@/components/malformed-question";
 import { SubagentSteerCard } from "@/components/artifacts/steer-card";
 import { LessonCourseBar } from "@/components/study/lesson-course-bar";
-import { useT } from "@/components/i18n";
+import { useI18n, useT } from "@/components/i18n";
 import type { LessonFinishState, LessonReceipt } from "@/components/study/lesson-finish";
 import { ChatSessionComposer } from "@/components/composer";
 import { useEnterSubmits } from "@/components/enter-submits";
@@ -72,7 +72,7 @@ import { PlanBlock, latestTree } from "@/components/plan-block";
 import { PlanMarginalia } from "@/components/plan-window";
 import { SessionMermaidContext, type SessionImage } from "@/components/session-overlay";
 import type { AbortMode } from "@/components/abort-turn-dialog";
-import { ArrowRightIcon, BookmarkPlusIcon, DumbbellIcon, MessageCircleQuestionIcon, WaypointsIcon } from "lucide-react";
+import { ArrowRightIcon, BookmarkPlusIcon, ChevronRightIcon, ClockIcon, DumbbellIcon, MessageCircleQuestionIcon, WaypointsIcon } from "lucide-react";
 import type { PlanBlockData } from "@/src/core";
 import { QuestionDock } from "@/components/question-dock";
 import { PluginQuestionDock } from "./plugin-question-dock";
@@ -101,7 +101,7 @@ import { PluginSessionTopBarActions } from "@/components/plugin-chrome";
 import { usePluginShortcutPage } from "@/components/plugin-shortcuts";
 import { createPluginSessionActionContext, type PluginSessionViewInput } from "@/src/core";
 import type { SessionInputViewReader, SessionViewTargets, NativeQuestionViewState, ViewReaderRef } from "./session-view-readers";
-import type { JobRecord, Phase3, QuestionAnswerData, QuestionFormDraft, TurnUsage, SessionPricing } from "@/src/core";
+import type { IntensiveContextDetails, JobRecord, Phase3, QuestionAnswerData, QuestionFormDraft, TurnUsage, SessionPricing } from "@/src/core";
 import type { LhViewMessage } from "@/src/core";
 import { PhaseChip, PhaseDivider } from "@/components/phase-divider";
 import {
@@ -353,6 +353,184 @@ const SessionTitleEditor = memo(function SessionTitleEditor({
 	);
 });
 
+const INTENSIVE_CARD_LABELS = {
+	en: { video: "Video", material: "Material", module: "Module", cert: "Certification", project: "Project", track: "Intensive", transcript: "Transcript excerpt", materialExcerpt: "Material excerpt", syllabus: "Course context", topics: "Topics", bench: "Bench exercise", notes: "Notes", related: "Related course excerpts" },
+	"pt-BR": { video: "Vídeo", material: "Material", module: "Módulo", cert: "Certificação", project: "Projeto", track: "Intensiva", transcript: "Trecho da transcrição", materialExcerpt: "Trecho do material", syllabus: "Contexto do curso", topics: "Tópicos", bench: "Bancada", notes: "Anotações", related: "Trechos relacionados do curso" },
+	es: { video: "Vídeo", material: "Material", module: "Módulo", cert: "Certificación", project: "Proyecto", track: "Intensiva", transcript: "Fragmento de transcripción", materialExcerpt: "Fragmento del material", syllabus: "Contexto del curso", topics: "Temas", bench: "Práctica de banco", notes: "Notas", related: "Fragmentos relacionados del curso" },
+	fr: { video: "Vidéo", material: "Support", module: "Module", cert: "Certification", project: "Projet", track: "Intensive", transcript: "Extrait de transcription", materialExcerpt: "Extrait du support", syllabus: "Contexte du cours", topics: "Thèmes", bench: "Exercice de banc", notes: "Notes", related: "Extraits associés du cours" },
+	de: { video: "Video", material: "Material", module: "Modul", cert: "Zertifizierung", project: "Projekt", track: "Intensiva", transcript: "Transkriptauszug", materialExcerpt: "Materialauszug", syllabus: "Kurskontext", topics: "Themen", bench: "Laborübung", notes: "Notizen", related: "Verwandte Kursauszüge" },
+	ja: { video: "動画", material: "教材", module: "モジュール", cert: "資格", project: "プロジェクト", track: "インテンシブ", transcript: "文字起こし抜粋", materialExcerpt: "教材抜粋", syllabus: "コース概要", topics: "トピック", bench: "実機演習", notes: "メモ", related: "関連する講義抜粋" },
+} as const;
+
+function formatIntensiveTimestamp(sec: number | undefined): string | undefined {
+	if (typeof sec !== "number" || !Number.isFinite(sec) || sec < 0) return undefined;
+	const total = Math.floor(sec);
+	const hours = Math.floor(total / 3600);
+	const mins = Math.floor((total % 3600) / 60);
+	const secs = total % 60;
+	const mm = String(mins).padStart(2, "0");
+	const ss = String(secs).padStart(2, "0");
+	return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
+function truncateIntensivePreview(text: string | undefined, maxChars: number): string | undefined {
+	if (!text) return undefined;
+	const cleaned = text.replace(/\s+/gu, " ").trim();
+	if (!cleaned) return undefined;
+	return cleaned.length <= maxChars ? cleaned : `${cleaned.slice(0, maxChars - 1).trimEnd()}…`;
+}
+
+function IntensiveContextCard({ data }: { data: IntensiveContextDetails }) {
+	const [open, setOpen] = useState(false);
+	const { locale } = useI18n();
+	if (!data || typeof data !== "object") return null;
+	const labels = INTENSIVE_CARD_LABELS[locale] ?? INTENSIVE_CARD_LABELS.en;
+	const badge = data.lessonTitle
+		? (typeof data.lessonOrder === "number" ? `${labels.video} #${data.lessonOrder}` : labels.video)
+		: data.materialTitle
+			? labels.material
+			: data.moduleTitle
+				? labels.module
+				: data.certTitle
+					? labels.cert
+					: data.projectTitle
+						? labels.project
+						: labels.track;
+	const primaryTitle = data.courseTitle || data.trackTitle || labels.track;
+	const secondaryTitle = data.lessonTitle || data.materialTitle || data.moduleTitle || data.certTitle || data.projectTitle;
+	const timestampLabel = data.currentTimestampLabel || formatIntensiveTimestamp(data.currentTimeSec);
+	const excerptPreview = truncateIntensivePreview(data.transcriptExcerpt, 420);
+	const materialExcerptPreview = truncateIntensivePreview(data.materialExcerpt, 420);
+	const syllabusPreview = !excerptPreview && !materialExcerptPreview ? truncateIntensivePreview(data.tutorSyllabusContext, 360) : undefined;
+	const notesPreview = truncateIntensivePreview(data.learnerNotes, 220);
+	const relatedHits = (data.relevantSnippets ?? []).slice(0, 3);
+	return (
+		<div data-testid="intensive-context-card" className="my-1">
+			<button
+				type="button"
+				data-testid="intensive-context-toggle"
+				aria-expanded={open}
+				onClick={() => setOpen((v) => !v)}
+				className="flex w-full cursor-pointer items-center gap-2 rounded-lg border border-dashed border-[var(--cel-accent,var(--border))]/55 bg-card/60 px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:border-[var(--cel-accent,var(--foreground))]/80 hover:text-foreground"
+			>
+				<ChevronRightIcon aria-hidden="true" className={`size-3.5 shrink-0 transition-transform ${open ? "rotate-90" : ""}`} />
+				<span className="cel-chip shrink-0 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-foreground">
+					{badge}
+				</span>
+				<span className="min-w-0 flex-1 truncate">
+					<span className="font-medium text-foreground/90">{primaryTitle}</span>
+					{secondaryTitle && secondaryTitle !== primaryTitle ? (
+						<span className="text-muted-foreground"> · {secondaryTitle}</span>
+					) : null}
+				</span>
+				{timestampLabel ? (
+					<span
+						data-testid="intensive-context-timestamp"
+						className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border/70 bg-background/80 px-1.5 py-0.5 font-mono text-[11px] font-medium tabular-nums text-foreground"
+					>
+						<ClockIcon aria-hidden="true" className="size-3 text-muted-foreground" />
+						{timestampLabel}
+					</span>
+				) : null}
+			</button>
+			{open && (
+				<div
+					data-testid="intensive-context-body"
+					className="mt-1.5 space-y-2 rounded-lg border border-dashed border-border/75 bg-card/50 px-4 py-3 text-xs leading-relaxed text-muted-foreground"
+				>
+					<div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-foreground/85">
+						<span className="font-medium">{data.trackTitle}</span>
+						{data.courseTitle ? (
+							<>
+								<span aria-hidden="true" className="text-muted-foreground/60">·</span>
+								<span>
+									{typeof data.courseRank === "number" ? `#${data.courseRank} ` : ""}
+									{data.courseTitle}
+								</span>
+							</>
+						) : null}
+						{secondaryTitle && secondaryTitle !== data.courseTitle ? (
+							<>
+								<span aria-hidden="true" className="text-muted-foreground/60">·</span>
+								<span className="text-muted-foreground">{secondaryTitle}</span>
+							</>
+						) : null}
+					</div>
+					{data.telegramCaption && data.telegramCaption.trim() !== secondaryTitle ? (
+						<p className="text-foreground/80">{truncateIntensivePreview(data.telegramCaption, 220)}</p>
+					) : null}
+					{data.materialTitle ? (
+						<div
+							data-testid="intensive-context-material"
+							className="space-y-1 border-l-2 border-[var(--cel-accent,var(--border))]/60 pl-2.5 text-foreground/85"
+						>
+							<div className="flex flex-wrap items-center gap-1.5">
+								<span className="cel-chip px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-foreground">
+									{labels.material}
+								</span>
+								<span className="font-medium text-foreground">{data.materialTitle}</span>
+							</div>
+							{materialExcerptPreview ? (
+								<p className="text-foreground/80">
+									<span className="mr-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+										{labels.materialExcerpt}:
+									</span>
+									{materialExcerptPreview}
+								</p>
+							) : null}
+						</div>
+					) : null}
+					{excerptPreview ? (
+						<p className="border-l-2 border-[var(--cel-accent,var(--border))]/60 pl-2.5 text-foreground/80">
+							<span className="mr-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+								{labels.transcript}:
+							</span>
+							{excerptPreview}
+						</p>
+					) : syllabusPreview ? (
+						<p>
+							<span className="mr-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+								{labels.syllabus}:
+							</span>
+							{syllabusPreview}
+						</p>
+					) : null}
+					{data.moduleTopics && data.moduleTopics.length > 0 ? (
+						<p>
+							<span className="mr-1.5 font-medium text-foreground/80">{labels.topics}:</span>
+							{data.moduleTopics.slice(0, 8).join(" · ")}
+						</p>
+					) : null}
+					{data.benchExercise ? (
+						<p>
+							<span className="mr-1.5 font-medium text-foreground/80">{labels.bench}:</span>
+							{truncateIntensivePreview(data.benchExercise, 220)}
+						</p>
+					) : null}
+					{notesPreview ? (
+						<p>
+							<span className="mr-1.5 font-medium text-foreground/80">{labels.notes}:</span>
+							{notesPreview}
+						</p>
+					) : null}
+					{relatedHits.length > 0 ? (
+						<div className="space-y-0.5 pt-0.5">
+							<div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+								{labels.related}
+							</div>
+							{relatedHits.map((hit, idx) => (
+								<div key={`${hit.lessonId}-${hit.chunkIndex}-${idx}`} className="truncate font-mono text-[11px] text-muted-foreground">
+									<span className="text-foreground/80">[{hit.timestampLabel}]</span> {hit.lessonTitle}
+								</div>
+							))}
+						</div>
+					) : null}
+				</div>
+			)}
+		</div>
+	);
+}
+
 type MalformedQuestionCall = ReturnType<typeof malformedQuestionsOf>[number];
 
 interface TranscriptMessageRowProps {
@@ -415,6 +593,8 @@ const TranscriptMessageRow = memo(function TranscriptMessageRow({
 					switch (part.type) {
 						case "data-graph-context":
 							return <GraphContextCard key={pi} data={part.data as GraphContextData} />;
+						case "data-intensive-context":
+							return <IntensiveContextCard key={pi} data={part.data as IntensiveContextDetails} />;
 						case "data-compaction":
 							return <CompactionMomentDivider key={pi} data={part.data as CompactionDividerData} />;
 						case "data-compaction-cut":

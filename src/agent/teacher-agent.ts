@@ -61,7 +61,9 @@ export type AgentKind = "prober" | "teacher" | "practice";
  * New builtin names must join this catalog; actual turn tools are reserved too. */
 export const CONVERSATION_TOOL_NAMES = Object.freeze([
 	...QUESTION_TOOLS, ...TOGGLEABLE_TOOLS, "probe_done", "read", "ls", "find", "grep",
-	"plan_init", "list_sessions", "list_propositions", "problem", "conclude", "attach_study_materials", "conclude_lesson", "present_lesson_exam", sendToUserTool.name,
+	"plan_init", "list_sessions", "list_propositions", "problem", "conclude", "attach_study_materials", "conclude_lesson", "present_lesson_exam",
+	"search_intensive_course", "get_intensive_transcript", "search_intensive_materials",
+	sendToUserTool.name,
 ] as const);
 
 // P2 (2026-09-19): segment discovery + override resolution live in ONE
@@ -113,6 +115,8 @@ export type StepUsageCollector = (usage: Usage) => void;
 export interface AgentBuildOptions {
 	/** Ephemeral domain evidence; never joins the native chat or a tool result. */
 	studyMemory?: string;
+	/** Ephemeral per-turn intensive-course transcript/syllabus recall; injected even when activeDomainId() is null ("Geral"). */
+	intensiveMemory?: string;
 	missionExamInstruction?: string;
 	missionExamPhase?: LessonExamPhase;
 	responseLanguageInstruction?: string;
@@ -245,6 +249,9 @@ function baseAgentOptions(kind: AgentKind, opts: AgentBuildOptions, tools: Agent
 	// LH_PROVIDER_EVENTS=1 and the caller handed a chatId; undefined is
 	// the normal no-observer path (tests, env-off).
 	const providerEvents = opts.chatId ? providerEventObserver(opts.chatId, kind) : undefined;
+	const ephemeralMemory = opts.studyMemory && opts.intensiveMemory
+		? `${opts.studyMemory}\n\n${opts.intensiveMemory}`
+		: (opts.studyMemory || opts.intensiveMemory || "");
 	const seenInputs = new Set((opts.messages ?? []).map((m) => (m as { id?: string }).id).filter(Boolean));
 	let continuedMission = false;
 	const agent = new Agent({
@@ -309,10 +316,10 @@ function baseAgentOptions(kind: AgentKind, opts: AgentBuildOptions, tools: Agent
 		// UI-only markers (plan-block) drop, the app's id fields strip, and
 		// an abort's dangling question call gets its INTERRUPTED result. It
 		// must never throw (pi's convertToLlm contract).
-		convertToLlm: opts.studyMemory ? messages => {
+		convertToLlm: ephemeralMemory ? messages => {
 			const wire = toLlmMessages(messages);
 			// Pi requires the system message and tool declarations at position zero.
-			wire.splice(wire[0]?.role === "system" ? 1 : 0, 0, { role: "user", content: opts.studyMemory!, timestamp: 0 });
+			wire.splice(wire[0]?.role === "system" ? 1 : 0, 0, { role: "user", content: ephemeralMemory, timestamp: 0 });
 			return wire;
 		} : toLlmMessages,
 		...(opts.contextUpdates ? { prepareNextTurnWithContext: ({ context }: { context: { messages: AgentMessage[] } }) => {

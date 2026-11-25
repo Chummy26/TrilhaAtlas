@@ -1017,107 +1017,114 @@ export function SkillTree({
 	}
 
 	return (
-		<main className="h-dvh overflow-y-auto px-4 py-5 md:px-8">
-			<header className="mb-4 flex flex-wrap items-end justify-between gap-3">
-				<div className="space-y-1">
-					<Link
-						href="/"
-						className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground hover:underline"
-					>
-						<Icon name="chevron-left" size={16} tone={false} />
-						{t("map.tree.backToday")}
-					</Link>
-					<h1 className="cel-display text-3xl leading-tight">
-						{t("map.tree.title", { domain: map.title })}
-					</h1>
+		<main className="h-dvh overflow-y-auto px-4 py-5 md:px-8" data-domain={map.domain}>
+			<header className="ta-hero mb-4">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img src="/art/hero-tree.jpg" alt="" aria-hidden="true" className="ta-hero-img" />
+				<div className="ta-hero-scrim" aria-hidden="true" />
+				<div className="ta-hero-content px-5 pt-4 pb-4 sm:px-6 sm:pt-5">
+					<div className="flex flex-wrap items-end justify-between gap-4">
+						<div className="min-w-0 space-y-1.5">
+							<Link
+								href="/"
+								className="inline-flex items-center gap-1 text-sm font-semibold text-[#b6c0cc] transition-colors hover:text-[#f4efe6] hover:underline"
+							>
+								<Icon name="chevron-left" size={16} tone={false} />
+								{t("map.tree.backToday")}
+							</Link>
+							<h1 className="ta-hero-title text-2xl sm:text-3xl">
+								{t("map.tree.title", { domain: map.title })}
+							</h1>
+						</div>
+						<div className="relative flex w-full max-w-xs items-center">
+							<span className="pointer-events-none absolute left-3 text-[#b6c0cc]" aria-hidden="true">
+								<Icon name="search" size={15} tone={false} />
+							</span>
+							<input
+								type="search"
+								aria-label={t("map.tree.searchAria")}
+								placeholder={t("map.tree.searchPlaceholder")}
+								className="ta-hero-input w-full py-2 pl-9 pr-8 text-sm"
+								value={query}
+								onChange={(e) => setQuery(e.target.value)}
+							/>
+							{query && (
+								<button
+									type="button"
+									aria-label={t("map.tree.clearSearchAria")}
+									onClick={() => setQuery("")}
+									className="absolute right-2 rounded p-0.5 text-[#b6c0cc] transition-colors hover:bg-white/10 hover:text-[#f4efe6]"
+								>
+									<Icon name="close" size={14} tone={false} />
+								</button>
+							)}
+						</div>
+					</div>
 				</div>
-				<div className="relative flex w-full max-w-xs items-center">
-					<span className="pointer-events-none absolute left-3 text-muted-foreground" aria-hidden="true">
-						<Icon name="search" size={15} tone={false} />
-					</span>
-					<input
-						type="search"
-						aria-label={t("map.tree.searchAria")}
-						placeholder={t("map.tree.searchPlaceholder")}
-						className="cel-input w-full py-2 pl-9 pr-8 text-sm"
-						value={query}
-						onChange={(e) => setQuery(e.target.value)}
-					/>
-					{query && (
+
+				<div className="ta-hero-content ta-hero-bar flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5 px-5 py-3 sm:px-6">
+					<div className="min-w-52 max-w-sm flex-1 space-y-1.5">
+						<div className="flex items-baseline justify-between gap-2 text-sm text-[#f4efe6]">
+							<span className="font-semibold tabular-nums">
+								{t("map.tree.completedOf", { completed, total: leaves.length })}
+							</span>
+							<span className="font-mono text-xs text-[#b6c0cc] tabular-nums">
+								{completed > 0 && pct === 0 ? "<1%" : `${pct}%`}
+							</span>
+						</div>
+						<progress
+							aria-label={t("map.tree.domainProgressAria")}
+							value={completed}
+							max={leaves.length}
+							className="ta-hero-progress ta-hero-progress-success block w-full"
+						/>
+					</div>
+					<div className="flex flex-wrap items-center gap-2">
 						<button
 							type="button"
-							aria-label={t("map.tree.clearSearchAria")}
-							onClick={() => setQuery("")}
-							className="absolute right-2 rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+							aria-expanded={assistantOpen}
+							className={
+								"ta-hero-btn min-h-8 px-3 py-1 text-xs " +
+								(assistantOpen ? "ta-hero-btn-accent" : "")
+							}
+							onClick={() => setAssistantOpen((open) => !open)}
 						>
-							<Icon name="close" size={14} tone={false} />
+							<SparklesIcon aria-hidden="true" className="size-3.5 shrink-0" />
+							{t("map.tree.assistantButton")}
 						</button>
-					)}
+						{regionUnits.length > 0 && (
+							<button
+								type="button"
+								className="ta-hero-btn min-h-8 px-3 py-1 text-xs"
+								disabled={enrichingTree}
+								onClick={() => void enrichWholeTree()}
+							>
+								<Icon name="book" size={14} tone={false} />
+								{enrichingTree ? t("map.tree.enrichingTree") : t("map.tree.enrichTree")}
+							</button>
+						)}
+						{anchor && (
+							<button
+								type="button"
+								className="ta-hero-btn min-h-8 max-w-full px-3 py-1 text-left text-xs"
+								onClick={() => {
+									pick(anchor.id);
+									setLocate((n) => n + 1);
+								}}
+							>
+								<span
+									aria-hidden="true"
+									className="size-2 shrink-0 rounded-full bg-[#2ec4b6] ring-2 ring-[#2ec4b6]/40"
+								/>
+								<span className="text-[#b6c0cc]">
+									{map.position ? t("map.tree.whereLeftOff") : t("map.tree.startingPoint")}:
+								</span>
+								<span className="max-w-56 truncate font-semibold text-[#f4efe6]">{anchor.title}</span>
+							</button>
+						)}
+					</div>
 				</div>
 			</header>
-
-			<div className="cel-card mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5 px-4 py-3">
-				<div className="min-w-52 max-w-sm flex-1 space-y-1.5">
-					<div className="flex items-baseline justify-between gap-2 text-sm">
-						<span className="font-semibold tabular-nums">
-							{t("map.tree.completedOf", { completed, total: leaves.length })}
-						</span>
-						<span className="font-mono text-xs text-muted-foreground tabular-nums">
-							{completed > 0 && pct === 0 ? "<1%" : `${pct}%`}
-						</span>
-					</div>
-					<progress
-						aria-label={t("map.tree.domainProgressAria")}
-						value={completed}
-						max={leaves.length}
-						className="study-progress study-progress-success block w-full"
-					/>
-				</div>
-				<div className="flex flex-wrap items-center gap-2">
-					<button
-						type="button"
-						aria-expanded={assistantOpen}
-						className={
-							"cel-button min-h-8 px-3 py-1 text-xs " +
-							(assistantOpen ? "cel-button-primary" : "")
-						}
-						onClick={() => setAssistantOpen((open) => !open)}
-					>
-						<SparklesIcon aria-hidden="true" className="size-3.5 shrink-0" />
-						{t("map.tree.assistantButton")}
-					</button>
-					{regionUnits.length > 0 && (
-						<button
-							type="button"
-							className="cel-button min-h-8 px-3 py-1 text-xs"
-							disabled={enrichingTree}
-							onClick={() => void enrichWholeTree()}
-						>
-							<Icon name="book" size={14} tone={false} />
-							{enrichingTree ? t("map.tree.enrichingTree") : t("map.tree.enrichTree")}
-						</button>
-					)}
-					{anchor && (
-						<button
-							type="button"
-							className="cel-chip cursor-pointer py-1 text-left text-xs"
-							onClick={() => {
-								pick(anchor.id);
-								setLocate((n) => n + 1);
-							}}
-						>
-							<span
-								aria-hidden="true"
-								className="size-2 shrink-0 rounded-full bg-[var(--c-teal,#2ec4b6)] ring-2 ring-[var(--c-teal,#2ec4b6)]/40"
-							/>
-							<span className="text-muted-foreground">
-								{map.position ? t("map.tree.whereLeftOff") : t("map.tree.startingPoint")}:
-							</span>
-							<span className="max-w-64 truncate font-semibold text-foreground">{anchor.title}</span>
-						</button>
-					)}
-				</div>
-			</div>
 
 			{assistantOpen && (
 				<TreeAssistantPanel
@@ -1232,12 +1239,12 @@ export function SkillTree({
 				))}
 			</nav>
 
-			<div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(300px,360px)]">
+			<div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
 				<div className="min-w-0">
 					<SkillCanvas map={map} selected={id} locate={locate} onPick={pick} />
 				</div>
 
-				<aside className="cel-card space-y-3.5 p-4 xl:col-start-2 xl:row-span-2" aria-live="polite">
+				<aside className="cel-card space-y-3.5 p-4.5 xl:sticky xl:top-4 xl:col-start-2 xl:row-span-2 xl:max-h-[calc(100dvh-2rem)] xl:overflow-y-auto" aria-live="polite">
 					<div className="flex flex-wrap items-center gap-1.5">
 						{category && <span className="study-pill">{category}</span>}
 						{(progress ?? (selected.leaf ? nodeStateLabel(t, selected.state) : undefined)) && (
@@ -1363,10 +1370,10 @@ export function SkillTree({
 									onClick={() => pick(n.id)}
 									aria-pressed={isCurrent}
 									className={
-										"study-cv-block flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm transition-all " +
+										"study-cv-block flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-left text-sm transition-[border-color,background-color,transform] duration-150 ease-out " +
 										(isCurrent
-											? "border-[var(--cel-accent,var(--foreground))] bg-[color-mix(in_srgb,var(--cel-accent,var(--primary))_10%,var(--card))] font-semibold shadow-xs"
-											: "border-border/55 bg-card hover:border-foreground/40 hover:bg-accent/70")
+											? "border-[var(--cel-accent,var(--foreground))] bg-[color-mix(in_srgb,var(--cel-accent,var(--primary))_12%,var(--card))] font-semibold shadow-xs"
+											: "border-border/55 bg-card/90 hover:-translate-y-0.5 hover:border-foreground/45 hover:bg-accent/70")
 									}
 								>
 									<Icon name={iconName} size={17} />

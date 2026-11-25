@@ -251,12 +251,12 @@ export function buildPalette(colors: ThemeColors, dark: boolean): AtlasPalette {
 		clarityCardBg: dark ? surfaceHex + "c8" : surfaceHex + "e6",
 		clarityCardBorder: borderHex + (dark ? "52" : "4c"),
 		areaTints,
-		areaFillNormal: areaTints.map((c) => c + (dark ? "0a" : "07")),
-		areaStrokeNormal: areaTints.map((c) => c + (dark ? "2e" : "26")),
-		unitFillNormal: areaTints.map((c) => c + (dark ? "0c" : "08")),
-		unitStrokeNormal: areaTints.map((c) => c + (dark ? "2c" : "24")),
-		landmarkStroke: areaTints.map((c) => c + (dark ? "96" : "84")),
-		minimapAreaFill: areaTints.map((c) => c + (dark ? "26" : "1d")),
+		areaFillNormal: areaTints.map((c) => c + (dark ? "11" : "0b")),
+		areaStrokeNormal: areaTints.map((c) => c + (dark ? "44" : "38")),
+		unitFillNormal: areaTints.map((c) => c + (dark ? "14" : "0d")),
+		unitStrokeNormal: areaTints.map((c) => c + (dark ? "3e" : "32")),
+		landmarkStroke: areaTints.map((c) => c + (dark ? "aa" : "96")),
+		minimapAreaFill: areaTints.map((c) => c + (dark ? "34" : "28")),
 	};
 }
 

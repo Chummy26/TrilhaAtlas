@@ -182,11 +182,18 @@ export async function refreshChatGPTModels(supported: Model<"openai-responses">[
    const value = await chatGPTRequest<ModelsValue>("models");
    if (sequence !== state.catalogRequest || !validStamp(value)) return;
    acceptStatus(state, value);
-   state.lastRefreshedAt = Date.now();
-   if (value.epoch !== state.stamp.epoch || value.authorityRevision !== state.stamp.authorityRevision || value.accountId !== state.status.activeId || !chatGPTConnected()) return;
+   if (value.epoch !== state.stamp.epoch || value.authorityRevision !== state.stamp.authorityRevision || value.accountId !== state.status.activeId || !chatGPTConnected()) {
+    if (!chatGPTConnected()) state.lastRefreshedAt = Date.now();
+    return;
+   }
    state.catalogAccount = value.accountId;
    state.models = value.models.map(entry => accountModel(entry, supported.find(m => m.id === entry.id)));
-  } catch { if (sequence === state.catalogRequest) clearCatalog(state); }
+   if (state.models.length > 0) state.lastRefreshedAt = Date.now();
+  } catch (err) {
+   const isTransientTimeout = err instanceof Error && /timed out/i.test(err.message);
+   const hasValidCatalog = chatGPTConnected() && state.models.length > 0 && state.catalogAccount === state.status.activeId;
+   if (sequence === state.catalogRequest && !(isTransientTimeout && hasValidCatalog)) clearCatalog(state);
+  }
  })();
  const entry = { epoch: startEpoch, activeId: startAccount, promise: run };
  state.inFlightCatalog = entry;

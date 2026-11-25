@@ -107,28 +107,60 @@
   gap: 26px;
 }
 
-/* ─── Status Summary & Generation Toolbar ────────────────────────────────── */
+/* ─── Status Summary & Generation Toolbar (Editorial Nano Banana Banner) ── */
 
 .fc-root .fc-home-bar {
+  position: relative;
+  overflow: hidden;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 20px;
-  padding: 2px 2px 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 14px;
+  min-height: 132px;
+  padding: 24px 28px;
+  border-radius: 20px;
+  border: 1.5px solid color-mix(in srgb, var(--cel-line, #07070b) 82%, #2c3746);
+  background-color: #12171e;
+  background-image:
+    linear-gradient(
+      90deg,
+      #12171e 0%,
+      rgb(18 23 30 / 0.96) 44%,
+      rgb(18 23 30 / 0.72) 64%,
+      rgb(18 23 30 / 0.14) 84%,
+      transparent 100%
+    ),
+    url("/art/hero-flashcards.jpg");
+  background-size: cover, cover;
+  background-position: center, right 48%;
+  background-repeat: no-repeat;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 4px 0 color-mix(in srgb, var(--cel-bg-shade, #090c10) 90%, black);
+}
+
+.light .fc-root .fc-home-bar,
+[data-theme-mode="light"] .fc-root .fc-home-bar {
+  border-color: var(--cel-line, #1e1b2e);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 4px 0 color-mix(in srgb, var(--cel-shadow-color, #1e1b2e) 22%, var(--cel-bg-shade, #e4ded1));
 }
 
 .fc-root .fc-home-sub {
   margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.45;
-  color: var(--muted-foreground, #8b8e95);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: #e6ecf2;
   font-variant-numeric: tabular-nums;
+  max-width: 44ch;
 }
 
 .fc-root .fc-home-sub[data-ready="true"] {
-  color: color-mix(in srgb, var(--fc-teal) 35%, var(--foreground, inherit) 65%);
+  color: #ffffff;
 }
 
 .fc-root .fc-toolbar,
@@ -140,40 +172,72 @@
 }
 
 .fc-root .fc-toolbar {
-  padding: 5px;
+  padding: 6px;
   border-radius: 14px;
-  border: 1px solid var(--fc-border);
-  background: var(--fc-surface);
-  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-subtle);
+  border: 1.5px solid rgb(255 255 255 / 0.16);
+  background: rgb(14 19 26 / 0.84);
+  color: #f4efe6;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 2px 0 rgb(0 0 0 / 0.4);
+  backdrop-filter: blur(6px);
 }
 
 .fc-root .fc-file-status { margin: -14px 0 0; padding-left: 4px; }
 .fc-root .fc-file-name { overflow-wrap: anywhere; }
 
-/* ─── Spacious 4-Card Onigiri KPI Grid ───────────────────────────────────── */
+/* ─── Spacious 4-Card Cel-Shaded KPI Grid ────────────────────────────────── */
 
 .fc-root .fc-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
 .fc-root .fc-kpi-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 12px;
-  min-height: 146px;
-  padding: 22px 24px;
-  border-radius: 18px;
-  border: 1px solid var(--fc-border);
+  min-height: 142px;
+  padding: 20px 22px;
+  border-radius: 16px;
+  border: 1.5px solid var(--fc-border);
   background: var(--fc-surface);
-  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
-  transition: border-color 150ms ease;
+  box-shadow:
+    inset 0 1px 0 var(--fc-rim),
+    0 3px 0 color-mix(in srgb, var(--cel-bg-shade, black) 88%, black);
+  transition:
+    border-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fc-root .fc-kpi-card[data-ready="true"] {
+  border-color: color-mix(in srgb, var(--fc-teal) 60%, var(--fc-border));
+  box-shadow:
+    inset 0 3px 0 var(--fc-teal),
+    0 3px 0 color-mix(in srgb, var(--cel-bg-shade, black) 88%, black);
+}
+
+.fc-root .fc-kpi-card[data-active="true"] {
+  border-color: color-mix(in srgb, var(--fc-flame) 55%, var(--fc-border));
+  box-shadow:
+    inset 0 3px 0 var(--fc-flame),
+    0 3px 0 color-mix(in srgb, var(--cel-bg-shade, black) 88%, black);
 }
 
 .fc-root .fc-kpi-card:hover {
+  transform: translateY(-2px);
   border-color: var(--fc-border-strong);
+  box-shadow:
+    inset 0 1px 0 var(--fc-rim),
+    0 5px 0 color-mix(in srgb, var(--cel-bg-shade, black) 88%, black);
+}
+
+.light .fc-root .fc-kpi-card,
+[data-theme-mode="light"] .fc-root .fc-kpi-card {
+  box-shadow: inset 0 1px 0 var(--fc-rim), 0 3px 0 var(--cel-bg-shade, #e4ded1);
 }
 
 .fc-root .fc-kpi-label {
@@ -315,13 +379,20 @@
   position: static;
   max-height: none;
   width: 100%;
-  border: 1px solid var(--fc-border);
-  border-radius: 20px;
+  border: 1.5px solid var(--fc-border);
+  border-radius: 18px;
   background: var(--fc-surface);
-  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
+  box-shadow:
+    inset 0 1px 0 var(--fc-rim),
+    0 3px 0 color-mix(in srgb, var(--cel-bg-shade, black) 88%, black);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.light .fc-root .fc-deck-panel,
+[data-theme-mode="light"] .fc-root .fc-deck-panel {
+  box-shadow: inset 0 1px 0 var(--fc-rim), 0 3px 0 var(--cel-bg-shade, #e4ded1);
 }
 
 .fc-root .fc-sidebar-header {
@@ -655,12 +726,19 @@
 .fc-root .fc-dashboard-loading { margin: 0; }
 
 .fc-root .fc-bento-card {
-  border: 1px solid var(--fc-border);
-  border-radius: 20px;
+  border: 1.5px solid var(--fc-border);
+  border-radius: 18px;
   padding: 24px 26px;
   background: var(--fc-surface);
-  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
+  box-shadow:
+    inset 0 1px 0 var(--fc-rim),
+    0 3px 0 color-mix(in srgb, var(--cel-bg-shade, black) 88%, black);
   min-width: 0;
+}
+
+.light .fc-root .fc-bento-card,
+[data-theme-mode="light"] .fc-root .fc-bento-card {
+  box-shadow: inset 0 1px 0 var(--fc-rim), 0 3px 0 var(--cel-bg-shade, #e4ded1);
 }
 
 .fc-root .fc-card-head {
@@ -1159,7 +1237,20 @@
   flex-direction: column;
   align-items: center;
   padding: clamp(44px, 6vh, 72px) clamp(24px, 4vw, 56px) 52px;
-  background: var(--background, var(--fc-surface-soft));
+  background-color: var(--background, var(--fc-surface-soft));
+  background-image:
+    radial-gradient(ellipse 68% 58% at 50% 42%, color-mix(in srgb, var(--background, #101419) 84%, transparent) 0%, color-mix(in srgb, var(--background, #101419) 48%, transparent) 100%),
+    url("/art/bg-atlas-dark.jpg");
+  background-size: cover, cover;
+  background-position: center, right bottom;
+  background-attachment: fixed;
+}
+
+.light .fc-root.fc-review-surface,
+[data-theme-mode="light"] .fc-root.fc-review-surface {
+  background-image:
+    radial-gradient(ellipse 68% 58% at 50% 42%, color-mix(in srgb, var(--background, #fbf7ee) 82%, transparent) 0%, color-mix(in srgb, var(--background, #fbf7ee) 44%, transparent) 100%),
+    url("/art/bg-atlas-light.jpg");
 }
 
 .fc-root.fc-review-surface:focus { outline: none; }
@@ -1273,11 +1364,23 @@
   width: 100%;
   min-height: clamp(22rem, 42vh, 28rem);
   padding: clamp(36px, 4.5vw, 56px) clamp(32px, 5vw, 64px);
-  border: 1px solid var(--fc-border);
-  border-radius: 24px;
+  border: 1.5px solid var(--fc-border-strong);
+  border-top: 3.5px solid var(--fc-accent);
+  border-radius: 22px;
   background: var(--fc-surface);
-  box-shadow: inset 0 1px 0 var(--fc-rim), var(--fc-shadow-card);
+  box-shadow:
+    inset 0 1px 0 var(--fc-rim),
+    0 5px 0 color-mix(in srgb, var(--cel-bg-shade, black) 88%, black),
+    0 18px 42px -24px rgb(0 0 0 / 0.55);
   text-align: center;
+}
+
+.light .fc-root .fc-review-card,
+[data-theme-mode="light"] .fc-root .fc-review-card {
+  box-shadow:
+    inset 0 1px 0 var(--fc-rim),
+    0 5px 0 var(--cel-bg-shade, #e4ded1),
+    0 18px 38px -26px rgb(30 27 46 / 0.25);
 }
 
 .fc-root .fc-review-card.fc-card-enter {
@@ -1712,6 +1815,7 @@
     display: none !important;
     animation: none !important;
   }
+  .fc-root .fc-kpi-card,
   .fc-root .fc-review-progress-fill,
   .fc-root .fc-state-segment,
   .fc-root .fc-debrief-seg,

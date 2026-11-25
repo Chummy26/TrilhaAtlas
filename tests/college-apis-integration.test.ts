@@ -118,16 +118,62 @@ it("serves syllabus, transcript, notebook, module-exam, problem-set, flipped-rea
 	const elecProfile = profile.domains.find(d => d.id === "electronics");
 	assert.ok(elecProfile?.transcript, "studyProfile must include DomainTranscript for /profile");
 
-	// 7. Adaptive KST Placement lifecycle: start -> answer 5x -> finish -> persists diagnostic event.
+	// 7. Adaptive KST Placement lifecycle: start -> answer -> back -> re-answer 5x -> finish -> persists diagnostic event.
 	const plStart = await postPlacement(new Request("http://local/api/study/placement", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ action: "start", seed: "place-api" }),
 	}));
 	assert.equal(plStart.status, 200);
-	let current = (await plStart.json()) as { active: boolean; question: { nodeId: string } | null };
+	let current = (await plStart.json()) as {
+		active: boolean;
+		question: { nodeId: string; canGoBack?: boolean; previousAnswer?: boolean; confidencePct?: number } | null;
+	};
 	assert.equal(current.active, true);
 	assert.ok(current.question);
+	assert.equal(current.question.canGoBack, false);
+	assert.equal(current.question.confidencePct, 0);
+
+	const firstNodeId = current.question.nodeId;
+	const firstAnsRes = await postPlacement(new Request("http://local/api/study/placement", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ action: "answer", nodeId: firstNodeId, correct: true }),
+	}));
+	assert.equal(firstAnsRes.status, 200);
+	const firstAns = (await firstAnsRes.json()) as {
+		finished: boolean;
+		question?: { nodeId: string; canGoBack?: boolean } | null;
+	};
+	assert.equal(firstAns.finished, false);
+	assert.equal(firstAns.question?.canGoBack, true);
+
+	// Duplicate submission of the just-answered node is idempotent.
+	const dupAnsRes = await postPlacement(new Request("http://local/api/study/placement", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ action: "answer", nodeId: firstNodeId, correct: true }),
+	}));
+	assert.equal(dupAnsRes.status, 200);
+	const dupAns = (await dupAnsRes.json()) as { question?: { nodeId: string } | null };
+	assert.equal(dupAns.question?.nodeId, firstAns.question?.nodeId);
+
+	// Stepping back restores the exact first question and surfaces previousAnswer.
+	const backRes = await postPlacement(new Request("http://local/api/study/placement", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ action: "back" }),
+	}));
+	assert.equal(backRes.status, 200);
+	const backBody = (await backRes.json()) as {
+		finished: boolean;
+		question: { nodeId: string; canGoBack?: boolean; previousAnswer?: boolean };
+	};
+	assert.equal(backBody.finished, false);
+	assert.equal(backBody.question.nodeId, firstNodeId);
+	assert.equal(backBody.question.canGoBack, false);
+	assert.equal(backBody.question.previousAnswer, true);
+	current = { active: true, question: backBody.question };
 
 	for (let i = 0; i < 5 && current.question; i++) {
 		const ansRes = await postPlacement(new Request("http://local/api/study/placement", {

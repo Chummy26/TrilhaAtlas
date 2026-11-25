@@ -68,6 +68,9 @@ for (const secret of ["auth.json", ...subscriptionSecrets, ".env", ".env.local"]
 // Copy it explicitly: external plugin entries must be loaded by native Node,
 // not interpreted as build-time imports by webpack/Turbopack.
 copyTree(path.join(ROOT, "scripts", "plugin-loader.cjs"), path.join(STANDALONE, "scripts", "plugin-loader.cjs"));
+if (exists(path.join(ROOT, "scripts", "intensive-transcribe.py"))) {
+	copyTree(path.join(ROOT, "scripts", "intensive-transcribe.py"), path.join(STANDALONE, "scripts", "intensive-transcribe.py"));
+}
 try {
 	const core = path.join(ROOT, "core-plugins"), packagedCore = path.join(STANDALONE, "core-plugins");
 	validateCorePackages(ROOT, core);
@@ -116,6 +119,7 @@ if (process.platform === "win32" && exists(aliases)) {
 //    agent reads them from disk at request time).
 for (const asset of [
 	path.join("scripts", "plugin-loader.cjs"),
+	path.join("scripts", "intensive-transcribe.py"),
 	path.join("public", "plugin-loader.js"),
 	path.join("src", "agent", "system-prompt.md"),
 	path.join("src", "agent", "prompts", "teacher", "20-teaching.md"),

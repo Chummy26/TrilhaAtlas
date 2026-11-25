@@ -413,7 +413,129 @@ function bookTools(ctx: BookToolContext): Record<string, AgentTool<any>> {
 	} };
 }
 
-export interface TeacherToolContext extends PlanToolContext, BookToolContext {
+const searchIntensiveCourseSchema = Type.Object({
+	query: Type.String({
+		minLength: 1,
+		maxLength: 240,
+		description: "Keywords, concept, component, circuit topology, or question to search across all transcribed video lessons and course syllabus modules.",
+	}),
+	courseId: Type.Optional(Type.String({
+		minLength: 1,
+		maxLength: 120,
+		description: "Optional course ID to scope the search (defaults to this session's active intensive course).",
+	})),
+	limit: Type.Optional(Type.Integer({
+		minimum: 1,
+		maximum: 15,
+		description: "Maximum number of ranked excerpts to return (default 6).",
+	})),
+});
+
+const getIntensiveTranscriptSchema = Type.Object({
+	courseId: Type.String({
+		minLength: 1,
+		maxLength: 120,
+		description: "Course ID containing the transcribed lesson.",
+	}),
+	lessonId: Type.String({
+		minLength: 1,
+		maxLength: 160,
+		description: "Exact lesson ID returned by search_intensive_course or the session context.",
+	}),
+	startSec: Type.Optional(Type.Number({
+		minimum: 0,
+		description: "Optional start timestamp in seconds to inspect a focused segment.",
+	})),
+	endSec: Type.Optional(Type.Number({
+		minimum: 0,
+		description: "Optional end timestamp in seconds to bound the transcript excerpt.",
+	})),
+});
+
+const searchIntensiveMaterialsSchema = Type.Object({
+	query: Type.String({
+		minLength: 1,
+		maxLength: 240,
+		description: "Keywords, formula, component, circuit schematic, exercise, or topic to search across extracted intensive course PDFs, apostilas, workbooks, and documents.",
+	}),
+	courseId: Type.Optional(Type.String({
+		minLength: 1,
+		maxLength: 120,
+		description: "Optional course ID to scope the search (defaults to this session's active intensive course or all intensive courses in the domain).",
+	})),
+	limit: Type.Optional(Type.Integer({
+		minimum: 1,
+		maximum: 12,
+		description: "Maximum number of ranked material excerpts to return (default 6).",
+	})),
+});
+
+export interface IntensiveToolContext {
+	searchIntensiveCourse?: (input: { query: string; courseId?: string; limit?: number }) => Promise<string> | string;
+	getIntensiveTranscript?: (input: { courseId: string; lessonId: string; startSec?: number; endSec?: number }) => Promise<string> | string;
+	searchIntensiveMaterials?: (input: { query: string; courseId?: string; limit?: number }) => Promise<string> | string;
+}
+
+function intensiveTools(ctx: IntensiveToolContext): Record<string, AgentTool<any>> {
+	const tools: Record<string, AgentTool<any>> = {};
+	if (ctx.searchIntensiveCourse) {
+		tools.search_intensive_course = {
+			name: "search_intensive_course",
+			label: "Buscar no curso intensivo",
+			description:
+				"Search across ALL transcribed video lessons and syllabus modules of the intensive course/track. " +
+				"Returns ranked matches with exact courseId, lessonId, lesson title, timestamps, and excerpts. " +
+				"Use whenever the learner asks about a concept covered in another lesson, earlier/later video, or module.",
+			parameters: searchIntensiveCourseSchema,
+			execute: serverExecute("search_intensive_course", searchIntensiveCourseSchema, (input) =>
+				ctx.searchIntensiveCourse!({
+					query: input.query,
+					...(input.courseId !== undefined ? { courseId: input.courseId } : {}),
+					...(input.limit !== undefined ? { limit: input.limit } : {}),
+				}),
+			),
+		};
+	}
+	if (ctx.getIntensiveTranscript) {
+		tools.get_intensive_transcript = {
+			name: "get_intensive_transcript",
+			label: "Ler transcrição da aula",
+			description:
+				"Read timestamped transcript lines for a specific intensive course video lesson (by courseId and lessonId), " +
+				"optionally bounded by startSec and endSec. Use after search_intensive_course or to inspect surrounding explanation in full depth.",
+			parameters: getIntensiveTranscriptSchema,
+			execute: serverExecute("get_intensive_transcript", getIntensiveTranscriptSchema, (input) =>
+				ctx.getIntensiveTranscript!({
+					courseId: input.courseId,
+					lessonId: input.lessonId,
+					...(input.startSec !== undefined ? { startSec: input.startSec } : {}),
+					...(input.endSec !== undefined ? { endSec: input.endSec } : {}),
+				}),
+			),
+		};
+	}
+	if (ctx.searchIntensiveMaterials) {
+		tools.search_intensive_materials = {
+			name: "search_intensive_materials",
+			label: "Buscar nas apostilas e PDFs",
+			description:
+				"Search across extracted PDFs, apostilas, exercise sheets, schematics, and reference documents of the intensive course/track. " +
+				"Returns ranked passages with exact courseId, materialId, file name, section, page number, and text excerpts. " +
+				"Use whenever the learner asks about formulas, tables, exercises, diagrams, or reading material in the course PDFs/documents.",
+			parameters: searchIntensiveMaterialsSchema,
+			execute: serverExecute("search_intensive_materials", searchIntensiveMaterialsSchema, (input) =>
+				ctx.searchIntensiveMaterials!({
+					query: input.query,
+					...(input.courseId !== undefined ? { courseId: input.courseId } : {}),
+					...(input.limit !== undefined ? { limit: input.limit } : {}),
+				}),
+			),
+		};
+	}
+	return tools;
+}
+
+export interface TeacherToolContext extends PlanToolContext, BookToolContext, IntensiveToolContext {
 	attachMaterials?: (topic: string, useLesson: boolean, signal?: AbortSignal) => Promise<import("../core/study/attachments.ts").StudyAttachments>;
 	missionObjective?: { title: string; objectives: readonly string[]; assessment?: readonly string[] };
 	presentLessonExam?: (input: LessonExam) => unknown;
@@ -494,6 +616,7 @@ export function createTeacherTools(
 			// only, always on — it shows the learner their own file.
 			show_image: createShowImageTool(ctx),
 			...bookTools(ctx),
+			...intensiveTools(ctx),
 			...(ctx.attachMaterials && { attach_study_materials: {
 				name: "attach_study_materials", label: "Anexar materiais de estudo", parameters: materialsSchema,
 				description: "Attach available full books, targeted readings and videos as clickable materials in the conversation. Use for demanding work or when requested. Explain where to start based on the returned items.",

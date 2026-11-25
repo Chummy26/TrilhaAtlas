@@ -29,6 +29,8 @@ import { nodeBrief } from "./projection.ts";
 
 export interface SerializedDiagnostic {
 	version: 1;
+	/** Seed used to initialize the particle filter, enabling exact deterministic undo. */
+	seed?: string;
 	ids: string[];
 	words: number;
 	count: number;
@@ -47,6 +49,20 @@ export interface PlacementQuestion {
 	path: string[];
 	prompt: string;
 	objectives: string[];
+	/** Short description of the skill/topic (distinct from title/prompt). */
+	summary?: string;
+	/** Explicit scope contract (what is inside/outside the topic). */
+	scope?: string;
+	/** Human-readable level badge (e.g. "CEFR B2", "Fundamentos"). */
+	levelLabel?: string;
+	/** Concrete sample words/items from the curriculum node so the learner can judge accurately. */
+	examples?: string[];
+	/** Common pitfalls/misconceptions to help self-verify mastery. */
+	misconceptions?: string[];
+	/** Whether the user can step back to the previous question. */
+	canGoBack?: boolean;
+	/** Previous choice if the user just stepped back to this question. */
+	previousAnswer?: boolean;
 	asked: number;
 	minQuestions: number;
 	maxQuestions: number;
@@ -154,8 +170,41 @@ function buildPlacementDifficulty(
 	return (id: string) => ((raw.get(id) ?? mean) - mean) / sd;
 }
 
-function placementConfidencePct(graph: LearnerGraphView, state: DiagnosticState): number {
+const EE_BAND_LABELS: readonly string[] = [
+	"Fundamentos",
+	"Técnico",
+	"Graduação",
+	"Avançado",
+	"Pós-graduação",
+];
+
+function levelLabelOf(item: CurriculumItem | undefined): string | undefined {
+	if (!item) return undefined;
+	if (item.level.scheme === "cefr") return `CEFR ${item.level.cefr}`;
+	if (item.level.scheme === "ee") return EE_BAND_LABELS[item.level.band] ?? `Faixa ${item.level.band}`;
+	return `Nível ${item.level.band}`;
+}
+
+function examplesOf(item: CurriculumItem | undefined): string[] {
+	if (!item?.lexicalItems?.length) return [];
+	const seen = new Set<string>();
+	const out: string[] = [];
+	for (const lex of item.lexicalItems) {
+		const lemma = lex.lemma.trim();
+		if (!lemma) continue;
+		const key = lemma.toLowerCase();
+		if (seen.has(key)) continue;
+		seen.add(key);
+		out.push(lemma);
+		if (out.length >= 12) break;
+	}
+	return out;
+}
+
+/** Convergence percentage of the KST particle filter, scaled from 0% before the first answer. */
+export function placementConfidencePct(graph: LearnerGraphView, state: DiagnosticState): number {
 	if (state.skeleton.length === 0) return 100;
+	if (state.answers.length === 0) return 0;
 	const pos = graphIndex(graph).pos;
 	const { stopLo, stopHi } = LEARNER_CONSTANTS.particles;
 	let resolved = 0;
@@ -165,7 +214,9 @@ function placementConfidencePct(graph: LearnerGraphView, state: DiagnosticState)
 		const p = particleMarginal(state, idx);
 		if (p < stopLo || p > stopHi) resolved++;
 	}
-	return Math.max(0, Math.min(100, Math.round((resolved / state.skeleton.length) * 100)));
+	const rawRatio = resolved / state.skeleton.length;
+	const ramp = Math.min(1, state.answers.length / PLACEMENT_MIN_QUESTIONS);
+	return Math.max(0, Math.min(100, Math.round(rawRatio * ramp * 100)));
 }
 
 function balancedSkeleton(graph: LearnerGraphView, max = PLACEMENT_SKELETON_MAX): string[] {
@@ -189,14 +240,16 @@ function buildPlacementPrompt(snapshot: CurriculumSnapshot, nodeId: string, titl
 		|| item?.summary?.trim()
 		|| title;
 	const cleaned = target.replace(/[.!?]+$/u, "");
-	const lower = cleaned.replace(/^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/u, (ch) => ch.toLowerCase());
+	// Keep acronyms (e.g. IPA, MOSFET, RC) uppercase while lowercasing sentence-case starts.
+	const lower = cleaned.replace(/^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ](?![A-ZÁÀÂÃÉÊÍÓÔÕÚÇ])/u, (ch) => ch.toLowerCase());
 	return `Sem consultar anotações, você consegue hoje, com segurança, ${lower}?`;
 }
 
 /** Lossless JSON-safe serialization of a KST particle-filter DiagnosticState. */
-export function serializeDiagnostic(state: DiagnosticState): SerializedDiagnostic {
+export function serializeDiagnostic(state: DiagnosticState, seed?: string): SerializedDiagnostic {
 	return {
 		version: 1,
+		...(seed ? { seed } : {}),
 		ids: [...state.ids],
 		words: state.words,
 		count: state.count,
@@ -260,16 +313,32 @@ export function currentPlacementQuestion(
 	if (asked >= PLACEMENT_MAX_QUESTIONS || shouldStopDiagnostic(state)) return null;
 	const nodeId = nextDiagnosticQuestion(state);
 	if (!nodeId) return null;
+	const item = snapshot.items[nodeId];
 	const brief = nodeBrief(snapshot, nodeId);
 	const title = brief?.title ?? graph.nodes.get(nodeId)?.title ?? nodeId;
 	const path = brief?.path ?? [];
-	const objectives = brief?.objectives ?? snapshot.items[nodeId]?.objectives ?? [];
+	const objectives = brief?.objectives ?? item?.objectives ?? [];
+	const summary = (brief?.summary ?? item?.summary ?? "").trim();
+	const scope = (brief?.scope ?? item?.scope ?? "").trim();
+	const levelLabel = levelLabelOf(item);
+	const examples = examplesOf(item);
+	const misconceptions = (brief?.misconceptions ?? item?.misconceptions ?? [])
+		.map((m) => m.trim())
+		.filter(Boolean)
+		.slice(0, 3);
+	const showSummary = summary && summary.toLowerCase() !== title.trim().toLowerCase() ? summary : undefined;
 	return {
 		nodeId,
 		title,
 		path,
 		prompt: buildPlacementPrompt(snapshot, nodeId, title),
 		objectives: [...objectives],
+		...(showSummary ? { summary: showSummary } : {}),
+		...(scope ? { scope } : {}),
+		...(levelLabel ? { levelLabel } : {}),
+		...(examples.length > 0 ? { examples } : {}),
+		...(misconceptions.length > 0 ? { misconceptions } : {}),
+		canGoBack: asked > 0,
 		asked,
 		minQuestions: PLACEMENT_MIN_QUESTIONS,
 		maxQuestions: PLACEMENT_MAX_QUESTIONS,
@@ -285,6 +354,26 @@ export function recordPlacementAnswer(
 	correct: boolean,
 ): DiagnosticState {
 	return recordDiagnosticAnswer(state, graph, { nodeId, correct });
+}
+
+/**
+ * Step back one placement answer by deterministically replaying the particle
+ * filter from `seed` over `answers.slice(0, -1)`. Returns null at question 1.
+ */
+export function undoPlacementAnswer(
+	graph: LearnerGraphView,
+	snapshot: CurriculumSnapshot,
+	state: DiagnosticState,
+	seed: string,
+): { state: DiagnosticState; undoneAnswer: DiagnosticAnswer } | null {
+	if (state.answers.length === 0) return null;
+	const undoneAnswer = state.answers[state.answers.length - 1]!;
+	const priorAnswers = state.answers.slice(0, -1);
+	let rebuilt = startPlacement(graph, seed, snapshot);
+	for (const answer of priorAnswers) {
+		rebuilt = recordDiagnosticAnswer(rebuilt, graph, answer);
+	}
+	return { state: rebuilt, undoneAnswer };
 }
 
 function minimalPlacedNodeState(nodeId: string, version: number, p: number, at: string): NodeState {

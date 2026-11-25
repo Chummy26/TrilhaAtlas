@@ -29,7 +29,7 @@ import { nativeSubscriptionId, nativeSubscriptionConnected, nativeSubscriptionMo
 // like /api/models and /api/domains/create) often mount together. Share the
 // in-flight discovery on globalThis so concurrent callers never race or return empty.
 const chatCatalogKey = Symbol.for("lh.chatgpt.catalogRequest");
-const CATALOG_FRESH_TTL_MS = 15_000;
+const CATALOG_FRESH_TTL_MS = 300_000;
 function refreshTutorCatalog() {
 	const shared = globalThis as typeof globalThis & { [chatCatalogKey]?: Promise<void> };
 	return shared[chatCatalogKey] ??= refreshChatGPTModels(

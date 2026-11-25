@@ -14,12 +14,13 @@ import lesson from "./messages/lesson.ts";
 import pages from "./messages/pages.ts";
 import server from "./messages/server.ts";
 import core from "./messages/core.ts";
+import intensive from "./messages/intensive.ts";
 
 /**
  * Every message namespace. A new area adds ONE file under ./messages and ONE
  * line here; the types below then derive `MessageKey` from the English source.
  */
-export const NAMESPACES = { common, shell, chat, session, composer, dialogs, plugins, settings, map, course, lesson, pages, server, core } as const;
+export const NAMESPACES = { common, shell, chat, session, composer, dialogs, plugins, settings, map, course, lesson, pages, server, core, intensive } as const;
 
 export type Namespace = keyof typeof NAMESPACES;
 type SourceMessages<N extends Namespace> = (typeof NAMESPACES)[N]["en"];

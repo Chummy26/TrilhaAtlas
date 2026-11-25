@@ -139,15 +139,15 @@ export function PracticeDock({ viewReader, problemCallId, input, expanded, onExp
 
 	/* ── the expanded form ── */
 	return (
-		<div ref={element => { rootRef.current = element; }} data-testid="practice-dock" data-problem={problemCallId}>
+		<div ref={element => { rootRef.current = element; }} data-testid="practice-dock" data-problem={problemCallId} className="ta-practice-dock-shell">
 			{!expanded && bar}
 			<div hidden={!expanded}>
 			{/* The agent's half: the 'Problem' eyebrow (mirroring the quiz
 			    cards' label row — owner round, 2026-10-05) + the statement,
 			    markdown + LaTeX rendered, capped by the measured column
 			    (--dock-max-h; the old fixed 40vh cut long problems short). */}
-			<div data-dock-scroll-area="" className="max-h-[var(--dock-max-h,40vh)] overflow-y-auto px-4 pt-3 pb-2">
-				<div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Problem</div>
+			<div data-dock-scroll-area="" className="max-h-[var(--dock-max-h,40vh)] overflow-y-auto px-4 pt-3.5 pb-2.5">
+				<div className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground">Problem</div>
 				<div className="lh-prose">
 					<ToolContentResponse>{input.statement}</ToolContentResponse>
 				</div>
@@ -159,9 +159,9 @@ export function PracticeDock({ viewReader, problemCallId, input, expanded, onExp
 			    Shift+Enter makes a newline — less to decide about. */}
 			<div
 				data-testid="practice-thinking-field"
-				className="m-1.5 rounded-[10px] border border-border/70 bg-background/60 transition-colors focus-within:border-primary/50"
+				className="m-2 rounded-xl border border-border/75 bg-background/75 transition-colors focus-within:border-[var(--cel-accent,var(--primary))]"
 			>
-				<div className="px-2.5 pt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+				<div className="px-3 pt-2.5 text-xs font-semibold tracking-wide text-muted-foreground">
 					YOUR THINKING
 				</div>
 				<PathInput

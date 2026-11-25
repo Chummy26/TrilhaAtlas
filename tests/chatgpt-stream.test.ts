@@ -8,7 +8,7 @@ import path from "node:path";
 import { backgroundCaptureDir, backgroundCaptureStream, createBackgroundCapture } from "../src/agent/background-capture.ts";
 import { piModels, piEngineForSpec } from "../src/agent/models.ts";
 import { chatGPTAbortController, chatGPTModels, chatGPTReportedLimits, refreshChatGPTModels } from "../src/agent/chatgpt-bridge.ts";
-import { chatGPTHistory, chatGPTPayload } from "../src/agent/chatgpt-stream.ts";
+import { chatGPTHistory, chatGPTPayload, chatGPTStreamError } from "../src/agent/chatgpt-stream.ts";
 
 const originalSend = Object.getOwnPropertyDescriptor(process, "send");
 const originalConnected = Object.getOwnPropertyDescriptor(process, "connected");
@@ -242,4 +242,11 @@ test("full credential-storage invalidation aborts foreground and background cont
 	ipc({ channel: "lh:chatgpt", kind: "state", stamp: { epoch: 2, authorityRevision: 2, revision: 3 }, status: { ...status, available: false }, invalidate: "all" });
 	assert(foreground.controller.signal.aborted); assert(background.controller.signal.aborted); assert.equal(chatGPTModels().length, 0);
 	foreground.release(); background.release();
+});
+
+test("generic errors mentioning the word model do not falsely report model unavailable", () => {
+	assert.match(chatGPTStreamError("ChatGPT account model catalog is unavailable"), /selected model is unavailable/i);
+	assert.match(chatGPTStreamError("model_not_found: gpt-99"), /selected model is unavailable/i);
+	assert.doesNotMatch(chatGPTStreamError("The model is currently overloaded, please retry"), /selected model is unavailable/i);
+	assert.match(chatGPTStreamError("The model is currently overloaded, please retry"), /ChatGPT request failed/i);
 });

@@ -1,6 +1,6 @@
 /**
  * GET    /api/study/placement
- * POST   /api/study/placement { action: "start" | "answer" | "finish", nodeId?, correct?, seed? }
+ * POST   /api/study/placement { action: "start" | "answer" | "back" | "finish", nodeId?, correct?, seed? }
  * DELETE /api/study/placement
  */
 
@@ -11,6 +11,7 @@ import {
 	getDomainPlacement,
 	startDomainPlacement,
 	StudyError,
+	undoDomainPlacement,
 } from "@/src/server";
 
 export const dynamic = "force-dynamic";
@@ -42,10 +43,13 @@ export async function POST(request: Request) {
 			}
 			return Response.json(answerDomainPlacement(nodeId, body.correct));
 		}
+		if (action === "back") {
+			return Response.json(undoDomainPlacement());
+		}
 		if (action === "finish") {
 			return Response.json(finishDomainPlacement());
 		}
-		return Response.json({ error: "Ação inválida. Use 'start', 'answer' ou 'finish'." }, { status: 400 });
+		return Response.json({ error: "Ação inválida. Use 'start', 'answer', 'back' ou 'finish'." }, { status: 400 });
 	} catch (error) {
 		if (error instanceof StudyError) return Response.json({ error: error.message }, { status: error.status });
 		throw error;

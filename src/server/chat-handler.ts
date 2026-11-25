@@ -20,7 +20,15 @@ import { createJobRunner } from "../agent/subagents/runner.ts";
 import { createExtractionPipeline } from "../agent/subagents/extraction.ts";
 import { activeDomainId, type ModelRole } from "../../config.ts";
 import { openTutorMemory, retainTutorTurn, tutorMemoryText } from "./memory/tutor.ts";
-import { estimateTokens as memoryTokens } from "../core/memory/tokens.ts";
+import { estimateTokens as memoryTokens, truncateToTokens } from "../core/memory/tokens.ts";
+import {
+	buildDomainIntensiveMemory,
+	buildIntensiveTurnMemory,
+	getIntensiveTranscriptForTutor,
+	hasIntensiveKnowledgeForDomain,
+	searchIntensiveForTutor,
+	searchIntensiveMaterialsForTutor,
+} from "./intensive.ts";
 import {
 	deliverJobResult,
 	noteSteersDurable,
@@ -66,7 +74,7 @@ import { isLessonExamAnswer, pendingLessonExam, lessonExamPhase, prepareLessonEx
 import { buildMissionPedagogyDirective } from "../core/study/tutor-pedagogy.ts";
 import { finishStudyLesson, lessonConclusionObjective, lessonCompletionState, listStudyDomains, saveStudyAnswer } from "./study.ts";
 import { persistTurn, triggerExtraction, TurnPersistenceError } from "./turn-service.ts";
-import { hasTeachingContext, readingSourceOf, hasUnresolvedQuestion, pendingPluginQuestionOf, pluginQuestionCallsOf, questionCallsOf } from "../core/native-messages.ts";
+import { hasTeachingContext, intensiveContextOf, readingSourceOf, hasUnresolvedQuestion, pendingPluginQuestionOf, pluginQuestionCallsOf, questionCallsOf, userFacingTextOf } from "../core/native-messages.ts";
 import { samePluginQuestionOccurrence } from "../core/plugin-questions.ts";
 import { composeInstructions } from "../agent/teacher-agent.ts";
 import { ensureCompacted, kickCompaction, effectiveThresholdTokens, projectedContextTokens, compactionInFlight } from "./compaction.ts";
@@ -116,6 +124,40 @@ function connectionBackgroundAllowed(provider: string): boolean {
 
 function settlementErrorText(error: unknown): string {
 	return error instanceof TurnPersistenceError ? error.message : "An error occurred.";
+}
+
+function latestLearnerTextOf(messages: readonly LhMessage[]): string {
+	for (let i = messages.length - 1; i >= 0; i--) {
+		const m = messages[i]!;
+		if (m.role !== "user") continue;
+		const text = userFacingTextOf(m.content).join("\n").replace(/\s+/gu, " ").trim();
+		if (text) return text;
+	}
+	return "";
+}
+
+function focusNodeTitlesOf(
+	messages: readonly LhMessage[],
+	missionObjective?: { title: string; objectives: readonly string[] },
+): string[] {
+	const titles: string[] = [];
+	const pushUnique = (value: unknown) => {
+		if (typeof value !== "string") return;
+		const trimmed = value.trim();
+		if (trimmed && !titles.includes(trimmed)) titles.push(trimmed);
+	};
+	if (missionObjective) {
+		pushUnique(missionObjective.title);
+		for (const obj of missionObjective.objectives.slice(0, 2)) pushUnique(obj);
+	}
+	const first = messages[0];
+	if (first?.role === "custom" && first.customType === "graph-context") {
+		const picks = (first.details as { propositions?: Array<{ name?: unknown }> } | null)?.propositions;
+		if (Array.isArray(picks)) {
+			for (const pick of picks.slice(0, 4)) pushUnique(pick?.name);
+		}
+	}
+	return titles;
 }
 
 const jobRunner = createJobRunner({
@@ -668,6 +710,7 @@ export async function handleChatInput(
 	// Both share this whole composition (write-ahead persist, liveness,
 	// steers, usage, extraction) — only the agent differs.
 	const readingSource = readingSourceOf(record.messages);
+	const intensiveCtx = intensiveContextOf(record.messages);
 	const shelf = domainId && !readingSource ? lessonBooks(domainId, chatId) : [];
 	const bookContext = domainId && (readingSource || shelf.length) ? {
 		...(!readingSource && { bookShelf: shelf.map((entry, i) => (i + 1) + ". " + entry.title).join(" | ") }),
@@ -683,6 +726,8 @@ export async function handleChatInput(
 	} : {};
 
 	const teaching = hasTeachingContext(record.messages);
+	const missionObjective = domainId && teaching ? lessonConclusionObjective(domainId, chatId) : undefined;
+	const domainHasIntensive = !intensiveCtx && hasIntensiveKnowledgeForDomain(domainId);
 	// BYOK (owner, 2026-09-22): the conversation chain was resolved by the
 	// turn gate above (chat.model override → strong slot → refused) — the
 	// engine build is pure from here; thinking levels clamp natively.
@@ -699,6 +744,45 @@ export async function handleChatInput(
 			studyMemory = await tutorMemoryText(memoryDb, chatId, agentMessages, capacity - used - 8);
 			if (studyMemory) systemPromptTokens += memoryTokens(studyMemory) + 8;
 		} catch { console.warn(`[memory ${domainId}] turn context unavailable`); }
+	}
+	let intensiveMemory = "";
+	if (intensiveCtx) {
+		try {
+			const window = sideContextWindow(agentMessages, engine.model, contextWindow, input.type === "retry");
+			const capacity = window === undefined ? thresholdTokens : window - Math.min(COMPACTION_RESERVE_TOKENS, engine.model.maxTokens);
+			const used = projectedContextTokens(prospective, systemPromptTokens, estimateModel);
+			const budget = Math.min(2400, Math.floor(capacity - used - 8));
+			if (budget > 32) {
+				const raw = buildIntensiveTurnMemory(intensiveCtx, latestLearnerTextOf(agentMessages));
+				if (raw.trim()) {
+					intensiveMemory = truncateToTokens(raw.trim(), budget);
+					if (intensiveMemory) systemPromptTokens += memoryTokens(intensiveMemory) + 8;
+				}
+			}
+		} catch (err) {
+			console.warn(`[intensive ${chatId}] turn context unavailable:`, err);
+		}
+	} else if (domainHasIntensive && domainId) {
+		try {
+			const window = sideContextWindow(agentMessages, engine.model, contextWindow, input.type === "retry");
+			const capacity = window === undefined ? thresholdTokens : window - Math.min(COMPACTION_RESERVE_TOKENS, engine.model.maxTokens);
+			const used = projectedContextTokens(prospective, systemPromptTokens, estimateModel);
+			const budget = Math.min(450, Math.floor(capacity - used - 8));
+			if (budget > 32) {
+				const raw = buildDomainIntensiveMemory({
+					domainId,
+					query: latestLearnerTextOf(agentMessages),
+					focusNodeTitles: focusNodeTitlesOf(record.messages, missionObjective),
+					maxChars: 1600,
+				});
+				if (raw.trim()) {
+					intensiveMemory = truncateToTokens(raw.trim(), budget);
+					if (intensiveMemory) systemPromptTokens += memoryTokens(intensiveMemory) + 8;
+				}
+			}
+		} catch (err) {
+			console.warn(`[intensive ${chatId}] domain turn context unavailable:`, err);
+		}
 	}
 	// Provider-qualified stamp (model slots wave): matches the price table's
 	// provider:id keys.
@@ -729,6 +813,7 @@ export async function handleChatInput(
 	const responseLanguage = LOCALES.find((l) => l.code === effective.general.language) ?? LOCALES[0];
 	const agentOpts: AgentBuildOptions = {
 		studyMemory,
+		...(intensiveMemory ? { intensiveMemory } : {}),
 		responseLanguageInstruction: `Interface language: ${responseLanguage.label} (${responseLanguage.code}). Write all learner-facing replies in ${responseLanguage.label}, unless the learner explicitly asks for another language or a language-learning exercise requires target-language examples.`,
 		pluginContributions,
 		engine,
@@ -788,7 +873,6 @@ export async function handleChatInput(
 	// split, no plan/question/job tools; the whole registry is
 	// problem + conclude. buildAgent stays honored (the test seam is
 	// uniform across kinds).
-	const missionObjective = domainId && teaching ? lessonConclusionObjective(domainId, chatId) : undefined;
 	const projectedMessages = missionObjective ? projectLessonMessages(agentMessages) : [];
 	const examPhase = missionObjective ? lessonExamPhase(projectedMessages) : "teaching";
 	const examInstruction = missionObjective
@@ -805,6 +889,21 @@ export async function handleChatInput(
 		missionExamInstruction: examInstruction,
 		missionExamPhase: missionObjective ? examPhase : undefined,
 	};
+	const intensiveToolBindings = intensiveCtx
+		? {
+				searchIntensiveCourse: (args: { query: string; courseId?: string; limit?: number }) =>
+					searchIntensiveForTutor({ ...args, courseId: args.courseId ?? intensiveCtx.courseId }),
+				getIntensiveTranscript: getIntensiveTranscriptForTutor,
+				searchIntensiveMaterials: (args: { query: string; courseId?: string; limit?: number }) =>
+					searchIntensiveMaterialsForTutor({ ...args, courseId: args.courseId ?? intensiveCtx.courseId }),
+			}
+		: domainHasIntensive
+			? {
+					searchIntensiveCourse: searchIntensiveForTutor,
+					getIntensiveTranscript: getIntensiveTranscriptForTutor,
+					searchIntensiveMaterials: searchIntensiveMaterialsForTutor,
+				}
+			: {};
 	const constructed: TeachingAgent = buildAgent
 		? buildAgent({ ...missionOpts, teaching })
 		: record.kind === "practice"
@@ -835,6 +934,7 @@ export async function handleChatInput(
 			? createTeacherAgent(
 					{
 						...bookContext,
+						...intensiveToolBindings,
 					attachMaterials: (topic, useLesson, signal) => attachStudyMaterials(domainId,
 						useLesson ? lessonNodeOfChat(domainId, chatId) : null, topic, signal, readingSource?.book),
 						...(domainId && missionObjective && {

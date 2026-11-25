@@ -51,6 +51,7 @@ import { activeCompactionOf, keptIndexFor } from "./compaction.ts";
 import { parseQuestionInput } from "./tool-parts.ts";
 import { expandCitationsForModel } from "./citations.ts";
 import { readPluginQuestionMessageAnnotation, readPluginQuestionAnswer, readPluginQuestionCancellation, samePluginQuestionOccurrence, type PluginQuestionAnnotationRead, type PluginQuestionOccurrence, type PluginQuestionOccurrenceMap, type PluginQuestionSnapshot } from "./plugin-questions.ts";
+import type { IntensiveTutorContextPayload } from "./intensive/types.ts";
 
 /** The hard-invariant wording for an aborted turn's unanswered calls —
  *  carried over verbatim from the pre-native era so the model's view
@@ -74,6 +75,7 @@ export interface LhMarkerMessage {
 	role: "custom";
 	customType:
 		| "graph-context"
+		| "intensive-context"
 		| "probe-handoff"
 		| "subagent-steer"
 		| "subagent-abort"
@@ -348,6 +350,27 @@ export function newGraphContextMessage(picks: readonly GraphContextPick[], chain
 		content: lines.join("\n"),
 		display: true,
 		details: { propositions: picks, chains },
+		timestamp: Date.now(),
+	};
+}
+
+/** The intensive-study context payload attached as message[0] when launching
+ *  the tutor from a local video lesson, external course/module, certification,
+ *  or portfolio project inside Intensiva. */
+export type IntensiveContextDetails = IntensiveTutorContextPayload;
+
+/** The session's intensive-study context marker: message[0] BEFORE the
+ *  learner's first user message. `content` is the bounded model-facing prompt
+ *  context (flattened to a user message by toLlmMessages); `details` drives
+ *  the collapsible IntensiveContextCard, return link, and dynamic search tools. */
+export function newIntensiveContextMessage(details: IntensiveContextDetails, content: string): LhMarkerMessage {
+	return {
+		id: newMessageId(),
+		role: "custom",
+		customType: "intensive-context",
+		content,
+		display: true,
+		details,
 		timestamp: Date.now(),
 	};
 }
@@ -934,13 +957,26 @@ export function readingSourceDetails(details: unknown): { book: string; unit: nu
 		return { book: source.book, unit: source.unit, region: source.region };
 }
 
+/** Intensive sessions persist their bounded course/video/cert/project context at message[0]. */
+export function intensiveContextOf(messages: readonly LhMessage[]): IntensiveContextDetails | null {
+	const first = messages[0];
+	if (first?.role !== "custom" || first.customType !== "intensive-context") return null;
+	const details = first.details as Partial<IntensiveContextDetails> | null | undefined;
+	if (!details || typeof details !== "object" || typeof details.trackId !== "string" || !details.trackId) return null;
+	return details as IntensiveContextDetails;
+}
+
 export function directLessonDetails(details: unknown): boolean {
 	return (details as { campaignLesson?: unknown } | null)?.campaignLesson === true || Boolean(readingSourceDetails(details));
 }
 
 export function startsWithLesson(messages: readonly LhMessage[]): boolean {
 	const first = messages[0];
-	return first?.role === "custom" && first.customType === "graph-context" && directLessonDetails(first.details);
+	return (
+		first?.role === "custom" &&
+		((first.customType === "graph-context" && directLessonDetails(first.details)) ||
+			first.customType === "intensive-context")
+	);
 }
 
 export function hasTeachingContext(messages: readonly LhMessage[]): boolean {
@@ -1017,7 +1053,7 @@ export function nativeInputCause(message: AgentMessage, history: readonly AgentM
 	if (message.role === "custom") {
 		if (["probe-handoff", "subagent-steer", "subagent-abort"].includes(message.customType)) return "automatic";
 		if (["practice-thinking", "plugin-problem-submission", "practice-next"].includes(message.customType)) return "learner";
-		return ["graph-context", "plan-block", "problem-dismissed", "compaction", "side-question", "side-question-told"].includes(message.customType) ? "neutral" : "unrecognizable";
+		return ["graph-context", "intensive-context", "plan-block", "problem-dismissed", "compaction", "side-question", "side-question-told"].includes(message.customType) ? "neutral" : "unrecognizable";
 	}
 	if (message.role === "toolResult") {
 		const pluginAnswer = readPluginQuestionAnswer(message.details);

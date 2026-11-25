@@ -1437,16 +1437,18 @@ export function GraphView({
 	}, [selected, isEmpty]);
 
 	return (
-		<div className="relative h-full w-full">
+		<div className="ta-graph-stage relative h-full w-full">
 			{isEmpty ? (
 				// The empty graph keeps the first action clear without zero-valued statistics.
-				<div className="flex h-full w-full items-center justify-center px-4">
-					<div className="flex flex-col items-center gap-3 text-center text-muted-foreground">
-						<WaypointsIcon className="size-10 opacity-40" strokeWidth={1.25} />
-						<div className="text-lg font-medium text-foreground">Knowledge graph</div>
-						<div className="max-w-sm text-sm">
+				<div className="flex h-full w-full items-center justify-center px-4 pb-52">
+					<div className="cel-card flex max-w-md flex-col items-center gap-3 bg-card/85 px-6 py-5 text-center text-muted-foreground backdrop-blur-xs">
+						<div className="flex size-12 items-center justify-center rounded-2xl border border-border/60 bg-background/80 text-foreground/80">
+							<WaypointsIcon className="size-6" strokeWidth={1.6} />
+						</div>
+						<div className="cel-display text-lg text-foreground">Knowledge graph</div>
+						<div className="max-w-sm text-sm leading-relaxed">
 							<p>Start a session to begin learning.</p>
-							<p className="mt-1 text-xs">Attach your material with the paperclip or drag and drop.</p>
+							<p className="mt-1 text-xs text-muted-foreground">Attach your material with the paperclip or drag and drop.</p>
 						</div>
 					</div>
 				</div>

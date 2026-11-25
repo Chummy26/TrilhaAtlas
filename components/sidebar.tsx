@@ -25,6 +25,7 @@ import { kbdEventForAction } from "@/src/core";
 import { notifySettingsSaved } from "@/components/settings-signal";
 import { PluginWidgets } from "@/components/plugins";
 import { PluginSidebarActions } from "@/components/plugin-chrome";
+import { Icon } from "@/components/icons/icon";
 import { HostContentRootContext, HostRouteLifetimeProvider } from "@/components/host-content-root";
 import { isInteractionScopeEligible } from "@/components/plugin-input-focus";
 import { InteractionLayersProvider, useInteractionLayers, useOptionalInteractionLayers } from "@/components/interaction-layers";
@@ -764,6 +765,19 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 						<span className="min-w-0 truncate">{t("shell.sidebar.syllabus")}</span>
 					</Link>}
 				</PluginSidebarActions>
+
+				<div className="mx-3 mb-2 shrink-0">
+					<Link
+						href="/intensiva"
+						data-testid="sidebar-intensive"
+						aria-current={pathname.startsWith("/intensiva") ? "page" : undefined}
+						title={t("shell.sidebar.intensive")}
+						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
+					>
+						<Icon name="domain-electronics" size={16} className="onigiri-icon-lift shrink-0" />
+						<span className="min-w-0 truncate">{t("shell.sidebar.intensive")}</span>
+					</Link>
+				</div>
 
 				<div className="mx-3 mb-2 flex items-center gap-2">
 					<span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/75">{t("shell.sidebar.sessions")}</span>

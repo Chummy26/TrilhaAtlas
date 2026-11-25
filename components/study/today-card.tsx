@@ -185,7 +185,7 @@ export const TodayCard = memo(function TodayCard({
 		: null;
 
 	return (
-		<section data-domain={today.domain.id} data-testid="today-card" className="cel-card mb-2.5 px-4 py-3.5">
+		<section data-domain={today.domain.id} data-testid="today-card" className="cel-card ta-today-card mb-2.5 bg-card/95 px-4.5 py-3.5 backdrop-blur-xs">
 			<div className="mb-2.5 flex flex-wrap items-center gap-2">
 				<div className="flex items-center gap-2">
 					<Icon name={pendingCheck ? "check" : "play"} size={16} />

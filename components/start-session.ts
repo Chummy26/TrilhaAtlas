@@ -2,12 +2,25 @@ import { clearOpeningPrompt, OPENING_PROMPT_FAILURE, stashOpeningPrompt } from "
 
 import type { LessonStart } from "./study/today-card.tsx";
 
-interface SessionCreation {
+export interface IntensiveSessionContextInput {
+	trackId?: string;
+	courseId?: string;
+	moduleId?: string;
+	lessonId?: string;
+	materialId?: string;
+	currentTimeSec?: number;
+	certId?: string;
+	projectId?: string;
+	query?: string;
+}
+
+export interface SessionCreation {
 	title: string;
 	kind?: "practice";
 	studyLesson?: { domainId: string; minutes: number; exploratory?: boolean };
 	graphContext?: { propositions: readonly { id: string; name: string; statement: string }[] };
 	readingSource?: { book: string; unit: number; original: boolean; screenshot?: string };
+	intensiveContext?: IntensiveSessionContextInput;
 }
 
 export function studyLessonRequest(lesson: LessonStart): SessionCreation {

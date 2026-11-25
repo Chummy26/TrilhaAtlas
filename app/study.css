@@ -1,16 +1,61 @@
-/* The edge texture lives behind the content in the shell's stacking context. */
-[data-theme-family="cel"] .study-frame::before {
+/* Atmospheric editorial cartography backdrop behind every workspace route. */
+.study-frame {
+	overflow: hidden;
+}
+.study-frame::before {
+	content: "";
+	position: absolute;
+	z-index: -2;
+	pointer-events: none;
+	inset: 0;
+	background-image:
+		radial-gradient(ellipse 68% 58% at 14% 12%, color-mix(in srgb, var(--background) 84%, transparent) 0%, color-mix(in srgb, var(--background) 42%, transparent) 68%, transparent 100%),
+		linear-gradient(125deg, color-mix(in srgb, var(--background) 88%, transparent) 0%, color-mix(in srgb, var(--background) 62%, transparent) 58%, color-mix(in srgb, var(--background) 22%, transparent) 100%),
+		url("/art/bg-atlas-dark.jpg");
+	background-size: cover, cover, cover;
+	background-position: center, center, right bottom;
+	background-repeat: no-repeat;
+	opacity: .56;
+}
+.light .study-frame::before {
+	background-image:
+		radial-gradient(ellipse 68% 58% at 14% 12%, color-mix(in srgb, var(--background) 82%, transparent) 0%, color-mix(in srgb, var(--background) 44%, transparent) 68%, transparent 100%),
+		linear-gradient(125deg, color-mix(in srgb, var(--background) 84%, transparent) 0%, color-mix(in srgb, var(--background) 54%, transparent) 58%, color-mix(in srgb, var(--background) 18%, transparent) 100%),
+		url("/art/bg-atlas-light.jpg");
+	opacity: .72;
+}
+[data-theme-family="cel"] .study-frame::after {
 	content: "";
 	position: absolute;
 	z-index: -1;
 	pointer-events: none;
-	top: 0;
-	right: 0;
-	width: min(16vw, 180px);
-	height: 240px;
-	background: var(--cel-accent);
-	opacity: .14;
-	mask: url("/study-dots.svg") top right / contain no-repeat;
+	top: -120px;
+	right: -120px;
+	width: 520px;
+	height: 520px;
+	border-radius: 50%;
+	background: radial-gradient(circle, color-mix(in srgb, var(--cel-accent, var(--primary)) 12%, transparent) 0%, transparent 68%);
+}
+
+/* Calm sidebar at rest; snaps cleanly to full clarity on hover or focus. */
+aside.sidebar-motion {
+	position: relative;
+	z-index: 10;
+}
+@media (hover: hover) and (min-width: 640px) {
+	aside.sidebar-motion > div {
+		transition: border-color 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	aside.sidebar-motion > div > * {
+		opacity: 0.72;
+		transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	aside.sidebar-motion:is(:hover, :focus-within) > div > * {
+		opacity: 1;
+	}
+	aside.sidebar-motion:is(:hover, :focus-within) > div {
+		border-right-color: color-mix(in srgb, var(--foreground) 22%, var(--border));
+	}
 }
 
 /* Refined cel surface hierarchy: crisp outline, subtle top rim, dry offset shadow. */
@@ -97,7 +142,6 @@
 	box-shadow: 0 2px 0 var(--cel-bg-shade);
 }
 .light[data-theme-family="cel"] .sidebar-motion > div { background: var(--cel-surface-2); }
-.light[data-theme-family="cel"] .study-frame::before { background: var(--cel-accent-text); }
 [data-theme-family="cel"] .cel-button:focus-visible {
 	outline: 2px solid var(--cel-focus);
 	outline-offset: 2px;
@@ -1004,6 +1048,689 @@
 	transition: stroke-dashoffset 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
+/* ─── Intensiva · Eletrônica — Tactile Cel-Shaded Workbench Skin ─── */
+.elec-workspace {
+	--elec-volt: #ffd23f;
+	--elec-volt-hl: #fff3c4;
+	--elec-volt-shade: #d69606;
+	--elec-volt-ink: #141820;
+	--elec-volt-text: var(--cel-accent-text, #ffd23f);
+	--elec-pcb: #144e4a;
+	--elec-pcb-bright: #2ec4b6;
+	--elec-copper: #d97742;
+	--elec-mint: var(--cel-success, #3dd68c);
+	--elec-mint-text: var(--cel-success-text, #3dd68c);
+	--elec-banner-bg: #141a21;
+	--elec-banner-ink: #f4efe6;
+	--elec-banner-muted: #b8c2cc;
+	--elec-line: var(--cel-line, color-mix(in srgb, var(--border) 78%, #07090d));
+	--elec-card-border: color-mix(in srgb, var(--border) 62%, transparent);
+	--elec-card-shadow: color-mix(in srgb, var(--cel-bg-shade, #090c10) 88%, black);
+	--elec-rim: var(--cel-rim, rgb(255 255 255 / 0.08));
+}
+
+.light .elec-workspace {
+	--elec-volt-text: var(--cel-accent-text, #8a6400);
+	--elec-mint-text: var(--cel-success-text, #027957);
+	--elec-line: var(--cel-line, #1e1b2e);
+	--elec-card-border: color-mix(in srgb, var(--cel-line, #1e1b2e) 26%, transparent);
+	--elec-card-shadow: var(--cel-bg-shade, #e4ded1);
+	--elec-rim: rgb(255 255 255 / 0.75);
+}
+
+.elec-surface {
+	background: var(--card);
+	border: 1.5px solid var(--elec-card-border);
+	border-radius: 14px;
+	box-shadow: inset 0 1px 0 var(--elec-rim), 0 3px 0 var(--elec-card-shadow);
+}
+
+.elec-surface-interactive {
+	transition:
+		transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+		border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.elec-surface-interactive:hover {
+	transform: translateY(-2px);
+	border-color: color-mix(in srgb, var(--elec-volt) 55%, var(--border));
+	box-shadow: inset 0 1px 0 var(--elec-rim), 0 5px 0 var(--elec-card-shadow);
+}
+
+.elec-course-recommended {
+	border-color: color-mix(in srgb, var(--elec-volt) 62%, var(--border));
+	box-shadow:
+		inset 4px 0 0 var(--elec-volt),
+		inset 0 1px 0 var(--elec-rim),
+		0 3px 0 var(--elec-card-shadow);
+}
+
+.elec-hero-stage,
+.elec-editorial-banner {
+	position: relative;
+	overflow: hidden;
+	background-color: var(--elec-banner-bg);
+	color: var(--elec-banner-ink);
+	border: 1.5px solid color-mix(in srgb, var(--elec-line) 85%, #2b3542);
+	border-radius: 16px;
+	box-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 0.12),
+		0 4px 0 var(--elec-card-shadow);
+}
+
+.elec-banner-body {
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+	min-height: 212px;
+}
+
+.elec-banner-body-compact {
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+	min-height: 158px;
+}
+
+.elec-hero-art-layer {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	overflow: hidden;
+	background: var(--elec-banner-bg);
+}
+
+.elec-hero-art-img {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 68%;
+	height: 100%;
+	object-fit: cover;
+	object-position: right center;
+	display: block;
+}
+
+.elec-hero-fade {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: linear-gradient(
+		90deg,
+		var(--elec-banner-bg) 0%,
+		var(--elec-banner-bg) 34%,
+		color-mix(in srgb, var(--elec-banner-bg) 88%, transparent) 46%,
+		color-mix(in srgb, var(--elec-banner-bg) 38%, transparent) 60%,
+		transparent 76%
+	);
+}
+
+@media (max-width: 820px) {
+	.elec-banner-body,
+	.elec-banner-body-compact {
+		grid-template-columns: 1fr;
+		min-height: 0;
+	}
+
+	.elec-hero-art-layer {
+		position: relative;
+		inset: auto;
+		aspect-ratio: 16 / 9;
+		width: 100%;
+		border-bottom: 1px solid rgb(255 255 255 / 0.1);
+	}
+
+	.elec-hero-art-img {
+		position: static;
+		width: 100%;
+		height: 100%;
+		object-position: center right;
+	}
+
+	.elec-hero-fade {
+		background: linear-gradient(
+			180deg,
+			transparent 62%,
+			color-mix(in srgb, var(--elec-banner-bg) 70%, transparent) 100%
+		);
+	}
+}
+
+.elec-tier-art {
+	position: relative;
+	aspect-ratio: 3 / 2;
+	overflow: hidden;
+	border-radius: 12px;
+	border: 1.5px solid color-mix(in srgb, var(--elec-line) 75%, #2b3542);
+	background: var(--elec-banner-bg);
+	box-shadow: 0 3px 0 var(--elec-card-shadow);
+}
+
+.elec-tier-art img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.elec-tier-header:hover .elec-tier-art img {
+	transform: scale(1.03);
+}
+
+.elec-btn-primary {
+	background: var(--elec-volt);
+	color: var(--elec-volt-ink);
+	border: 1.5px solid #141820;
+	border-radius: 10px;
+	box-shadow:
+		inset 0 1.5px 0 var(--elec-volt-hl),
+		inset 0 -2.5px 0 var(--elec-volt-shade),
+		0 2.5px 0 #090c10;
+	transition:
+		transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		filter 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.elec-btn-primary:hover:not(:disabled) {
+	transform: translateY(-1px);
+	filter: brightness(1.03);
+	box-shadow:
+		inset 0 1.5px 0 var(--elec-volt-hl),
+		inset 0 -2.5px 0 var(--elec-volt-shade),
+		0 3.5px 0 #090c10;
+}
+
+.elec-btn-primary:active:not(:disabled) {
+	transform: translateY(1px);
+	box-shadow:
+		inset 0 1px 0 var(--elec-volt-hl),
+		inset 0 -1px 0 var(--elec-volt-shade);
+}
+
+.elec-btn-secondary {
+	background: var(--card);
+	color: var(--foreground);
+	border: 1.5px solid var(--elec-card-border);
+	border-radius: 10px;
+	box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--border) 28%, transparent), 0 2px 0 var(--elec-card-shadow);
+	transition:
+		transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		border-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.elec-btn-secondary:hover:not(:disabled) {
+	transform: translateY(-1px);
+	border-color: color-mix(in srgb, var(--foreground) 38%, var(--border));
+	background: var(--accent);
+	box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--border) 32%, transparent), 0 3px 0 var(--elec-card-shadow);
+}
+
+.elec-btn-secondary:active:not(:disabled) {
+	transform: translateY(1px);
+	box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--border) 28%, transparent);
+}
+
+.elec-btn-on-dark {
+	background: rgb(255 255 255 / 0.08);
+	color: var(--elec-banner-ink);
+	border: 1.5px solid rgb(255 255 255 / 0.22);
+	border-radius: 10px;
+	box-shadow: 0 2px 0 #090c10;
+	transition:
+		transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		border-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.elec-btn-on-dark:hover:not(:disabled) {
+	transform: translateY(-1px);
+	background: rgb(255 255 255 / 0.15);
+	border-color: rgb(255 255 255 / 0.42);
+}
+
+.elec-btn-on-dark:active:not(:disabled) {
+	transform: translateY(1px);
+}
+
+.elec-segmented {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border-radius: 11px;
+	border: 1.5px solid var(--elec-card-border);
+	background: color-mix(in srgb, var(--background) 78%, var(--card));
+}
+
+.elec-segmented-item {
+	border-radius: 8px;
+	transition:
+		background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+		color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.elec-segmented-item[aria-pressed="true"] {
+	background: var(--elec-volt);
+	color: var(--elec-volt-ink);
+	box-shadow: inset 0 1px 0 var(--elec-volt-hl), 0 1.5px 0 #090c10;
+}
+
+.elec-segmented-subtle .elec-segmented-item[aria-pressed="true"] {
+	background: var(--card);
+	color: var(--foreground);
+	box-shadow: inset 0 1px 0 var(--elec-rim), 0 1.5px 0 var(--elec-card-shadow);
+}
+
+.elec-telemetry-cell {
+	transition: background-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.elec-telemetry-cell:hover {
+	background: color-mix(in srgb, var(--elec-volt) 6%, var(--card));
+}
+
+.elec-tab-bar {
+	border-bottom: 1.5px solid var(--elec-card-border);
+}
+
+.elec-progress-track {
+	height: 7px;
+	width: 100%;
+	overflow: hidden;
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--foreground) 12%, transparent);
+	border: 1px solid color-mix(in srgb, var(--border) 35%, transparent);
+}
+
+.elec-progress-fill {
+	height: 100%;
+	border-radius: 999px;
+	transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── TrilhaAtlas Studio — Editorial Cel-Shaded Banners, Stages & Surfaces ─── */
+
+.ta-hero {
+	--ta-stage-bg: #12171e;
+	--ta-stage-ink: #f4efe6;
+	--ta-stage-muted: #b6c0cc;
+	--ta-stage-border: color-mix(in srgb, var(--cel-line, #07070b) 82%, #2c3746);
+	--ta-stage-shadow: color-mix(in srgb, var(--cel-bg-shade, #090c10) 92%, black);
+	position: relative;
+	overflow: hidden;
+	border-radius: 18px;
+	background-color: var(--ta-stage-bg);
+	color: var(--ta-stage-ink);
+	border: 1.5px solid var(--ta-stage-border);
+	box-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 0.12),
+		0 4px 0 var(--ta-stage-shadow);
+}
+.light .ta-hero {
+	--ta-stage-border: var(--cel-line, #1e1b2e);
+	--ta-stage-shadow: color-mix(in srgb, var(--cel-shadow-color, #1e1b2e) 22%, var(--cel-bg-shade, #e4ded1));
+}
+.ta-hero-img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: right center;
+	pointer-events: none;
+	user-select: none;
+}
+.ta-hero-scrim {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: linear-gradient(
+		90deg,
+		var(--ta-stage-bg) 0%,
+		color-mix(in srgb, var(--ta-stage-bg) 97%, transparent) 40%,
+		color-mix(in srgb, var(--ta-stage-bg) 76%, transparent) 58%,
+		color-mix(in srgb, var(--ta-stage-bg) 18%, transparent) 80%,
+		transparent 100%
+	);
+}
+@media (max-width: 780px) {
+	.ta-hero-img {
+		object-position: center top;
+		opacity: 0.42;
+	}
+	.ta-hero-scrim {
+		background: linear-gradient(
+			180deg,
+			color-mix(in srgb, var(--ta-stage-bg) 72%, transparent) 0%,
+			color-mix(in srgb, var(--ta-stage-bg) 92%, transparent) 56%,
+			var(--ta-stage-bg) 100%
+		);
+	}
+}
+.ta-hero-content {
+	position: relative;
+	z-index: 1;
+}
+.ta-hero-title {
+	font-family: var(--cel-font-display, var(--font-prose));
+	font-weight: 800;
+	letter-spacing: -0.025em;
+	line-height: 1.12;
+	color: var(--ta-stage-ink);
+	text-wrap: balance;
+}
+.ta-hero-sub {
+	color: var(--ta-stage-muted);
+	max-inline-size: 58ch;
+	line-height: 1.48;
+}
+.ta-hero-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+	min-height: 2.25rem;
+	padding: 0.4rem 0.85rem;
+	border-radius: 10px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--ta-stage-ink);
+	background: rgb(13 17 23 / 0.84);
+	border: 1.5px solid rgb(255 255 255 / 0.22);
+	box-shadow: 0 2px 0 rgb(0 0 0 / 0.5);
+	backdrop-filter: blur(6px);
+	cursor: pointer;
+	transition:
+		transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		border-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ta-hero-btn:hover:not(:disabled) {
+	transform: translateY(-1px);
+	background: rgb(22 29 39 / 0.94);
+	border-color: rgb(255 255 255 / 0.38);
+}
+.ta-hero-btn:active:not(:disabled) {
+	transform: translateY(1px);
+}
+.ta-hero-btn:disabled {
+	opacity: 0.48;
+	cursor: not-allowed;
+}
+.ta-hero-btn-accent {
+	background: var(--cel-accent, #ffd23f);
+	color: #0b0e12;
+	border-color: #07070b;
+	box-shadow:
+		inset 0 1.5px 0 var(--cel-accent-hl, #fff5d8),
+		inset 0 -2.5px 0 var(--cel-accent-shade, #e49e09),
+		0 2px 0 #07070b;
+}
+.ta-hero-btn-accent:hover:not(:disabled) {
+	background: var(--cel-accent, #ffd23f);
+	border-color: #07070b;
+	filter: brightness(1.04);
+}
+.ta-hero-input {
+	background: rgb(10 14 20 / 0.72);
+	color: var(--ta-stage-ink);
+	border: 1.5px solid rgb(255 255 255 / 0.18);
+	border-radius: 10px;
+	box-shadow: inset 0 2px 0 rgb(0 0 0 / 0.35);
+	transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+.ta-hero-input::placeholder {
+	color: rgb(182 192 204 / 0.72);
+}
+.ta-hero-input:focus {
+	background: rgb(10 14 20 / 0.92);
+	border-color: var(--cel-accent, #ffd23f);
+}
+.ta-hero-bar {
+	border-top: 1px solid rgb(255 255 255 / 0.11);
+	background: rgb(8 11 16 / 0.56);
+}
+.ta-hero-progress {
+	appearance: none;
+	-webkit-appearance: none;
+	overflow: hidden;
+	height: 0.45rem;
+	border-radius: 999px;
+	background: rgb(255 255 255 / 0.14);
+	border: 1px solid rgb(255 255 255 / 0.1);
+}
+.ta-hero-progress::-webkit-progress-bar {
+	background: rgb(255 255 255 / 0.14);
+	border-radius: 999px;
+}
+.ta-hero-progress::-webkit-progress-value {
+	background: var(--cel-accent, #ffd23f);
+	border-radius: 999px;
+	transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ta-hero-progress::-moz-progress-bar {
+	background: var(--cel-accent, #ffd23f);
+	border-radius: 999px;
+}
+.ta-hero-progress-success::-webkit-progress-value { background: var(--cel-success, #3dd68c); }
+.ta-hero-progress-success::-moz-progress-bar { background: var(--cel-success, #3dd68c); }
+.ta-hero-progress-xp::-webkit-progress-value { background: var(--cel-xp, #a98bff); }
+.ta-hero-progress-xp::-moz-progress-bar { background: var(--cel-xp, #a98bff); }
+
+/* Connected segmented control (replaces scattered bordered pill buttons) */
+.ta-segmented {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border-radius: 12px;
+	border: 1.5px solid color-mix(in srgb, var(--border) 62%, transparent);
+	background: color-mix(in srgb, var(--background) 78%, var(--card));
+	box-shadow: inset 0 1px 2px color-mix(in srgb, var(--cel-bg-shade, black) 35%, transparent);
+}
+.ta-segmented-on-dark {
+	border-color: rgb(255 255 255 / 0.16);
+	background: rgb(8 11 16 / 0.62);
+	box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.45);
+}
+.ta-segmented-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	min-height: 2rem;
+	padding: 0.3rem 0.78rem;
+	border-radius: 8px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--muted-foreground);
+	cursor: pointer;
+	transition:
+		background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ta-segmented-btn:hover {
+	color: var(--foreground);
+	background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+.ta-segmented-btn:is([aria-selected="true"], [aria-pressed="true"]) {
+	background: var(--cel-accent, var(--primary));
+	color: var(--cel-on-fill, var(--primary-foreground));
+	box-shadow:
+		inset 0 1px 0 var(--cel-accent-hl, transparent),
+		0 1.5px 0 color-mix(in srgb, var(--cel-shadow-color, black) 70%, transparent);
+}
+.ta-segmented-on-dark .ta-segmented-btn {
+	color: #b6c0cc;
+}
+.ta-segmented-on-dark .ta-segmented-btn:hover {
+	color: #f4efe6;
+	background: rgb(255 255 255 / 0.08);
+}
+.ta-segmented-on-dark .ta-segmented-btn:is([aria-selected="true"], [aria-pressed="true"]) {
+	background: var(--cel-accent, #ffd23f);
+	color: #0b0e12;
+	box-shadow:
+		inset 0 1px 0 var(--cel-accent-hl, #fff5d8),
+		0 1.5px 0 #07070b;
+}
+
+/* Skill-Tree 5-style atmospheric canvas stage */
+.ta-tree-stage {
+	position: relative;
+	overflow: hidden;
+	border-radius: 0 0 12px 12px;
+	background-color: var(--cel-bg, var(--background));
+}
+.ta-tree-stage[data-map-style="atlas"] {
+	background-image:
+		radial-gradient(ellipse 75% 70% at 50% 45%, color-mix(in srgb, var(--cel-bg, var(--background)) 78%, transparent) 0%, color-mix(in srgb, var(--cel-bg, var(--background)) 42%, transparent) 100%),
+		radial-gradient(color-mix(in srgb, var(--border) 22%, transparent) 1px, transparent 1px),
+		url("/art/bg-atlas-dark.jpg");
+	background-size: cover, 20px 20px, cover;
+	background-position: center, 0 0, right bottom;
+}
+.light .ta-tree-stage[data-map-style="atlas"] {
+	background-image:
+		radial-gradient(ellipse 75% 70% at 50% 45%, color-mix(in srgb, var(--cel-bg, var(--background)) 76%, transparent) 0%, color-mix(in srgb, var(--cel-bg, var(--background)) 36%, transparent) 100%),
+		radial-gradient(color-mix(in srgb, var(--border) 18%, transparent) 1px, transparent 1px),
+		url("/art/bg-atlas-light.jpg");
+}
+.ta-tree-stage[data-map-style="constellation"] {
+	background-image:
+		radial-gradient(circle at 50% 48%, color-mix(in srgb, var(--c-teal, #2ec4b6) 10%, transparent) 0%, transparent 56%),
+		radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--c-grape, #a98bff) 9%, transparent) 0%, transparent 45%),
+		radial-gradient(color-mix(in srgb, var(--foreground) 14%, transparent) 1px, transparent 1px);
+	background-size: 100% 100%, 100% 100%, 28px 28px;
+}
+.ta-tree-stage[data-map-style="hextech"] {
+	background-image:
+		radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--c-volt, #ffd23f) 8%, transparent) 0%, transparent 62%),
+		linear-gradient(to right, color-mix(in srgb, var(--border) 13%, transparent) 1px, transparent 1px),
+		linear-gradient(to bottom, color-mix(in srgb, var(--border) 13%, transparent) 1px, transparent 1px);
+	background-size: 100% 100%, 32px 32px, 32px 32px;
+}
+.ta-tree-stage[data-map-style="citadel"] {
+	background-image:
+		radial-gradient(ellipse 80% 58% at 50% 34%, color-mix(in srgb, var(--c-sky, #4fb3ff) 9%, transparent) 0%, transparent 66%),
+		radial-gradient(color-mix(in srgb, var(--border) 20%, transparent) 1px, transparent 1px);
+	background-size: 100% 100%, 22px 22px;
+}
+.ta-tree-stage[data-map-style="clarity"] {
+	background-image:
+		linear-gradient(to right, color-mix(in srgb, var(--border) 9%, transparent) 1px, transparent 1px),
+		linear-gradient(to bottom, color-mix(in srgb, var(--border) 9%, transparent) 1px, transparent 1px);
+	background-size: 24px 24px;
+}
+
+/* Home & New-Session atmospheric graph stage */
+.ta-graph-stage {
+	background-image:
+		radial-gradient(ellipse 64% 52% at 50% 34%, color-mix(in srgb, var(--cel-accent, var(--primary)) 7%, transparent) 0%, transparent 72%),
+		radial-gradient(color-mix(in srgb, var(--border) 20%, transparent) 1px, transparent 1px);
+	background-size: 100% 100%, 22px 22px;
+}
+
+/* TodayCard refined left domain accent & calm density */
+.ta-today-card {
+	position: relative;
+	overflow: hidden;
+	box-shadow:
+		inset 4px 0 0 var(--cel-accent, var(--primary)),
+		inset 0 1px 0 var(--cel-rim, transparent),
+		0 4px 0 color-mix(in srgb, var(--cel-bg-shade, var(--background)) 90%, black);
+}
+
+/* Practice surfaces (NewSession practice banner, ProblemCard, ConcludeCard, PracticeDock) */
+.ta-problem-card {
+	border-left: 3.5px solid var(--cel-accent, var(--primary));
+	box-shadow:
+		inset 0 1px 0 var(--cel-rim, transparent),
+		0 3px 0 color-mix(in srgb, var(--cel-bg-shade, var(--background)) 88%, black);
+}
+.ta-conclude-card {
+	border-left: 3.5px solid var(--cel-success, var(--lh-success));
+	box-shadow:
+		inset 0 1px 0 var(--cel-rim, transparent),
+		0 3px 0 color-mix(in srgb, var(--cel-bg-shade, var(--background)) 88%, black);
+}
+.ta-practice-dock-shell {
+	border-top: 2.5px solid var(--cel-accent, var(--primary));
+}
+
+/* Profile domain cards & telemetry */
+.ta-domain-card {
+	position: relative;
+	overflow: hidden;
+	transition:
+		transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+		border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ta-domain-card::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 3.5px;
+	background: var(--cel-accent, var(--primary));
+}
+.ta-domain-card:hover {
+	transform: translateY(-2px);
+	border-color: color-mix(in srgb, var(--cel-accent, var(--border)) 60%, var(--border));
+}
+
+/* Syllabus flat hairline telemetry row (replaces nested boxes) */
+.ta-stat-strip {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	border-top: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+	background: color-mix(in srgb, var(--background) 42%, var(--card));
+}
+.ta-stat-cell {
+	padding: 0.9rem 1.05rem;
+	border-right: 1px solid color-mix(in srgb, var(--border) 42%, transparent);
+	transition: background-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ta-stat-cell:last-child {
+	border-right: 0;
+}
+.ta-stat-cell:hover {
+	background: color-mix(in srgb, var(--cel-accent, var(--primary)) 6%, transparent);
+}
+@media (max-width: 820px) {
+	.ta-stat-strip {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.ta-stat-cell:nth-child(2n) {
+		border-right: 0;
+	}
+	.ta-stat-cell:nth-child(-n + 2) {
+		border-bottom: 1px solid color-mix(in srgb, var(--border) 42%, transparent);
+	}
+}
+@media (max-width: 480px) {
+	.ta-stat-strip {
+		grid-template-columns: 1fr;
+	}
+	.ta-stat-cell {
+		border-right: 0;
+		border-bottom: 1px solid color-mix(in srgb, var(--border) 42%, transparent);
+	}
+	.ta-stat-cell:last-child {
+		border-bottom: 0;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.comic-panel-frame,
 	.comic-cell[data-active="true"] .comic-panel-frame,
@@ -1012,7 +1739,22 @@
 	.onigiri-icon-gear,
 	.onigiri-icon-lift,
 	.onigiri-icon-search,
-	.profile-ring-progress {
+	.profile-ring-progress,
+	.elec-surface-interactive,
+	.elec-tier-art img,
+	.elec-btn-primary,
+	.elec-btn-secondary,
+	.elec-btn-on-dark,
+	.elec-segmented-item,
+	.elec-telemetry-cell,
+	.elec-progress-fill,
+	.ta-hero-btn,
+	.ta-hero-progress::-webkit-progress-value,
+	.ta-segmented-btn,
+	.ta-domain-card,
+	.ta-stat-cell,
+	aside.sidebar-motion > div,
+	aside.sidebar-motion > div > * {
 		transition: none;
 		transform: none;
 	}

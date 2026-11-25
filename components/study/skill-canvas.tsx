@@ -963,13 +963,7 @@ export const SkillCanvas = memo(function SkillCanvas({
 			</div>
 
 			{/* Canvas stage */}
-			<div
-				className="relative overflow-hidden rounded-b-[inherit]"
-				style={{
-					backgroundImage: "radial-gradient(color-mix(in srgb, var(--border) 22%, transparent) 1px, transparent 1px)",
-					backgroundSize: "16px 16px",
-				}}
-			>
+			<div className="ta-tree-stage" data-map-style={style}>
 				<canvas
 					ref={canvas}
 					tabIndex={0}
@@ -978,13 +972,13 @@ export const SkillCanvas = memo(function SkillCanvas({
 					data-node-count={layout.points.size}
 					data-edge-count={layout.edges.length}
 					data-map-style={style}
-					className="block h-[clamp(28rem,66vh,48rem)] w-full touch-none cursor-grab focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring"
+					className="block h-[clamp(30rem,68vh,50rem)] w-full touch-none cursor-grab focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring"
 				>
 					{t("map.canvas.fallbackText")}
 				</canvas>
 
 				{/* Bottom-left: Compact status legend */}
-				<div className="pointer-events-none absolute bottom-2.5 left-2.5 max-w-[calc(100%-1.25rem)] rounded-xl border border-border/60 bg-card/95 px-3 py-2 text-xs text-card-foreground shadow-sm">
+				<div className="pointer-events-none absolute bottom-2.5 left-2.5 max-w-[calc(100%-1.25rem)] rounded-xl border border-border/65 bg-card/92 px-3 py-2 text-xs text-card-foreground shadow-sm backdrop-blur-xs">
 					<p id={hintId} className="text-muted-foreground tabular-nums">
 						{t("map.canvas.hint", { count: layout.points.size })}
 					</p>

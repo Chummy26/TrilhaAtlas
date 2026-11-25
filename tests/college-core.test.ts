@@ -18,6 +18,7 @@ import {
 	serializeDiagnostic,
 	startPlacement,
 	summarizePlacement,
+	undoPlacementAnswer,
 } from "../src/core/study/placement.ts";
 import { buildProblemSet, gradeProblemSet } from "../src/core/study/problem-set.ts";
 import { nodeBrief } from "../src/core/study/projection.ts";
@@ -209,15 +210,38 @@ describe("college-level pure core modules", () => {
 		const manifest = studyDomains().readManifest("english")!;
 		const cur = loadCurriculum("english", manifest)!;
 
-		// Adaptive KST placement round-trip.
-		let state = startPlacement(cur.view, "placement-seed-en");
+		// Adaptive KST placement round-trip + concrete question details + deterministic undo.
+		let state = startPlacement(cur.view, "placement-seed-en", cur.snapshot);
+		const firstQ = currentPlacementQuestion(cur.snapshot, cur.view, state);
+		assert.ok(firstQ);
+		assert.equal(firstQ.confidencePct, 0, "confidence must start at 0% before the first answer");
+		assert.equal(firstQ.canGoBack, false);
+		assert.ok(firstQ.levelLabel && firstQ.levelLabel.startsWith("CEFR "), "question must expose level badge");
+		assert.ok(firstQ.summary && firstQ.summary.length > 0, "question must expose topic summary");
+
+		// Answering and stepping back must restore the exact same question and prior choice.
+		const afterFirst = recordPlacementAnswer(state, cur.view, firstQ.nodeId, true);
+		const undone = undoPlacementAnswer(cur.view, cur.snapshot, afterFirst, "placement-seed-en");
+		assert.ok(undone);
+		assert.equal(undone.undoneAnswer.nodeId, firstQ.nodeId);
+		assert.equal(undone.undoneAnswer.correct, true);
+		const restoredQ = currentPlacementQuestion(cur.snapshot, cur.view, undone.state);
+		assert.equal(restoredQ?.nodeId, firstQ.nodeId);
+
+		// Vocabulary nodes with lexicalItems must surface concrete sample words.
+		const vocabQ = currentPlacementQuestion(cur.snapshot, cur.view, {
+			...state,
+			skeleton: ["en.vocab.academic.nawl-1"],
+		});
+		assert.ok(vocabQ?.examples && vocabQ.examples.includes("analysis"), "vocab placement must include sample words");
+
 		for (let i = 0; i < 9; i++) {
 			const q = currentPlacementQuestion(cur.snapshot, cur.view, state);
 			if (!q) break;
 			// Simulate B1-level learner: knows first half of curriculum, misses upper half.
 			const pos = cur.view.ids.indexOf(q.nodeId) / cur.view.ids.length;
 			state = recordPlacementAnswer(state, cur.view, q.nodeId, pos < 0.45);
-			state = deserializeDiagnostic(serializeDiagnostic(state));
+			state = deserializeDiagnostic(serializeDiagnostic(state, "placement-seed-en"));
 		}
 		const { summary, event } = summarizePlacement(cur.snapshot, cur.view, state, {
 			id: "diag-1", seq: 1, at: "2026-10-05T12:00:00Z", domainId: "english",

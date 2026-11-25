@@ -81,6 +81,8 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 		const ctrl = new AbortController();
 		setLoading(true);
 		setError("");
+		setQuestion(null);
+		setSummary(null);
 		fetch("/api/study/placement", { signal: ctrl.signal })
 			.then(async (res) => {
 				const data = (await res.json().catch(() => null)) as PlacementApiPayload | null;
@@ -95,10 +97,10 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 				if (!ctrl.signal.aborted) setLoading(false);
 			});
 		return () => ctrl.abort();
-	}, [applyPayload]);
+	}, [applyPayload, domainId]);
 
 	const runAction = useCallback(
-		async (body: { action: "start" | "answer" | "finish"; nodeId?: string; correct?: boolean }) => {
+		async (body: { action: "start" | "answer" | "back" | "finish"; nodeId?: string; correct?: boolean }) => {
 			setBusy(true);
 			setError("");
 			try {
@@ -405,6 +407,15 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 
 	const currentNumber = Math.min(question.maxQuestions, question.asked + 1);
 	const canFinishEarly = question.asked >= 4;
+	const canGoBack = question.canGoBack ?? question.asked > 0;
+	const normalizedPrompt = question.prompt.toLowerCase();
+	const visibleObjectives = question.objectives.filter((objective) => {
+		if (question.objectives.length > 1) return true;
+		const cleaned = objective.trim().replace(/[.!?]+$/u, "").toLowerCase();
+		return !cleaned || !normalizedPrompt.includes(cleaned);
+	});
+	const examples = question.examples ?? [];
+	const misconceptions = question.misconceptions ?? [];
 
 	return (
 		<section
@@ -440,24 +451,88 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 				/>
 			</div>
 
-			<div className="space-y-2.5 rounded-xl border border-border/55 bg-background/65 p-4">
-				{question.path.length > 0 && (
-					<p className="text-xs font-medium text-muted-foreground">{question.path.join(" › ")}</p>
+			<div className="space-y-3 rounded-xl border border-border/55 bg-background/65 p-4">
+				{(question.path.length > 0 || question.levelLabel) && (
+					<div className="flex flex-wrap items-center justify-between gap-2">
+						{question.path.length > 0 ? (
+							<p className="text-xs font-medium text-muted-foreground">{question.path.join(" › ")}</p>
+						) : (
+							<span />
+						)}
+						{question.levelLabel && (
+							<span className="study-pill text-[11px]">{question.levelLabel}</span>
+						)}
+					</div>
 				)}
-				<h3 className="cel-display text-lg leading-snug text-foreground">{question.title}</h3>
+				<div className="space-y-1">
+					<h3 className="cel-display text-lg leading-snug text-foreground">{question.title}</h3>
+					{question.summary && (
+						<p className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">{question.summary}</p>
+					)}
+				</div>
 				<p className="max-w-[65ch] text-[17px] leading-relaxed text-foreground">{question.prompt}</p>
 
-				{question.objectives.length > 0 && (
+				{examples.length > 0 && (
+					<div className="border-t border-border/45 pt-2.5" data-testid="placement-examples">
+						<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+							{t("course.placement.examplesLabel")}
+						</p>
+						<ul className="mt-2 flex flex-wrap gap-1.5">
+							{examples.map((example, idx) => (
+								<li
+									key={idx}
+									className="rounded-lg border border-border/60 bg-background px-2.5 py-1 text-sm font-medium text-foreground"
+								>
+									{example}
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				{question.scope && (
+					<div className="border-t border-border/45 pt-2.5">
+						<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+							{t("course.placement.scopeLabel")}
+						</p>
+						<p className="mt-1 max-w-[65ch] text-sm leading-relaxed text-foreground/90">{question.scope}</p>
+					</div>
+				)}
+
+				{visibleObjectives.length > 0 && (
 					<div className="border-t border-border/45 pt-2.5">
 						<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 							{t("course.placement.verifiedObjectives")}
 						</p>
 						<ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm leading-relaxed text-foreground/90">
-							{question.objectives.map((objective, idx) => (
+							{visibleObjectives.map((objective, idx) => (
 								<li key={idx}>{objective}</li>
 							))}
 						</ul>
 					</div>
+				)}
+
+				{misconceptions.length > 0 && (
+					<div className="border-t border-border/45 pt-2.5">
+						<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+							{t("course.placement.pitfallsLabel")}
+						</p>
+						<ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted-foreground">
+							{misconceptions.map((item, idx) => (
+								<li key={idx}>{item}</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				{question.previousAnswer !== undefined && (
+					<p className="border-t border-border/45 pt-2 text-xs text-muted-foreground" data-testid="placement-previous-choice">
+						{t("course.placement.previousChoice", {
+							choice: question.previousAnswer
+								? t("course.placement.canDo")
+								: t("course.placement.needToLearn"),
+						})}
+					</p>
 				)}
 			</div>
 
@@ -487,22 +562,35 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 			</div>
 
 			<div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/45 pt-3">
-				<button
-					type="button"
-					data-testid="placement-finish-button"
-					className="cel-button min-h-9 px-3.5 py-1.5 text-xs"
-					disabled={busy || !canFinishEarly}
-					title={
-						canFinishEarly
-							? t("course.placement.finishReadyTitle")
-							: t("course.placement.finishLockedTitle")
-					}
-					onClick={() => void runAction({ action: "finish" })}
-				>
-					{canFinishEarly
-						? t("course.placement.finishNow")
-						: t("course.placement.finishNowCount", { asked: question.asked })}
-				</button>
+				<div className="flex flex-wrap items-center gap-2">
+					<button
+						type="button"
+						data-testid="placement-back-button"
+						className="cel-button min-h-9 px-3 py-1.5 text-xs"
+						disabled={busy || !canGoBack}
+						title={t("course.placement.backTitle")}
+						onClick={() => void runAction({ action: "back" })}
+					>
+						<Icon name="chevron-left" size={14} tone={false} />
+						{t("course.placement.back")}
+					</button>
+					<button
+						type="button"
+						data-testid="placement-finish-button"
+						className="cel-button min-h-9 px-3.5 py-1.5 text-xs"
+						disabled={busy || !canFinishEarly}
+						title={
+							canFinishEarly
+								? t("course.placement.finishReadyTitle")
+								: t("course.placement.finishLockedTitle")
+						}
+						onClick={() => void runAction({ action: "finish" })}
+					>
+						{canFinishEarly
+							? t("course.placement.finishNow")
+							: t("course.placement.finishNowCount", { asked: question.asked })}
+					</button>
+				</div>
 				<button
 					type="button"
 					data-testid="placement-cancel-button"

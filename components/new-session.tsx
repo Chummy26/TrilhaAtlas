@@ -11,6 +11,8 @@ import { useFieldCycle } from "@/components/field-cycle";
 import { useOptionalInteractionLayers } from "./interaction-layers";
 import { isInteractionScopeEligible } from "./plugin-input-focus";
 import { SidebarToggle } from "@/components/sidebar";
+import { useT } from "@/components/i18n";
+import { Icon } from "@/components/icons/icon";
 import { useModelSetup, selectedModelUnavailable, openModelPicker, ZeroKeysPill } from "@/components/setup-cta";
 import { SessionModeSwitch, StudyNavigation, type StudyNavigationProps } from "./study/session-navigation.tsx";
 import { TodayCard, type LessonStart } from "./study/today-card.tsx";
@@ -124,6 +126,7 @@ export function DraftShell({
 	 *  Passed as a node so the pick state stays in NewSession. */
 	overlay?: ReactNode;
 }) {
+	const t = useT();
 	const controller = useOptionalInteractionLayers();
 	const pathname = usePathname();
 	const bodyRef = useRef<HTMLDivElement>(null);
@@ -188,7 +191,7 @@ export function DraftShell({
 					{/* The pointer-events pattern (953b22b): the sticky wrapper is
 					    pointer-events-none so nothing here blocks the empty-state
 					    area; the blob and the stats row re-enable it themselves. */}
-					<div className="pointer-events-none sticky bottom-0 mt-auto w-full">
+					<div className="pointer-events-none sticky bottom-0 mt-auto max-h-[calc(100dvh-3.75rem)] w-full overflow-y-auto pt-2">
 						{!overview && <Conversation className="h-full min-w-0 flex-1" initial="instant">
 							<ConversationContent className="min-h-full gap-0 p-0">
 								<ConversationEmptyState
@@ -204,6 +207,33 @@ export function DraftShell({
 						{!overview && <div className="h-24 bg-gradient-to-t from-background via-background/85 to-transparent" />}
 						<div className="pb-4">
 							<div className={DOCK}>
+								{mode === "practice" && (
+									<section className="ta-hero pointer-events-auto mb-3" data-testid="practice-studio-banner">
+										{/* eslint-disable-next-line @next/next/no-img-element */}
+										<img src="/art/hero-practice.jpg" alt="" aria-hidden="true" className="ta-hero-img" />
+										<div className="ta-hero-scrim" aria-hidden="true" />
+										<div className="ta-hero-content flex flex-wrap items-end justify-between gap-3 px-5 py-4">
+											<div className="min-w-0 space-y-1">
+												<h1 className="ta-hero-title text-xl sm:text-2xl">
+													{t("pages.practiceBanner.title")}
+												</h1>
+												<p className="ta-hero-sub text-xs sm:text-sm">
+													{t("pages.practiceBanner.desc")}
+												</p>
+											</div>
+											{onOpenPicker && (
+												<button
+													type="button"
+													onClick={onOpenPicker}
+													className="ta-hero-btn ta-hero-btn-accent shrink-0 px-3.5 py-1.5 text-xs"
+												>
+													<Icon name="graph" size={14} tone={false} />
+													{t("pages.practiceBanner.pickNodes")}
+												</button>
+											)}
+										</div>
+									</section>
+								)}
 								{today && <div className="pointer-events-auto">{today}</div>}
 								<ComposerActions
 									picker={(picks.length > 0 || mode === "practice") && (
@@ -372,7 +402,7 @@ export function NewSession({
 				onModeChange={next => router.replace(next === "practice" ? "/chat/new?mode=practice" : "/chat/new", { scroll: false })}
 				navigation={<StudyNavigation domains={domains} account={account} />}
 				overview={rendering ? <GraphView /> : <MinimalHome />}
-				today={domains?.active && <TodayCard initialToday={initialToday} setupHint={setupHint} disabled={busy} onStart={send} />}
+				today={mode === "teach" && domains?.active ? <TodayCard initialToday={initialToday} setupHint={setupHint} disabled={busy} onStart={send} /> : undefined}
 				mode={mode}
 				picks={picks}
 				onOpenPicker={openPicker}

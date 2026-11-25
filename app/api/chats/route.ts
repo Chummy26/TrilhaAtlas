@@ -1,7 +1,24 @@
 import { activityForSkill, chainsForSelection, formatChainLine, lessonResources, lessonSourceLines } from "@/src/core";
-import { newGraphContextMessage, type GraphContextPick } from "@/src/core";
-import { prepareReadingScreenshot, readFormattedPrepNote, regionalBookImage, regionalBookUnit, StudyError, studyMapLesson, validateStudyLesson, saveStudyLesson, compactionInFlight, createChat, isTurnRunning, listChats, readSettingsRecord, stores, titleFromPrompt } from "@/src/server";
+import { newGraphContextMessage, newIntensiveContextMessage, type GraphContextPick, type IntensiveContextDetails } from "@/src/core";
+import { buildIntensiveTutorContext, prepareReadingScreenshot, readFormattedPrepNote, regionalBookImage, regionalBookUnit, StudyError, studyMapLesson, validateStudyLesson, saveStudyLesson, compactionInFlight, createChat, isTurnRunning, listChats, readSettingsRecord, stores, titleFromPrompt } from "@/src/server";
 import type { ChatListItem } from "@/src/core";
+
+function intensiveFallbackTitle(payload: IntensiveContextDetails): string {
+	if (payload.lessonTitle) {
+		const base = payload.courseTitle ? `${payload.courseTitle} · ${payload.lessonTitle}` : payload.lessonTitle;
+		return payload.currentTimestampLabel ? `${base} (${payload.currentTimestampLabel})` : base;
+	}
+	if (payload.materialTitle) {
+		return payload.courseTitle ? `${payload.materialTitle} · ${payload.courseTitle}` : payload.materialTitle;
+	}
+	if (payload.moduleTitle) {
+		return payload.courseTitle ? `${payload.courseTitle} · ${payload.moduleTitle}` : payload.moduleTitle;
+	}
+	if (payload.certTitle) return payload.certTitle;
+	if (payload.projectTitle) return payload.projectTitle;
+	if (payload.courseTitle) return payload.courseTitle;
+	return payload.trackTitle || "Intensiva";
+}
 
 /** The session picker's list: record-derived summaries (phase, pending
  *  question) + live liveness — a running turn marks the session busy
@@ -20,8 +37,38 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-	const body = (await req.json().catch(() => ({}))) as { title?: unknown; kind?: unknown; graphContext?: unknown; studyLesson?: unknown; readingSource?: { book?: unknown; unit?: unknown; original?: unknown; screenshot?: unknown } };
+	const body = (await req.json().catch(() => ({}))) as { title?: unknown; kind?: unknown; graphContext?: unknown; studyLesson?: unknown; readingSource?: { book?: unknown; unit?: unknown; original?: unknown; screenshot?: unknown }; intensiveContext?: unknown };
 	const title = typeof body.title === "string" ? body.title : "";
+	let intensiveSeed: ReturnType<typeof buildIntensiveTutorContext> | undefined;
+	if (body.intensiveContext && typeof body.intensiveContext === "object" && !Array.isArray(body.intensiveContext)) {
+		const raw = body.intensiveContext as {
+			trackId?: unknown;
+			courseId?: unknown;
+			moduleId?: unknown;
+			lessonId?: unknown;
+			materialId?: unknown;
+			currentTimeSec?: unknown;
+			certId?: unknown;
+			projectId?: unknown;
+			query?: unknown;
+		};
+		const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+		const timeSec =
+			typeof raw.currentTimeSec === "number" && Number.isFinite(raw.currentTimeSec) && raw.currentTimeSec >= 0
+				? raw.currentTimeSec
+				: undefined;
+		intensiveSeed = buildIntensiveTutorContext({
+			...(str(raw.trackId) ? { trackId: str(raw.trackId) } : {}),
+			...(str(raw.courseId) ? { courseId: str(raw.courseId) } : {}),
+			...(str(raw.moduleId) ? { moduleId: str(raw.moduleId) } : {}),
+			...(str(raw.lessonId) ? { lessonId: str(raw.lessonId) } : {}),
+			...(str(raw.materialId) ? { materialId: str(raw.materialId) } : {}),
+			...(timeSec !== undefined ? { currentTimeSec: timeSec } : {}),
+			...(str(raw.certId) ? { certId: str(raw.certId) } : {}),
+			...(str(raw.projectId) ? { projectId: str(raw.projectId) } : {}),
+			...(str(raw.query) ? { query: str(raw.query) } : {}),
+		});
+	}
 	// Practice sessions (owner, 2026-10-04): kind "practice" marks the
 	// record — the practice agent + its tools from turn 1, no extraction.
 	const kind = body.kind === "practice" ? ("practice" as const) : undefined;
@@ -98,7 +145,8 @@ export async function POST(req: Request) {
 			throw err;
 		}
 	}
-	const chat = createChat(titleFromPrompt(title || "Untitled session"), kind);
+	const effectiveTitle = title.trim() || (intensiveSeed ? intensiveFallbackTitle(intensiveSeed.payload) : "Untitled session");
+	const chat = createChat(titleFromPrompt(effectiveTitle), kind);
 	// PER-SESSION MODELS (owner, 2026-09-28): a session owns its model +
 	// thinking level from birth — stamped verbatim from the STRONG slot,
 	// the new-session default. From here the strong slot never reaches
@@ -113,7 +161,10 @@ export async function POST(req: Request) {
 			thinkingLevel: strong.thinkingLevel,
 		});
 	}
-	if (picks.length > 0) {
+	if (intensiveSeed) {
+		const marker = newIntensiveContextMessage(intensiveSeed.payload, intensiveSeed.promptText);
+		stores.chatStore.saveMessages(chat.id, [marker]);
+	} else if (picks.length > 0) {
 		const byId = new Map(stores.graphStore.readNodes().map((n) => [n.id, n]));
 		const pickedNodes = picks.map((p) => byId.get(p.id)).filter((n) => n !== undefined);
 		const chainLines = chainsForSelection(pickedNodes, stores.graphStore.readChains()).map((c) =>

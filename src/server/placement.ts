@@ -9,16 +9,17 @@ import path from "node:path";
 import { activeDomainId, PATHS } from "../../config.ts";
 import { learnerDir } from "../core/domains/paths.ts";
 import { emit } from "../core/events.ts";
-import { graphIndex, type LearnerGraphView } from "../core/learner/graph-view.ts";
-import { particleMarginal, type DiagnosticState } from "../core/learner/kst.ts";
-import { LEARNER_CONSTANTS } from "../core/learner/params.ts";
+import type { LearnerGraphView } from "../core/learner/graph-view.ts";
+import type { DiagnosticState } from "../core/learner/kst.ts";
 import {
 	currentPlacementQuestion,
 	deserializeDiagnostic,
+	placementConfidencePct,
 	recordPlacementAnswer,
 	serializeDiagnostic,
 	startPlacement,
 	summarizePlacement,
+	undoPlacementAnswer,
 	type PlacementQuestion,
 	type PlacementSummary,
 	type SerializedDiagnostic,
@@ -34,6 +35,7 @@ interface StoredPlacement {
 	version: 1;
 	domainId: string;
 	curriculumHash: string;
+	seed?: string;
 	startedAt?: string;
 	diagnostic: SerializedDiagnostic | null;
 	lastSummary?: PlacementSummary;
@@ -81,10 +83,16 @@ function readStoredPlacement(domainId: string): StoredPlacement | null {
 	try {
 		const parsed = JSON.parse(raw) as Partial<StoredPlacement>;
 		if (parsed.version !== 1 || parsed.domainId !== domainId) return null;
+		const seed = typeof parsed.seed === "string" && parsed.seed.trim()
+			? parsed.seed.trim()
+			: typeof parsed.diagnostic?.seed === "string" && parsed.diagnostic.seed.trim()
+				? parsed.diagnostic.seed.trim()
+				: undefined;
 		return {
 			version: 1,
 			domainId,
 			curriculumHash: typeof parsed.curriculumHash === "string" ? parsed.curriculumHash : "",
+			...(seed ? { seed } : {}),
 			...(typeof parsed.startedAt === "string" ? { startedAt: parsed.startedAt } : {}),
 			diagnostic: parsed.diagnostic ?? null,
 			...(parsed.lastSummary ? { lastSummary: parsed.lastSummary } : {}),
@@ -101,18 +109,17 @@ function writeStoredPlacement(domainId: string, record: StoredPlacement): void {
 	writeFileAtomicSync(file, JSON.stringify(record, null, "\t"), { allowInPlaceFallback: true });
 }
 
-function confidencePctOf(graph: LearnerGraphView, state: DiagnosticState): number {
-	if (state.skeleton.length === 0) return 100;
-	const pos = graphIndex(graph).pos;
-	const { stopLo, stopHi } = LEARNER_CONSTANTS.particles;
-	let resolved = 0;
-	for (const id of state.skeleton) {
-		const idx = pos.get(id);
-		if (idx === undefined) continue;
-		const p = particleMarginal(state, idx);
-		if (p < stopLo || p > stopHi) resolved++;
-	}
-	return Math.max(0, Math.min(100, Math.round((resolved / state.skeleton.length) * 100)));
+function withBackFlag(
+	question: PlacementQuestion,
+	state: DiagnosticState,
+	seed: string | undefined,
+	previousAnswer?: boolean,
+): PlacementQuestion {
+	return {
+		...question,
+		canGoBack: state.answers.length > 0 && Boolean(seed),
+		...(previousAnswer !== undefined ? { previousAnswer } : {}),
+	};
 }
 
 function restoreActiveState(stored: StoredPlacement | null, curriculumHash: string): DiagnosticState | null {
@@ -159,8 +166,9 @@ function finalizeState(
 /** Return the active KST placement status (current question, progress, and last completed summary). */
 export function getDomainPlacement(): DomainPlacementStatus {
 	const { id, cur } = requireActiveCurriculum();
+	const hash = cur.snapshot.certificate.hash;
 	const stored = readStoredPlacement(id);
-	const state = restoreActiveState(stored, cur.snapshot.certificate.hash);
+	const state = restoreActiveState(stored, hash);
 	if (!state) {
 		return {
 			active: false,
@@ -172,12 +180,34 @@ export function getDomainPlacement(): DomainPlacementStatus {
 		};
 	}
 	const question = currentPlacementQuestion(cur.snapshot, cur.view, state);
+	if (!question) {
+		if (state.answers.length >= MIN_EARLY_FINISH_QUESTIONS) {
+			const summary = finalizeState(id, hash, cur.snapshot, cur.view, state);
+			return {
+				active: false,
+				question: null,
+				asked: summary.asked,
+				maxQuestions: MAX_PLACEMENT_QUESTIONS,
+				confidencePct: summary.confidencePct,
+				lastSummary: summary,
+			};
+		}
+		return {
+			active: false,
+			question: null,
+			asked: state.answers.length,
+			maxQuestions: MAX_PLACEMENT_QUESTIONS,
+			confidencePct: placementConfidencePct(cur.view, state),
+			...(stored?.lastSummary ? { lastSummary: stored.lastSummary } : {}),
+		};
+	}
+	const seed = stored?.seed;
 	return {
 		active: true,
-		question,
+		question: withBackFlag(question, state, seed),
 		asked: state.answers.length,
-		maxQuestions: question?.maxQuestions ?? MAX_PLACEMENT_QUESTIONS,
-		confidencePct: question?.confidencePct ?? confidencePctOf(cur.view, state),
+		maxQuestions: question.maxQuestions,
+		confidencePct: question.confidencePct,
 		...(stored?.lastSummary ? { lastSummary: stored.lastSummary } : {}),
 	};
 }
@@ -194,17 +224,19 @@ export function startDomainPlacement(seed?: string): DomainPlacementStatus {
 		version: 1,
 		domainId: id,
 		curriculumHash: cur.snapshot.certificate.hash,
+		seed: effectiveSeed,
 		startedAt: new Date().toISOString(),
-		diagnostic: serializeDiagnostic(state),
+		diagnostic: serializeDiagnostic(state, effectiveSeed),
 		...(previous?.lastSummary ? { lastSummary: previous.lastSummary } : {}),
 	});
-	const question = currentPlacementQuestion(cur.snapshot, cur.view, state);
+	const rawQuestion = currentPlacementQuestion(cur.snapshot, cur.view, state);
+	const question = rawQuestion ? withBackFlag(rawQuestion, state, effectiveSeed) : null;
 	return {
 		active: question !== null,
 		question,
 		asked: state.answers.length,
 		maxQuestions: question?.maxQuestions ?? MAX_PLACEMENT_QUESTIONS,
-		confidencePct: question?.confidencePct ?? confidencePctOf(cur.view, state),
+		confidencePct: question?.confidencePct ?? placementConfidencePct(cur.view, state),
 		...(previous?.lastSummary ? { lastSummary: previous.lastSummary } : {}),
 	};
 }
@@ -218,6 +250,21 @@ export function answerDomainPlacement(nodeId: string, correct: boolean): Placeme
 	if (!state) throw new StudyError(409, "Nenhum teste de nivelamento em andamento.");
 	if (!cur.view.nodes.has(nodeId)) throw new StudyError(400, `Habilidade inválida para este domínio: ${nodeId}`);
 
+	const seed = stored?.seed;
+	// Guard against double-click / duplicate submissions of an already answered node.
+	const lastAnswer = state.answers[state.answers.length - 1];
+	if (lastAnswer?.nodeId === nodeId) {
+		const currentQ = currentPlacementQuestion(cur.snapshot, cur.view, state);
+		if (!currentQ) {
+			const summary = finalizeState(id, hash, cur.snapshot, cur.view, state);
+			return { finished: true, summary };
+		}
+		return { finished: false, question: withBackFlag(currentQ, state, seed) };
+	}
+	if (state.answers.some((a) => a.nodeId === nodeId)) {
+		throw new StudyError(409, "Esta pergunta já foi respondida.");
+	}
+
 	const nextState = recordPlacementAnswer(state, cur.view, nodeId, correct);
 	const nextQuestion = currentPlacementQuestion(cur.snapshot, cur.view, nextState);
 	if (!nextQuestion) {
@@ -229,11 +276,49 @@ export function answerDomainPlacement(nodeId: string, correct: boolean): Placeme
 		version: 1,
 		domainId: id,
 		curriculumHash: hash,
+		...(seed ? { seed } : {}),
 		...(stored?.startedAt ? { startedAt: stored.startedAt } : {}),
-		diagnostic: serializeDiagnostic(nextState),
+		diagnostic: serializeDiagnostic(nextState, seed),
 		...(stored?.lastSummary ? { lastSummary: stored.lastSummary } : {}),
 	});
-	return { finished: false, question: nextQuestion };
+	return { finished: false, question: withBackFlag(nextQuestion, nextState, seed) };
+}
+
+/** Step back one question in an active placement by replaying the particle filter from its seed. */
+export function undoDomainPlacement(): { finished: false; question: PlacementQuestion } {
+	const { id, cur } = requireActiveCurriculum();
+	const hash = cur.snapshot.certificate.hash;
+	const stored = readStoredPlacement(id);
+	const state = restoreActiveState(stored, hash);
+	if (!state) throw new StudyError(409, "Nenhum teste de nivelamento em andamento.");
+	if (state.answers.length === 0) {
+		throw new StudyError(400, "Já está na primeira pergunta do nivelamento.");
+	}
+	const seed = stored?.seed;
+	if (!seed) {
+		throw new StudyError(409, "Este nivelamento foi iniciado antes do suporte a voltar. Reinicie para habilitar voltar.");
+	}
+	const rebuilt = undoPlacementAnswer(cur.view, cur.snapshot, state, seed);
+	if (!rebuilt) {
+		throw new StudyError(400, "Já está na primeira pergunta do nivelamento.");
+	}
+	const prevQuestion = currentPlacementQuestion(cur.snapshot, cur.view, rebuilt.state);
+	if (!prevQuestion) {
+		throw new StudyError(409, "Não foi possível restaurar a pergunta anterior.");
+	}
+	writeStoredPlacement(id, {
+		version: 1,
+		domainId: id,
+		curriculumHash: hash,
+		seed,
+		...(stored?.startedAt ? { startedAt: stored.startedAt } : {}),
+		diagnostic: serializeDiagnostic(rebuilt.state, seed),
+		...(stored?.lastSummary ? { lastSummary: stored.lastSummary } : {}),
+	});
+	return {
+		finished: false,
+		question: withBackFlag(prevQuestion, rebuilt.state, seed, rebuilt.undoneAnswer.correct),
+	};
 }
 
 /** Finalize an in-progress placement early once at least 4 answers have been recorded. */

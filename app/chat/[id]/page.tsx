@@ -3,11 +3,12 @@ import { notFound } from "next/navigation";
 import { CitationShelf } from "@/components/study/cited-response";
 import { MissionShelf } from "@/components/study/mission-shelf";
 import { Chat } from "@/components/chat";
-import { activityForSkill, lessonResources, resolveSettings, slotsConfigured, type LessonResource } from "@/src/core";
+import { activityForSkill, intensiveContextOf, lessonResources, resolveSettings, slotsConfigured, type LessonResource } from "@/src/core";
 import { StudyHeartbeat } from "@/components/study/study-heartbeat";
 import {
 	activeDomainId,
 	compactionInFlight,
+	currentLocale,
 	getChat,
 	isTurnRunning,
 	lessonCompletionState,
@@ -23,6 +24,15 @@ import {
 } from "@/src/server";
 
 export const dynamic = "force-dynamic";
+
+const INTENSIVE_BACK_LABEL: Record<string, string> = {
+	en: "← Back to Intensive",
+	"pt-BR": "← Voltar à Intensiva",
+	es: "← Volver a Intensiva",
+	fr: "← Retour à l’Intensive",
+	de: "← Zurück zur Intensiva",
+	ja: "← インテンシブに戻る",
+};
 
 export default async function ChatPage({
 	params,
@@ -46,6 +56,22 @@ export default async function ChatPage({
 			? (first.details as { resources?: LessonResource[]; readingSource?: { book: string; region: string; unit: number } } | undefined)
 			: undefined;
 	const reading = details?.readingSource;
+	const intensive = intensiveContextOf(chat.messages);
+	let intensiveReturnHref: string | undefined;
+	if (intensive) {
+		const query = new URLSearchParams();
+		if (intensive.courseId) query.set("course", intensive.courseId);
+		if (intensive.lessonId) query.set("lesson", intensive.lessonId);
+		if (typeof intensive.currentTimeSec === "number" && Number.isFinite(intensive.currentTimeSec) && intensive.currentTimeSec > 0) {
+			query.set("t", String(Math.floor(intensive.currentTimeSec)));
+		}
+		if (intensive.moduleId) query.set("module", intensive.moduleId);
+		if (intensive.certId) query.set("cert", intensive.certId);
+		if (intensive.projectId) query.set("project", intensive.projectId);
+		const qs = query.toString();
+		intensiveReturnHref = qs ? `/intensiva?${qs}` : "/intensiva";
+	}
+	const intensiveBackLabel = INTENSIVE_BACK_LABEL[currentLocale()] ?? INTENSIVE_BACK_LABEL.en;
 	const aids = details?.resources ?? (domain === "english" && node ? lessonResources(materialsForEnglishMission(node)) : []);
 	const returnHref =
 		domain &&
@@ -63,7 +89,15 @@ export default async function ChatPage({
 		<div className="flex h-full min-h-0 flex-col overflow-hidden">
 			<StudyHeartbeat key={chat.id + "-activity"} domain={domain} kind={chat.kind === "practice" ? "practice" : "lesson"} />
 			<div className="relative min-h-0 flex-1">
-				{returnHref &&
+				{intensiveReturnHref ? (
+					<Link
+						className={`lh-no-drag absolute right-4 ${shelfTopClass} z-20 cel-button px-3 py-1 text-xs`}
+						href={intensiveReturnHref}
+					>
+						{intensiveBackLabel}
+					</Link>
+				) : (
+					returnHref &&
 					(!reading && aids.length > 0 ? (
 						<MissionShelf aids={aids} mapHref={returnHref} topClass={shelfTopClass} />
 					) : (
@@ -73,7 +107,8 @@ export default async function ChatPage({
 						>
 							{reading ? serverT("lesson.shelf.backToReading") : serverT("lesson.shelf.materials")}
 						</Link>
-					))}
+					))
+				)}
 				<CitationShelf domain={domain ?? ""} books={domain && node ? lessonPdfShelf(domain, chat.id, node) : []}>
 					<Chat
 						key={chat.id}

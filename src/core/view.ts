@@ -579,6 +579,17 @@ function projectMarker(
 			});
 			return;
 		}
+		case "intensive-context": {
+			// The session's intensive-study context (course, video timestamp,
+			// module, certification, or portfolio project): user-side
+			// collapsible card above the first user message.
+			out.push({
+				id: marker.id,
+				role: "user",
+				parts: [{ type: "data-intensive-context", id: `ic_${marker.id}`, data: marker.details }],
+			});
+			return;
+		}
 		case "probe-handoff": {
 			out.push({
 				id: marker.id,

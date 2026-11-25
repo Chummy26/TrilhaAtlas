@@ -123,6 +123,7 @@ export {
 	getDomainPlacement,
 	startDomainPlacement,
 	answerDomainPlacement,
+	undoDomainPlacement,
 	finishDomainPlacement,
 	cancelDomainPlacement,
 	type DomainPlacementStatus,
@@ -137,3 +138,4 @@ export {
 	readStudyBrowserReader,
 	rewriteHtmlForEmbeddedFrame,
 } from "./study-browser.ts";
+export * from "./intensive.ts";

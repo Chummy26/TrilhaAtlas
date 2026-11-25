@@ -107,122 +107,143 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 	}, [days, usage.byModel, account.fraction, domains, ringCircumference]);
 
 	return (
-		<div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-12">
-			<div className="mb-6 flex items-center gap-3">
-				<Link
-					href="/"
-					aria-label={t("pages.profile.back")}
-					className="cel-button cel-button-ghost lh-no-drag min-h-9 px-2.5 text-sm"
-				>
-					<Icon name="chevron-left" size={18} tone={false} />
-					{t("shell.sidebar.home")}
-				</Link>
-				<h1 className="cel-display text-2xl">{t("pages.profile.title")}</h1>
-			</div>
+		<div className="mx-auto w-full max-w-4xl px-4 pb-16 pt-8 sm:pt-10">
+			<header className="ta-hero mb-6">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img src="/art/hero-profile.jpg" alt="" aria-hidden="true" className="ta-hero-img" />
+				<div className="ta-hero-scrim" aria-hidden="true" />
+				<div className="ta-hero-content space-y-5 px-5 pt-4 pb-5 sm:px-6 sm:pt-5">
+					<div className="flex flex-wrap items-center justify-between gap-3">
+						<Link
+							href="/"
+							aria-label={t("pages.profile.back")}
+							className="lh-no-drag inline-flex items-center gap-1 text-sm font-semibold text-[#b6c0cc] transition-colors hover:text-[#f4efe6] hover:underline"
+						>
+							<Icon name="chevron-left" size={18} tone={false} />
+							{t("shell.sidebar.home")}
+						</Link>
+						<div className="flex flex-wrap items-center gap-2 text-xs tabular-nums">
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-[#0d1117]/88 px-3 py-1 font-semibold text-[#f4efe6] backdrop-blur-xs">
+								<span aria-hidden="true" className={`size-2 rounded-full ${streakDays > 0 ? "bg-[#ffb020]" : "bg-white/30"}`} />
+								{t("pages.profile.streak", { days: String(streakDays) })}
+							</span>
+							<span className="rounded-full border border-white/20 bg-[#0d1117]/88 px-3 py-1 text-[#d2dae4] backdrop-blur-xs">
+								{t("pages.profile.days7And14", { week: hours(weekMin), period: hours(periodMin) })}
+							</span>
+						</div>
+					</div>
 
-			<section className="cel-card mb-5 flex flex-wrap items-center gap-4 p-5">
-				{/* Onigiri ring-profile inspired level dial */}
-				<div className="relative flex size-20 shrink-0 items-center justify-center">
-					<svg viewBox="0 0 76 76" className="absolute inset-0 size-full -rotate-90" aria-hidden="true">
-						<circle
-							cx="38"
-							cy="38"
-							r={ringRadius}
-							fill="none"
-							stroke="color-mix(in srgb, var(--border) 55%, transparent)"
-							strokeWidth="5"
-						/>
-						<circle
-							cx="38"
-							cy="38"
-							r={ringRadius}
-							fill="none"
-							stroke="var(--cel-xp, var(--primary))"
-							strokeWidth="5"
-							strokeLinecap="round"
-							strokeDasharray={ringCircumference}
-							strokeDashoffset={ringOffset}
-							className="profile-ring-progress"
-						/>
-					</svg>
-					<div className="cel-display relative z-10 flex size-[58px] flex-col items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--cel-xp,var(--primary))_10%,var(--background))]">
-						<span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-							{t("pages.profile.level")}
-						</span>
-						<span className="text-2xl leading-none tabular-nums">{account.level}</span>
+					<div className="flex flex-wrap items-center gap-5">
+						<div className="relative flex size-22 shrink-0 items-center justify-center">
+							<svg viewBox="0 0 76 76" className="absolute inset-0 size-full -rotate-90" aria-hidden="true">
+								<circle
+									cx="38"
+									cy="38"
+									r={ringRadius}
+									fill="none"
+									stroke="rgb(255 255 255 / 0.14)"
+									strokeWidth="5.5"
+								/>
+								<circle
+									cx="38"
+									cy="38"
+									r={ringRadius}
+									fill="none"
+									stroke="var(--cel-xp, #a98bff)"
+									strokeWidth="5.5"
+									strokeLinecap="round"
+									strokeDasharray={ringCircumference}
+									strokeDashoffset={ringOffset}
+									className="profile-ring-progress"
+								/>
+							</svg>
+							<div className="cel-display relative z-10 flex size-[62px] flex-col items-center justify-center rounded-full border border-white/12 bg-[#161c25] text-[#f4efe6]">
+								<span className="text-[10px] font-semibold tracking-wider text-[#b6c0cc]">
+									{t("pages.profile.level")}
+								</span>
+								<span className="text-2xl leading-none tabular-nums">{account.level}</span>
+							</div>
+						</div>
+
+						<div className="min-w-52 max-w-lg flex-1 space-y-2.5">
+							<h1 className="ta-hero-title text-2xl sm:text-3xl">{t("pages.profile.title")}</h1>
+							<div className="flex flex-wrap items-baseline gap-2.5 text-sm">
+								<span className="inline-flex items-center gap-1.5 text-[#f4efe6]">
+									<Icon name="xp" size={18} />
+									<span className="cel-display text-lg tabular-nums">{intFmt.format(account.xp)} XP</span>
+								</span>
+								<span className="text-xs text-[#b6c0cc] tabular-nums">
+									{t("pages.profile.xpToNext", {
+										pct: levelPct,
+										xp: intFmt.format(account.xpToNext),
+									})}
+								</span>
+							</div>
+							<progress
+								value={levelPct}
+								max={100}
+								aria-label={t("pages.profile.xpToNext", {
+									pct: levelPct,
+									xp: intFmt.format(account.xpToNext),
+								})}
+								className="ta-hero-progress ta-hero-progress-xp block w-full"
+							/>
+						</div>
 					</div>
 				</div>
-				<div className="min-w-48 flex-1 space-y-2">
-					<div className="flex flex-wrap items-baseline gap-2 text-sm">
-						<span className="inline-flex items-center gap-1.5">
-							<Icon name="xp" size={18} />
-							<span className="cel-display text-lg tabular-nums">{intFmt.format(account.xp)} XP</span>
-						</span>
-						<span className="ml-auto text-xs text-muted-foreground tabular-nums">
-							{t("pages.profile.xpToNext", {
-								pct: levelPct,
-								xp: intFmt.format(account.xpToNext),
-							})}
-						</span>
-					</div>
-					<div className="h-2.5 overflow-hidden rounded-full border border-border/60 bg-background/80">
-						<div
-							className="h-full rounded-full bg-[var(--cel-xp,var(--primary))] transition-all duration-300"
-							style={{ width: `${levelPct}%` }}
-						/>
-					</div>
-				</div>
-			</section>
+			</header>
 
-			<div className="mb-5 grid gap-3.5 sm:grid-cols-2">
+			<div className="mb-6 grid gap-4 sm:grid-cols-2">
 				{domains.map((d) => {
 					const pct = d.leaves > 0 ? Math.round((100 * d.attained) / d.leaves) : 0;
 					return (
-						<section key={d.id} data-domain={d.id} className="cel-card flex flex-col gap-3 p-4">
-							<div className="flex items-center gap-2.5">
-								<Icon name={d.icon as IconName} size={26} />
-								<div className="min-w-0 flex-1">
-									<h2 className="cel-display truncate text-lg leading-tight">{d.title}</h2>
-									<p className="text-xs text-muted-foreground tabular-nums">
-										{t("pages.profile.pathPct", {
-											pct: d.attained > 0 && pct === 0 ? "<1" : String(pct),
-										})}
-									</p>
-								</div>
-								<span
-									className="cel-chip shrink-0 text-xs"
-									title={t("pages.profile.masteryPointsTitle", { pm: d.tier.pm })}
-								>
-									<Icon name="trophy" size={14} />
-									{d.tier.label}
-								</span>
-							</div>
-							<div>
-								<div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-									<span>{t("pages.profile.retainedStages")}</span>
-									<span className="tabular-nums">
-										{t("pages.profile.masteryPointsShort", { pm: d.tier.pm })}
+						<section key={d.id} data-domain={d.id} className="cel-card ta-domain-card flex flex-col justify-between overflow-hidden">
+							<div className="space-y-3.5 p-4.5">
+								<div className="flex items-center gap-3">
+									<Icon name={d.icon as IconName} size={28} />
+									<div className="min-w-0 flex-1">
+										<h2 className="cel-display truncate text-lg leading-tight">{d.title}</h2>
+										<p className="text-xs text-muted-foreground tabular-nums">
+											{t("pages.profile.pathPct", {
+												pct: d.attained > 0 && pct === 0 ? "<1" : String(pct),
+											})}
+										</p>
+									</div>
+									<span
+										className="cel-chip shrink-0 text-xs"
+										title={t("pages.profile.masteryPointsTitle", { pm: d.tier.pm })}
+									>
+										<Icon name="trophy" size={14} />
+										{d.tier.label}
 									</span>
 								</div>
-								<div className="flex gap-1" aria-label={t("pages.profile.retainedStages")}>
-									{d.tier.fractions.map((f, i) => (
-										<div
-											key={i}
-											className="h-2.5 flex-1 overflow-hidden rounded-full border border-border/50 bg-background/80"
-											title={t("pages.profile.stageTooltip", {
-												index: i + 1,
-												pct: Math.round(f * 100),
-											})}
-										>
+								<div>
+									<div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
+										<span>{t("pages.profile.retainedStages")}</span>
+										<span className="font-semibold tabular-nums text-foreground/85">
+											{t("pages.profile.masteryPointsShort", { pm: d.tier.pm })}
+										</span>
+									</div>
+									<div className="flex gap-1.5" aria-label={t("pages.profile.retainedStages")}>
+										{d.tier.fractions.map((f, i) => (
 											<div
-												className="h-full bg-[var(--cel-accent,var(--primary))]"
-												style={{ width: `${Math.round(f * 100)}%` }}
-											/>
-										</div>
-									))}
+												key={i}
+												className="h-2.5 flex-1 overflow-hidden rounded-full border border-border/55 bg-background/80"
+												title={t("pages.profile.stageTooltip", {
+													index: i + 1,
+													pct: Math.round(f * 100),
+												})}
+											>
+												<div
+													className="h-full bg-[var(--cel-accent,var(--primary))] transition-[width] duration-200 ease-out"
+													style={{ width: `${Math.round(f * 100)}%` }}
+												/>
+											</div>
+										))}
+									</div>
 								</div>
 							</div>
-							<dl className="grid grid-cols-3 divide-x divide-border/50 rounded-xl border border-border/45 bg-background/55 py-2 text-center text-xs text-muted-foreground">
+							<dl className="grid grid-cols-3 divide-x divide-border/50 border-t border-border/50 bg-background/45 py-2.5 text-center text-xs text-muted-foreground">
 								<div className="px-1">
 									<dt>{t("pages.profile.topics")}</dt>
 									<dd className="cel-display mt-0.5 text-base text-foreground tabular-nums">
@@ -310,15 +331,15 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 
 									<div className="overflow-x-auto">
 										<table className="w-full text-sm tabular-nums">
-											<thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+											<thead className="text-left text-xs text-muted-foreground">
 												<tr>
-													<th className="pb-2 pr-3 font-medium">{t("pages.profile.colChapter")}</th>
-													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colReached")}</th>
-													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colDurable")}</th>
-													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colMastered")}</th>
-													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colFsrs")}</th>
-													<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colExam")}</th>
-													<th className="pb-2 pl-2 text-right font-medium">{t("pages.profile.colGrade")}</th>
+													<th className="pb-2 pr-3 font-semibold">{t("pages.profile.colChapter")}</th>
+													<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colReached")}</th>
+													<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colDurable")}</th>
+													<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colMastered")}</th>
+													<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colFsrs")}</th>
+													<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colExam")}</th>
+													<th className="pb-2 pl-2 text-right font-semibold">{t("pages.profile.colGrade")}</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -384,7 +405,7 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 									{d.minutes > 0 ? `${Math.round(d.minutes)}m` : ""}
 								</span>
 								<div
-									className="w-full rounded-t-md bg-[var(--cel-accent,var(--primary))] transition-all duration-150 group-hover:brightness-110"
+									className={`w-full rounded-t-md border border-b-0 border-black/15 transition-[opacity,filter,transform] duration-150 ease-out group-hover:-translate-y-0.5 group-hover:brightness-110 ${isToday ? "bg-[var(--cel-accent,var(--primary))] ring-2 ring-[var(--cel-accent,var(--primary))]/35" : "bg-[var(--cel-accent,var(--primary))]"}`}
 									style={{ height: `${barHeight}px`, opacity: d.minutes > 0 ? (isToday ? 1 : 0.78) : 0.2 }}
 								/>
 								<span
@@ -419,13 +440,13 @@ export function ProfileView({ profile }: { profile: StudyProfile }) {
 				) : (
 					<div className="overflow-x-auto">
 						<table className="w-full text-sm tabular-nums">
-							<thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+							<thead className="text-left text-xs text-muted-foreground">
 								<tr>
-									<th className="pb-2 pr-3 font-medium">{t("pages.profile.colModel")}</th>
-									<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colInput")}</th>
-									<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colOutput")}</th>
-									<th className="px-2 pb-2 text-right font-medium">{t("pages.profile.colCache")}</th>
-									<th className="pb-2 pl-2 text-right font-medium">{t("pages.profile.colTotal")}</th>
+									<th className="pb-2 pr-3 font-semibold">{t("pages.profile.colModel")}</th>
+									<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colInput")}</th>
+									<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colOutput")}</th>
+									<th className="px-2 pb-2 text-right font-semibold">{t("pages.profile.colCache")}</th>
+									<th className="pb-2 pl-2 text-right font-semibold">{t("pages.profile.colTotal")}</th>
 								</tr>
 							</thead>
 							<tbody>

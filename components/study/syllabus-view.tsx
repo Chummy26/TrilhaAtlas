@@ -673,7 +673,7 @@ const SyllabusModuleCard = memo(function SyllabusModuleCard({
 		<article
 			id={`modulo-${mod.id}`}
 			data-testid={`syllabus-module-${mod.id}`}
-			className="study-cv-block space-y-3 rounded-xl border border-border/60 bg-card p-4"
+			className={`study-cv-block space-y-3 rounded-xl border bg-card p-4 ${isCurrentModule ? "border-[var(--cel-accent,var(--border))]/65 border-l-[3.5px] border-l-[var(--cel-accent,var(--primary))]" : "border-border/55"}`}
 		>
 			<div className="flex flex-wrap items-start justify-between gap-3">
 				<div className="min-w-0 flex-1 space-y-1.5">
@@ -964,7 +964,7 @@ const SyllabusChapterCard = memo(function SyllabusChapterCard({
 	return (
 		<section
 			data-testid={`syllabus-chapter-${chapter.index}`}
-			className="study-cv-block cel-card overflow-hidden"
+			className={`study-cv-block cel-card overflow-hidden ${chapter.active ? "border-l-[3.5px] border-l-[var(--cel-accent,var(--primary))]" : ""}`}
 		>
 			<div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
 				<button
@@ -2088,38 +2088,41 @@ export function SyllabusView({
 	);
 
 	return (
-		<main className="h-dvh overflow-y-auto px-4 pb-16 pt-6 md:px-8" data-domain={syllabus.domainId}>
+		<main className="h-dvh overflow-y-auto px-4 pb-16 pt-5 md:px-8" data-domain={syllabus.domainId}>
 			<div className="mx-auto w-full max-w-5xl space-y-5">
-				<header className="space-y-3">
-					<div className="flex flex-wrap items-center justify-between gap-2.5">
-						<Link
-							href="/"
-							className="cel-button cel-button-ghost lh-no-drag min-h-9 px-2.5 text-sm"
-						>
-							<Icon name="chevron-left" size={16} tone={false} />
-							{t("course.syllabus.backToday")}
-						</Link>
-						<div className="flex flex-wrap items-center gap-2">
-							<Link href={mapDomainHref} className="cel-button min-h-9 px-3 py-1.5 text-xs">
-								<Icon name="map" size={14} tone={false} />
-								{t("course.syllabus.exploreTree")}
-							</Link>
+				<header className="ta-hero">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img src="/art/hero-syllabus.jpg" alt="" aria-hidden="true" className="ta-hero-img" />
+					<div className="ta-hero-scrim" aria-hidden="true" />
+					<div className="ta-hero-content space-y-4 px-5 pt-4 pb-5 sm:px-6 sm:pt-5">
+						<div className="flex flex-wrap items-center justify-between gap-2.5">
 							<Link
-								href="/profile"
-								className="cel-button cel-button-ghost min-h-9 px-3 py-1.5 text-xs"
+								href="/"
+								className="inline-flex items-center gap-1 text-sm font-semibold text-[#b6c0cc] transition-colors hover:text-[#f4efe6] hover:underline"
 							>
-								<Icon name="profile" size={14} tone={false} />
-								{t("course.syllabus.profileTranscript")}
+								<Icon name="chevron-left" size={16} tone={false} />
+								{t("course.syllabus.backToday")}
 							</Link>
+							<div className="flex flex-wrap items-center gap-2">
+								<Link href={mapDomainHref} className="ta-hero-btn min-h-8 px-3 py-1 text-xs">
+									<Icon name="map" size={14} tone={false} />
+									{t("course.syllabus.exploreTree")}
+								</Link>
+								<Link
+									href="/profile"
+									className="ta-hero-btn min-h-8 px-3 py-1 text-xs"
+								>
+									<Icon name="profile" size={14} tone={false} />
+									{t("course.syllabus.profileTranscript")}
+								</Link>
+							</div>
 						</div>
-					</div>
 
-					<div className="flex flex-wrap items-end justify-between gap-3">
-						<div className="space-y-1">
-							<h1 className="cel-display text-2xl leading-tight sm:text-3xl">
+						<div className="space-y-1.5">
+							<h1 className="ta-hero-title text-2xl sm:text-3xl">
 								{t("course.syllabus.title", { domain: domainTitle })}
 							</h1>
-							<p className="text-xs text-muted-foreground tabular-nums">
+							<p className="ta-hero-sub text-sm tabular-nums">
 								{t("course.syllabus.headerSummary", {
 									completed: syllabus.completedLessons,
 									total: syllabus.totalLessons,
@@ -2130,12 +2133,14 @@ export function SyllabusView({
 								{studiedLabel ? t("course.syllabus.headerStudied", { studied: studiedLabel }) : ""}
 							</p>
 						</div>
+					</div>
 
+					<div className="ta-hero-content ta-hero-bar flex flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6">
 						<div
 							role="tablist"
 							aria-label={t("course.syllabus.sectionsAria")}
 							onKeyDown={handleTabKeyDown}
-							className="flex flex-wrap gap-1.5"
+							className="ta-segmented ta-segmented-on-dark"
 						>
 							{TAB_DEFS.map((item) => {
 								const selected = tab === item.id;
@@ -2147,7 +2152,7 @@ export function SyllabusView({
 										id={`syllabus-tab-${item.id}`}
 										aria-selected={selected}
 										aria-controls={`syllabus-panel-${item.id}`}
-										className={`cel-chip min-h-9 cursor-pointer px-3 py-1.5 text-xs ${selected ? "" : "opacity-85 hover:opacity-100"}`}
+										className="ta-segmented-btn"
 										onClick={() => setTab(item.id)}
 									>
 										<Icon name={item.icon} size={14} tone={false} />
@@ -2155,6 +2160,18 @@ export function SyllabusView({
 									</button>
 								);
 							})}
+						</div>
+
+						<div className="flex min-w-44 max-w-xs flex-1 items-center gap-3">
+							<progress
+								className="ta-hero-progress ta-hero-progress-success block flex-1"
+								max={Math.max(1, syllabus.totalLessons)}
+								value={syllabus.completedLessons}
+								aria-label={t("course.syllabus.overallProgressAria", { pct: overallPct })}
+							/>
+							<span className="shrink-0 font-mono text-xs font-semibold text-[#f4efe6] tabular-nums">
+								{overallPct}%
+							</span>
 						</div>
 					</div>
 				</header>
@@ -2186,41 +2203,43 @@ export function SyllabusView({
 						<section
 							aria-label={t("course.syllabus.scheduleAria")}
 							data-testid="syllabus-schedule-card"
-							className="cel-card space-y-3.5 p-4 sm:p-5"
+							className="cel-card overflow-hidden"
 						>
-							<div className="flex flex-wrap items-center justify-between gap-2">
-								<div className="flex items-center gap-2">
-									<Icon name="calendar" size={18} />
-									<h2 className="cel-display text-lg leading-tight">{t("course.syllabus.scheduleTitle")}</h2>
-								</div>
-								<span className="study-pill study-pill-info tabular-nums">
-									{schedule.paceSource === "observed"
-										? t("course.syllabus.paceObserved")
-										: t("course.syllabus.pacePlanned")}
-								</span>
-							</div>
-
-							<div className="space-y-1.5">
-								<div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground tabular-nums">
-									<span>
-										{t("course.syllabus.scheduleCompletedRemaining", {
-											completedHours: decFmt.format(completedHours),
-											remainingHours: decFmt.format(syllabus.remainingHours),
-										})}
-										{studiedLabel ? t("course.syllabus.scheduleStudied", { studied: studiedLabel }) : ""}
+							<div className="space-y-3 px-4 py-4 sm:px-5">
+								<div className="flex flex-wrap items-center justify-between gap-2">
+									<div className="flex items-center gap-2">
+										<Icon name="calendar" size={18} />
+										<h2 className="cel-display text-lg leading-tight">{t("course.syllabus.scheduleTitle")}</h2>
+									</div>
+									<span className="study-pill study-pill-info tabular-nums">
+										{schedule.paceSource === "observed"
+											? t("course.syllabus.paceObserved")
+											: t("course.syllabus.pacePlanned")}
 									</span>
-									<span>{t("course.syllabus.lessonsPct", { pct: overallPct })}</span>
 								</div>
-								<progress
-									className="study-progress block w-full"
-									max={Math.max(1, syllabus.totalLessons)}
-									value={syllabus.completedLessons}
-									aria-label={t("course.syllabus.overallProgressAria", { pct: overallPct })}
-								/>
+
+								<div className="space-y-1.5">
+									<div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground tabular-nums">
+										<span>
+											{t("course.syllabus.scheduleCompletedRemaining", {
+												completedHours: decFmt.format(completedHours),
+												remainingHours: decFmt.format(syllabus.remainingHours),
+											})}
+											{studiedLabel ? t("course.syllabus.scheduleStudied", { studied: studiedLabel }) : ""}
+										</span>
+										<span>{t("course.syllabus.lessonsPct", { pct: overallPct })}</span>
+									</div>
+									<progress
+										className="study-progress block w-full"
+										max={Math.max(1, syllabus.totalLessons)}
+										value={syllabus.completedLessons}
+										aria-label={t("course.syllabus.overallProgressAria", { pct: overallPct })}
+									/>
+								</div>
 							</div>
 
-							<dl className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
+							<dl className="ta-stat-strip">
+								<div className="ta-stat-cell">
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.forecast")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{syllabus.remainingHours <= 0
@@ -2240,7 +2259,7 @@ export function SyllabusView({
 									)}
 								</div>
 
-								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
+								<div className="ta-stat-cell">
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.weeklyPace")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{t("course.syllabus.hoursPerWeek", { hours: decFmt.format(schedule.effectiveWeeklyHours) })}
@@ -2253,7 +2272,7 @@ export function SyllabusView({
 									</p>
 								</div>
 
-								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
+								<div className="ta-stat-cell">
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.reviewReserve")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">{reviewReservePct}% FSRS</dd>
 									<p className="mt-0.5 text-[11px] text-muted-foreground">
@@ -2261,7 +2280,7 @@ export function SyllabusView({
 									</p>
 								</div>
 
-								<div className="rounded-xl border border-border/50 bg-background/60 p-3">
+								<div className="ta-stat-cell">
 									<dt className="text-xs text-muted-foreground">{t("course.syllabus.currentChapter")}</dt>
 									<dd className="cel-display mt-1 text-base tabular-nums">
 										{schedule.activeChapterWeeks <= 0
@@ -2277,18 +2296,20 @@ export function SyllabusView({
 							</dl>
 						</section>
 
-						<div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("course.syllabus.filterAria")}>
-							{FILTER_IDS.map((item) => (
-								<button
-									key={item}
-									type="button"
-									aria-pressed={filter === item}
-									className="cel-chip min-h-8 cursor-pointer px-3 py-1 text-xs"
-									onClick={() => handleFilterChange(item)}
-								>
-									{filterLabel(t, item)}
-								</button>
-							))}
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<div className="ta-segmented" role="group" aria-label={t("course.syllabus.filterAria")}>
+								{FILTER_IDS.map((item) => (
+									<button
+										key={item}
+										type="button"
+										aria-pressed={filter === item}
+										className="ta-segmented-btn min-h-8 px-3 py-1 text-xs"
+										onClick={() => handleFilterChange(item)}
+									>
+										{filterLabel(t, item)}
+									</button>
+								))}
+							</div>
 						</div>
 
 						{filteredChapters.length === 0 ? (

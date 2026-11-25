@@ -255,6 +255,40 @@ test("retains account capabilities for future model IDs and excludes models inel
 	} finally { await f.service.close(); }
 });
 
+test("transient /models network failures preserve an already verified catalog and lease authority", async () => {
+	let failModels = false;
+	const f = await loggedIn({ provider: async target => {
+		if (!target.endsWith("/models")) return undefined;
+		if (failModels) return new Response("upstream unavailable", { status: 503 });
+		return Response.json({ models: [{ slug: "gpt-5", display_name: "Scratch model", visibility: "list" }] });
+	} });
+	try {
+		const initial = await f.service.models();
+		assert.deepEqual(initial.models, [{ id: "gpt-5", name: "Scratch model" }]);
+		failModels = true;
+		const afterBlip = await f.service.models();
+		assert.deepEqual(afterBlip.models, [{ id: "gpt-5", name: "Scratch model" }]);
+		assert.equal(afterBlip.authorityRevision, initial.authorityRevision);
+		const lease = await f.rawLease(false, { expectedAccountId: initial.accountId, expectedAuthorityRevision: initial.authorityRevision, selectedModelId: "gpt-5" });
+		assert.equal(lease.accountId, initial.accountId);
+	} finally { f.service.close(); }
+});
+
+test("401 on /models forces one token refresh and recovers the catalog", async () => {
+	let modelCalls = 0;
+	const f = await loggedIn({ provider: async target => {
+		if (!target.endsWith("/models")) return undefined;
+		modelCalls++;
+		if (modelCalls === 1) return Response.json({ error: "unauthorized" }, { status: 401 });
+		return Response.json({ models: [{ slug: "gpt-5", display_name: "Refreshed model", visibility: "list" }] });
+	} });
+	try {
+		const catalog = await f.service.models();
+		assert.equal(modelCalls, 2);
+		assert.deepEqual(catalog.models, [{ id: "gpt-5", name: "Refreshed model" }]);
+	} finally { f.service.close(); }
+});
+
 test("private JSON file round-trips global state and protects both creation and atomic replacement", async () => {
 	const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lh-chatgpt-storage-"));
 	const file = path.join(dir, "private", "chatgpt-credentials.json");

@@ -52,7 +52,7 @@ export function SessionModeSwitch({
 	const t = useT();
 	return (
 		<div
-			className="flex items-center gap-0.5 rounded-lg border border-border/60 bg-background p-0.5"
+			className="ta-segmented"
 			data-testid="home-mode-switch"
 		>
 			{(["teach", "practice"] as const).map((m) => (
@@ -62,14 +62,9 @@ export function SessionModeSwitch({
 					data-testid={`home-mode-${m}`}
 					aria-pressed={mode === m}
 					onClick={() => onChange(m)}
-					className={
-						"flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider transition-colors " +
-						(mode === m
-							? "bg-accent text-foreground shadow-2xs"
-							: "text-muted-foreground hover:text-foreground")
-					}
+					className="ta-segmented-btn min-h-7 px-2.5 py-0.5 text-xs"
 				>
-					{m === "practice" ? <DumbbellIcon aria-hidden="true" className="size-3" /> : null}
+					{m === "practice" ? <DumbbellIcon aria-hidden="true" className="size-3.5" /> : null}
 					{m === "teach" ? t("pages.nav.modeTeach") : t("pages.nav.modePractice")}
 				</button>
 			))}

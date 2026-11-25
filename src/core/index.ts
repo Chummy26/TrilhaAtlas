@@ -134,3 +134,6 @@ export * from "./divider-lab.ts";
 
 // Interface languages (English first): locales, message namespaces, translator.
 export * from "./i18n/index.ts";
+
+// Personal Intensive Study Quests (pure, browser-safe catalog, progress, search).
+export * from "./intensive/index.ts";

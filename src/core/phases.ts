@@ -64,6 +64,7 @@ function advance(
 	if (!parts) return phase;
 	for (const part of parts) {
 		if (part.type === "data-graph-context" && directLessonDetails(part.data)) return "teach";
+		if (part.type === "data-intensive-context") return "teach";
 		// STRICTLY SEQUENTIAL: probe → plan only via a concluded probe_done,
 		// plan → teach only via the first nodeId-tagged quiz CALL (the call,
 		// not its answer — an errored-and-retried call still proves teaching
