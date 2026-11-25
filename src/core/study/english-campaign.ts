@@ -93,7 +93,16 @@ export function englishCampaign(snapshot: CurriculumSnapshot, graph: LearnerGrap
 		stageLeaves.set(stage, list);
 		lessonMinutes.set(id, englishSessionMinutes(item)!);
 	}
-	const current = journey.find(c => c.known < c.total);
+	let highestWithProgress = -1;
+	for (let i = journey.length - 1; i >= 0; i--) {
+		if (journey[i]!.known > 0) {
+			highestWithProgress = i;
+			break;
+		}
+	}
+	const current = journey.find((c, i) =>
+		c.known < c.total && !(i < highestWithProgress && c.total > 0 && c.known / c.total >= 0.8),
+	);
 	const unitRank = new Map<string, number>();
 	let activeUnitId: string | undefined;
 	if (current) {

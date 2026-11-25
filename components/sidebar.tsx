@@ -6,13 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { MenuShell } from "@/components/menu-shell";
 import { DeleteSessionDialog } from "@/components/delete-session-dialog";
 import type { ChatDeleteMode, ThemeMode, UserSettings } from "@/src/core";
-import { BookOpenIcon, DumbbellIcon, NetworkIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, PlusIcon, SearchIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { BookOpenIcon, DumbbellIcon, FlameIcon, NetworkIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, PlusIcon, SearchIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { ActivitySection } from "@/components/activity-dock";
 import { CoverageMenuBlock } from "@/components/extraction-coverage";
 import { TrilhaAtlasMark } from "@/components/lh-mark";
 import { BrailleSpinner } from "@/components/braille-spinner";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { SettingsDialogProvider, useSettingsDialog } from "@/components/settings/settings-dialog.tsx";
+import { LanguageWelcomeDialog } from "@/components/language-welcome-dialog";
 import { SettingsSeedProvider } from "@/components/settings-seed";
 import { Hint } from "@/components/ui/hint";
 import { Button } from "@/components/ui/button";
@@ -768,13 +769,19 @@ function SessionsSidebar({ domain }: { domain: string | null }) {
 
 				<div className="mx-3 mb-2 shrink-0">
 					<Link
-						href="/intensiva"
+						href={domain ? { pathname: "/intensiva", query: { dominio: domain } } : "/intensiva"}
 						data-testid="sidebar-intensive"
 						aria-current={pathname.startsWith("/intensiva") ? "page" : undefined}
 						title={t("shell.sidebar.intensive")}
 						className="flex min-w-0 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-base font-semibold text-foreground transition-colors hover:bg-accent aria-[current=page]:bg-accent"
 					>
-						<Icon name="domain-electronics" size={16} className="onigiri-icon-lift shrink-0" />
+						{domain === "electronics" ? (
+							<Icon name="domain-electronics" size={16} className="onigiri-icon-lift shrink-0" />
+						) : domain === "english" ? (
+							<Icon name="domain-english" size={16} className="onigiri-icon-lift shrink-0" />
+						) : (
+							<FlameIcon aria-hidden="true" className="onigiri-icon-lift size-4 shrink-0" />
+						)}
 						<span className="min-w-0 truncate">{t("shell.sidebar.intensive")}</span>
 					</Link>
 				</div>
@@ -1038,6 +1045,7 @@ export function AppShell({
 				    matters for the events it dispatches, never for DOM priority. */}
 				<KeyboardShortcuts />
 				<PluginWidgets />
+				<LanguageWelcomeDialog initialSettings={initialSettings} />
 			</SettingsDialogProvider></InteractionLayersProvider>
 		</HostContentRootContext.Provider>
 		</HostRouteLifetimeProvider>

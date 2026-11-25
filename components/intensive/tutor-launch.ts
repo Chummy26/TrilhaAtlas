@@ -166,6 +166,42 @@ export function formatVideoMoment(sec: number): string {
 	return formatTimestamp(sec);
 }
 
+export interface IntensiveArtSet {
+	hero: string;
+	certs: string;
+	portfolio: string;
+	tiers: Record<1 | 2 | 3 | 4, string>;
+}
+
+const ELECTRONICS_ART_SET: IntensiveArtSet = {
+	hero: "/intensive/electronics/hero-workbench.jpg",
+	certs: "/intensive/electronics/cert-emblem.jpg",
+	portfolio: "/intensive/electronics/bench-portfolio.jpg",
+	tiers: {
+		1: "/intensive/electronics/tier-1-bench.jpg",
+		2: "/intensive/electronics/tier-2-pcb.jpg",
+		3: "/intensive/electronics/tier-3-embedded.jpg",
+		4: "/intensive/electronics/tier-4-library.jpg",
+	},
+};
+
+const GENERIC_ART_SET: IntensiveArtSet = {
+	hero: "/art/hero-syllabus.jpg",
+	certs: "/art/hero-profile.jpg",
+	portfolio: "/art/hero-practice.jpg",
+	tiers: {
+		1: "/art/hero-syllabus.jpg",
+		2: "/art/hero-tree.jpg",
+		3: "/art/hero-practice.jpg",
+		4: "/art/hero-flashcards.jpg",
+	},
+};
+
+/** Selects domain-appropriate cel-shaded illustrations so Electronics art never leaks into other domains. */
+export function intensiveArtSet(domainId?: string | null): IntensiveArtSet {
+	return domainId === "electronics" ? ELECTRONICS_ART_SET : GENERIC_ART_SET;
+}
+
 /** Shared cel-shaded tactile interactive control classes for Intensiva · Eletrônica. */
 export const INTENSIVE_BTN_PRIMARY =
 	"elec-btn-primary inline-flex min-h-11 items-center justify-center gap-2 px-4 py-2 text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--elec-volt)] disabled:pointer-events-none disabled:opacity-45 cursor-pointer";

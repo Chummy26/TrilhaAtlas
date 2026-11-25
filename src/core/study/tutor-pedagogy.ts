@@ -46,6 +46,8 @@ export interface MissionPedagogyObjective {
 	requiresQualityReading?: boolean;
 	/** Optional level label (e.g., "Graduação", "Avançado", "Pesquisa", "C1", "C2"). */
 	levelLabel?: string;
+	/** True on early foundational lessons when the learner declared starting from scratch (gentle first-principles ramp). */
+	beginnerRamp?: boolean;
 }
 
 const DEFENSE_KINDS = new Set(["design_project", "checkpoint"]);
@@ -327,6 +329,9 @@ export function buildMissionPedagogyDirective(
 			return [
 				`Campaign lesson opening for "${objective.title}".`,
 				"Do not spend this turn on a bureaucracy plan or confirmation loop. Start from a concrete situation, teach the essential principle with one complete worked example (naming the cause and observable consequence), and manage cognitive load (one core contrast at a time).",
+				objective.beginnerRamp
+					? "Beginner ramp active: assume zero prior jargon for this topic—introduce the everyday intuition and explain every symbol and unit in plain words before showing any formula, and focus on ONE small foundational step before the first check."
+					: "",
 				"Pre-empt the main confusion and end with ONE short faded step or interactive exploration for the learner to try before the formal exam.",
 				advancedReadingMandate.trim(),
 				misconceptions,

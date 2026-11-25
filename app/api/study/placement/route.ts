@@ -1,12 +1,14 @@
 /**
  * GET    /api/study/placement
- * POST   /api/study/placement { action: "start" | "answer" | "back" | "finish", nodeId?, correct?, seed? }
+ * POST   /api/study/placement { action: "start" | "beginner" | "answer" | "back" | "finish", nodeId?, correct?, seed?, hint? }
  * DELETE /api/study/placement
  */
 
+import { isPlacementHint } from "@/src/core";
 import {
 	answerDomainPlacement,
 	cancelDomainPlacement,
+	declareDomainBeginner,
 	finishDomainPlacement,
 	getDomainPlacement,
 	startDomainPlacement,
@@ -34,7 +36,11 @@ export async function POST(request: Request) {
 	try {
 		if (action === "start") {
 			const seed = typeof body.seed === "string" && body.seed.trim() ? body.seed.trim() : undefined;
-			return Response.json(startDomainPlacement(seed));
+			const hint = isPlacementHint(body.hint) ? body.hint : undefined;
+			return Response.json(startDomainPlacement(seed, hint));
+		}
+		if (action === "beginner") {
+			return Response.json(declareDomainBeginner());
 		}
 		if (action === "answer") {
 			const nodeId = typeof body.nodeId === "string" ? body.nodeId.trim() : "";
@@ -49,7 +55,7 @@ export async function POST(request: Request) {
 		if (action === "finish") {
 			return Response.json(finishDomainPlacement());
 		}
-		return Response.json({ error: "Ação inválida. Use 'start', 'answer', 'back' ou 'finish'." }, { status: 400 });
+		return Response.json({ error: "Ação inválida. Use 'start', 'beginner', 'answer', 'back' ou 'finish'." }, { status: 400 });
 	} catch (error) {
 		if (error instanceof StudyError) return Response.json({ error: error.message }, { status: error.status });
 		throw error;

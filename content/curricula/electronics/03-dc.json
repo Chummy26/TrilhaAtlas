@@ -24,7 +24,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 0
 			},
 			"clauses": [],
 			"hours": {
@@ -67,11 +67,11 @@
 				"pt": "Tensão, corrente, potência e convenção passiva",
 				"en": "Voltage, current, power and passive sign convention"
 			},
-			"summary": "Variáveis de circuito, sentidos de referência e a convenção passiva para decidir se um elemento absorve ou fornece potência.",
+			"summary": "O que são tensão (V), corrente (A) e potência (W) num circuito simples, como ler sentidos de referência e a convenção passiva para saber quem fornece ou absorve energia.",
 			"scope": "Dentro: tensão, corrente, potência, convenção passiva, modelo de parâmetros concentrados. Fora: campos distribuídos.",
 			"objectives": [
-				"Aplicar a convenção passiva para decidir se um elemento absorve ou fornece potência",
-				"Explicar a abstração de parâmetros concentrados"
+				"Relacionar tensão, corrente e potência (P = V·I) em um circuito simples usando unidades e prefixos práticos (V, mA, mW)",
+				"Aplicar a convenção passiva para decidir se um componente absorve ou fornece potência"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -83,11 +83,12 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 0
 			},
 			"clauses": [
 				[
-					"ee.physics.current.energy-power-physics"
+					"ee.physics.current.current-drift.current-definition",
+					"ee.math.algebra.sci-notation.si-prefixes"
 				]
 			],
 			"hours": {
@@ -147,12 +148,11 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 0
 			},
 			"clauses": [
 				[
-					"ee.dc.basics.quantities",
-					"ee.physics.current.resistivity"
+					"ee.dc.basics.quantities"
 				]
 			],
 			"hours": {
@@ -184,6 +184,9 @@
 			"status": "stub",
 			"tags": [
 				"core"
+			],
+			"softPrereqs": [
+				"ee.physics.current.resistivity.resistance-resistivity"
 			]
 		},
 		{
@@ -208,7 +211,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 0
 			},
 			"clauses": [
 				[
@@ -272,7 +275,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 0
 			},
 			"clauses": [
 				[
@@ -335,7 +338,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 0
 			},
 			"clauses": [
 				[
@@ -395,7 +398,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 1
+				"band": 0
 			},
 			"clauses": [
 				[

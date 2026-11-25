@@ -1,6 +1,6 @@
 import { IntensiveWorkspace } from "@/components/intensive/intensive-workspace.tsx";
 import type { IntensiveTab } from "@/components/intensive/tutor-launch.ts";
-import { getIntensiveDashboard } from "@/src/server";
+import { activeDomainId, currentLocale, getIntensiveDashboard, listStudyDomains } from "@/src/server";
 
 // Dynamic: every visit reads the latest local progress, certifications, and media discovery.
 export const dynamic = "force-dynamic";
@@ -56,6 +56,20 @@ export default async function IntensivePage({
 	}>;
 }) {
 	const query = await searchParams;
+	const currentDomain = activeDomainId();
+	const locale = currentLocale();
+	const domainList = listStudyDomains();
+	const activeDomainMeta = currentDomain
+		? domainList.domains.find((d) => d.id === currentDomain) ?? null
+		: null;
+	const rawTitle = activeDomainMeta?.title;
+	const activeDomainTitle = !rawTitle
+		? null
+		: typeof rawTitle === "string"
+			? rawTitle
+			: locale === "en"
+				? (rawTitle.en ?? rawTitle.pt ?? null)
+				: (rawTitle.pt ?? rawTitle.en ?? null);
 	const initialDashboard = await getIntensiveDashboard();
 
 	const initialCourseId = query.course?.trim() || undefined;
@@ -73,6 +87,8 @@ export default async function IntensivePage({
 	return (
 		<IntensiveWorkspace
 			initialDashboard={initialDashboard}
+			activeDomainId={currentDomain}
+			activeDomainTitle={activeDomainTitle}
 			initialTab={initialTab}
 			initialCourseId={initialCourseId}
 			initialLessonId={initialLessonId}

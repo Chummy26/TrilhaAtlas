@@ -36,7 +36,7 @@ const TMP_DATA = fs.mkdtempSync(path.join(os.tmpdir(), "lh-intensive-data-"));
 const TMP_MEDIA = fs.mkdtempSync(path.join(os.tmpdir(), "lh-intensive-media-"));
 process.env.LH_DATA_DIR = TMP_DATA;
 
-const { PATHS } = await import("../config.ts");
+const { PATHS, setActiveDomainId } = await import("../config.ts");
 const {
 	TEMPLATE_INTENSIVE_TRACK,
 	getCertificationCheckpointKey,
@@ -1540,7 +1540,7 @@ describe("INTENSIVA custom local track.json override", () => {
 		const customTrack = {
 			...TEMPLATE_INTENSIVE_TRACK,
 			id: "personal-custom-track",
-			domainId: "electronics",
+			domainId: "general",
 			title: "Minha Trilha Pessoal",
 		};
 		fs.writeFileSync(trackPath, JSON.stringify(customTrack, null, "\t"), "utf8");
@@ -1550,7 +1550,7 @@ describe("INTENSIVA custom local track.json override", () => {
 			const dash = (await res.json()) as IntensiveDashboardDTO;
 			assert.equal(dash.track.id, "personal-custom-track");
 			assert.equal(dash.track.title, "Minha Trilha Pessoal");
-			assert.equal(hasIntensiveKnowledgeForDomain("electronics"), true);
+			assert.equal(hasIntensiveKnowledgeForDomain("general"), true);
 		} finally {
 			fs.rmSync(trackPath, { force: true });
 		}
@@ -1559,5 +1559,45 @@ describe("INTENSIVA custom local track.json override", () => {
 		const restoredRes = await intensiveRoute.GET(new Request("http://test/api/intensive"));
 		const restored = (await restoredRes.json()) as IntensiveDashboardDTO;
 		assert.equal(restored.track.id, TEMPLATE_INTENSIVE_TRACK.id);
+	});
+
+	it("isolates Intensive tracks per active domain (electronics vs english)", async () => {
+		const elecTrackPath = path.join(TMP_DATA, "domains", "electronics", "intensive", "track.json");
+		fs.mkdirSync(path.dirname(elecTrackPath), { recursive: true });
+		fs.writeFileSync(
+			elecTrackPath,
+			JSON.stringify(
+				{
+					...TEMPLATE_INTENSIVE_TRACK,
+					id: "electronics-personal-isolated",
+					domainId: "electronics",
+					title: "Intensiva · Eletrônica Pessoal",
+				},
+				null,
+				"\t",
+			),
+			"utf8",
+		);
+
+		try {
+			// Active domain = electronics -> loads electronics personal track
+			setActiveDomainId("electronics");
+			const elecRes = await intensiveRoute.GET(new Request("http://test/api/intensive"));
+			assert.equal(elecRes.status, 200);
+			const elecDash = (await elecRes.json()) as IntensiveDashboardDTO;
+			assert.equal(elecDash.track.id, "electronics-personal-isolated");
+			assert.equal(elecDash.track.domainId, "electronics");
+
+			// Switching active domain to english -> NEVER leaks electronics track
+			setActiveDomainId("english");
+			const engRes = await intensiveRoute.GET(new Request("http://test/api/intensive"));
+			assert.equal(engRes.status, 200);
+			const engDash = (await engRes.json()) as IntensiveDashboardDTO;
+			assert.equal(engDash.track.id, TEMPLATE_INTENSIVE_TRACK.id);
+			assert.equal(engDash.track.domainId, "english");
+		} finally {
+			setActiveDomainId(null);
+			fs.rmSync(path.join(TMP_DATA, "domains"), { recursive: true, force: true });
+		}
 	});
 });

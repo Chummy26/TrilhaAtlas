@@ -360,6 +360,8 @@ export interface DiagnosticOptions {
 	skeleton?: readonly NodeId[];
 	/** Difficulty b per node (default: standardized depth). */
 	difficulty?: (id: NodeId) => number;
+	/** Optional mean shift for the initial latent-ability prior θ ~ N(priorMean, 1). Defaults to 0. */
+	priorMean?: number;
 }
 
 export class DiagnosticError extends Error {
@@ -417,10 +419,11 @@ export function startDiagnostic(graph: LearnerGraphView, opts: DiagnosticOptions
 	const bits = new Uint32Array(count * words);
 	const rng = new Rng(opts.seed);
 	const difficulty = opts.difficulty ?? depthDifficulty(graph);
+	const priorMean = typeof opts.priorMean === "number" && Number.isFinite(opts.priorMean) ? opts.priorMean : 0;
 	const b = ids.map((id) => difficulty(id));
 	const member = new Uint8Array(ids.length);
 	for (let m = 0; m < count; m++) {
-		const theta = rng.normal();
+		const theta = priorMean + rng.normal();
 		for (let i = 0; i < ids.length; i++) member[i] = theta + P.thresholdNoise * rng.normal() > (b[i] as number) ? 1 : 0;
 		canonicalInterior(graph, member, pos);
 		const base = m * words;

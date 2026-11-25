@@ -23,6 +23,7 @@ import {
 	INTENSIVE_BTN_COMPACT_PRIMARY,
 	INTENSIVE_INPUT,
 	INTENSIVE_SELECT_AUTO,
+	intensiveArtSet,
 	type IntensiveMutation,
 } from "./tutor-launch.ts";
 
@@ -167,7 +168,7 @@ export function CertificationsPanel({
 				<div className="elec-banner-body-compact">
 					<div className="elec-hero-art-layer" aria-hidden="true">
 						<img
-							src="/intensive/electronics/cert-emblem.jpg"
+							src={intensiveArtSet(dashboard.track.domainId).certs}
 							alt=""
 							className="elec-hero-art-img"
 						/>

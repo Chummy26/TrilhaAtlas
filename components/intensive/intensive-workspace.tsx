@@ -7,23 +7,26 @@ import {
 	ClockIcon,
 	ExternalLinkIcon,
 	FilmIcon,
+	FlameIcon,
 	FolderOpenIcon,
 	LayoutListIcon,
 	SearchIcon,
 	WrenchIcon,
 	XIcon,
 } from "lucide-react";
-import type {
-	CourseTier,
-	IntensiveCertificationView,
-	IntensiveCourseView,
-	IntensiveDashboardDTO,
-	IntensivePortfolioProjectView,
-	IntensiveRecommendedAction,
+import {
+	TEMPLATE_INTENSIVE_TRACK_ID,
+	type CourseTier,
+	type IntensiveCertificationView,
+	type IntensiveCourseView,
+	type IntensiveDashboardDTO,
+	type IntensivePortfolioProjectView,
+	type IntensiveRecommendedAction,
 } from "@/src/core";
 import { TopBar } from "@/components/top-bar";
 import { Icon } from "@/components/icons/icon";
 import { useT } from "@/components/i18n";
+import { useServerEvent } from "@/components/server-events";
 import { SessionStarter } from "../start-session.ts";
 import { DashboardHeader } from "./dashboard-header.tsx";
 import { TierQuestBoard } from "./tier-quest-board.tsx";
@@ -45,6 +48,8 @@ import {
 
 export interface IntensiveWorkspaceProps {
 	initialDashboard: IntensiveDashboardDTO;
+	activeDomainId?: string | null;
+	activeDomainTitle?: string | null;
 	initialTab?: IntensiveTab;
 	initialCourseId?: string;
 	initialLessonId?: string;
@@ -55,6 +60,8 @@ export interface IntensiveWorkspaceProps {
 
 export function IntensiveWorkspace({
 	initialDashboard,
+	activeDomainId = null,
+	activeDomainTitle = null,
 	initialTab = "quests",
 	initialCourseId,
 	initialLessonId,
@@ -75,6 +82,23 @@ export function IntensiveWorkspace({
 					initialDashboard.track.courses[0]?.id ||
 					"",
 	);
+
+	// Sync when the user switches domains and Next.js refreshes server props.
+	useEffect(() => {
+		setDashboard(initialDashboard);
+		setSelectedCourseId((prev) =>
+			prev && initialDashboard.coursesById[prev]
+				? prev
+				: initialDashboard.track.parallelCourseId ||
+					initialDashboard.track.courses[0]?.id ||
+					"",
+		);
+	}, [initialDashboard]);
+
+	// Automatically refresh when the active study domain changes from another tab/switcher.
+	useServerEvent("domain-changed", () => {
+		router.refresh();
+	});
 	const [selectedLessonId, setSelectedLessonId] = useState<string | undefined>(initialLessonId);
 	const [selectedTimeSec, setSelectedTimeSec] = useState<number | undefined>(initialTimeSec);
 	const [selectedPanelTab, setSelectedPanelTab] = useState<CoursePanelTab | undefined>(undefined);
@@ -105,6 +129,7 @@ export function IntensiveWorkspace({
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 		const params = new URLSearchParams();
+		if (activeDomainId) params.set("dominio", activeDomainId);
 		if (activeTab !== "quests") params.set("tab", activeTab);
 		if (activeTab === "watch" && selectedCourseId) {
 			params.set("course", selectedCourseId);
@@ -417,16 +442,28 @@ export function IntensiveWorkspace({
 		},
 	];
 
+	const resolvedDomain = activeDomainId ?? dashboard.track.domainId ?? "general";
+	const displayTitle =
+		dashboard.track.id === TEMPLATE_INTENSIVE_TRACK_ID && activeDomainTitle
+			? `${t("intensive.badge.intensive")} · ${activeDomainTitle}`
+			: dashboard.track.title;
+
 	return (
 		<div
-			data-domain="electronics"
+			data-domain={resolvedDomain}
 			className="elec-workspace flex h-dvh flex-col overflow-hidden bg-background text-foreground"
 		>
 			<TopBar>
 				<div className="flex min-w-0 items-center gap-2">
-					<Icon name="domain-electronics" size={22} className="shrink-0" />
+					{resolvedDomain === "electronics" ? (
+						<Icon name="domain-electronics" size={22} className="shrink-0" />
+					) : resolvedDomain === "english" ? (
+						<Icon name="domain-english" size={22} className="shrink-0" />
+					) : (
+						<FlameIcon className="size-5 shrink-0 text-[var(--elec-volt-text)]" aria-hidden="true" />
+					)}
 					<h1 className="font-title truncate text-base tracking-tight sm:text-2xl md:text-3xl">
-						{dashboard.track.title}
+						{displayTitle}
 					</h1>
 				</div>
 
@@ -652,6 +689,7 @@ export function IntensiveWorkspace({
 					{activeTab !== "watch" && (
 						<DashboardHeader
 							dashboard={dashboard}
+							activeDomainId={activeDomainId}
 							onRunAction={handleRunRecommended}
 							onSelectTier={handleSelectTierFromHeader}
 							onNavigateTab={setActiveTab}

@@ -5,7 +5,8 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { promisify } from "node:util";
-import release from "../content/curriculum-revisions/electronics-v2.json";
+import releaseV2 from "../content/curriculum-revisions/electronics-v2.json";
+import releaseV3 from "../content/curriculum-revisions/electronics-v3.json";
 import { applySeedFiles, replayLedger } from "../src/core/curriculum/ledger.ts";
 import { applyPatch } from "../src/core/curriculum/patch.ts";
 import { electronicsManifest } from "../src/core/domains/defaults.ts";
@@ -62,26 +63,41 @@ test("concurrent loads migrate once and recover a stale snapshot without losing 
 	const manifest = electronicsManifest(T0);
 	const fresh = loadCurriculum("electronics", manifest);
 	assert.ok(fresh);
-	for (const [id, fields] of Object.entries(release)) {
+	for (const [id, fields] of Object.entries(releaseV3)) {
 		const current = fresh.snapshot.items[id] as unknown as Record<string, unknown>;
 		for (const [field, { after }] of Object.entries(fields)) {
-			assert.deepEqual(current[field], after, `O artefato de migração diverge dos seeds em ${id}.${field}`);
+			assert.deepEqual(current[field], after, `O artefato de migração v3 diverge dos seeds em ${id}.${field}`);
+		}
+	}
+	for (const [id, fields] of Object.entries(releaseV2)) {
+		const current = fresh.snapshot.items[id] as unknown as Record<string, unknown>;
+		const v3Overrides = (releaseV3 as Record<string, Record<string, unknown>>)[id];
+		for (const [field, { after }] of Object.entries(fields)) {
+			if (v3Overrides && field in v3Overrides) continue;
+			assert.deepEqual(current[field], after, `O artefato de migração v2 diverge dos seeds em ${id}.${field}`);
 		}
 	}
 	const dir = path.join(data, "domains", "electronics", "curriculum");
 	const ledgerFile = path.join(dir, "ledger.jsonl");
 	const snapshotFile = path.join(dir, "snapshot.json");
 	const freshSeed = JSON.parse(fs.readFileSync(ledgerFile, "utf8"));
-	assert.equal(freshSeed.provenance.promptVersion, "seed-electronics-v2");
+	assert.equal(freshSeed.provenance.promptVersion, "seed-electronics-v3");
 
 	const nodeId = "ee.ac.threephase.mains-br";
 	const upgradedId = "ee.ac.frequency.bode";
+	const v3UpgradedId = "ee.math.algebra.sci-notation.powers-of-ten";
 	const legacySeed = structuredClone({
 		...freshSeed,
 		provenance: { ...freshSeed.provenance, promptVersion: "seed-v1" },
 	});
 	legacySeed.itemPayloads[nodeId].scope = "Dentro: tensões de distribuição, tomadas, esquemas de aterramento, DR, DPS. Fora: projeto de instalações.";
 	legacySeed.itemPayloads[upgradedId].scope = "Dentro: Bode assintótico de módulo e fase, polos e zeros reais e complexos. Fora: estabilidade de malha.";
+	legacySeed.itemPayloads[v3UpgradedId].summary = "Escrever números muito grandes e muito pequenos como mantissa × 10ⁿ e operar com expoentes.";
+	legacySeed.itemPayloads[v3UpgradedId].scope = "Escrever números muito grandes e muito pequenos como mantissa × 10ⁿ e operar com expoentes.";
+	legacySeed.itemPayloads[v3UpgradedId].objectives = [
+		"Converter números entre a forma decimal e a notação científica",
+		"Multiplicar e dividir grandezas em notação científica aplicando as regras de expoentes",
+	];
 	const original = replayLedger([legacySeed], { edgeMode: "strict" });
 	assert.ok(original.ok);
 	const addedId = "ee.custom-test";
@@ -117,14 +133,16 @@ test("concurrent loads migrate once and recover a stale snapshot without losing 
 		})));
 	const migrated = loadCurriculum("electronics", manifest);
 	assert.ok(migrated);
-	assert.equal(migrated.snapshot.version, 3);
+	assert.equal(migrated.snapshot.version, 4);
 	const results = readers.map((reader) => JSON.parse(reader.stdout) as { pid: number; version: number; hash: string });
 	for (const { version, hash } of results) {
-		assert.equal(version, 3);
+		assert.equal(version, 4);
 		assert.equal(hash, migrated.snapshot.certificate.hash);
 	}
 	assert.equal(migrated.snapshot.items[upgradedId]?.scope, fresh.snapshot.items[upgradedId]?.scope);
 	assert.notEqual(original.snapshot.items[upgradedId]?.scope, migrated.snapshot.items[upgradedId]?.scope);
+	assert.equal(migrated.snapshot.items[v3UpgradedId]?.summary, fresh.snapshot.items[v3UpgradedId]?.summary);
+	assert.notEqual(original.snapshot.items[v3UpgradedId]?.summary, migrated.snapshot.items[v3UpgradedId]?.summary);
 	assert.equal(migrated.snapshot.items[nodeId]?.scope, "Nota local");
 	assert.equal(migrated.snapshot.items[nodeId]?.version, local.next.items[nodeId]?.version);
 	assert.deepEqual(migrated.snapshot.items[addedId], local.next.items[addedId]);
@@ -135,6 +153,7 @@ test("concurrent loads migrate once and recover a stale snapshot without losing 
 	const tokens = completedLedger.trimEnd().split("\n").map((line) => JSON.parse(line));
 	assert.deepEqual(tokens.slice(0, 2), [legacySeed, patch]);
 	assert.equal(tokens[2]?.revision, "electronics-v2");
+	assert.equal(tokens[3]?.revision, "electronics-v3");
 	const replay = replayLedger(tokens, { edgeMode: "strict" });
 	assert.ok(replay.ok);
 	assert.deepEqual(replay.snapshot, migrated.snapshot);

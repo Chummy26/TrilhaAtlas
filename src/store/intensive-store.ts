@@ -9,7 +9,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { PATHS } from "../../config.ts";
+import { activeDomainId, domainDataRoot, PATHS } from "../../config.ts";
 import {
 	DEFAULT_INTENSIVE_TRACK_ID,
 	getIntensiveTrack,
@@ -131,16 +131,20 @@ export function assertSafeIntensiveId(id: string, label = "id"): string {
 	return id;
 }
 
-export function intensiveRootDir(): string {
-	return path.join(/* turbopackIgnore: true */ PATHS.data, "intensive");
+export function intensiveRootDir(domainId?: string | null): string {
+	if (domainId) {
+		assertSafeIntensiveId(domainId, "domainId");
+		return path.join(/* turbopackIgnore: true */ PATHS.data, "domains", domainId, "intensive");
+	}
+	return path.join(/* turbopackIgnore: true */ domainDataRoot(), "intensive");
 }
 
-export function intensiveStatePath(): string {
-	return path.join(/* turbopackIgnore: true */ intensiveRootDir(), "state.json");
+export function intensiveStatePath(domainId?: string | null): string {
+	return path.join(/* turbopackIgnore: true */ intensiveRootDir(domainId), "state.json");
 }
 
-export function intensiveCustomTrackPath(): string {
-	return path.join(/* turbopackIgnore: true */ intensiveRootDir(), "track.json");
+export function intensiveCustomTrackPath(domainId?: string | null): string {
+	return path.join(/* turbopackIgnore: true */ intensiveRootDir(domainId), "track.json");
 }
 
 interface CustomTrackCacheEntry {
@@ -171,11 +175,12 @@ function isValidCustomTrack(raw: unknown): raw is IntensiveTrackSpec {
 }
 
 /**
- * Loads an optional personal intensive track from `<PATHS.data>/intensive/track.json`.
- * Keeps personal roadmaps completely outside Git while seamlessly overriding the public template.
+ * Loads an optional personal intensive track from `<domainDataRoot>/intensive/track.json`
+ * (e.g. `<LH_DATA_DIR>/domains/electronics/intensive/track.json`, or `<LH_DATA_DIR>/intensive/track.json` in General mode).
+ * Keeps personal roadmaps completely outside Git and strictly isolated per study domain.
  */
-export function readCustomIntensiveTrack(): IntensiveTrackSpec | null {
-	const filePath = intensiveCustomTrackPath();
+export function readCustomIntensiveTrack(domainId?: string | null): IntensiveTrackSpec | null {
+	const filePath = intensiveCustomTrackPath(domainId);
 	let stat: fs.Stats;
 	try {
 		stat = fs.statSync(filePath);
@@ -203,21 +208,37 @@ export function readCustomIntensiveTrack(): IntensiveTrackSpec | null {
 	}
 }
 
-export function listEffectiveIntensiveTracks(): IntensiveTrackSpec[] {
-	const custom = readCustomIntensiveTrack();
-	const builtIn = listIntensiveTracks();
+function scopedTemplateTrack(domainId?: string | null): IntensiveTrackSpec | null {
+	const base = getIntensiveTrack(DEFAULT_INTENSIVE_TRACK_ID);
+	if (!base) return null;
+	const resolvedDomain = domainId ?? activeDomainId() ?? base.domainId;
+	if (resolvedDomain === base.domainId) return base;
+	return { ...base, domainId: resolvedDomain };
+}
+
+export function listEffectiveIntensiveTracks(domainId?: string | null): IntensiveTrackSpec[] {
+	const custom = readCustomIntensiveTrack(domainId);
+	const builtIn = listIntensiveTracks().map((t) =>
+		t.id === DEFAULT_INTENSIVE_TRACK_ID ? (scopedTemplateTrack(domainId) ?? t) : t,
+	);
 	if (!custom) return builtIn;
 	return [custom, ...builtIn.filter((t) => t.id !== custom.id)];
 }
 
-export function resolveEffectiveIntensiveTrack(trackId?: string): IntensiveTrackSpec | null {
-	const custom = readCustomIntensiveTrack();
+export function resolveEffectiveIntensiveTrack(
+	trackId?: string,
+	domainId?: string | null,
+): IntensiveTrackSpec | null {
+	const custom = readCustomIntensiveTrack(domainId);
 	const requested = trackId?.trim();
 	if (!requested) {
-		return custom ?? getIntensiveTrack(DEFAULT_INTENSIVE_TRACK_ID);
+		return custom ?? scopedTemplateTrack(domainId);
 	}
 	if (custom && custom.id === requested) return custom;
-	return getIntensiveTrack(requested) ?? custom ?? getIntensiveTrack(DEFAULT_INTENSIVE_TRACK_ID);
+	if (requested === DEFAULT_INTENSIVE_TRACK_ID) {
+		return scopedTemplateTrack(domainId);
+	}
+	return getIntensiveTrack(requested) ?? custom ?? scopedTemplateTrack(domainId);
 }
 
 export function intensiveSourcesPath(): string {

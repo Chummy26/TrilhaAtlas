@@ -114,10 +114,10 @@
 				"pt": "Carga elétrica, quantização e conservação",
 				"en": "Electric charge, quantization and conservation"
 			},
-			"summary": "Cargas positivas e negativas, o elétron e a carga elementar, a conservação da carga e o coulomb.",
+			"summary": "O que é carga elétrica (positiva e negativa), o papel de elétrons e prótons, conservação da carga em fenômenos do dia a dia e noção de coulomb.",
 			"objectives": [
-				"Calcular a carga de um corpo a partir do número de elétrons em excesso ou em falta",
-				"Aplicar a conservação da carga no contato entre corpos"
+				"Explicar a diferença entre carga positiva, negativa e corpo neutro a partir do excesso ou falta de elétrons",
+				"Aplicar a conservação da carga em transferências simples entre corpos e interpretar o sinal da carga"
 			],
 			"bloom": "understand",
 			"assess": [
@@ -132,12 +132,6 @@
 				"scheme": "ee",
 				"band": 0
 			},
-			"encompasses": [
-				{
-					"id": "ee.math.algebra.sci-notation.powers-of-ten",
-					"w": 0.3
-				}
-			],
 			"hours": {
 				"lo": 0.5,
 				"hi": 0.7
@@ -146,11 +140,7 @@
 			"tags": [
 				"core"
 			],
-			"clauses": [
-				[
-					"ee.math.algebra.sci-notation.si-prefixes"
-				]
-			]
+			"clauses": []
 		},
 		{
 			"id": "ee.physics.electrostatics.charge-coulomb.conductors-insulators-induction",
@@ -219,11 +209,12 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
-					"ee.physics.electrostatics.charge-coulomb.electric-charge"
+					"ee.physics.electrostatics.charge-coulomb.electric-charge",
+					"ee.math.algebra.sci-notation.si-prefixes"
 				]
 			],
 			"encompasses": [
@@ -266,7 +257,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -318,7 +309,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1860,7 +1851,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1942,7 +1933,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[

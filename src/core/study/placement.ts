@@ -27,10 +27,18 @@ import type { LearnerEvent, LearnerSnapshot, NodeState } from "../learner/types.
 import { activeModuleOf, chapterUnitsOf, studyCampaign } from "./campaign.ts";
 import { nodeBrief } from "./projection.ts";
 
+export type PlacementHint = "beginner" | "intermediate" | "advanced";
+
+export function isPlacementHint(value: unknown): value is PlacementHint {
+	return value === "beginner" || value === "intermediate" || value === "advanced";
+}
+
 export interface SerializedDiagnostic {
 	version: 1;
 	/** Seed used to initialize the particle filter, enabling exact deterministic undo. */
 	seed?: string;
+	/** Optional starting-level hint used to calibrate the initial ability prior. */
+	hint?: PlacementHint;
 	ids: string[];
 	words: number;
 	count: number;
@@ -219,16 +227,44 @@ export function placementConfidencePct(graph: LearnerGraphView, state: Diagnosti
 	return Math.max(0, Math.min(100, Math.round(rawRatio * ramp * 100)));
 }
 
-function balancedSkeleton(graph: LearnerGraphView, max = PLACEMENT_SKELETON_MAX): string[] {
+const PLACEMENT_HINT_PRIOR: Record<PlacementHint, number> = {
+	beginner: -0.85,
+	intermediate: 0,
+	advanced: 0.95,
+};
+
+function balancedSkeleton(graph: LearnerGraphView, max = PLACEMENT_SKELETON_MAX, snapshot?: CurriculumSnapshot): string[] {
 	const canonicalLeaves = graph.ids.filter((id) => {
 		const node = graph.nodes.get(id);
 		return Boolean(node?.isLeaf && !node.reinforcementFor);
 	});
 	if (canonicalLeaves.length === 0) return defaultSkeleton(graph, max);
 	if (canonicalLeaves.length <= max) return canonicalLeaves;
+	// Ensure foundation/entry nodes have strong coverage alongside balanced sampling across the full tree.
+	const picked = new Set<string>();
 	const out: string[] = [];
-	for (let i = 0; i < max; i++) {
-		out.push(canonicalLeaves[Math.floor((i * canonicalLeaves.length) / max)]!);
+	if (snapshot) {
+		const early = canonicalLeaves.filter((id) => {
+			const lv = snapshot.items[id]?.level;
+			if (!lv) return false;
+			if (lv.scheme === "cefr") return lv.cefr === "pre-A1" || lv.cefr === "A1";
+			return lv.band === 0;
+		});
+		const earlyQuota = Math.min(early.length, Math.max(8, Math.floor(max * 0.2)));
+		for (let i = 0; i < earlyQuota; i++) {
+			const id = early[Math.floor((i * early.length) / earlyQuota)]!;
+			if (!picked.has(id)) {
+				picked.add(id);
+				out.push(id);
+			}
+		}
+	}
+	for (let i = 0; i < max && out.length < max; i++) {
+		const id = canonicalLeaves[Math.floor((i * canonicalLeaves.length) / max)]!;
+		if (!picked.has(id)) {
+			picked.add(id);
+			out.push(id);
+		}
 	}
 	return out;
 }
@@ -246,10 +282,15 @@ function buildPlacementPrompt(snapshot: CurriculumSnapshot, nodeId: string, titl
 }
 
 /** Lossless JSON-safe serialization of a KST particle-filter DiagnosticState. */
-export function serializeDiagnostic(state: DiagnosticState, seed?: string): SerializedDiagnostic {
+export function serializeDiagnostic(
+	state: DiagnosticState,
+	seed?: string,
+	hint?: PlacementHint,
+): SerializedDiagnostic {
 	return {
 		version: 1,
 		...(seed ? { seed } : {}),
+		...(hint ? { hint } : {}),
 		ids: [...state.ids],
 		words: state.words,
 		count: state.count,
@@ -297,10 +338,17 @@ export function startPlacement(
 	graph: LearnerGraphView,
 	seed: string,
 	snapshot?: CurriculumSnapshot,
+	hint?: PlacementHint,
 ): DiagnosticState {
-	const skeleton = balancedSkeleton(graph, PLACEMENT_SKELETON_MAX);
+	const skeleton = balancedSkeleton(graph, PLACEMENT_SKELETON_MAX, snapshot);
 	const difficulty = buildPlacementDifficulty(graph, snapshot);
-	return startDiagnostic(graph, { seed, skeleton, ...(difficulty ? { difficulty } : {}) });
+	const priorMean = hint ? PLACEMENT_HINT_PRIOR[hint] : undefined;
+	return startDiagnostic(graph, {
+		seed,
+		skeleton,
+		...(difficulty ? { difficulty } : {}),
+		...(priorMean !== undefined ? { priorMean } : {}),
+	});
 }
 
 /** Current half-split placement question, or null when converged or capped at 15 answers. */
@@ -365,11 +413,12 @@ export function undoPlacementAnswer(
 	snapshot: CurriculumSnapshot,
 	state: DiagnosticState,
 	seed: string,
+	hint?: PlacementHint,
 ): { state: DiagnosticState; undoneAnswer: DiagnosticAnswer } | null {
 	if (state.answers.length === 0) return null;
 	const undoneAnswer = state.answers[state.answers.length - 1]!;
 	const priorAnswers = state.answers.slice(0, -1);
-	let rebuilt = startPlacement(graph, seed, snapshot);
+	let rebuilt = startPlacement(graph, seed, snapshot, hint);
 	for (const answer of priorAnswers) {
 		rebuilt = recordDiagnosticAnswer(rebuilt, graph, answer);
 	}

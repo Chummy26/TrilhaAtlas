@@ -8,13 +8,13 @@ A seção **Intensiva** (`/intensiva`) do TrilhaAtlas oferece um painel completo
 
 1. **Template público inicial (`src/core/intensive/catalog-template.ts`)**:
    - Quando não existe um catálogo pessoal em disco, o app exibe um modelo genérico demonstrando todos os recursos (Tiers 1–4, curso paralelo diário, certificações + anti-goals, projetos de portfólio sob a Regra dos 10 Segundos, kit prático, checklist eliminatório e ritmo *comprehension-first*).
-2. **Sua trilha pessoal fora do Git (`<LH_DATA_DIR>/intensive/track.json`)**:
-   - Assim que você salva um arquivo JSON válido em `track.json` dentro da sua pasta de dados, o servidor carrega automaticamente a **sua trilha pessoal** como trilha padrão (com recarregamento automático sempre que o arquivo é atualizado):
-     - **App Desktop (Windows):** `%APPDATA%\TrilhaAtlas\data\intensive\track.json`
-     - **Desenvolvimento local (`npm run dev`):** `data/intensive/track.json` (já ignorado pelo `.gitignore`)
-     - **Diretório customizado (`LH_DATA_DIR`):** `<LH_DATA_DIR>/intensive/track.json`
+2. **Sua trilha pessoal isolada por domínio e fora do Git (`domains/<dominio>/intensive/track.json`)**:
+   - Cada domínio de estudo tem sua própria trilha intensiva, progresso, vídeos e materiais isolados — trocar de **Eletrônica** para **Inglês** (ou qualquer domínio criado por você) troca automaticamente o contexto da Intensiva:
+     - **Por domínio no App Desktop (Windows):** `%APPDATA%\TrilhaAtlas\data\domains\<dominio>\intensive\track.json` (ex.: `domains\electronics\intensive\track.json`, `domains\english\intensive\track.json`)
+     - **Por domínio em dev local (`npm run dev`):** `data/domains/<dominio>/intensive/track.json` (já ignorado pelo `.gitignore`)
+     - **Modo Geral (sem domínio ativo):** `<LH_DATA_DIR>/intensive/track.json`
 3. **Progresso, vídeos e materiais isolados**:
-   - Seu progresso (`state.json`), vínculos de pastas locais (`sources.json`), transcrições (`media/<courseId>/transcripts/`) e materiais PDF/DOCX indexados (`materials/<courseId>/`) ficam todos dentro de `<LH_DATA_DIR>/intensive/` — completamente fora do Git.
+   - Seu progresso (`state.json`), vínculos de pastas locais (`sources.json`), transcrições (`media/<courseId>/transcripts/`) e materiais PDF/DOCX indexados (`materials/<courseId>/`) ficam todos dentro da pasta `intensive/` do respectivo domínio — completamente fora do Git.
 
 ---
 

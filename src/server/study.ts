@@ -92,6 +92,7 @@ import { questionCallsOf, type LhMessage } from "../core/native-messages.ts";
 import type { TurnUsage } from "../core/contracts/chat.ts";
 import { createDomainsStore, type DomainsStore } from "../store/domains-store.ts";
 import { electronicsCurriculumStamp, loadDomainCurriculum } from "./curriculum-migration.ts";
+import { readDomainOnboardingStatus } from "./placement-status.ts";
 import { anyTurnRunning } from "./turn-liveness.ts";
 
 export class StudyError extends Error {
@@ -740,10 +741,16 @@ export function lessonConclusionObjective(domainId: string, sessionId: string) {
 	const item = cur.snapshot.items[state.exposure.nodeId];
 	if (!item) return undefined;
 	const priorReinforcement = [...events].reverse().find(e => e.kind === "lesson-finished" && e.nodeId === state.exposure.nodeId && e.outcome === "reinforce" && e.exposureId !== state.exposure.id);
-	const campaign = studyCampaign(cur.snapshot, cur.view, structuralState(history.snap, cur.view).known);
+	const known = structuralState(history.snap, cur.view).known;
+	const campaign = studyCampaign(cur.snapshot, cur.view, known);
 	const isFinale = campaign.journey.some(chapter => chapter.finale === state.exposure.nodeId);
 	const isAdvancedDefense = isAdvancedDefenseNode(item, isFinale);
 	const requiresQualityReading = isAdvancedReadingRequiredNode(item, isFinale);
+	const isEntryLevelNode = item.level.scheme === "cefr"
+		? (item.level.cefr === "pre-A1" || item.level.cefr === "A1")
+		: item.level.band === 0;
+	const onboarding = readDomainOnboardingStatus(domainId, known.size > 0);
+	const beginnerRamp = isEntryLevelNode && (onboarding.startingLevel === "beginner" || known.size < 3);
 	const levelLabel = item.level.scheme === "cefr"
 		? item.level.cefr
 		: item.level.scheme === "ee"
@@ -756,6 +763,7 @@ export function lessonConclusionObjective(domainId: string, sessionId: string) {
 		misconceptions: item.misconceptions ?? [],
 		...(isAdvancedDefense ? { isAdvancedDefense: true } : {}),
 		...(requiresQualityReading ? { requiresQualityReading: true } : {}),
+		...(beginnerRamp ? { beginnerRamp: true } : {}),
 		...(levelLabel ? { levelLabel } : {}),
 		...(priorReinforcement?.kind === "lesson-finished" && priorReinforcement.feedback ? { priorReinforcement: priorReinforcement.feedback } : {}),
 	};
@@ -1237,6 +1245,8 @@ export function studyToday(): StudyToday {
 		? Math.round(syllabus.completedLessonHours * 10) / 10
 		: Math.round(rawAttainedHours * 10) / 10;
 
+	const onboarding = readDomainOnboardingStatus(id, attained > 0 || todayPlan.events.length > 0);
+
 	return {
 		domain,
 		ready: true,
@@ -1263,6 +1273,7 @@ export function studyToday(): StudyToday {
 		pacing,
 		...(moduleAssessment && { moduleAssessment }),
 		coolingAlert,
+		onboarding,
 	};
 }
 

@@ -27,6 +27,7 @@ import {
 	INTENSIVE_BTN_COMPACT,
 	INTENSIVE_BTN_COMPACT_PRIMARY,
 	INTENSIVE_INPUT,
+	intensiveArtSet,
 	type IntensiveMutation,
 } from "./tutor-launch.ts";
 
@@ -43,13 +44,6 @@ interface TierQuestBoardProps {
 }
 
 type FormatFilter = "all" | "local" | "external";
-
-const TIER_ART: Record<CourseTier, string> = {
-	1: "/intensive/electronics/tier-1-bench.jpg",
-	2: "/intensive/electronics/tier-2-pcb.jpg",
-	3: "/intensive/electronics/tier-3-embedded.jpg",
-	4: "/intensive/electronics/tier-4-library.jpg",
-};
 
 function deliveryLabel(mode: DeliveryMode, t: ReturnType<typeof useT>): string {
 	switch (mode) {
@@ -232,7 +226,7 @@ export function TierQuestBoard({
 			) : (
 				filteredTiers.map((tier) => {
 					const isTier4 = tier.spec.completionScope === "on-demand";
-					const artSrc = TIER_ART[tier.spec.tier];
+					const artSrc = intensiveArtSet(dashboard.track.domainId).tiers[tier.spec.tier];
 
 					return (
 						<section

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons/icon";
 import { useT } from "@/components/i18n";
-import type { PlacementQuestion, PlacementSummary, StudyNodeBrief } from "@/src/core";
+import type { PlacementHint, PlacementQuestion, PlacementSummary, StudyNodeBrief } from "@/src/core";
 import { SessionStarter, studyLessonRequest } from "../start-session.ts";
 import { lessonStatement } from "./lesson-statement.ts";
 
@@ -28,7 +28,10 @@ interface LessonLookupResponse {
 
 export interface PlacementDialogProps {
 	domainId?: string;
+	/** Embedded inline inside TodayCard (compact padding, close callback). */
+	embedded?: boolean;
 	onCompleted?: (summary: PlacementSummary) => void;
+	onClose?: () => void;
 }
 
 function extractSummary(data: PlacementApiPayload | PlacementSummary | null): PlacementSummary | null {
@@ -45,7 +48,7 @@ function extractSummary(data: PlacementApiPayload | PlacementSummary | null): Pl
 	return null;
 }
 
-export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps) {
+export function PlacementDialog({ domainId, embedded = false, onCompleted, onClose }: PlacementDialogProps) {
 	const t = useT();
 	const tRef = useRef(t);
 	tRef.current = t;
@@ -55,7 +58,9 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 	const starterRef = useRef<SessionStarter | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [busy, setBusy] = useState(false);
+	const [startingBeginner, setStartingBeginner] = useState(false);
 	const [startingRecommended, setStartingRecommended] = useState(false);
+	const [selectedHint, setSelectedHint] = useState<PlacementHint>("beginner");
 	const [error, setError] = useState("");
 	const [question, setQuestion] = useState<PlacementQuestion | null>(null);
 	const [summary, setSummary] = useState<PlacementSummary | null>(null);
@@ -100,8 +105,9 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 	}, [applyPayload, domainId]);
 
 	const runAction = useCallback(
-		async (body: { action: "start" | "answer" | "back" | "finish"; nodeId?: string; correct?: boolean }) => {
+		async (body: { action: "start" | "beginner" | "answer" | "back" | "finish"; nodeId?: string; correct?: boolean; hint?: PlacementHint }) => {
 			setBusy(true);
+			if (body.action === "beginner") setStartingBeginner(true);
 			setError("");
 			try {
 				const res = await fetch("/api/study/placement", {
@@ -146,6 +152,7 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 				setError(err instanceof Error ? err.message : t("course.placement.errServer"));
 			} finally {
 				setBusy(false);
+				setStartingBeginner(false);
 			}
 		},
 		[applyPayload, t],
@@ -335,18 +342,32 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 								: t("course.placement.startRecommended")}
 						</button>
 					)}
-					<Link
-						href="/"
-						className={`cel-button min-h-10 px-4 py-2 text-sm ${summary.recommendedNodeId ? "" : "cel-button-primary"}`}
-					>
-						<Icon name="play" size={15} tone={!summary.recommendedNodeId} />
-						{t("course.placement.goToCampaign")}
-					</Link>
+					{embedded && onClose ? (
+						<button
+							type="button"
+							className={`cel-button min-h-10 px-4 py-2 text-sm ${summary.recommendedNodeId ? "" : "cel-button-primary"}`}
+							onClick={onClose}
+						>
+							<Icon name="play" size={15} tone={!summary.recommendedNodeId} />
+							{t("course.placement.goToCampaign")}
+						</button>
+					) : (
+						<Link
+							href="/"
+							className={`cel-button min-h-10 px-4 py-2 text-sm ${summary.recommendedNodeId ? "" : "cel-button-primary"}`}
+						>
+							<Icon name="play" size={15} tone={!summary.recommendedNodeId} />
+							{t("course.placement.goToCampaign")}
+						</Link>
+					)}
 					<button
 						type="button"
 						className="cel-button cel-button-ghost min-h-10 px-3.5 py-2 text-sm"
 						disabled={busy || startingRecommended}
-						onClick={() => void runAction({ action: "start" })}
+						onClick={() => {
+							setSummary(null);
+							setQuestion(null);
+						}}
 					>
 						{t("course.placement.retake")}
 					</button>
@@ -356,15 +377,32 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 	}
 
 	if (!question) {
+		const hintOptions: readonly { value: PlacementHint; label: string; desc: string }[] = [
+			{
+				value: "beginner",
+				label: t("course.placement.hintBeginner"),
+				desc: t("course.placement.hintBeginnerDesc"),
+			},
+			{
+				value: "intermediate",
+				label: t("course.placement.hintIntermediate"),
+				desc: t("course.placement.hintIntermediateDesc"),
+			},
+			{
+				value: "advanced",
+				label: t("course.placement.hintAdvanced"),
+				desc: t("course.placement.hintAdvancedDesc"),
+			},
+		];
 		return (
 			<section
 				aria-label={t("course.placement.introAria")}
 				data-testid="placement-intro"
-				className="cel-card space-y-4 p-5"
+				className={embedded ? "space-y-3.5 rounded-xl border border-border/55 bg-background/75 p-4" : "cel-card space-y-4 p-5"}
 			>
 				<div className="flex items-start gap-3">
 					<Icon name="frontier" size={24} className="mt-0.5 shrink-0" />
-					<div className="min-w-0 space-y-1">
+					<div className="min-w-0 flex-1 space-y-1">
 						<h2 className="cel-display text-xl leading-tight">{t("course.placement.title")}</h2>
 						<p className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
 							{t("course.placement.introDesc")}
@@ -372,20 +410,49 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 					</div>
 				</div>
 
-				<ul className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
-					<li className="rounded-xl border border-border/45 bg-background/60 p-3">
-						<strong className="block text-sm text-foreground">{t("course.placement.featRealtime")}</strong>
-						{t("course.placement.featRealtimeDesc")}
-					</li>
-					<li className="rounded-xl border border-border/45 bg-background/60 p-3">
-						<strong className="block text-sm text-foreground">{t("course.placement.featNoPenalty")}</strong>
-						{t("course.placement.featNoPenaltyDesc")}
-					</li>
-					<li className="rounded-xl border border-border/45 bg-background/60 p-3">
-						<strong className="block text-sm text-foreground">{t("course.placement.featFlexible")}</strong>
-						{t("course.placement.featFlexibleDesc")}
-					</li>
-				</ul>
+				<div className="space-y-2" role="radiogroup" aria-label={t("course.placement.levelPickerLabel")}>
+					<p className="text-xs font-semibold text-foreground">{t("course.placement.levelPickerLabel")}</p>
+					<div className="grid gap-2 sm:grid-cols-3">
+						{hintOptions.map((option) => {
+							const active = selectedHint === option.value;
+							return (
+								<button
+									key={option.value}
+									type="button"
+									role="radio"
+									aria-checked={active}
+									data-testid={`placement-hint-${option.value}`}
+									onClick={() => setSelectedHint(option.value)}
+									className={`rounded-xl border p-3 text-left text-xs transition-colors ${
+										active
+											? "border-[var(--cel-accent,var(--primary))] bg-[color-mix(in_srgb,var(--cel-accent,var(--primary))_12%,var(--background))] text-foreground"
+											: "border-border/50 bg-background/60 text-muted-foreground hover:border-foreground/40"
+									}`}
+								>
+									<strong className="block text-sm text-foreground">{option.label}</strong>
+									<span className="mt-0.5 block leading-snug">{option.desc}</span>
+								</button>
+							);
+						})}
+					</div>
+				</div>
+
+				{!embedded && (
+					<ul className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+						<li className="rounded-xl border border-border/45 bg-background/60 p-3">
+							<strong className="block text-sm text-foreground">{t("course.placement.featRealtime")}</strong>
+							{t("course.placement.featRealtimeDesc")}
+						</li>
+						<li className="rounded-xl border border-border/45 bg-background/60 p-3">
+							<strong className="block text-sm text-foreground">{t("course.placement.featNoPenalty")}</strong>
+							{t("course.placement.featNoPenaltyDesc")}
+						</li>
+						<li className="rounded-xl border border-border/45 bg-background/60 p-3">
+							<strong className="block text-sm text-foreground">{t("course.placement.featFlexible")}</strong>
+							{t("course.placement.featFlexibleDesc")}
+						</li>
+					</ul>
+				)}
 
 				{error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
@@ -395,10 +462,19 @@ export function PlacementDialog({ domainId, onCompleted }: PlacementDialogProps)
 						data-testid="placement-start-button"
 						className="cel-button cel-button-primary min-h-10 px-4 py-2 text-sm"
 						disabled={busy}
-						onClick={() => void runAction({ action: "start" })}
+						onClick={() => void runAction({ action: "start", hint: selectedHint })}
 					>
 						<Icon name="play" size={15} />
-						{busy ? t("course.placement.starting") : t("course.placement.startButton")}
+						{busy && !startingBeginner ? t("course.placement.starting") : t("course.placement.startButton")}
+					</button>
+					<button
+						type="button"
+						data-testid="placement-beginner-button"
+						className="cel-button min-h-10 px-3.5 py-2 text-sm"
+						disabled={busy}
+						onClick={() => void runAction({ action: "beginner" })}
+					>
+						{startingBeginner ? t("course.placement.fromScratchSaving") : t("course.placement.fromScratchButton")}
 					</button>
 				</div>
 			</section>

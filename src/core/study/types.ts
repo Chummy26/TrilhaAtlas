@@ -44,6 +44,17 @@ export interface StudyTodayCoolingAlert {
 	retrievability: number;
 }
 
+export interface StudyTodayOnboarding {
+	/** True on first visit with zero progress when the learner has not completed or skipped placement yet. */
+	needsPlacement: boolean;
+	placementStatus: "unassessed" | "in-progress" | "completed" | "beginner";
+	startingLevel?: "beginner" | "intermediate" | "advanced";
+	asked?: number;
+	maxQuestions?: number;
+	placedCount?: number;
+	placedPct?: number;
+}
+
 export interface LessonOptionalPractice {
 	id: string;
 	nodeId: string;
@@ -95,6 +106,8 @@ export interface StudyToday {
 	moduleAssessment?: StudyTodayModuleAssessment;
 	/** Most urgent cooling skill when FSRS retrievability falls below 85%. */
 	coolingAlert?: StudyTodayCoolingAlert | null;
+	/** First-time onboarding and placement status for calibrating initial progress. */
+	onboarding?: StudyTodayOnboarding;
 }
 
 /** GET /profile — light, honest numbers (estudos-sota §2.10–2.11). */

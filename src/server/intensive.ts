@@ -12,7 +12,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { PATHS } from "../../config.ts";
+import { activeDomainId, PATHS } from "../../config.ts";
 import type { CurriculumItem, CurriculumSnapshot } from "../core/curriculum/types.ts";
 import { DEFAULT_INTENSIVE_TRACK_ID } from "../core/intensive/catalog-template.ts";
 import {
@@ -61,6 +61,7 @@ import {
 	courseHasIndexedMaterials,
 	courseHasTranscribedVideos,
 	intensiveCourseMediaDir,
+	intensiveRootDir,
 	isProcessAlive,
 	isSafeIntensiveId,
 	listEffectiveIntensiveTracks,
@@ -1929,8 +1930,16 @@ function resolveDomainIntensiveCourses(domainId: string | null): {
 	courseTitleMap: Map<string, string>;
 } | null {
 	if (!domainId) return null;
-	const allTracks = listEffectiveIntensiveTracks();
-	const primaryTrackId = readCustomIntensiveTrack()?.id ?? DEFAULT_INTENSIVE_TRACK_ID;
+	const currentActive = activeDomainId();
+	// Only resolve intensive knowledge for the active domain (or a domain that actually has its own intensive folder on disk).
+	const isCurrentWorld =
+		domainId === currentActive || (currentActive === null && domainId === "general");
+	if (!isCurrentWorld && !fs.existsSync(intensiveRootDir(domainId))) {
+		return null;
+	}
+	const lookupDomain = isCurrentWorld ? undefined : domainId;
+	const allTracks = listEffectiveIntensiveTracks(lookupDomain);
+	const primaryTrackId = readCustomIntensiveTrack(lookupDomain)?.id ?? DEFAULT_INTENSIVE_TRACK_ID;
 	const tracks = allTracks.filter((t) => t.domainId === domainId);
 	if (tracks.length === 0) return null;
 

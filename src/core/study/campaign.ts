@@ -3,6 +3,7 @@ import { foundationTag, regionExitTag } from "../curriculum/campaign.ts";
 import type { LearnerGraphView } from "../learner/graph-view.ts";
 import { LEARNER_CONSTANTS } from "../learner/params.ts";
 import type { LearnerEvent, PlanItem } from "../learner/types.ts";
+import { electronicsCampaign, electronicsFinale, electronicsStageLeaves } from "./electronics-campaign.ts";
 import { englishCampaign, englishFinale } from "./english-campaign.ts";
 import { isAdvancedDefenseNode } from "./tutor-pedagogy.ts";
 
@@ -183,16 +184,37 @@ export function studyCampaign(snapshot: CurriculumSnapshot, graph: LearnerGraphV
 			}));
 		if (compatible) return authored;
 	}
+	if (snapshot.domainId === "electronics") {
+		const authored = electronicsCampaign(snapshot, graph, known);
+		if (authored) return authored;
+	}
 	const lessonMinutes = new Map<string, number>();
 	const priorities = new Map<string, number>();
 	const { minNewMinutes, maxNewMinutes } = LEARNER_CONSTANTS.planner;
-	let foundCurrent = false;
+	const stageCounts = stages.map(({ ids }) => ({
+		known: ids.reduce((n, id) => n + Number(known.has(id)), 0),
+		total: ids.length,
+	}));
+	let highestStageWithProgress = -1;
+	for (let i = stageCounts.length - 1; i >= 0; i--) {
+		if (stageCounts[i]!.known > 0) {
+			highestStageWithProgress = i;
+			break;
+		}
+	}
+	let activeStageIdx = -1;
+	for (let i = 0; i < stageCounts.length; i++) {
+		const stat = stageCounts[i]!;
+		if (stat.total === 0 || stat.known >= stat.total) continue;
+		if (i < highestStageWithProgress && stat.known / stat.total >= 0.8) continue;
+		activeStageIdx = i;
+		break;
+	}
 	const journey = stages.map(({ title, ids, units }, index) => {
 		const entry = ids[0]!;
 		const finale = ids.at(-1)!;
-		const count = ids.reduce((n,id) => n + Number(known.has(id)), 0);
-		const active = !foundCurrent && count < ids.length;
-		if (active) foundCurrent = true;
+		const count = stageCounts[index]!.known;
+		const active = index === activeStageIdx;
 		const landmarks = new Set([entry, finale]);
 		const exits = ids.filter(id => snapshot.items[id]!.tags?.includes(regionExitTag) && id !== finale);
 		const middle = exits.length ? exits : ids.slice(1, -1);
@@ -237,7 +259,9 @@ export function studyCampaign(snapshot: CurriculumSnapshot, graph: LearnerGraphV
 export function campaignFinale(snapshot: CurriculumSnapshot, campaign: StudyCampaign, id: string) {
 	const stage = campaign.journey.find(chapter => chapter.finale === id);
 	if (!stage) return;
-	return (snapshot.domainId === "english" && englishFinale(id)) || stage.mission;
+	return (snapshot.domainId === "english" && englishFinale(id))
+		|| (snapshot.domainId === "electronics" && electronicsFinale(id))
+		|| stage.mission;
 }
 
 /** Latest reinforcement feedback per node whose most recent exam closed with reinforcement. */
@@ -292,7 +316,13 @@ function chapterPartitionOf(
 	campaign: StudyCampaign,
 ): ChapterModulePartition[] {
 	const isEnglish = snapshot.domainId === "english" && campaign.journey.every((c) => cefr.includes(c.level));
-	const modeKey = isEnglish ? `en:${campaign.journey.map((c) => c.level).join("|")}` : `std:${campaign.journey.length}`;
+	const isElectronicsAuthored = snapshot.domainId === "electronics"
+		&& graph.nodes.get("ee.physics.electrostatics.charge-coulomb.electric-charge")?.isLeaf;
+	const modeKey = isEnglish
+		? `en:${campaign.journey.map((c) => c.level).join("|")}`
+		: isElectronicsAuthored
+			? `ee:${campaign.journey.map((c) => c.level).join("|")}`
+			: `std:${campaign.journey.length}`;
 	let byGraph = chapterPartitionCache.get(snapshot);
 	if (!byGraph) chapterPartitionCache.set(snapshot, (byGraph = new WeakMap()));
 	let byMode = byGraph.get(graph);
@@ -314,6 +344,9 @@ function chapterPartitionOf(
 			if (!list) stageMap.set(idx, (list = []));
 			list.push(id);
 		}
+	} else if (isElectronicsAuthored) {
+		const stages = electronicsStageLeaves(snapshot, graph);
+		stages.forEach((stage, idx) => stageMap.set(idx, stage.leafIds));
 	} else {
 		const stages = stagesOf(snapshot, graph);
 		stages.forEach((stage, idx) => stageMap.set(idx, stage.ids));

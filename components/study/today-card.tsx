@@ -9,12 +9,15 @@
  */
 
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Icon } from "@/components/icons/icon";
 import { useServerEvent } from "@/components/server-events";
 import { useI18n } from "@/components/i18n";
 import { lessonStatement } from "./lesson-statement.ts";
 import type { StudyNodeBrief, StudyToday, Translator } from "@/src/core";
+
+const PlacementDialog = dynamic(() => import("./placement-dialog.tsx").then((m) => m.PlacementDialog));
 
 export interface LessonStart {
 	domainId: string;
@@ -65,6 +68,8 @@ export const TodayCard = memo(function TodayCard({
 	const [today, setToday] = useState<StudyToday | null>(initialToday ?? null);
 	const [pending, setPending] = useState(false);
 	const [startingReview, setStartingReview] = useState(false);
+	const [placementOpen, setPlacementOpen] = useState(false);
+	const [settingScratch, setSettingScratch] = useState(false);
 	const [reviewFeedback, setReviewFeedback] = useState<{ domain: string; ok: boolean; text: string }>();
 
 	const decFmt = useMemo(() => new Intl.NumberFormat(intl, { maximumFractionDigits: 1 }), [intl]);
@@ -76,6 +81,10 @@ export const TodayCard = memo(function TodayCard({
 	useEffect(() => {
 		if (initialToday !== undefined) setToday(initialToday);
 	}, [initialToday]);
+
+	useEffect(() => {
+		setPlacementOpen(false);
+	}, [today?.domain.id]);
 
 	const read = useCallback(() => {
 		fetch("/api/study/today")
@@ -153,10 +162,33 @@ export const TodayCard = memo(function TodayCard({
 		}
 	}, [disabled, onStart, startingReview, today]);
 
+	const startFromScratch = useCallback(async () => {
+		if (settingScratch) return;
+		setSettingScratch(true);
+		try {
+			const res = await fetch("/api/study/placement", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ action: "beginner" }),
+			});
+			if (res.ok) {
+				setPlacementOpen(false);
+				read();
+			}
+		} finally {
+			setSettingScratch(false);
+		}
+	}, [read, settingScratch]);
+
 	if (!today || !today.ready) return null;
 	const { next, pendingCheck, progress } = today;
-	const chapter = today.chapters?.find((c) => c.known < c.total);
+	const chapter = (today.currentModule
+		? today.chapters?.find((c) => c.level === today.currentModule!.chapterLevel)
+		: undefined) ?? today.chapters?.find((c) => c.known < c.total);
 	const started = today.chapters?.some((c) => c.known > 0) || next?.kind !== "new";
+	const onboarding = today.onboarding;
+	const needsPlacement = Boolean(onboarding?.needsPlacement);
+	const placementInProgress = onboarding?.placementStatus === "in-progress";
 	const mapLink = (node: string) =>
 		`/mapa?dominio=${encodeURIComponent(today.domain.id)}&no=${encodeURIComponent(node)}`;
 	const pct = progress.leaves > 0 ? Math.round((100 * progress.attained) / progress.leaves) : 0;
@@ -209,13 +241,24 @@ export const TodayCard = memo(function TodayCard({
 					<Icon name="book" size={14} tone={false} />
 					{t("shell.sidebar.syllabus")}
 				</Link>
-				<Link
-					href={`/ementa?dominio=${encodeURIComponent(today.domain.id)}&aba=nivelamento`}
+				<button
+					type="button"
+					onClick={() => setPlacementOpen((open) => !open)}
 					className="cel-button cel-button-ghost min-h-7 px-2 py-0.5 text-xs"
 				>
 					<Icon name="exercise" size={14} tone={false} />
 					{t("pages.today.placement")}
-				</Link>
+				</button>
+				{onboarding?.placementStatus === "completed" && (onboarding.placedPct ?? 0) > 0 && (
+					<span className="study-pill study-pill-info text-[11px] tabular-nums" data-testid="today-placement-badge">
+						{t("pages.today.onboardingCalibrated", { pct: onboarding.placedPct ?? 0 })}
+					</span>
+				)}
+				{onboarding?.placementStatus === "beginner" && (
+					<span className="study-pill text-[11px]" data-testid="today-beginner-badge">
+						{t("pages.today.onboardingBeginnerBadge")}
+					</span>
+				)}
 				<span
 					className="ml-auto text-xs text-muted-foreground tabular-nums"
 					title={t("pages.today.progressSummaryTitle", {
@@ -278,6 +321,92 @@ export const TodayCard = memo(function TodayCard({
 							})}
 						</Link>
 					)}
+				</div>
+			)}
+
+			{placementOpen && (
+				<div data-testid="today-inline-placement" className="mb-3 space-y-2">
+					<div className="flex justify-end">
+						<button
+							type="button"
+							className="cel-button cel-button-ghost min-h-7 px-2.5 py-0.5 text-xs"
+							onClick={() => setPlacementOpen(false)}
+						>
+							{t("pages.today.onboardingClosePlacement")}
+						</button>
+					</div>
+					<PlacementDialog
+						domainId={today.domain.id}
+						embedded
+						onCompleted={() => read()}
+						onClose={() => {
+							setPlacementOpen(false);
+							read();
+						}}
+					/>
+				</div>
+			)}
+
+			{!placementOpen && needsPlacement && (
+				<div
+					data-testid="today-onboarding-placement"
+					className="mb-3 space-y-2.5 rounded-xl border border-[var(--cel-accent,var(--primary))]/55 bg-[color-mix(in_srgb,var(--cel-accent,var(--primary))_10%,var(--background))] px-3.5 py-3"
+				>
+					<div className="flex items-start gap-2.5">
+						<Icon name="frontier" size={18} className="mt-0.5 shrink-0" />
+						<div className="min-w-0 flex-1 space-y-0.5">
+							<p className="cel-display text-sm leading-snug text-foreground">
+								{t("pages.today.onboardingTitle", { domain: today.domain.title })}
+							</p>
+							<p className="max-w-[65ch] text-xs leading-relaxed text-muted-foreground">
+								{t("pages.today.onboardingDesc")}
+							</p>
+						</div>
+					</div>
+					<div className="flex flex-wrap items-center gap-2">
+						<button
+							type="button"
+							data-testid="today-onboarding-start-placement"
+							className="cel-button cel-button-primary min-h-9 px-3.5 text-xs"
+							disabled={settingScratch}
+							onClick={() => setPlacementOpen(true)}
+						>
+							<Icon name="exercise" size={14} />
+							{t("pages.today.onboardingStartPlacement")}
+						</button>
+						<button
+							type="button"
+							data-testid="today-onboarding-start-scratch"
+							className="cel-button min-h-9 px-3 text-xs"
+							disabled={settingScratch}
+							onClick={() => void startFromScratch()}
+						>
+							{settingScratch ? t("pages.today.onboardingSaving") : t("pages.today.onboardingStartScratch")}
+						</button>
+					</div>
+				</div>
+			)}
+
+			{!placementOpen && placementInProgress && (
+				<div
+					data-testid="today-onboarding-resume"
+					className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/70 px-3.5 py-2.5"
+				>
+					<div className="flex items-center gap-2 text-xs font-medium text-foreground tabular-nums">
+						<Icon name="frontier" size={15} />
+						{t("pages.today.onboardingResumeTitle", {
+							asked: onboarding?.asked ?? 0,
+							max: onboarding?.maxQuestions ?? 15,
+						})}
+					</div>
+					<button
+						type="button"
+						data-testid="today-onboarding-resume-cta"
+						className="cel-button cel-button-primary min-h-8 px-3 text-xs"
+						onClick={() => setPlacementOpen(true)}
+					>
+						{t("pages.today.onboardingResumeCta")}
+					</button>
 				</div>
 			)}
 

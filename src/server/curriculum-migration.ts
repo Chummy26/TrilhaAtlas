@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import changes from "../../content/curriculum-revisions/electronics-v2.json";
+import changesV2 from "../../content/curriculum-revisions/electronics-v2.json";
+import changesV3 from "../../content/curriculum-revisions/electronics-v3.json";
 import { canonicalJson, fnv1a64Hex } from "../core/curriculum/certificate.ts";
 import { applySeedFiles, replayLedger } from "../core/curriculum/ledger.ts";
 import { applyPatch, classifyRisk } from "../core/curriculum/patch.ts";
@@ -9,11 +10,17 @@ import type { CurriculumSeedFile, CurriculumSnapshot, PatchEnvelope, ValidationE
 import type { DomainManifest } from "../core/domains/types.ts";
 import { writeFileAtomicSync } from "../store/atomic-write.ts";
 
-const REVISION = "electronics-v2";
-const SEED_VERSION = "seed-electronics-v2";
+const REVISION_V2 = "electronics-v2";
+const REVISION = "electronics-v3";
+const SEED_VERSION = "seed-electronics-v3";
 type Rule = { before: string; after: unknown };
-// Each fingerprint is taken from the normalized seed at aa7b5a97780c6a3d5f54f99eca6a7e4049bade64.
-const release: Record<string, Record<string, Rule>> = changes;
+type ReleaseRules = Record<string, Record<string, Rule>>;
+// Each fingerprint in v2 is taken from seed-v1 (aa7b5a97780c6a3d5f54f99eca6a7e4049bade64);
+// each fingerprint in v3 is taken from seed-electronics-v2.
+const RELEASE_CHAIN: readonly { revision: string; fromSeeds: readonly string[]; rules: ReleaseRules }[] = [
+	{ revision: REVISION_V2, fromSeeds: ["seed-v1"], rules: changesV2 },
+	{ revision: REVISION, fromSeeds: ["seed-v1", "seed-electronics-v2"], rules: changesV3 },
+];
 
 function invalid(errors: readonly ValidationError[]): never {
 	throw new Error(`Currículo inválido: ${errors.slice(0, 3).map((error) => error.message).join("; ")}`);
@@ -92,8 +99,13 @@ export function electronicsCurriculumStamp(dir: string): string {
 	return [REVISION, ...files].join("/");
 }
 
-function revisionFor(snapshot: CurriculumSnapshot, baseline: CurriculumSnapshot): SeedRevision {
-	const items = Object.fromEntries(Object.entries(release).flatMap(([id, fields]) => {
+function revisionFor(
+	snapshot: CurriculumSnapshot,
+	baseline: CurriculumSnapshot,
+	revisionName: string,
+	rules: ReleaseRules,
+): SeedRevision {
+	const items = Object.fromEntries(Object.entries(rules).flatMap(([id, fields]) => {
 		const current = snapshot.items[id];
 		const origin = baseline.items[id];
 		if (!origin || !current || current.status === "deprecated") return [];
@@ -105,7 +117,7 @@ function revisionFor(snapshot: CurriculumSnapshot, baseline: CurriculumSnapshot)
 		return preserved.length ? [[id, Object.fromEntries(preserved.map(([field, rule]) => [field, rule.after]))]] : [];
 	}));
 	return {
-		kind: "seed-revision", revision: REVISION, domainId: snapshot.domainId,
+		kind: "seed-revision", revision: revisionName, domainId: snapshot.domainId,
 		baseVersion: snapshot.version, createdAt: new Date().toISOString(), items,
 	};
 }
@@ -221,28 +233,43 @@ export function loadDomainCurriculum(
 				}
 			}
 
-			if (domain === "electronics" && entries[0].provenance.promptVersion === "seed-v1" && !entries.some((entry) => isSeedRevision(entry) && entry.revision === REVISION)) {
-				const original = entries.length === 1 ? replay : replayLedger(entries.slice(0, 1), opts);
-				if (!original.ok) invalid(original.errors);
-				const revision = revisionFor(snapshot, original.snapshot);
-				let migrated = applySeedRevision(snapshot, revision, opts);
-				if (!migrated.ok) {
-					// Independently valid local graph edits may conflict with the released graph.
-					// Keep the installed prerequisites if the merged graph fails certification.
-					const reasons = migrated.errors;
-					for (const [id, fields] of Object.entries(revision.items)) {
-						delete fields.clauses;
-						delete fields.softPrereqs;
-						if (Object.keys(fields).length === 0) delete revision.items[id];
+			if (domain === "electronics") {
+				const seedPromptVersion = entries[0]?.provenance?.promptVersion;
+				let baselineSnapshot: CurriculumSnapshot | null = null;
+				for (const step of RELEASE_CHAIN) {
+					if (!step.fromSeeds.includes(seedPromptVersion)) continue;
+					if (entries.some((entry) => isSeedRevision(entry) && entry.revision === step.revision)) continue;
+					if (!baselineSnapshot) {
+						const original = entries.length === 1 ? replay : replayLedger(entries.slice(0, 1), opts);
+						if (!original.ok) invalid(original.errors);
+						baselineSnapshot = original.snapshot;
 					}
-					migrated = applySeedRevision(snapshot, revision, opts);
-					if (!migrated.ok) invalid(migrated.errors);
-					console.warn("[curriculum] Eletrônica: pré-requisitos locais preservados após conflito na revisão", reasons.slice(0, 3));
+					const revision = revisionFor(snapshot, baselineSnapshot, step.revision, step.rules);
+					let migrated = applySeedRevision(snapshot, revision, opts);
+					if (!migrated.ok) {
+						// Independently valid local graph edits may conflict with the released graph.
+						// Keep the installed prerequisites if the merged graph fails certification.
+						const reasons = migrated.errors;
+						for (const [id, fields] of Object.entries(revision.items)) {
+							delete fields.clauses;
+							delete fields.softPrereqs;
+							delete fields.encompasses;
+							if (Object.keys(fields).length === 0) delete revision.items[id];
+						}
+						migrated = applySeedRevision(snapshot, revision, opts);
+						if (!migrated.ok) invalid(migrated.errors);
+						console.warn(`[curriculum] Eletrônica (${step.revision}): pré-requisitos locais preservados após conflito na revisão`, reasons.slice(0, 3));
+					}
+					if (!ledger.endsWith("\n")) ledger += "\n";
+					ledger += JSON.stringify(revision) + "\n";
+					writeFileAtomicSync(ledgerFile, ledger);
+					entries.push(revision);
+					snapshot = migrated.next;
+					// Advance the baseline so subsequent revisions in the chain compare against the post-step seed state.
+					const baselineRev = revisionFor(baselineSnapshot, baselineSnapshot, step.revision, step.rules);
+					const nextBaseline = applySeedRevision(baselineSnapshot, baselineRev, opts);
+					if (nextBaseline.ok) baselineSnapshot = nextBaseline.next;
 				}
-				if (!ledger.endsWith("\n")) ledger += "\n";
-				ledger += JSON.stringify(revision) + "\n";
-				writeFileAtomicSync(ledgerFile, ledger);
-				snapshot = migrated.next;
 			}
 		}
 

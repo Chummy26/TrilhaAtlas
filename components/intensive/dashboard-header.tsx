@@ -13,11 +13,13 @@ import {
 	formatMinutesAsClock,
 	INTENSIVE_BTN_ON_DARK,
 	INTENSIVE_BTN_PRIMARY,
+	intensiveArtSet,
 	type IntensiveTab,
 } from "./tutor-launch.ts";
 
 interface DashboardHeaderProps {
 	dashboard: IntensiveDashboardDTO;
+	activeDomainId?: string | null;
 	onRunAction: (action: IntensiveRecommendedAction) => void;
 	onSelectTier?: (tier: CourseTier) => void;
 	onNavigateTab?: (tab: IntensiveTab) => void;
@@ -25,6 +27,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({
 	dashboard,
+	activeDomainId = null,
 	onRunAction,
 	onSelectTier,
 	onNavigateTab,
@@ -46,6 +49,10 @@ export function DashboardHeader({
 
 	const dailyFormatted = formatMinutesAsClock(pacingProjection.effectiveDailyDomainMinutes);
 	const isPublicTemplate = dashboard.track.id === TEMPLATE_INTENSIVE_TRACK_ID;
+	const art = intensiveArtSet(activeDomainId ?? dashboard.track.domainId);
+	const customTrackHintPath = activeDomainId
+		? `domains/${activeDomainId}/intensive/track.json`
+		: "data/intensive/track.json";
 
 	return (
 		<section aria-label={t("intensive.header.coreProgress")} className="space-y-3.5">
@@ -59,19 +66,22 @@ export function DashboardHeader({
 					<div className="space-y-0.5">
 						<p className="font-bold text-foreground">{t("intensive.template.bannerTitle")}</p>
 						<p className="text-[13px] leading-relaxed text-muted-foreground">
-							{t("intensive.template.bannerBody")}
+							{t("intensive.template.bannerBody").replace(
+								"data/intensive/track.json",
+								customTrackHintPath,
+							)}
 						</p>
 					</div>
 				</div>
 			)}
 
-			{/* Compact Illustrated Workbench Stage (Nano Banana cel-shaded art, workspace-first height) */}
+			{/* Compact Illustrated Workbench Stage (domain-aware cel-shaded art, workspace-first height) */}
 			<div className="elec-hero-stage">
 				<div className="elec-banner-body">
 					{/* Background art layer (right-aligned on desktop, crisp top frame on mobile) */}
 					<div className="elec-hero-art-layer" aria-hidden="true">
 						<img
-							src="/intensive/electronics/hero-workbench.jpg"
+							src={art.hero}
 							alt=""
 							className="elec-hero-art-img"
 						/>

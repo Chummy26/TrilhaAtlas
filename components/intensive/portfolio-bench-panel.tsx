@@ -21,6 +21,7 @@ import {
 	INTENSIVE_BTN_PRIMARY,
 	INTENSIVE_INPUT,
 	INTENSIVE_SELECT_AUTO,
+	intensiveArtSet,
 	type IntensiveMutation,
 } from "./tutor-launch.ts";
 
@@ -109,7 +110,7 @@ export function PortfolioBenchPanel({
 					<div className="elec-banner-body-compact">
 						<div className="elec-hero-art-layer" aria-hidden="true">
 							<img
-								src="/intensive/electronics/bench-portfolio.jpg"
+								src={intensiveArtSet(dashboard.track.domainId).portfolio}
 								alt=""
 								className="elec-hero-art-img"
 							/>

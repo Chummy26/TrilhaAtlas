@@ -110,10 +110,10 @@
 				"pt": "Potências de dez e notação científica",
 				"en": "Powers of ten and scientific notation"
 			},
-			"summary": "Escrever números muito grandes e muito pequenos como mantissa × 10ⁿ e operar com expoentes.",
+			"summary": "Entender potências de dez (10³ = 1 000, 10⁻³ = 0,001) com exemplos concretos e ler, escrever e combinar números em notação científica passo a passo.",
 			"objectives": [
-				"Converter números entre a forma decimal e a notação científica",
-				"Multiplicar e dividir grandezas em notação científica aplicando as regras de expoentes"
+				"Explicar com exemplos concretos o significado de potências positivas e negativas de 10 e converter números simples entre forma decimal e notação científica",
+				"Multiplicar e dividir grandezas em notação científica passo a passo usando a regra dos expoentes"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -381,10 +381,10 @@
 				"pt": "Isolar uma variável em fórmulas",
 				"en": "Solving formulas for a variable"
 			},
-			"summary": "Manipular equações do primeiro grau, como P = V·I, e fórmulas com potências simples, como P = V²/R, informando o domínio antes de escolher uma raiz.",
+			"summary": "Isolar uma grandeza desconhecida em fórmulas simples de eletrônica (como I = Q/t, V = R·I e P = V·I) com operações inversas passo a passo, chegando depois a fórmulas com quadrado (P = V²/R).",
 			"objectives": [
-				"Isolar uma incógnita em fórmulas com operações inversas, explicitando restrições de domínio",
-				"Conferir por substituição e explicar quando V² = PR admite duas raízes reais ou apenas um valor físico"
+				"Isolar uma incógnita em fórmulas diretas com soma, subtração, multiplicação e divisão, conferindo o resultado por substituição",
+				"Resolver fórmulas com quadrado simples (como V² = P·R), indicando qual raiz faz sentido físico"
 			],
 			"bloom": "apply",
 			"assess": [
@@ -525,7 +525,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -573,7 +573,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -620,7 +620,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -670,7 +670,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [],
 			"hours": {
@@ -721,7 +721,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"hours": {
 				"lo": 0.45,
@@ -764,7 +764,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -812,7 +812,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -855,7 +855,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -898,7 +898,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -948,7 +948,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -996,7 +996,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [],
 			"hours": {
@@ -1047,7 +1047,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"hours": {
 				"lo": 0.45,
@@ -1090,7 +1090,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1140,7 +1140,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1183,7 +1183,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1236,7 +1236,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1279,7 +1279,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [],
 			"hours": {
@@ -1330,7 +1330,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"hours": {
 				"lo": 0.5,
@@ -1374,7 +1374,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1422,7 +1422,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1465,7 +1465,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1514,7 +1514,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [],
 			"hours": {
@@ -1564,7 +1564,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [],
 			"hours": {
@@ -1614,7 +1614,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"hours": {
 				"lo": 0.45,
@@ -1651,7 +1651,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1694,7 +1694,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1742,7 +1742,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1790,7 +1790,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1830,7 +1830,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [],
 			"hours": {
@@ -1881,7 +1881,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"hours": {
 				"lo": 0.4,
@@ -1923,7 +1923,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -1965,7 +1965,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -2014,7 +2014,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -2068,7 +2068,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [],
 			"hours": {
@@ -2119,7 +2119,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"hours": {
 				"lo": 0.5,
@@ -2161,7 +2161,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -2203,7 +2203,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -2253,7 +2253,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[
@@ -2297,7 +2297,7 @@
 			],
 			"level": {
 				"scheme": "ee",
-				"band": 0
+				"band": 1
 			},
 			"clauses": [
 				[

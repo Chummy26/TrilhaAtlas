@@ -122,6 +122,7 @@ export {
 export {
 	getDomainPlacement,
 	startDomainPlacement,
+	declareDomainBeginner,
 	answerDomainPlacement,
 	undoDomainPlacement,
 	finishDomainPlacement,
@@ -129,6 +130,7 @@ export {
 	type DomainPlacementStatus,
 	type PlacementAnswerResult,
 } from "./placement.ts";
+export { readDomainOnboardingStatus } from "./placement-status.ts";
 export {
 	StudyBrowserError,
 	assertSafeBrowserUrl,
